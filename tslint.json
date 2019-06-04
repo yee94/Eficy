@@ -1,0 +1,21 @@
+{
+  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "linterOptions": {
+    "exclude": ["node_modules/*", "test/coverage/*"]
+  },
+  "rules": {
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "noImplicitAny": false,
+    "no-console": [true, { "allow": ["warn", "error"] }],
+    "member-access": true,
+    "no-var-requires": false,
+    "interface-name": false,
+    "no-eval": false,
+    "member-ordering": false
+  },
+  "jsRules": {
+    "object-literal-sort-keys": false,
+    "no-console": [true, { "allow": ["warn", "error"] }]
+  }
+}

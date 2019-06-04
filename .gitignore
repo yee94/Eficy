@@ -1,0 +1,6 @@
+.idea/
+*.log
+test/coverage/
+node_modules/
+lib/
+build/
