@@ -1,0 +1,49 @@
+{
+  "name": "@eficy/core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "watch": "tsc -w",
+    "start": "npm run dev:umd",
+    "dev:umd": "webpack-dev-server --config webpack.dev.js",
+    "build": "rimraf lib; tsc;",
+    "build:umd": "webpack --config webpack.js",
+    "lint": "tslint -p tsconfig.json \"src/**/*.ts{,x}\"",
+    "test": "jest",
+    "prettier": "pretty-quick --staged"
+  },
+  "pre-commit": [
+    "lint",
+    "test",
+    "prettier"
+  ],
+  "author": "xiaobebe <wyy.xb@qq.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "^24.8.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.17.1",
+    "pretty-quick": "^1.11.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.0.2",
+    "tslint": "^5.17.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.5.1",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2",
+    "webpack-dev-server": "^3.5.1",
+    "webpack-merge": "^4.2.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "mobx": "^5.9.4",
+    "mobx-react": "^6.0.2"
+  }
+}

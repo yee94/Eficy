@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./lib",
+    "module": "esnext",
+    "target": "es5",
+    "lib": ["es6", "dom"],
+    "rootDirs": ["src", "stories"],
+    "sourceMap": true,
+    "inlineSources": true,
+    "allowJs": false,
+    "jsx": "react",
+    "removeComments": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "traceResolution": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": false,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "typeRoots": ["./@types", "node_modules/@types"],
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "experimentalDecorators": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}
