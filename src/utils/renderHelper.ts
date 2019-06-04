@@ -1,11 +1,39 @@
 import ReactDOM from 'react-dom';
 import Controller from '../core/Controller';
 import { IEficySchema } from '../interface';
+import Config from '../constants/Config';
 
-export default function(schema: IEficySchema, domQuery: string | HTMLElement) {
-  const controller = new Controller(schema);
+interface IRenderOptions {
+  dom: string | HTMLElement;
+  components: Record<string, any>;
+}
 
-  ReactDOM.render(controller.resolver(), typeof domQuery === 'string' ? document.querySelector(domQuery) : domQuery);
+export default function(schema: IEficySchema, options: string | HTMLElement | IRenderOptions) {
+  if (!options) {
+    throw new Error('render helper options not define');
+  }
+  let dom: any;
+  let componentMap = window[Config.defaultComponentMapName] || {};
+  if (typeof options === 'string') {
+    dom = options;
+  } else if (options.hasOwnProperty('dom')) {
+    const opt = options as IRenderOptions;
+
+    dom = opt.dom;
+    componentMap = opt.components;
+  } else {
+    dom = options;
+  }
+
+  dom = typeof dom === 'string' ? document.querySelector(dom) : dom;
+
+  const controller = new Controller(schema, componentMap);
+
+  if (typeof dom !== 'object') {
+    throw new Error('not define valid document');
+  }
+
+  ReactDOM.render(controller.resolver(), dom);
 
   return controller;
 }
