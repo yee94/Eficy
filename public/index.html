@@ -22,16 +22,19 @@
     <script src="http://localhost:4900/build/index.js"></script>
 
     <script>
-      window.EficyComponentMap = window.DadaComponents;
-      Eficy.Tools.renderHelper(
+      Eficy.render(
         {
           views: [
             {
               '#view': 'Input',
+              value: 'Hello Eficy',
             },
           ],
         },
-        '#container',
+        {
+          dom: '#container',
+          components: window.DadaComponents,
+        },
       );
     </script>
   </body>

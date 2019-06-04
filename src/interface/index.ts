@@ -5,11 +5,11 @@ export interface IEficySchema {
   plugins: IPlugin[];
 }
 
-export interface IView {
+export type IView = {
   '#view': string; // component name
   '#'?: string; // id
   '#style'?: CSSProperties;
   '#className'?: string;
-}
+} & any;
 
 export type IPlugin = string | [string, any];
