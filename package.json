@@ -23,7 +23,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^24.0.13",
-    "@types/react": "^16.8.19",
+    "csstype": "^2.6.5",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.8.0",
     "pre-commit": "^1.2.2",
@@ -46,6 +46,8 @@
     "@vmojs/base": "^1.0.4",
     "lodash": "^4.17.11",
     "mobx": "^5.9.4",
-    "mobx-react": "^6.0.2"
+    "mobx-react": "^6.0.2",
+    "mobx-react-lite": "^1.4.0",
+    "nanoid": "^2.0.3"
   }
 }

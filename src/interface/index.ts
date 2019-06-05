@@ -2,13 +2,14 @@ import { CSSProperties } from 'React';
 
 export interface IEficySchema {
   views: IView[];
-  plugins: IPlugin[];
+  plugins?: IPlugin[];
 }
 
 export type IView = {
   '#view': string; // component name
   '#'?: string; // id
   '#style'?: CSSProperties;
+  '#children'?: IView[];
   '#className'?: string;
 } & any;
 
