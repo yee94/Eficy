@@ -34,12 +34,17 @@ export default class EficyController {
     return component;
   }
 
-  public resolver() {
-    return resolver(this.model.views, {
+  @Hook
+  protected componentRenderWrap<T>(component: T, props: any): T {
+    return component;
+  }
+
+  public resolver(view?: ViewSchema | ViewSchema[]) {
+    return resolver(view || this.model.views, {
       componentMap: this.componentLibrary,
-      containerName: 'eficy-controller-container',
       onRegister: this.onRegister,
       componentWrap: this.componentWrap,
+      componentRenderWrap: this.componentRenderWrap,
     });
   }
 
@@ -53,6 +58,7 @@ export default class EficyController {
 
   @action.bound
   public install(plugin: BasePlugin) {
+    plugin.bindController(this);
     // tslint:disable-next-line:no-unused-expression
     plugin.pluginHooks &&
       plugin.pluginHooks.forEach(methodName => {

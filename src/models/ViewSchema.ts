@@ -14,7 +14,7 @@ export default class ViewSchema extends Vmo implements IView {
   public '#children': ViewSchema[];
 
   @observable
-  public '#props': Record<string, any>;
+  public '#restProps': Record<string, any>;
 
   @Field
   @observable
@@ -39,6 +39,10 @@ export default class ViewSchema extends Vmo implements IView {
   public get viewDataMap(): Record<string, ViewSchema> {
     const reduceFn = (prev, next) => {
       prev[next['#']] = next;
+      const childMap = next.viewDataMap;
+      if (childMap) {
+        Object.assign(prev, childMap);
+      }
       return prev;
     };
     return (this['#children'] || []).reduce(reduceFn, { [this['#']]: this });
@@ -46,8 +50,8 @@ export default class ViewSchema extends Vmo implements IView {
 
   @action
   public update(data: IView): this {
-    if (!this['#props']) {
-      this['#props'] = {};
+    if (!this['#restProps']) {
+      this['#restProps'] = {};
     }
 
     if (isArray(data['#children'])) {
@@ -61,10 +65,29 @@ export default class ViewSchema extends Vmo implements IView {
       if (this.__proto__.hasOwnProperty(key)) {
         this[key] = data[key];
       } else {
-        this['#props'][key] = data[key];
+        this['#restProps'][key] = data[key];
+        if (!this.hasOwnProperty(key)) {
+          Object.defineProperty(this, key, {
+            enumerable: false,
+            get() {
+              return this['#restProps'][key];
+            },
+          });
+        }
       }
     });
 
     return this;
+  }
+
+  public forEachChild(cb: (child: ViewSchema) => void) {
+    if (isArray(this['#children'])) {
+      this['#children'].forEach(child => {
+        cb(child);
+        if (isArray(child['#children'])) {
+          child.forEachChild(cb);
+        }
+      });
+    }
   }
 }
