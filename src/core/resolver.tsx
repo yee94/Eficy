@@ -1,35 +1,27 @@
 import React from 'react';
 import { IView } from '../interface';
-import { filterUndefined, get, mergeClassName } from '../utils';
+import { compose, filterUndefined, get, isArray, isEficyView, mergeClassName } from '../utils';
 import Config from '../constants/Config';
 import { observer } from 'mobx-react-lite';
 import ViewSchema from '../models/ViewSchema';
 
-interface IResolverOptions {
+export interface IResolverOptions {
   componentMap?: any;
-  containerName?: string;
   onRegister?: (schema: ViewSchema, componentRef) => void;
   componentWrap?: <T>(component: T, schema: ViewSchema) => T;
+  componentRenderWrap?: <T>(component: T, props: any) => T;
 }
 
 export default function resolver(schema: IView | IView[], options?: IResolverOptions) {
   const {
     componentMap = window[Config.defaultComponentMapName] || {},
-    containerName = null,
     onRegister = null,
     componentWrap = null,
+    componentRenderWrap = null,
   } = options || {};
-  // @ts-ignore
-  const { containerName: tmp, ...childProps } = options || {};
 
   if (schema instanceof Array) {
-    const idProps = containerName ? { id: containerName } : {};
-
-    return (
-      <div {...idProps} className={mergeClassName('eficy-container', `${containerName}`)}>
-        {schema.map(s => resolver(s, childProps))}
-      </div>
-    );
+    return schema.map(s => resolver(s, options));
   }
 
   const registerComponent = ref => {
@@ -38,36 +30,62 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
     }
   };
 
-  let RenderComponent = observer(() => {
-    const Component = get(componentMap, schema['#view']);
+  const transformViewComponent = props =>
+    Object.keys(props).reduce((prev, next) => {
+      const value = props[next];
+      if ((isArray(value) && value.every(isEficyView)) || isEficyView(value)) {
+        prev[next] = resolver(value, options);
+      } else {
+        prev[next] = value;
+      }
+      return prev;
+    }, {});
 
-    if (!Component) {
-      throw new Error(`Not found "${schema['#view']}" component`);
-    }
+  const {
+    '#': id,
+    '#view': componentName,
+    '#restProps': restProps,
+    '#children': childrenSchema,
+    className: configClassName,
+    ...modelRestProps
+  } = schema;
 
-    const {
-      '#': id,
-      '#view': componentName,
-      '#props': restProps,
-      '#children': childrenSchema,
-      className: configClassName,
-      ...modelRestProps
-    } = schema;
+  let Component = get(componentMap, schema['#view']);
 
-    const componentProps = filterUndefined({
-      ...modelRestProps,
-      ...restProps,
-      className: mergeClassName(configClassName, `eid-${id}`, `e-${componentName}`),
-      ref: onRegister ? registerComponent : undefined,
-      children: childrenSchema ? childrenSchema.map(s => resolver(s, childProps)) : undefined,
-    });
-
-    return <Component {...componentProps} key={id} />;
-  });
-
-  if (componentWrap) {
-    RenderComponent = componentWrap(RenderComponent, schema);
+  if (!Component) {
+    throw new Error(`Not found "${schema['#view']}" component`);
   }
 
-  return <RenderComponent />;
+  if (componentWrap) {
+    console.log('component wrap create', componentName);
+    Component = componentWrap(Component, schema);
+  }
+
+  const componentProps = compose(
+    transformViewComponent,
+    filterUndefined,
+  )({
+    ...modelRestProps,
+    ...restProps,
+    key: id,
+    className: mergeClassName(configClassName, `eid-${id}`, `e-${componentName}`),
+    ref: onRegister ? registerComponent : undefined,
+    children: childrenSchema,
+  });
+
+  return React.createElement(
+    observer(props => {
+      const childProps = {
+        ...componentProps,
+        ...props,
+        model: schema,
+      };
+      let WrapComponent = Component;
+      if (componentRenderWrap) {
+        console.log('component render wrap', componentName);
+        WrapComponent = componentRenderWrap(Component, childProps);
+      }
+      return React.isValidElement(WrapComponent) ? WrapComponent : <WrapComponent {...childProps} />;
+    }),
+  );
 }

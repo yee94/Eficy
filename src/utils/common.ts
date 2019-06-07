@@ -14,3 +14,7 @@ export function transformHump(str: string): string {
   }
   return str.replace(/[a-z]([A-Z])/g, '-$1').toLowerCase();
 }
+
+export function compose(...fns) {
+  return fns.reduceRight((prevFn, nextFn) => (...args) => nextFn(prevFn(...args)), value => value);
+}
