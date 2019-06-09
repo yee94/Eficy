@@ -3,12 +3,11 @@ import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
-import { IReactComponent, observer } from 'mobx-react';
+import { IReactComponent } from 'mobx-react';
 import { action } from 'mobx';
-import { makePlugin } from '../plugins';
+import { pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
 import { Hook } from '../utils';
-import React from 'react';
 
 export default class EficyController {
   public model: EficySchema;
@@ -39,27 +38,24 @@ export default class EficyController {
   }
 
   @Hook
-  protected componentRenderWrap<T>(component: T, props: any): T {
-    return component;
+  public getResolver(resolverNext: any = resolver, schema?: ViewSchema): any {
+    return resolverNext;
   }
 
   public resolver(view?: ViewSchema | ViewSchema[]) {
-    return React.createElement(
-      observer(() =>
-        resolver(view || this.model.views, {
-          componentMap: this.componentLibrary,
-          onRegister: this.onRegister,
-          componentWrap: this.componentWrap,
-        }),
-      ),
-    );
+    return this.getResolver()(view || this.model.views, {
+      componentMap: this.componentLibrary,
+      onRegister: this.onRegister,
+      componentWrap: this.componentWrap,
+      getResolver: this.getResolver,
+    });
   }
 
   private initPlugins() {
     const pluginItemVO = this.model.plugins;
 
     if (pluginItemVO) {
-      pluginItemVO.map(makePlugin).forEach(this.install);
+      pluginItemVO.map(pluginFactory).forEach(this.install);
     }
   }
 

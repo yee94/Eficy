@@ -12,7 +12,7 @@ export function install(plugin) {
   plugins[plugin.pluginName] = plugin;
 }
 
-export function makePlugin(pluginOpt: IPlugin): BasePlugin {
+export function pluginFactory(pluginOpt: IPlugin): BasePlugin {
   if (typeof pluginOpt === 'string') {
     pluginOpt = [pluginOpt, {}];
   }
@@ -21,7 +21,6 @@ export function makePlugin(pluginOpt: IPlugin): BasePlugin {
   if (!pluginInstance) {
     throw new Error(`Not found plugin: ${pluginName}`);
   }
-  console.log(pluginInstance);
 
   return new pluginInstance(pluginOpt[1]);
 }
