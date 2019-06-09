@@ -2,14 +2,17 @@ import { IView } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
-import { generateUid, isArray } from '../utils';
+import { generateUid, isArray, isEficyView } from '../utils';
 import { action, computed, observable } from 'mobx';
+import { mapObjectDeep } from '../utils';
 
 export default class ViewSchema extends Vmo implements IView {
   @Field
   public '#view': string;
   @Field
   public '#': string;
+  @Field
+  public '#content': string;
   @Field
   public '#children': ViewSchema[];
 
@@ -48,17 +51,26 @@ export default class ViewSchema extends Vmo implements IView {
     return (this['#children'] || []).reduce(reduceFn, { [this['#']]: this });
   }
 
-  @action
+  @action.bound
+  private transformViewSchema(data: IView) {
+    return mapObjectDeep(data, (value, path) => {
+      if (!path) {
+        return value;
+      }
+      if (isEficyView(value) && !(value instanceof ViewSchema)) {
+        return new ViewSchema(value);
+      }
+      return value;
+    });
+  }
+
+  @action.bound
   public update(data: IView): this {
     if (!this['#restProps']) {
       this['#restProps'] = {};
     }
 
-    if (isArray(data['#children'])) {
-      this['#children'] = data['#children'].map(viewData => new ViewSchema(viewData));
-
-      delete data['#children'];
-    }
+    data = this.transformViewSchema(data);
 
     Object.keys(data).forEach(key => {
       // @ts-ignore
@@ -68,9 +80,12 @@ export default class ViewSchema extends Vmo implements IView {
         this['#restProps'][key] = data[key];
         if (!this.hasOwnProperty(key)) {
           Object.defineProperty(this, key, {
-            enumerable: false,
+            enumerable: true,
             get() {
               return this['#restProps'][key];
+            },
+            set(val) {
+              this['#restProps'][key] = val;
             },
           });
         }

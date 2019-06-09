@@ -23,16 +23,14 @@
       const controller = Eficy.render(
         {
           views: [
+            // {
+            //   '#view': 'Alert',
+            //   message: 'Hello this is a Login demo',
+            //   type: 'info',
+            //   showIcon: true,
+            // },
             {
               '#view': 'Form',
-              labelCol: {
-                xs: { span: 24 },
-                sm: { span: 8 },
-              },
-              wrapperCol: {
-                xs: { span: 24 },
-                sm: { span: 16 },
-              },
               '#children': [
                 {
                   '#view': 'Form.Item',
@@ -50,6 +48,55 @@
                           },
                         ],
                       },
+                      placeholder: 'username',
+                      prefix: {
+                        '#view': 'Icon',
+                        type: 'user',
+                        // style: { color: 'rgba(0,0,0,.25)' },
+                      },
+                    },
+                  ],
+                },
+                {
+                  '#view': 'Form.Item',
+                  label: 'password',
+                  '#children': [
+                    {
+                      '#view': 'Input.Password',
+                      '#field': {
+                        name: 'password',
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Please input your Password!',
+                          },
+                        ],
+                      },
+                      placeholder: 'password',
+                      prefix: {
+                        '#view': 'Icon',
+                        type: 'lock',
+                      },
+                    },
+                  ],
+                },
+                {
+                  '#view': 'Form.Item',
+                  '#children': [
+                    {
+                      '#view': 'Checkbox',
+                      '#field': {
+                        name: 'remember',
+                        valuePropName: 'checked',
+                        initialValue: true,
+                      },
+                      '#content': 'Remember me',
+                    },
+                    {
+                      '#view': 'Button',
+                      type: 'primary',
+                      htmlType: 'submit',
+                      '#content': 'Login',
                     },
                   ],
                 },
@@ -68,10 +115,20 @@
         views: [
           {
             '#': 'input',
-            value: 'Hello Eficy Change',
+            placeholder: 'Hello Eficy Change',
           },
         ],
       });
+      setInterval(() => {
+        controller.model.update({
+          views: [
+            {
+              '#': 'input',
+              placeholder: 'Hello Eficy Change' + Math.random(),
+            },
+          ],
+        });
+      }, 2000);
     </script>
   </body>
 </html>
