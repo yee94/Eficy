@@ -1,8 +1,8 @@
 - [x] wrap props delivery
 - [x] form field change
 - [x] observe scope, keep the scope of observe as much as possible
-- [ ] next Hook rewrite
-- [ ] next async
+- [x] next Hook rewrite
+- [x] next async
 - [ ] plugin bundle
 - [ ] event plugin
 - [ ] dialog event

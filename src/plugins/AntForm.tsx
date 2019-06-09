@@ -58,17 +58,17 @@ export default class AntForm extends BasePlugin {
   @Bind
   @Inject
   public getResolver(next, resolver1, schema?: ViewSchema) {
-    let resolver = resolver1;
+    let resolver = next();
     if (schema && (schema['#view'] === 'Form' || this.formChildSet.has(schema))) {
       resolver = resolverBasic;
     }
-    next(resolver);
+    return resolver;
   }
 
   @Bind
   @Inject
   public componentWrap(next, Component, schema: ViewSchema) {
-    let AntFormWrapComponent = Component;
+    let AntFormWrapComponent = next();
     if (schema['#view'] === 'Form') {
       AntFormWrapComponent = this.createForm(
         schema,
@@ -92,6 +92,6 @@ export default class AntForm extends BasePlugin {
         }),
       );
     }
-    next(AntFormWrapComponent);
+    return AntFormWrapComponent;
   }
 }

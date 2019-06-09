@@ -13,5 +13,6 @@ export default class BasePlugin {
 
   public bindController(param: EficyController) {
     this.controller = param;
+    param.plugins.push(this);
   }
 }
