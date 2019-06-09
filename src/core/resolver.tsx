@@ -72,7 +72,7 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
   }
 
   const componentProps = compose(
-    // transformPropsList,
+    transformPropsList,
     filterViewProps,
     transformViewComponent,
     filterUndefined,
