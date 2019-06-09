@@ -1,16 +1,25 @@
+import React from 'react';
 import { get, isArray } from './common';
 
 const addPath = (...paths) => paths.join('.').replace(/^\./, '');
 
 export default function mapObjectDeep<T>(object: T, cb: (obj: T, path: string) => void | any): T {
-  const ruedPaths: string[] = [];
+  const ruedObjects: WeakSet<any> = new WeakSet();
   const fn = (path: string = '') => {
-    const newObject = Object.assign({}, path ? get(object, path) : object);
-    ruedPaths.push(path);
-    if (ruedPaths.indexOf(path)) {
-      // except loop
-      // return newObject;
+    const gotObject = path ? get(object, path) : object;
+    if (!gotObject) {
+      return gotObject;
     }
+    if (React.isValidElement(gotObject)) {
+      return gotObject;
+    }
+    const newObject = Object.assign({}, gotObject);
+    if (ruedObjects.has(gotObject)) {
+      // except loop
+      return newObject;
+    }
+
+    ruedObjects.add(gotObject);
 
     Object.keys(newObject).map(key => {
       const value = newObject[key];
