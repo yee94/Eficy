@@ -1,2 +1,12 @@
 - [ ] next async
-- [ ] wrap props delivery
+- [x] wrap props delivery
+- [x] form field change
+- [ ] plugin bundle
+- [ ] event plugin
+- [ ] dialog event
+- [ ] async load
+
+
+# bugs
+
+- [ ] transform style

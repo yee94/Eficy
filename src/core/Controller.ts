@@ -3,11 +3,12 @@ import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
-import { IReactComponent } from 'mobx-react';
+import { IReactComponent, observer } from 'mobx-react';
 import { action } from 'mobx';
 import { makePlugin } from '../plugins';
 import BasePlugin from '../plugins/base';
 import { Hook } from '../utils';
+import React from 'react';
 
 export default class EficyController {
   public model: EficySchema;
@@ -26,6 +27,9 @@ export default class EficyController {
     if (!this.componentMap.get(model)) {
       console.log(`register "${model['#']}" component`);
       this.componentMap.set(model, ref);
+    } else {
+      console.warn(`"${model['#']}" component already register `);
+      this.componentMap.set(model, ref);
     }
   }
 
@@ -40,12 +44,15 @@ export default class EficyController {
   }
 
   public resolver(view?: ViewSchema | ViewSchema[]) {
-    return resolver(view || this.model.views, {
-      componentMap: this.componentLibrary,
-      onRegister: this.onRegister,
-      componentWrap: this.componentWrap,
-      componentRenderWrap: this.componentRenderWrap,
-    });
+    return React.createElement(
+      observer(() =>
+        resolver(view || this.model.views, {
+          componentMap: this.componentLibrary,
+          onRegister: this.onRegister,
+          componentWrap: this.componentWrap,
+        }),
+      ),
+    );
   }
 
   private initPlugins() {

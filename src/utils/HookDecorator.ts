@@ -23,7 +23,7 @@ export function Hook(target, name, descriptor: PropertyDescriptor) {
       }
     };
     next();
-    if (!result) {
+    if (result === undefined) {
       throw new Error('Error Hook No Result Return');
     }
     return result;

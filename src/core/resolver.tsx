@@ -1,24 +1,33 @@
 import React from 'react';
 import { IView } from '../interface';
-import { compose, filterUndefined, get, isArray, isEficyView, mergeClassName } from '../utils';
+import { compose, filterUndefined, get, isArray, isEficyView, mapObjectDeep, mergeClassName, pickBy } from '../utils';
 import Config from '../constants/Config';
-import { observer } from 'mobx-react-lite';
 import ViewSchema from '../models/ViewSchema';
+import { toJS } from 'mobx';
 
 export interface IResolverOptions {
   componentMap?: any;
   onRegister?: (schema: ViewSchema, componentRef) => void;
   componentWrap?: <T>(component: T, schema: ViewSchema) => T;
-  componentRenderWrap?: <T>(component: T, props: any) => T;
 }
 
+/**
+ * transform prop list to a normal js ,except ViewSchema
+ * such as style
+ * @param props
+ * @returns {any}
+ */
+const transformPropsList = props => mapObjectDeep(props, obj => (isEficyView(obj) ? obj : toJS(obj)));
+
+/**
+ * filter "#xxxxxxx" prop option
+ * @param props
+ */
+const filterViewProps = props => pickBy(props, (value, key) => !/^#/.test(key));
+
 export default function resolver(schema: IView | IView[], options?: IResolverOptions) {
-  const {
-    componentMap = window[Config.defaultComponentMapName] || {},
-    onRegister = null,
-    componentWrap = null,
-    componentRenderWrap = null,
-  } = options || {};
+  const { componentMap = window[Config.defaultComponentMapName] || {}, onRegister = null, componentWrap = null } =
+    options || {};
 
   if (schema instanceof Array) {
     return schema.map(s => resolver(s, options));
@@ -46,6 +55,7 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
     '#view': componentName,
     '#restProps': restProps,
     '#children': childrenSchema,
+    '#content': content,
     className: configClassName,
     ...modelRestProps
   } = schema;
@@ -62,6 +72,8 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
   }
 
   const componentProps = compose(
+    // transformPropsList,
+    filterViewProps,
     transformViewComponent,
     filterUndefined,
   )({
@@ -73,19 +85,13 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
     children: childrenSchema,
   });
 
-  return React.createElement(
-    observer(props => {
-      const childProps = {
-        ...componentProps,
-        ...props,
-        model: schema,
-      };
-      let WrapComponent = Component;
-      if (componentRenderWrap) {
-        console.log('component render wrap', componentName);
-        WrapComponent = componentRenderWrap(Component, childProps);
-      }
-      return React.isValidElement(WrapComponent) ? WrapComponent : <WrapComponent {...childProps} />;
-    }),
-  );
+  componentProps.model = schema;
+
+  const { children = [], ...childProps } = componentProps;
+
+  if (content) {
+    children.push(content);
+  }
+
+  return React.createElement(Component, childProps, ...children);
 }
