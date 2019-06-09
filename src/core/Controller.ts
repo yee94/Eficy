@@ -13,6 +13,7 @@ export default class EficyController {
   public model: EficySchema;
   public componentLibrary: Record<string, any>;
   public componentMap: Map<ViewSchema, IReactComponent> = new Map();
+  public plugins: BasePlugin[] = [];
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     this.model = new EficySchema(model);

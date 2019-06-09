@@ -19,3 +19,9 @@ export function transformHump(str: string): string {
 export function compose(...fns) {
   return fns.reduceRight((prevFn, nextFn) => (...args) => nextFn(prevFn(...args)), value => value);
 }
+
+export async function wait(time = 0) {
+  return new Promise(resolve => {
+    setTimeout(resolve, time);
+  });
+}
