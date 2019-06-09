@@ -4,11 +4,13 @@ import { compose, filterUndefined, get, isArray, isEficyView, mapObjectDeep, mer
 import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
 import { toJS } from 'mobx';
+import { observer } from 'mobx-react';
 
 export interface IResolverOptions {
   componentMap?: any;
   onRegister?: (schema: ViewSchema, componentRef) => void;
   componentWrap?: <T>(component: T, schema: ViewSchema) => T;
+  getResolver?: <T>(resolverNext?: T, schema?: ViewSchema) => T;
 }
 
 /**
@@ -25,12 +27,19 @@ const transformPropsList = props => mapObjectDeep(props, obj => (isEficyView(obj
  */
 const filterViewProps = props => pickBy(props, (value, key) => !/^#/.test(key));
 
-export default function resolver(schema: IView | IView[], options?: IResolverOptions) {
-  const { componentMap = window[Config.defaultComponentMapName] || {}, onRegister = null, componentWrap = null } =
-    options || {};
+export function resolverBasic(schema: IView | IView[], options?: IResolverOptions) {
+  const {
+    componentMap = window[Config.defaultComponentMapName] || {},
+    onRegister = null,
+    componentWrap = null,
+    // tslint:disable-next-line:no-shadowed-variable
+    getResolver = (tmp1, schema?: any) => tmp1,
+  } = options || {};
+
+  const resolverNext = getResolver(observerResolver, schema);
 
   if (schema instanceof Array) {
-    return schema.map(s => resolver(s, options));
+    return schema.map(s => resolverNext(s, options));
   }
 
   const registerComponent = ref => {
@@ -42,8 +51,10 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
   const transformViewComponent = props =>
     Object.keys(props).reduce((prev, next) => {
       const value = props[next];
-      if ((isArray(value) && value.every(isEficyView)) || isEficyView(value)) {
-        prev[next] = resolver(value, options);
+      if (isArray(value) && value.every(isEficyView)) {
+        prev[next] = value.map(t => resolverNext(t, options));
+      } else if (isEficyView(value)) {
+        prev[next] = resolverNext(value, options);
       } else {
         prev[next] = value;
       }
@@ -94,4 +105,8 @@ export default function resolver(schema: IView | IView[], options?: IResolverOpt
   }
 
   return React.createElement(Component, childProps, ...children);
+}
+
+export default function observerResolver(schema: IView | IView[], options?: IResolverOptions) {
+  return React.createElement(observer(() => resolverBasic(schema, options)));
 }

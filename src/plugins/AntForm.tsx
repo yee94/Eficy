@@ -3,24 +3,16 @@ import BasePlugin from './base';
 import ViewSchema from '../models/ViewSchema';
 import { get, Inject, isArray } from '../utils';
 import { Bind } from 'lodash-decorators';
+import { resolverBasic } from '../core/resolver';
 
 export default class AntForm extends BasePlugin {
   public static pluginName: string = 'ant-form';
 
   public formMap: Record<string, any> = {};
   private formWrapMap: Record<string, any> = {};
+  private formChildSet: WeakSet<ViewSchema> = new WeakSet<ViewSchema>();
 
-  public handleSubmit(form, e) {
-    e.preventDefault();
-    form.validateFields((err, values) => {
-      console.log(err, values);
-      if (!err) {
-        console.log('Received values of form: ', values);
-      }
-    });
-  }
-
-  private replaceFieldReactElement(children: any[] | any, cb: (child: any) => any): any {
+  private static replaceFieldReactElement(children: any[] | any, cb: (child: any) => any): any {
     const verifyAndCallBack = child => {
       let newChild = child;
       const propsChildren = get(child, 'props.children', undefined);
@@ -40,15 +32,37 @@ export default class AntForm extends BasePlugin {
     }
   }
 
+  public handleSubmit(form, e) {
+    e.preventDefault();
+    form.validateFields((err, values) => {
+      console.log(err, values);
+      if (!err) {
+        console.log('Received values of form: ', values);
+      }
+    });
+  }
+
   private createForm(schema: ViewSchema, component) {
     if (!this.formWrapMap[schema['#']]) {
       // @ts-ignore
-      const formWrap = window.antd.Form.create({ name: schema['#'] })(component);
+      this.formWrapMap[schema['#']] = window.antd.Form.create({ name: schema['#'] })(component);
 
-      this.formWrapMap[schema['#']] = formWrap;
+      schema.forEachChild(child => {
+        this.formChildSet.add(child);
+      });
     }
 
     return this.formWrapMap[schema['#']];
+  }
+
+  @Bind
+  @Inject
+  public getResolver(next, resolver1, schema?: ViewSchema) {
+    let resolver = resolver1;
+    if (schema && (schema['#view'] === 'Form' || this.formChildSet.has(schema))) {
+      resolver = resolverBasic;
+    }
+    next(resolver);
   }
 
   @Bind
@@ -63,7 +77,7 @@ export default class AntForm extends BasePlugin {
           this.formMap[model['#']] = props.form;
 
           const form = props.form;
-          const replaceChildren = this.replaceFieldReactElement(props.children, childElement => {
+          const replaceChildren = AntForm.replaceFieldReactElement(props.children, childElement => {
             const childModel = childElement.props.model;
             const { name, ...restOptions } = childModel['#field'];
             return form.getFieldDecorator(name, restOptions)(childElement);
