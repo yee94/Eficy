@@ -1,12 +1,13 @@
-- [ ] next async
 - [x] wrap props delivery
 - [x] form field change
+- [ ] observe scope, keep the scope of observe as much as possible
+- [ ] next async
 - [ ] plugin bundle
 - [ ] event plugin
 - [ ] dialog event
-- [ ] async load
+- [ ] async load ViewSchema
 
 
 # bugs
 
-- [ ] transform style
+- [x] transform style to a normal object
