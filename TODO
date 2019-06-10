@@ -3,7 +3,7 @@
 - [x] observe scope, keep the scope of observe as much as possible
 - [x] next Hook rewrite
 - [x] next async
-- [ ] event plugin
+- [x] event plugin
 - [ ] request plugin
 - [ ] merge method unit test
 - [ ] async load ViewSchema

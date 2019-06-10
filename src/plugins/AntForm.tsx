@@ -32,12 +32,14 @@ export default class AntForm extends BasePlugin {
     }
   }
 
-  public handleSubmit(form, e) {
+  public handleSubmit(props, e) {
     e.preventDefault();
+    const { form } = props;
     form.validateFields((err, values) => {
-      console.log(err, values);
       if (!err) {
         console.log('Received values of form: ', values);
+        // tslint:disable-next-line:no-unused-expression
+        props.onSubmit && props.onSubmit(e);
       }
     });
   }
@@ -87,7 +89,7 @@ export default class AntForm extends BasePlugin {
             ...props,
             ref,
             children: replaceChildren,
-            onSubmit: e => this.handleSubmit(props.form, e),
+            onSubmit: e => this.handleSubmit(props, e),
           });
         }),
       );

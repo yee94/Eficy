@@ -1,4 +1,5 @@
 import EficyController from '../core/Controller';
+import { IEficySchema } from '../interface';
 
 export default class BasePlugin {
   public static pluginName: string = '';
@@ -9,6 +10,10 @@ export default class BasePlugin {
 
   constructor(options = {}) {
     this.options = Object.assign({}, this.defaultOptions, options);
+  }
+
+  public loadOptions(data: IEficySchema & any): void {
+    // need to extends
   }
 
   public bindController(param: EficyController) {

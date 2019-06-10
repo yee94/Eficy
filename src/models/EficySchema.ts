@@ -3,11 +3,8 @@ import { Field, Vmo } from '@vmojs/base';
 import ViewSchema from './ViewSchema';
 import { IEficySchema, IPlugin } from '../interface';
 import { isArray } from '../utils';
-import { IEvent } from '../plugins/Events';
 
 export default class EficySchema extends Vmo implements IEficySchema {
-  @Field
-  public events: IEvent[];
   @Field
   public plugins: IPlugin[];
 

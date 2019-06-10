@@ -17,7 +17,7 @@ export default class EficyController {
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     this.model = new EficySchema(model);
-    this.initPlugins();
+    this.initPlugins(model);
 
     this.componentLibrary = componentMap || window[Config.defaultComponentMapName];
   }
@@ -34,10 +34,27 @@ export default class EficyController {
   }
 
   @Hook
+  protected loadData(data: IEficySchema & any) {
+    return data;
+  }
+
+  /**
+   * add some component wrap at plugins
+   * @param component
+   * @param schema
+   * @returns {T}
+   */
+  @Hook
   protected componentWrap<T>(component: T, schema: ViewSchema): T {
     return component;
   }
 
+  /**
+   * get resolver when component render
+   * @param resolverNext
+   * @param schema
+   * @returns {any}
+   */
   @Hook
   public getResolver(resolverNext: any = resolver, schema?: ViewSchema): any {
     return resolverNext;
@@ -52,10 +69,13 @@ export default class EficyController {
     });
   }
 
-  private initPlugins() {
+  private initPlugins(data: IEficySchema) {
     const pluginItemVO = [...(this.model.plugins || []), ...buildInPlugins];
 
-    pluginItemVO.map(pluginFactory).forEach(this.install);
+    pluginItemVO.map(pluginFactory).forEach(plugin => {
+      plugin.loadOptions(data);
+      this.install(plugin);
+    });
   }
 
   @action.bound
