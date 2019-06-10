@@ -1,14 +1,17 @@
-import pickBy from 'lodash/pickBy';
+import _cloneDeep from 'lodash/cloneDeep';
+export const cloneDeep = _cloneDeep;
+import _isArray from 'lodash/isArray';
+export const isArray = _isArray;
+import _get from 'lodash/get';
+export const get = _get;
+import _pickBy from 'lodash/pickBy';
+export const pickBy = _pickBy;
+import _isFunction from 'lodash/isFunction';
+export const isFunction = _isFunction;
 
 export function filterUndefined(obj: Record<string, any>) {
   return pickBy(obj, val => val !== undefined);
 }
-
-export { default as cloneDeep } from 'lodash/cloneDeep';
-export { default as isArray } from 'lodash/isArray';
-export { default as get } from 'lodash/get';
-export { default as pickBy } from 'lodash/pickBy';
-export { default as isFunction } from 'lodash/isFunction';
 
 export function transformHump(str: string): string {
   if (!str) {

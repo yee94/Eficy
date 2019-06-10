@@ -4,6 +4,8 @@
 - [x] next Hook rewrite
 - [x] next async
 - [x] event plugin
+- [ ] viewSchema unit test
+- [ ] event plugin unit test
 - [ ] request plugin
 - [ ] merge method unit test
 - [ ] async load ViewSchema
