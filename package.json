@@ -11,7 +11,7 @@
     "build": "rimraf lib; tsc;",
     "build:umd": "webpack --config webpack.js",
     "lint": "tslint -p tsconfig.json \"src/**/*.ts{,x}\"",
-    "test": "mocha",
+    "test": "TS_NODE_PROJECT='./tsconfig.commonjs.json' mocha",
     "prettier": "pretty-quick --staged"
   },
   "pre-commit": [
