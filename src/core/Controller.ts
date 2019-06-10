@@ -5,7 +5,7 @@ import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
 import { IReactComponent } from 'mobx-react';
 import { action } from 'mobx';
-import { pluginFactory } from '../plugins';
+import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
 import { Hook } from '../utils';
 
@@ -53,11 +53,9 @@ export default class EficyController {
   }
 
   private initPlugins() {
-    const pluginItemVO = this.model.plugins;
+    const pluginItemVO = [...(this.model.plugins || []), ...buildInPlugins];
 
-    if (pluginItemVO) {
-      pluginItemVO.map(pluginFactory).forEach(this.install);
-    }
+    pluginItemVO.map(pluginFactory).forEach(this.install);
   }
 
   @action.bound
