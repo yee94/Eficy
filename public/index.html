@@ -30,6 +30,7 @@
               showIcon: true,
             },
             {
+              '#': 'form',
               '#view': 'Form',
               '#children': [
                 {
@@ -103,6 +104,12 @@
               ],
             },
           ],
+          events: [
+            {
+              publisher: 'form@onSubmit',
+              listeners: [],
+            },
+          ],
           plugins: ['ant-form'],
         },
         {
@@ -119,16 +126,16 @@
           },
         ],
       });
-      setInterval(() => {
-        controller.model.update({
-          views: [
-            {
-              '#': 'input',
-              placeholder: 'Hello Eficy Change' + Math.random(),
-            },
-          ],
-        });
-      }, 2000);
+      // setInterval(() => {
+      //   controller.model.update({
+      //     views: [
+      //       {
+      //         '#': 'input',
+      //         placeholder: 'Hello Eficy Change' + Math.random(),
+      //       },
+      //     ],
+      //   });
+      // }, 2000);
     </script>
   </body>
 </html>

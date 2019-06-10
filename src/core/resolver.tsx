@@ -108,5 +108,5 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 }
 
 export default function observerResolver(schema: IView | IView[], options?: IResolverOptions) {
-  return React.createElement(observer(() => resolverBasic(schema, options)));
+  return React.createElement(observer(() => resolverBasic(schema, options)), { key: `observer_${schema['#']}` });
 }
