@@ -2,10 +2,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./lib",
-    "module": "esnext",
+    "module": "commonjs",
     "target": "es5",
     "lib": ["es6", "dom"],
-    "rootDirs": ["src", "stories"],
     "sourceMap": true,
     "inlineSources": true,
     "allowJs": false,
@@ -27,6 +26,6 @@
     "downlevelIteration": true,
     "experimentalDecorators": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./test/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
