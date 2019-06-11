@@ -1,9 +1,10 @@
 import React from 'react';
 import BasePlugin from './base';
 import ViewSchema from '../models/ViewSchema';
-import { get, Inject, isArray } from '../utils';
+import { get, isArray } from '../utils';
 import { Bind } from 'lodash-decorators';
 import { resolverBasic } from '../core/resolver';
+import { Inject } from 'plugin-decorator';
 
 export default class AntForm extends BasePlugin {
   public static pluginName: string = 'ant-form';

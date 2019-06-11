@@ -1,16 +1,9 @@
 import EficyController from '../core/Controller';
 import { IEficySchema } from '../interface';
+import { Plugin } from 'plugin-decorator';
 
-export default class BasePlugin {
-  public static pluginName: string = '';
-  public pluginHooks: string[]; // 不用指定，通过Inject自动添加
-  public defaultOptions: any = {};
-  public options: any = {};
+export default class BasePlugin extends Plugin {
   protected controller: EficyController;
-
-  constructor(options = {}) {
-    this.options = Object.assign({}, this.defaultOptions, options);
-  }
 
   public loadOptions(data: IEficySchema & any): void {
     // need to extends
@@ -18,6 +11,5 @@ export default class BasePlugin {
 
   public bindController(param: EficyController) {
     this.controller = param;
-    param.plugins.push(this);
   }
 }

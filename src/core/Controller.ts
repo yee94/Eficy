@@ -1,3 +1,4 @@
+import { Hook, PluginTarget } from 'plugin-decorator';
 import { IEficySchema } from '../interface';
 import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
@@ -7,15 +8,14 @@ import { IReactComponent } from 'mobx-react';
 import { action } from 'mobx';
 import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
-import { Hook } from '../utils';
 
-export default class EficyController {
+export default class EficyController extends PluginTarget {
   public model: EficySchema;
   public componentLibrary: Record<string, any>;
   public componentMap: Map<ViewSchema, IReactComponent> = new Map();
-  public plugins: BasePlugin[] = [];
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
+    super();
     this.model = new EficySchema(model);
     this.initPlugins(model);
 
@@ -81,12 +81,6 @@ export default class EficyController {
   @action.bound
   public install(plugin: BasePlugin) {
     plugin.bindController(this);
-    // tslint:disable-next-line:no-unused-expression
-    plugin.pluginHooks &&
-      plugin.pluginHooks.forEach(methodName => {
-        if (this[methodName] && this[methodName].addHook) {
-          this[methodName].addHook(plugin[methodName]);
-        }
-      });
+    super.install(plugin);
   }
 }

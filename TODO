@@ -4,6 +4,7 @@
 - [x] next Hook rewrite
 - [x] next async
 - [x] event plugin
+- [x] independent the Hook package
 - [ ] viewSchema unit test
 - [ ] event plugin unit test
 - [ ] request plugin
