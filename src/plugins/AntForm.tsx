@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import BasePlugin from './base';
 import ViewSchema from '../models/ViewSchema';
 import { get, isArray } from '../utils';
@@ -75,7 +75,7 @@ export default class AntForm extends BasePlugin {
     if (schema['#view'] === 'Form') {
       AntFormWrapComponent = this.createForm(
         schema,
-        React.forwardRef((props, ref) => {
+        React.forwardRef((props: { model: ViewSchema; form: any; children: ReactElement[] }, ref) => {
           const model = props.model as ViewSchema;
           this.formMap[model['#']] = props.form;
 

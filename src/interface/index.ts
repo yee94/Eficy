@@ -1,4 +1,4 @@
-import { CSSProperties } from 'React';
+import { Properties } from 'csstype';
 
 export interface IEficySchema {
   views: IView[];
@@ -8,7 +8,7 @@ export interface IEficySchema {
 export type IView = {
   '#view': string; // component name
   '#'?: string; // id
-  '#style'?: CSSProperties;
+  '#style'?: Properties;
   '#children'?: IView[];
   '#className'?: string;
 } & any;
