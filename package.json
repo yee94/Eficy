@@ -62,7 +62,7 @@
     "failFast": true,
     "compileEnhancements": false,
     "files": [
-      "src/**/*.spec.ts"
+      "test/**/*.spec.ts"
     ],
     "sources": [
       "src/**/*.ts"

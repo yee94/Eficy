@@ -1,6 +1,6 @@
 import test from 'ava';
-import { isEficyView, mapObjectDeep } from '../utils';
-import { ViewSchema } from '../models';
+import { isEficyView, mapObjectDeep } from '../src/utils';
+import { ViewSchema } from '../src/models';
 
 const basicData = {
   '#': 'form',
