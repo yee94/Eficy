@@ -10,11 +10,12 @@
     "dev:umd": "webpack-dev-server --config webpack.dev.js",
     "build": "rimraf lib; tsc;",
     "build:umd": "webpack --config webpack.js",
-    "lint": "tslint -p tsconfig.json \"src/**/*.ts{,x}\"",
-    "test": "TS_NODE_PROJECT='./tsconfig.commonjs.json' mocha",
+    "lint": "tslint --project .",
+    "test": "nyc --silent ava",
     "prettier": "pretty-quick --staged"
   },
   "pre-commit": [
+    "build",
     "lint",
     "test",
     "prettier"
@@ -26,11 +27,12 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-typescript": "^7.3.3",
     "@types/mocha": "^5.2.7",
+    "@types/react": "^16.8.19",
+    "ava": "^2.1.0",
     "babel-loader": "^8.0.6",
-    "chai": "^4.2.0",
     "csstype": "^2.6.5",
     "html-webpack-plugin": "^3.2.0",
-    "mocha": "^6.1.4",
+    "nyc": "^14.1.1",
     "pre-commit": "^1.2.2",
     "prettier": "^1.17.1",
     "pretty-quick": "^1.11.0",
@@ -55,5 +57,21 @@
     "mobx-react": "^6.0.2",
     "nanoid": "^2.0.3",
     "plugin-decorator": "^1.0.0"
+  },
+  "ava": {
+    "failFast": true,
+    "compileEnhancements": false,
+    "files": [
+      "src/**/*.spec.ts"
+    ],
+    "sources": [
+      "src/**/*.ts"
+    ],
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   }
 }

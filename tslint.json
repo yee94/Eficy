@@ -12,7 +12,8 @@
     "no-var-requires": false,
     "interface-name": false,
     "no-eval": false,
-    "member-ordering": false
+    "member-ordering": false,
+    "no-unused-expression": false
   },
   "jsRules": {
     "object-literal-sort-keys": false,

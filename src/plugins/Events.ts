@@ -73,7 +73,6 @@ export default class Events extends BasePlugin {
     }
     schema[action] = (...args) => {
       fns.forEach(fn => fn(this.controller, ...args));
-      // tslint:disable-next-line:no-unused-expression
       targetFn && targetFn(...args);
     };
   }

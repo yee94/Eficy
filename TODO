@@ -5,6 +5,7 @@
 - [x] next async
 - [x] event plugin
 - [x] independent the Hook package
+- [x] change ava unit test
 - [ ] viewSchema unit test
 - [ ] event plugin unit test
 - [ ] request plugin

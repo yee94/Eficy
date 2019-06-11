@@ -27,7 +27,7 @@ const transformPropsList = props => mapObjectDeep(props, obj => (isEficyView(obj
  */
 const filterViewProps = props => pickBy(props, (value, key) => !/^#/.test(key));
 
-export function resolverBasic(schema: IView | IView[], options?: IResolverOptions) {
+export function resolverBasic(schema: IView | IView[], options?: IResolverOptions): any {
   const {
     componentMap = window[Config.defaultComponentMapName] || {},
     onRegister = null,
