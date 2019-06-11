@@ -1,10 +1,12 @@
 import test from 'ava';
 import { isEficyView, mapObjectDeep } from '../src/utils';
 import { ViewSchema } from '../src/models';
+import { isObservableProp } from 'mobx';
 
 const basicData = {
   '#': 'form',
   '#view': 'Form',
+  className: 'test',
   '#children': [
     {
       '#view': 'Form.Item',
@@ -84,4 +86,37 @@ test('when loaded all views(include children) became a ViewSchema', t => {
   mapObjectDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
   t.is(basicDataCount, allChildrenViewSchema);
+});
+
+test('ViewSchema update restProps', t => {
+  viewSchema.update({
+    newField: 'test',
+  });
+
+  // @ts-ignore
+  t.is(viewSchema.newField, 'test');
+  t.is(viewSchema['#restProps'].newField, 'test');
+  t.true(isObservableProp(viewSchema, 'newField'));
+});
+
+test('ViewSchema update Field props', t => {
+  viewSchema.update({
+    className: 'test2',
+  });
+
+  t.is(viewSchema.className, 'test2');
+  t.true(isObservableProp(viewSchema, 'className'));
+});
+
+test('ViewSchema update solid Field', t => {
+  t.throws(() =>
+    viewSchema.update({
+      '#view': 'test2',
+    }),
+  );
+  t.throws(() =>
+    viewSchema.update({
+      '#children': [],
+    }),
+  );
 });

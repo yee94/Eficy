@@ -6,6 +6,7 @@
 - [x] event plugin
 - [x] independent the Hook package
 - [x] change ava unit test
+- [ ] viewSchema overwrite
 - [ ] viewSchema unit test
 - [ ] event plugin unit test
 - [ ] request plugin
