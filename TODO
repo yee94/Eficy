@@ -8,6 +8,8 @@
 - [x] change ava unit test
 - [x] viewSchema overwrite
 - [x] viewSchema unit test
+- [x] eficySchema unit test
+- [x] eficySchema overwrite
 - [ ] event plugin unit test
 - [ ] request plugin
 - [ ] merge method unit test

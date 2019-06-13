@@ -1,6 +1,6 @@
 import React from 'react';
 import { IView } from '../interface';
-import { compose, filterUndefined, get, isArray, isEficyView, mapObjectDeep, mergeClassName, pickBy } from '../utils';
+import { compose, filterUndefined, get, isArray, isEficyView, mapDeep, mergeClassName, pickBy } from '../utils';
 import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
 import { toJS } from 'mobx';
@@ -19,7 +19,7 @@ export interface IResolverOptions {
  * @param props
  * @returns {any}
  */
-const transformPropsList = props => mapObjectDeep(props, obj => (isEficyView(obj) ? obj : toJS(obj)));
+const transformPropsList = props => mapDeep(props, obj => (isEficyView(obj) ? obj : toJS(obj)));
 
 /**
  * filter "#xxxxxxx" prop option
