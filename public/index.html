@@ -118,10 +118,39 @@
         },
       );
 
+      controller.model.viewDataMap.form.overwrite({
+        '#children': [
+          {
+            '#view': 'Form.Item',
+            label: 'E-mail',
+            '#children': [
+              {
+                '#': 'input2',
+                '#view': 'Input',
+                '#field': {
+                  name: 'email',
+                  rules: [
+                    {
+                      type: 'email',
+                      message: 'The input is not valid E-mail!',
+                    },
+                  ],
+                },
+                placeholder: 'username',
+                prefix: {
+                  '#view': 'Icon',
+                  type: 'user',
+                  style: { color: 'rgba(0,0,0,.25)' },
+                },
+              },
+            ],
+          },
+        ],
+      });
       controller.model.update({
         views: [
           {
-            '#': 'input',
+            '#': 'input2',
             placeholder: 'Hello Eficy Change',
           },
         ],

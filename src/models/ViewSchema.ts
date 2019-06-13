@@ -2,8 +2,8 @@ import { IView } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
-import { generateUid, isArray, isEficyView, mapObjectDeep } from '../utils';
-import { action, computed, extendObservable, observable } from 'mobx';
+import { cloneDeep, deleteObjectField, generateUid, isArray, isEficyView, mapObjectDeep } from '../utils';
+import { action, computed, observable } from 'mobx';
 
 export default class ViewSchema extends Vmo implements IView {
   public static readonly solidField = ['#', '#view', '#children', '#restProps'];
@@ -66,9 +66,40 @@ export default class ViewSchema extends Vmo implements IView {
   }
 
   @action.bound
+  public overwrite(data: IView) {
+    [...Object.keys(this), ...Object.keys(this['#restProps'])].forEach(key => {
+      if (ViewSchema.solidField.includes(key)) {
+        return;
+      }
+      const originValue = ViewSchema.prototype[key];
+      switch (typeof originValue) {
+        case 'function':
+        case 'object':
+          this[key] = cloneDeep(originValue);
+          break;
+        case 'undefined':
+          deleteObjectField(this, key);
+          break;
+        default:
+          this[key] = originValue;
+      }
+    });
+    // @ts-ignore
+    this['#restProps'] = undefined;
+    deleteObjectField(this, '#children');
+
+    this.load(data);
+
+    return this;
+  }
+
+  @action.bound
   public update(data: IView, isInit = false): this {
     if (!this['#restProps']) {
       this['#restProps'] = {};
+      Object.defineProperty(this, '#restProps', {
+        enumerable: false,
+      });
     }
 
     data = this.transformViewSchema(data);
@@ -87,11 +118,12 @@ export default class ViewSchema extends Vmo implements IView {
       } else {
         this['#restProps'][key] = data[key];
         if (!this.hasOwnProperty(key)) {
-          extendObservable(this, {
-            get [key]() {
+          Object.defineProperty(this, key, {
+            enumerable: true,
+            get() {
               return this['#restProps'][key];
             },
-            set [key](val) {
+            set(val) {
               this['#restProps'][key] = val;
             },
           });
