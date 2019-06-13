@@ -1,5 +1,5 @@
 import test from 'ava';
-import { get, isEficyView, mapObjectDeep } from '../src/utils';
+import { forEachDeep, get, isEficyView } from '../src/utils';
 import { ViewSchema } from '../src/models';
 import { isObservableProp } from 'mobx';
 
@@ -84,7 +84,7 @@ const viewSchema = new ViewSchema(basicData);
 
 test('when loaded all views(include children) became a ViewSchema', t => {
   let allChildrenViewSchema = 0;
-  mapObjectDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
+  forEachDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
   t.is(basicDataCount, allChildrenViewSchema);
 });
@@ -151,7 +151,7 @@ test.serial('ViewSchema overwrite children fields', t => {
   viewSchema.overwrite(basicData);
 
   let allChildrenViewSchema = 0;
-  mapObjectDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
+  forEachDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
 
   t.is(basicDataCount, allChildrenViewSchema);

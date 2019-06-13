@@ -21,9 +21,7 @@ export default class Events extends BasePlugin {
 
   public loadOptions(data: IEficySchema & { events?: IEvent[] }) {
     const { events } = data;
-    if (events) {
-      this.options.events = events;
-    }
+    this.options.events = events || [];
   }
 
   public bindController(param: EficyController) {

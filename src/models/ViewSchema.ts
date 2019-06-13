@@ -2,7 +2,7 @@ import { IView } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
-import { cloneDeep, deleteObjectField, generateUid, isArray, isEficyView, mapObjectDeep } from '../utils';
+import { cloneDeep, deleteObjectField, generateUid, isArray, isEficyView, forEachDeep, mapDeep } from '../utils';
 import { action, computed, observable } from 'mobx';
 
 export default class ViewSchema extends Vmo implements IView {
@@ -41,20 +41,29 @@ export default class ViewSchema extends Vmo implements IView {
 
   @computed
   public get viewDataMap(): Record<string, ViewSchema> {
-    const reduceFn = (prev, next) => {
-      prev[next['#']] = next;
-      const childMap = next.viewDataMap;
+    const viewMaps = { [this['#']]: this };
+    const extendViewMap = (viewSchema: ViewSchema) => {
+      const childMap = viewSchema.viewDataMap;
       if (childMap) {
-        Object.assign(prev, childMap);
+        Object.assign(viewMaps, childMap);
       }
-      return prev;
     };
-    return (this['#children'] || []).reduce(reduceFn, { [this['#']]: this });
+    (this['#children'] || []).forEach(extendViewMap);
+
+    forEachDeep(this['#restProps'], optionValue => {
+      if (optionValue instanceof ViewSchema) {
+        extendViewMap(optionValue);
+      }
+
+      return optionValue;
+    });
+
+    return viewMaps;
   }
 
   @action.bound
   private transformViewSchema(data: IView) {
-    return mapObjectDeep(data, (value, path) => {
+    return mapDeep(data, (value: IView, path) => {
       if (!path) {
         return value;
       }

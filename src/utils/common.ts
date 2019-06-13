@@ -8,6 +8,8 @@ import _pickBy from 'lodash/pickBy';
 export const pickBy = _pickBy;
 import _isFunction from 'lodash/isFunction';
 export const isFunction = _isFunction;
+import _set from 'lodash/set';
+export const set = _set;
 
 export function filterUndefined(obj: Record<string, any>) {
   return pickBy(obj, val => val !== undefined);

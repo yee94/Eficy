@@ -3,38 +3,43 @@ import { get, isArray } from './common';
 
 const addPath = (...paths) => paths.join('.').replace(/^\./, '');
 
-export default function mapObjectDeep<T>(object: T, cb: (obj: T, path: string) => void | any): T {
+export type forDeep = <T>(object: T, cb: (obj: T, path: string) => void) => void;
+
+const forEachDeep: forDeep = (object, cb) => {
   const ruedObjects: WeakSet<any> = new WeakSet();
   const fn = (path: string = '') => {
     const gotObject = path ? get(object, path) : object;
     if (!gotObject) {
-      return gotObject;
+      return;
     }
     if (React.isValidElement(gotObject)) {
-      return gotObject;
+      return;
     }
-    const newObject = Object.assign({}, gotObject);
     if (ruedObjects.has(gotObject)) {
       // except loop
-      return newObject;
+      return;
     }
 
     ruedObjects.add(gotObject);
 
-    Object.keys(newObject).map(key => {
-      const value = newObject[key];
+    Object.keys(gotObject).forEach(key => {
+      const value = gotObject[key];
       if (typeof value !== 'object') {
         return;
       }
       if (isArray(value)) {
-        newObject[key] = value.map((tmp, ckey) => fn(addPath(path, key, ckey)));
+        value.forEach((tmp, ckey) => {
+          fn(addPath(path, key, ckey));
+        });
       } else {
-        newObject[key] = fn(addPath(path, key));
+        fn(addPath(path, key));
       }
     });
 
-    return cb(newObject, path);
+    cb(gotObject, path);
   };
 
   return fn();
-}
+};
+
+export default forEachDeep;

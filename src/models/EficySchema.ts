@@ -1,7 +1,7 @@
 import { action, computed, observable } from 'mobx';
 import { Field, Vmo } from '@vmojs/base';
 import ViewSchema from './ViewSchema';
-import { IEficySchema, IPlugin } from '../interface';
+import { IEficySchema, IPlugin, IView } from '../interface';
 import { isArray } from '../utils';
 
 export default class EficySchema extends Vmo implements IEficySchema {
@@ -27,16 +27,25 @@ export default class EficySchema extends Vmo implements IEficySchema {
     return this;
   }
 
-  @action
-  public update(data: IEficySchema) {
+  private updateViews(data: IEficySchema, cb: (viewSchema: ViewSchema, viewData: IView) => void) {
     const viewMap = this.viewDataMap;
     if (isArray(data.views)) {
       data.views.map(viewData => {
         const viewModel = viewMap[viewData['#']] as ViewSchema;
         if (viewModel) {
-          viewModel.update(viewData);
+          cb(viewModel, viewData);
         }
       });
     }
+  }
+
+  @action
+  public update(data: IEficySchema) {
+    this.updateViews(data, (viewModel, viewData) => viewModel.update(viewData));
+  }
+
+  @action
+  public overwrite(data: IEficySchema) {
+    this.updateViews(data, (viewModel, viewData) => viewModel.overwrite(viewData));
   }
 }
