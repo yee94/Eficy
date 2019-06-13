@@ -29,3 +29,13 @@ export async function wait(time = 0) {
     setTimeout(resolve, time);
   });
 }
+
+export function deleteObjectField(obj: object, key) {
+  try {
+    // node.js delete class field exception
+    Reflect.deleteProperty(obj, key);
+    // delete obj[key];
+  } catch (e) {
+    obj[key] = undefined;
+  }
+}

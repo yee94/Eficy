@@ -1,5 +1,5 @@
 import test from 'ava';
-import { isEficyView, mapObjectDeep } from '../src/utils';
+import { get, isEficyView, mapObjectDeep } from '../src/utils';
 import { ViewSchema } from '../src/models';
 import { isObservableProp } from 'mobx';
 
@@ -7,6 +7,7 @@ const basicData = {
   '#': 'form',
   '#view': 'Form',
   className: 'test',
+  newField: 'test',
   '#children': [
     {
       '#view': 'Form.Item',
@@ -88,6 +89,12 @@ test('when loaded all views(include children) became a ViewSchema', t => {
   t.is(basicDataCount, allChildrenViewSchema);
 });
 
+test('lodash get field path', t => {
+  const field = get(viewSchema, '#children.0.#children.0.#field', undefined);
+
+  t.is(!!field, true);
+});
+
 test('ViewSchema update restProps', t => {
   viewSchema.update({
     newField: 'test',
@@ -96,7 +103,7 @@ test('ViewSchema update restProps', t => {
   // @ts-ignore
   t.is(viewSchema.newField, 'test');
   t.is(viewSchema['#restProps'].newField, 'test');
-  t.true(isObservableProp(viewSchema, 'newField'));
+  t.true(!!get(viewSchema, 'newField', false));
 });
 
 test('ViewSchema update Field props', t => {
@@ -119,4 +126,44 @@ test('ViewSchema update solid Field', t => {
       '#children': [],
     }),
   );
+});
+
+test('ViewSchema overwrite or delete fields', t => {
+  viewSchema.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
+
+  // @ts-ignore
+  t.is(viewSchema.newField, undefined);
+  t.deepEqual(viewSchema['#restProps'], { newField2: 'cool' });
+  // @ts-ignore
+  t.is(viewSchema.newField, undefined);
+  t.is(viewSchema.className, undefined);
+  t.is(viewSchema['#children'], undefined);
+});
+
+test('ViewSchema overwrite solid fields', t => {
+  viewSchema.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
+
+  t.is(viewSchema['#view'], 'Form');
+  t.is(viewSchema['#'] !== undefined, true);
+});
+
+test.serial('ViewSchema overwrite children fields', t => {
+  viewSchema.overwrite(basicData);
+
+  let allChildrenViewSchema = 0;
+  mapObjectDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
+  const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
+
+  t.is(basicDataCount, allChildrenViewSchema);
+});
+
+test('ViewSchema update restProps after overwrite', t => {
+  viewSchema.update({
+    newField: 'test',
+  });
+
+  // @ts-ignore
+  t.is(viewSchema.newField, 'test');
+  t.is(viewSchema['#restProps'].newField, 'test');
+  t.true(!!get(viewSchema, 'newField', false));
 });

@@ -1,13 +1,13 @@
 - [x] wrap props delivery
 - [x] form field change
-- [x] observe scope, keep the scope of observe as much as possible
+- [x] observe scope, keep the scope of observe small as much as possible
 - [x] next Hook rewrite
 - [x] next async
 - [x] event plugin
 - [x] independent the Hook package
 - [x] change ava unit test
-- [ ] viewSchema overwrite
-- [ ] viewSchema unit test
+- [x] viewSchema overwrite
+- [x] viewSchema unit test
 - [ ] event plugin unit test
 - [ ] request plugin
 - [ ] merge method unit test
