@@ -94,6 +94,7 @@
                       '#content': 'Remember me',
                     },
                     {
+                      '#': 'button',
                       '#view': 'Button',
                       type: 'primary',
                       htmlType: 'submit',
@@ -106,8 +107,12 @@
           ],
           events: [
             {
-              publisher: 'form@onSubmit',
-              listeners: [contrl => console.log(contrl)],
+              publisher: 'button@onClick',
+              listeners: [
+                contrl =>
+                  contrl.run({ action: 'update', data: { views: [{ '#': 'input', placeholder: 'submit !!' }] } }),
+                contrl => console.log('another function'),
+              ],
             },
           ],
           plugins: ['ant-form'],
@@ -118,44 +123,10 @@
         },
       );
 
-      controller.model.overwrite({
-        views: [
-          {
-            '#': 'form',
-            '#children': [
-              {
-                '#view': 'Form.Item',
-                label: 'E-mail',
-                '#children': [
-                  {
-                    '#': 'input2',
-                    '#view': 'Input',
-                    '#field': {
-                      name: 'email',
-                      rules: [
-                        {
-                          type: 'email',
-                          message: 'The input is not valid E-mail!',
-                        },
-                      ],
-                    },
-                    placeholder: 'username',
-                    prefix: {
-                      '#view': 'Icon',
-                      type: 'user',
-                      style: { color: 'rgba(0,0,0,.25)' },
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      });
       controller.model.update({
         views: [
           {
-            '#': 'input2',
+            '#': 'input',
             placeholder: 'Hello Eficy Change',
           },
         ],

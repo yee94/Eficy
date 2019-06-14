@@ -1,9 +1,9 @@
 import { Properties } from 'csstype';
 
-export interface IEficySchema {
+export type IEficySchema = {
   views: IView[];
   plugins?: IPlugin[];
-}
+} & any;
 
 export type IView = {
   '#view': string; // component name
@@ -14,3 +14,8 @@ export type IView = {
 } & any;
 
 export type IPlugin = string | [string, any];
+
+export interface IActionProps {
+  action: string;
+  data: any;
+}

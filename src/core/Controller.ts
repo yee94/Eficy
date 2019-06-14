@@ -1,5 +1,5 @@
 import { Hook, PluginTarget } from 'plugin-decorator';
-import { IEficySchema } from '../interface';
+import { IActionProps, IEficySchema } from '../interface';
 import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
@@ -8,18 +8,30 @@ import { IReactComponent } from 'mobx-react';
 import { action } from 'mobx';
 import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
+import defaultActions, { IAction } from '../constants/defaultActions';
 
 export default class EficyController extends PluginTarget {
   public model: EficySchema;
   public componentLibrary: Record<string, any>;
   public componentMap: Map<ViewSchema, IReactComponent> = new Map();
+  protected actions: Record<string, IAction>;
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     super();
     this.model = new EficySchema(model);
     this.initPlugins(model);
+    this.bindActions();
 
     this.componentLibrary = componentMap || window[Config.defaultComponentMapName];
+  }
+
+  public run(actionProps: IActionProps) {
+    const { action: actionName, data } = actionProps;
+    if (!actionName || !this.actions[actionName]) {
+      throw new Error(`not found valid action for "${actionName}"`);
+    }
+
+    this.actions[actionName](data, this);
   }
 
   @action.bound
@@ -34,8 +46,8 @@ export default class EficyController extends PluginTarget {
   }
 
   @Hook
-  protected loadData(data: IEficySchema & any) {
-    return data;
+  protected bindActions(actions: Record<string, IAction> = defaultActions) {
+    this.actions = actions;
   }
 
   /**
