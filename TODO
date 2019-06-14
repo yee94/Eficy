@@ -10,8 +10,11 @@
 - [x] viewSchema unit test
 - [x] eficySchema unit test
 - [x] eficySchema overwrite
-- [ ] event plugin unit test
+- [x] event plugin unit test
+- [x] action feature
+- [ ] action params replace variable
 - [ ] request plugin
+- [ ] table example
 - [ ] merge method unit test
 - [ ] async load ViewSchema
 - [ ] function adaptor

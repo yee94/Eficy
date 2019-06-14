@@ -5226,10 +5226,10 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
-plugin-decorator@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/plugin-decorator/-/plugin-decorator-1.0.0.tgz#f683df9605d1ef3e3c62e1f19f72e9a678c25315"
-  integrity sha512-/KD3dc+pYS2yW6hSQ2reYMmbie61Pb9AcqGeG7U9z3z9fcjuBp/uiE8vGYlpmbi4tVdbBuQUi/s6EbczU8uiLg==
+plugin-decorator@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/plugin-decorator/-/plugin-decorator-1.1.0.tgz#36a30dc01c974920a76b0a335521148aaf21059e"
+  integrity sha512-X5EbD6/UwQ+cBFy4wXDA0rM4bpRmdHAhC9gmzlh+7zqc3mosLdypSzXBHW++Pk0DOYrACxhnose57H8oyYInIA==
 
 plur@^3.1.1:
   version "3.1.1"
