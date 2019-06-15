@@ -12,7 +12,7 @@ const plugins: Record<string, new (options) => BasePlugin> = {
 
 export default plugins;
 
-export const buildInPlugins: IPlugin[] = [Events.pluginName];
+export const buildInPlugins: IPlugin[] = [Events.pluginName, Request.pluginName];
 
 export function install(plugin) {
   plugins[plugin.pluginName] = plugin;
