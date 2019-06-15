@@ -40,7 +40,7 @@ export default class AntForm extends BasePlugin {
       if (!err) {
         console.log('Received values of form: ', values);
         // tslint:disable-next-line:no-unused-expression
-        props.onSubmit && props.onSubmit(e);
+        props.onSubmit && props.onSubmit(values);
       }
     });
   }
