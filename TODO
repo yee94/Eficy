@@ -12,8 +12,10 @@
 - [x] eficySchema overwrite
 - [x] event plugin unit test
 - [x] action feature
-- [ ] action params replace variable
 - [ ] request plugin
+- [ ] reaction plugin
+- [ ] reaction quick way
+- [ ] action params replace variable
 - [ ] table example
 - [ ] merge method unit test
 - [ ] async load ViewSchema

@@ -107,11 +107,11 @@
           ],
           events: [
             {
-              publisher: 'button@onClick',
+              publisher: 'form@onSubmit',
               listeners: [
                 contrl =>
                   contrl.run({ action: 'update', data: { views: [{ '#': 'input', placeholder: 'submit !!' }] } }),
-                contrl => console.log('another function'),
+                (contrl, ...args) => console.log('another function', args),
               ],
             },
           ],

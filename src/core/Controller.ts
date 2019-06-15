@@ -25,6 +25,10 @@ export default class EficyController extends PluginTarget {
     this.componentLibrary = componentMap || window[Config.defaultComponentMapName];
   }
 
+  public getModel(id: string): ViewSchema {
+    return this.model.viewDataMap[id];
+  }
+
   public run(actionProps: IActionProps) {
     const { action: actionName, data } = actionProps;
     if (!actionName || !this.actions[actionName]) {
