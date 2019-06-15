@@ -3,6 +3,7 @@ import { Field, Vmo } from '@vmojs/base';
 import ViewSchema from './ViewSchema';
 import { IEficySchema, IPlugin, IView } from '../interface';
 import { isArray } from '../utils';
+import { Hook } from 'plugin-decorator';
 
 export default class EficySchema extends Vmo implements IEficySchema {
   @Field
@@ -27,6 +28,7 @@ export default class EficySchema extends Vmo implements IEficySchema {
     return this;
   }
 
+  @Hook
   private updateViews(data: IEficySchema, cb: (viewSchema: ViewSchema, viewData: IView) => void) {
     const viewMap = this.viewDataMap;
     if (isArray(data.views)) {
