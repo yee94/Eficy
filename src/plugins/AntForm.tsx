@@ -5,13 +5,40 @@ import { get, isArray } from '../utils';
 import { Bind } from 'lodash-decorators';
 import { resolverBasic } from '../core/resolver';
 import { Inject } from 'plugin-decorator';
+import { action, observable, toJS } from 'mobx';
+import EficyController from '../core/Controller';
+
+declare module '../models/ViewSchema' {
+  export default interface ViewSchema {
+    '#field': any;
+  }
+}
 
 export default class AntForm extends BasePlugin {
   public static pluginName: string = 'ant-form';
 
   public formMap: Record<string, any> = {};
+  private formC2PMap: Record<string, string> = {};
   private formWrapMap: Record<string, any> = {};
   private formChildSet: WeakSet<ViewSchema> = new WeakSet<ViewSchema>();
+
+  @observable
+  private formFields = {};
+
+  private static propNamesMap = {
+    checked: ['Switch', 'Radio', 'CheckBox'],
+    fileList: ['Upload', 'Upload.Dragger'],
+  };
+  private static getPropsName(model: ViewSchema) {
+    for (const key of Object.keys(this.propNamesMap)) {
+      const values = this.propNamesMap[key];
+      if (values.includes(model['#view'])) {
+        return key;
+      }
+    }
+
+    return null;
+  }
 
   private static replaceFieldReactElement(children: any[] | any, cb: (child: any) => any): any {
     const verifyAndCallBack = child => {
@@ -33,6 +60,55 @@ export default class AntForm extends BasePlugin {
     }
   }
 
+  public bindController(param: EficyController) {
+    super.bindController(param);
+
+    this.transformFormValues();
+
+    // @ts-ignore
+    this.controller.model.updateViews.addHook(next => {
+      next();
+      this.transformFormValues();
+    });
+  }
+
+  private transformFormValues() {
+    Object.values(this.controller.model.viewDataMap).forEach(model => {
+      if (model['#field']) {
+        const { name } = model['#field'];
+        if (!this.formFields.hasOwnProperty(model['#'])) {
+          // @ts-ignore
+          this.formFields[model['#']] = toJS(model.value);
+          Object.defineProperty(model, 'value', {
+            configurable: true,
+            enumerable: false,
+            get: () => this.formFields[model['#']],
+            set: val => {
+              this.formFields[model['#']] = val;
+              const form = this.formMap[this.formC2PMap[model['#']]];
+              if (form) {
+                this.formMap[this.formC2PMap[model['#']]].setFieldsValue({ [name]: val });
+              }
+            },
+          });
+        }
+      }
+    });
+  }
+
+  public handleChange(form, props, e) {
+    const { model } = props;
+    const fieldName = get(model, '#field.name', false);
+    if (fieldName) {
+      const propName = get(model, '#field.valuePropName', AntForm.getPropsName(model) || 'value');
+
+      this.setFormFields({
+        [model['#']]: e.target ? e.target[propName] : e,
+      });
+    }
+    props.onChange && props.onChange(e);
+  }
+
   public handleSubmit(props, e) {
     e.preventDefault();
     const { form } = props;
@@ -43,6 +119,11 @@ export default class AntForm extends BasePlugin {
         props.onSubmit && props.onSubmit(values);
       }
     });
+  }
+
+  @action
+  private setFormFields(fieldsValue) {
+    Object.assign(this.formFields, fieldsValue);
   }
 
   private createForm(schema: ViewSchema, component) {
@@ -82,8 +163,25 @@ export default class AntForm extends BasePlugin {
           const form = props.form;
           const replaceChildren = AntForm.replaceFieldReactElement(props.children, childElement => {
             const childModel = childElement.props.model;
+            this.formC2PMap[childModel['#']] = model['#'];
             const { name, ...restOptions } = childModel['#field'];
-            return form.getFieldDecorator(name, restOptions)(childElement);
+
+            // record form values
+            if (childModel.value) {
+              restOptions.initialValue = restOptions.initialValue || childModel.value;
+            }
+
+            // add onChange wrap
+            const nextProps = {
+              ...childElement.props,
+              onChange: e => this.handleChange(props.form, childElement.props, e),
+            };
+            delete nextProps.value;
+
+            return form.getFieldDecorator(name, restOptions)({
+              ...childElement,
+              props: nextProps,
+            });
           });
 
           return React.createElement(Component, {

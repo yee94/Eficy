@@ -19,6 +19,8 @@
 - [x] request params replace variable
 - [x] action params replace variable
 - [x] request unit test
+- [x] form value agent
+- [ ] span div a basic html
 - [ ] reaction plugin
 - [ ] reaction quick way
 - [ ] table example

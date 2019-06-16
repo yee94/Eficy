@@ -125,10 +125,11 @@ export default class ViewSchema extends Vmo implements IView {
       if (this.__proto__.hasOwnProperty(key)) {
         this[key] = data[key];
       } else {
-        this['#restProps'][key] = data[key];
         if (!this.hasOwnProperty(key)) {
+          this['#restProps'][key] = data[key];
           Object.defineProperty(this, key, {
             enumerable: true,
+            configurable: true,
             get() {
               return this['#restProps'][key];
             },
@@ -136,6 +137,8 @@ export default class ViewSchema extends Vmo implements IView {
               this['#restProps'][key] = val;
             },
           });
+        } else {
+          this[key] = data[key];
         }
       }
     });
