@@ -4,4 +4,5 @@ export { default as mergeClassName } from './mergeClassName';
 export { default as isEficyView } from './isEficyView';
 export { default as forEachDeep } from './forEachDeep';
 export { default as mapDeep } from './mapDeep';
+export { default as relaceVariable } from './relaceVariable';
 export * from './common';

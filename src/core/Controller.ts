@@ -9,20 +9,24 @@ import { action } from 'mobx';
 import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
 import defaultActions, { IAction } from '../constants/defaultActions';
+import createReplacer from '../utils/relaceVariable';
 
 export default class EficyController extends PluginTarget {
   public model: EficySchema;
   public componentLibrary: Record<string, any>;
   public componentMap: Map<ViewSchema, IReactComponent> = new Map();
   protected actions: Record<string, IAction>;
+  public replaceVariables: <T>(target: T) => T;
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     super();
     this.model = new EficySchema(model);
+
+    this.replaceVariables = this.createReplacer();
     this.initPlugins(model);
     this.bindActions();
 
-    this.componentLibrary = componentMap || window[Config.defaultComponentMapName];
+    this.componentLibrary = componentMap || global[Config.defaultComponentMapName];
   }
 
   public getModel(id: string): ViewSchema {
@@ -35,7 +39,7 @@ export default class EficyController extends PluginTarget {
       throw new Error(`not found valid action for "${actionName}"`);
     }
 
-    this.actions[actionName](data, this);
+    this.actions[actionName](this.replaceVariables(data), this);
   }
 
   @action.bound
@@ -50,8 +54,8 @@ export default class EficyController extends PluginTarget {
   }
 
   @Hook
-  protected bindActions(actions: Record<string, IAction> = defaultActions) {
-    this.actions = actions;
+  public bindActions(actions: Record<string, IAction> = defaultActions) {
+    this.actions = Object.assign(this.actions || {}, actions);
   }
 
   /**
@@ -98,5 +102,17 @@ export default class EficyController extends PluginTarget {
   public install(plugin: BasePlugin) {
     plugin.bindController(this);
     super.install(plugin);
+  }
+
+  private createReplacer() {
+    const context = { model: this.model, run: this.run.bind(this) };
+    Object.defineProperty(context, 'models', {
+      enumerable: true,
+      get: () => {
+        return this.model.viewDataMap;
+      },
+    });
+
+    return createReplacer(context);
   }
 }

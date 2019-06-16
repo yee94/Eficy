@@ -155,16 +155,19 @@
           },
         ],
       });
-      // setInterval(() => {
-      //   controller.model.update({
-      //     views: [
-      //       {
-      //         '#': 'input',
-      //         placeholder: 'Hello Eficy Change' + Math.random(),
-      //       },
-      //     ],
-      //   });
-      // }, 2000);
+      setInterval(() => {
+        controller.run({
+          action: 'update',
+          data: {
+            views: [
+              {
+                '#': 'alert',
+                message: '\$\{models.input.value\} haha',
+              },
+            ],
+          },
+        });
+      }, 2000);
     </script>
   </body>
 </html>
