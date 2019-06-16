@@ -9,7 +9,7 @@ const forEachDeep: forDeep = (object, cb) => {
   const ruedObjects: WeakSet<any> = new WeakSet();
   const fn = (path: string = '') => {
     const gotObject = path ? get(object, path) : object;
-    if (!gotObject) {
+    if (!gotObject || typeof gotObject !== 'object') {
       return;
     }
     if (React.isValidElement(gotObject)) {

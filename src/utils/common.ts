@@ -10,6 +10,8 @@ import _isFunction from 'lodash/isFunction';
 export const isFunction = _isFunction;
 import _set from 'lodash/set';
 export const set = _set;
+import _isEmpty from 'lodash/isEmpty';
+export const isEmpty = _isEmpty;
 
 export function filterUndefined(obj: Record<string, any>) {
   return pickBy(obj, val => val !== undefined);

@@ -29,10 +29,10 @@ export default class EficySchema extends Vmo implements IEficySchema {
   }
 
   @Hook
-  private updateViews(data: IEficySchema, cb: (viewSchema: ViewSchema, viewData: IView) => void) {
+  public updateViews(data: IEficySchema, cb: (viewSchema: ViewSchema, viewData: IView) => void) {
     const viewMap = this.viewDataMap;
     if (isArray(data.views)) {
-      data.views.map(viewData => {
+      data.views.forEach(viewData => {
         const viewModel = viewMap[viewData['#']] as ViewSchema;
         if (viewModel) {
           cb(viewModel, viewData);
