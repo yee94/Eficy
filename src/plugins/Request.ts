@@ -8,7 +8,7 @@ type IRequstMethod = (requestParams: IRequst) => Promise<IActionProps>;
 
 declare module '../core/Controller' {
   export default interface EficyController {
-    request: IRequstMethod;
+    request: (requestParams: IRequst & { '#'?: string } | string) => Promise<IActionProps>;
   }
 }
 
@@ -50,14 +50,15 @@ export default class Request extends BasePlugin {
 
   private requestMap: Record<string, IRequst> = {};
 
-  public async request(requestParams: IRequst & { '#': string } | string) {
+  public async request(requestParams: IRequst & { '#'?: string } | string) {
     if (typeof requestParams === 'string') {
       requestParams = { '#': requestParams };
     }
-    const { '#': id, ...requestConfig } = requestParams;
+    const { '#': id = '', ...restConfig } = requestParams;
     const presetRequestConfig = this.requestMap[id] || {};
 
-    const action = await Request.request(Object.assign({}, presetRequestConfig, requestConfig));
+    const requestConfig = this.controller.replaceVariables(Object.assign({}, presetRequestConfig, restConfig));
+    const action = await Request.request(requestConfig);
 
     this.controller.run(action);
 

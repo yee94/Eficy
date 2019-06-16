@@ -17,5 +17,5 @@ export type IPlugin = string | [string, any];
 
 export interface IActionProps {
   action: string;
-  data: any;
+  data?: any;
 }
