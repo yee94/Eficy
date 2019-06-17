@@ -21,12 +21,16 @@ export default class EficyController extends PluginTarget {
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     super();
     this.model = new EficySchema(model);
-
     this.replaceVariables = this.createReplacer();
-    this.initPlugins(model);
     this.bindActions();
 
+    this.initPlugins(model);
+
     this.componentLibrary = componentMap || global[Config.defaultComponentMapName];
+  }
+
+  public get models(): Record<string, ViewSchema> {
+    return this.model.viewDataMap;
   }
 
   public getModel(id: string): ViewSchema {
@@ -109,7 +113,7 @@ export default class EficyController extends PluginTarget {
     Object.defineProperty(context, 'models', {
       enumerable: true,
       get: () => {
-        return this.model.viewDataMap;
+        return this.models;
       },
     });
 

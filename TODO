@@ -21,8 +21,11 @@
 - [x] request unit test
 - [x] form value agent
 - [x] html basic document element component
-- [ ] reaction plugin
-- [ ] reaction quick way
+- [x] reaction plugin
+- [x] reaction quick way
+- [ ] reaction plugin unit
+- [ ] destroy controller
+- [ ] destroy plugin
 - [ ] css-loader plugin
 - [ ] table example
 - [ ] async load ViewSchema
