@@ -13,7 +13,7 @@ export default function(schema: IEficySchema, options: string | HTMLElement | IR
     throw new Error('render helper options not define');
   }
   let dom: any;
-  let componentMap = window[Config.defaultComponentMapName] || {};
+  let componentMap = global[Config.defaultComponentMapName] || {};
   if (typeof options === 'string') {
     dom = options;
   } else if (options.hasOwnProperty('dom')) {

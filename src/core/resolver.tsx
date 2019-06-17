@@ -29,7 +29,7 @@ const filterViewProps = props => pickBy(props, (value, key) => !/^#/.test(key));
 
 export function resolverBasic(schema: IView | IView[], options?: IResolverOptions): any {
   const {
-    componentMap = window[Config.defaultComponentMapName] || {},
+    componentMap = global[Config.defaultComponentMapName] || {},
     onRegister = null,
     componentWrap = null,
     // tslint:disable-next-line:no-shadowed-variable

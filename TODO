@@ -24,7 +24,9 @@
 - [x] reaction plugin
 - [x] reaction quick way
 - [x] reaction plugin unit
-- [ ] basic form-item onChange in mobx
+- [x] basic form-item onChange in mobx
+- [x] two-way-bind plugin
+- [x] two-way-bind plugin unit
 - [ ] destroy controller
 - [ ] destroy plugin
 - [ ] css-loader plugin
