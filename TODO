@@ -23,7 +23,8 @@
 - [x] html basic document element component
 - [x] reaction plugin
 - [x] reaction quick way
-- [ ] reaction plugin unit
+- [x] reaction plugin unit
+- [ ] basic form-item onChange in mobx
 - [ ] destroy controller
 - [ ] destroy plugin
 - [ ] css-loader plugin
