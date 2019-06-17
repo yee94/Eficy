@@ -10,7 +10,7 @@ const controller = Eficy.render(
       },
       {
         '#view': 'Alert',
-        message: 'success quick bind ${models.input.value}',
+        message: 'quick bind ${models.input.value}',
         type: 'success',
         showIcon: true,
       },

@@ -4,12 +4,14 @@ import BasePlugin from './base';
 import Events from './Events';
 import Request from './Request';
 import Reaction from './Reaction';
+import TwoWayBind from './TwoWayBind';
 
 const plugins: Record<string, new (options) => BasePlugin> = {
   [Events.pluginName]: Events,
   [Request.pluginName]: Request,
   [AntForm.pluginName]: AntForm,
   [Reaction.pluginName]: Reaction,
+  [TwoWayBind.pluginName]: TwoWayBind,
 };
 
 export default plugins;
