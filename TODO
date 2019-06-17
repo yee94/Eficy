@@ -20,11 +20,11 @@
 - [x] action params replace variable
 - [x] request unit test
 - [x] form value agent
-- [ ] span div a basic html
+- [x] html basic document element component
 - [ ] reaction plugin
 - [ ] reaction quick way
+- [ ] css-loader plugin
 - [ ] table example
-- [ ] merge method unit test
 - [ ] async load ViewSchema
 - [ ] function adaptor
 - [ ] event adaptor
