@@ -74,7 +74,8 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
   let Component = get(componentMap, schema['#view']);
 
   if (!Component) {
-    throw new Error(`Not found "${schema['#view']}" component`);
+    // throw new Error(`Not found "${schema['#view']}" component`);
+    Component = schema['#view'];
   }
 
   if (componentWrap) {

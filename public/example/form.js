@@ -321,6 +321,10 @@ const controller = Eficy.render(
                         '#view': 'Icon',
                         type: 'upload',
                       },
+                      {
+                        '#view': 'span',
+                        '#content': 'Click to upload',
+                      },
                     ],
                   },
                 ],
@@ -338,8 +342,26 @@ const controller = Eficy.render(
                 action: '/upload.do',
                 '#children': [
                   {
-                    '#view': 'Icon',
-                    type: 'inbox',
+                    '#view': 'p',
+                    className: 'ant-upload-drag-icon',
+                    '#children': [
+                      {
+                        '#view': 'Icon',
+                        type: 'inbox',
+                      },
+                    ],
+                  },
+
+                  {
+                    '#view': 'p',
+                    className: 'ant-upload-text',
+                    '#content': 'Click or drag file to this area to upload',
+                  },
+
+                  {
+                    '#view': 'p',
+                    className: 'ant-upload-hint',
+                    '#content': 'Support for a single or bulk upload.',
                   },
                 ],
               },
