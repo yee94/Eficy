@@ -2,6 +2,19 @@ const controller = Eficy.render(
   {
     views: [
       {
+        '#': 'alert',
+        '#view': 'Alert',
+        message: 'Hello this is a Login demo ',
+        type: 'info',
+        showIcon: true,
+      },
+      {
+        '#view': 'Alert',
+        message: 'success quick bind ${models.input.value}',
+        type: 'success',
+        showIcon: true,
+      },
+      {
         '#': 'validate_other',
         '#view': 'Form',
         labelCol: { span: 6 },
@@ -381,6 +394,12 @@ const controller = Eficy.render(
             ],
           },
         ],
+      },
+    ],
+    reactions: [
+      {
+        expression: ctrl => ctrl.models.input.value,
+        effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
       },
     ],
     plugins: ['ant-form'],

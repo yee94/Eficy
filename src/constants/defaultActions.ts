@@ -19,11 +19,14 @@ const defaultActions: Record<string, IAction> = {
     this.fail(params);
     this.jump(params);
   },
-  update(params: { views: IView[] }, controller: Controller) {
-    controller.model.update(params);
+  update(params: IView | IView[], controller: Controller) {
+    controller.model.update({ views: params instanceof Array ? params : [params] });
   },
-  overwrite(params: { views: IView[] }, controller: Controller) {
-    controller.model.overwrite(params);
+  overwrite(params: IView | IView[], controller: Controller) {
+    controller.model.overwrite({ views: params instanceof Array ? params : [params] });
+  },
+  updateGlobal(params: { views: IView[] }, controller: Controller) {
+    controller.model.update(params);
   },
 };
 

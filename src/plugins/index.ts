@@ -3,16 +3,18 @@ import { IPlugin } from '../interface';
 import BasePlugin from './base';
 import Events from './Events';
 import Request from './Request';
+import Reaction from './Reaction';
 
 const plugins: Record<string, new (options) => BasePlugin> = {
   [Events.pluginName]: Events,
   [Request.pluginName]: Request,
   [AntForm.pluginName]: AntForm,
+  [Reaction.pluginName]: Reaction,
 };
 
 export default plugins;
 
-export const buildInPlugins: IPlugin[] = [Events.pluginName, Request.pluginName];
+export const buildInPlugins: IPlugin[] = [Events.pluginName, Request.pluginName, Reaction.pluginName];
 
 export function install(plugin) {
   plugins[plugin.pluginName] = plugin;

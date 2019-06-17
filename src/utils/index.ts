@@ -5,4 +5,5 @@ export { default as isEficyView } from './isEficyView';
 export { default as forEachDeep } from './forEachDeep';
 export { default as mapDeep } from './mapDeep';
 export { default as relaceVariable } from './relaceVariable';
+export { default as isEficyAction } from './isEficyAction';
 export * from './common';

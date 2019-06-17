@@ -6,7 +6,6 @@ import { Bind } from 'lodash-decorators';
 import { resolverBasic } from '../core/resolver';
 import { Inject } from 'plugin-decorator';
 import { action, observable, toJS } from 'mobx';
-import EficyController from '../core/Controller';
 
 declare module '../models/ViewSchema' {
   export default interface ViewSchema {
@@ -60,19 +59,7 @@ export default class AntForm extends BasePlugin {
     }
   }
 
-  public bindController(param: EficyController) {
-    super.bindController(param);
-
-    this.transformFormValues();
-
-    // @ts-ignore
-    this.controller.model.updateViews.addHook(next => {
-      next();
-      this.transformFormValues();
-    });
-  }
-
-  private transformFormValues() {
+  protected transformValues = () => {
     Object.values(this.controller.model.viewDataMap).forEach(model => {
       if (model['#field']) {
         const { name } = model['#field'];
@@ -94,7 +81,7 @@ export default class AntForm extends BasePlugin {
         }
       }
     });
-  }
+  };
 
   public handleChange(form, props, e) {
     const { model } = props;

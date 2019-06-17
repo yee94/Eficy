@@ -37,25 +37,17 @@ mock.onGet('/format').reply(200, {
 mock.onGet('/update').reply(200, {
   action: 'update',
   data: {
-    views: [
-      {
-        '#': 'alert',
-        type: 'success',
-        message: 'Hello Eficy request update',
-      },
-    ],
+    '#': 'alert',
+    type: 'success',
+    message: 'Hello Eficy request update',
   },
 });
 
 mock.onGet('/update2').reply(200, {
   action: 'update',
   data: {
-    views: [
-      {
-        '#': 'alert',
-        type: 'info',
-      },
-    ],
+    '#': 'alert',
+    type: 'info',
   },
 });
 
