@@ -27,6 +27,8 @@ const transformPropsList = props => mapDeep(props, obj => (isEficyView(obj) ? ob
  */
 const filterViewProps = props => pickBy(props, (value, key) => !/^#/.test(key));
 
+const wrapMap = new WeakMap();
+
 export function resolverBasic(schema: IView | IView[], options?: IResolverOptions): any {
   const {
     componentMap = global[Config.defaultComponentMapName] || {},
@@ -79,8 +81,11 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
   }
 
   if (componentWrap) {
-    console.log('component wrap create', componentName);
-    Component = componentWrap(Component, schema);
+    if (!wrapMap.get(schema)) {
+      console.log('component wrap create', componentName);
+      wrapMap.set(schema, componentWrap(Component, schema));
+    }
+    Component = wrapMap.get(schema);
   }
 
   const componentProps = compose(

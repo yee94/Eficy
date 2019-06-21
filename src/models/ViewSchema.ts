@@ -4,6 +4,7 @@ import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
 import { cloneDeep, deleteObjectField, generateUid, isArray, isEficyView, forEachDeep, mapDeep } from '../utils';
 import { action, computed, observable } from 'mobx';
+import Config from '../constants/Config';
 
 export default class ViewSchema extends Vmo implements IView {
   public static readonly solidField = ['#', '#view', '#children', '#restProps'];
@@ -50,28 +51,36 @@ export default class ViewSchema extends Vmo implements IView {
     };
     (this['#children'] || []).forEach(extendViewMap);
 
-    forEachDeep(this['#restProps'], optionValue => {
-      if (optionValue instanceof ViewSchema) {
-        extendViewMap(optionValue);
-      }
+    forEachDeep(
+      this['#restProps'],
+      optionValue => {
+        if (optionValue instanceof ViewSchema) {
+          extendViewMap(optionValue);
+        }
 
-      return optionValue;
-    });
+        return optionValue;
+      },
+      Config.loopExceptFns,
+    );
 
     return viewMaps;
   }
 
   @action.bound
   private transformViewSchema(data: IView) {
-    return mapDeep(data, (value: IView, path) => {
-      if (!path) {
+    return mapDeep(
+      data,
+      (value: IView, path) => {
+        if (!path) {
+          return value;
+        }
+        if (isEficyView(value) && !(value instanceof ViewSchema)) {
+          return new ViewSchema(value);
+        }
         return value;
-      }
-      if (isEficyView(value) && !(value instanceof ViewSchema)) {
-        return new ViewSchema(value);
-      }
-      return value;
-    });
+      },
+      Config.loopExceptFns,
+    );
   }
 
   @action.bound
