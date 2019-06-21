@@ -14,9 +14,7 @@ export default class BasePlugin extends Plugin {
     this.controller = param;
 
     if (this.transformValues) {
-      console.time('transform');
       this.transformValues();
-      console.timeEnd('transform');
 
       // @ts-ignore
       this.controller.model.updateViews.addHook((next, newData: IEficySchema) => {
@@ -28,5 +26,7 @@ export default class BasePlugin extends Plugin {
 
   public destroyPlugin() {
     // need to extends
+    // @ts-ignore
+    this.controller = undefined;
   }
 }

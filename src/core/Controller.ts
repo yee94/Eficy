@@ -10,13 +10,15 @@ import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
 import defaultActions, { IAction } from '../constants/defaultActions';
 import createReplacer from '../utils/relaceVariable';
+import * as insideComponents from '../components';
 
 export default class EficyController extends PluginTarget {
   public model: EficySchema;
+  public plugins: BasePlugin[];
   public componentLibrary: Record<string, any>;
   public componentMap: Map<ViewSchema, IReactComponent> = new Map();
-  protected actions: Record<string, IAction>;
   public replaceVariables: <T>(target: T) => T;
+  protected actions: Record<string, IAction>;
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     super();
@@ -26,7 +28,7 @@ export default class EficyController extends PluginTarget {
 
     this.initPlugins(model);
 
-    this.componentLibrary = componentMap || global[Config.defaultComponentMapName];
+    this.componentLibrary = Object.assign({}, insideComponents, componentMap || global[Config.defaultComponentMapName]);
   }
 
   public get models(): Record<string, ViewSchema> {
@@ -118,5 +120,12 @@ export default class EficyController extends PluginTarget {
     });
 
     return createReplacer(context);
+  }
+
+  public destroy() {
+    [...this.plugins].forEach(plugin => {
+      this.uninstall(plugin);
+      plugin.destroyPlugin();
+    });
   }
 }

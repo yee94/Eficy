@@ -4,6 +4,7 @@ import { IActionProps, IEficySchema } from '../interface';
 import EficyController from '../core/Controller';
 import { forEachDeep, isEficyAction, set } from '../utils';
 import { ViewSchema } from '../models';
+import Config from '../constants/Config';
 
 declare module '../core/Controller' {
   export default interface EficyController {
@@ -38,22 +39,26 @@ export default class Reaction extends BasePlugin {
    */
   protected transformReactions() {
     const models = this.controller.models;
-    forEachDeep(models, (value: any, path) => {
-      Object.entries(value).forEach(([key, itemValue]) => {
-        if (ViewSchema.solidField.includes(key)) {
-          return;
-        }
-        if (typeof itemValue === 'string') {
-          const replaceValue = this.controller.replaceVariables(itemValue);
-          if (replaceValue !== itemValue) {
-            this.addReaction({
-              expression: controller => controller.replaceVariables(itemValue),
-              effect: result => set(models, `${path}.${key}`, result),
-            });
+    forEachDeep(
+      models,
+      (value: any, path) => {
+        Object.entries(value).forEach(([key, itemValue]) => {
+          if (ViewSchema.solidField.includes(key)) {
+            return;
           }
-        }
-      });
-    });
+          if (typeof itemValue === 'string') {
+            const replaceValue = this.controller.replaceVariables(itemValue);
+            if (replaceValue !== itemValue) {
+              this.addReaction({
+                expression: controller => controller.replaceVariables(itemValue),
+                effect: result => set(models, `${path}.${key}`, result),
+              });
+            }
+          }
+        });
+      },
+      Config.loopExceptFns,
+    );
   }
 
   private addReaction(reactionOpt: IReaction) {

@@ -5,6 +5,7 @@ import Events from './Events';
 import Request from './Request';
 import Reaction from './Reaction';
 import TwoWayBind from './TwoWayBind';
+import EficyInEficy from './EficyInEficy';
 
 const plugins: Record<string, new (options) => BasePlugin> = {
   [Events.pluginName]: Events,
@@ -12,11 +13,17 @@ const plugins: Record<string, new (options) => BasePlugin> = {
   [AntForm.pluginName]: AntForm,
   [Reaction.pluginName]: Reaction,
   [TwoWayBind.pluginName]: TwoWayBind,
+  [EficyInEficy.pluginName]: EficyInEficy,
 };
 
 export default plugins;
 
-export const buildInPlugins: IPlugin[] = [Events.pluginName, Request.pluginName, Reaction.pluginName];
+export const buildInPlugins: IPlugin[] = [
+  Events.pluginName,
+  Request.pluginName,
+  Reaction.pluginName,
+  EficyInEficy.pluginName,
+];
 
 export function install(plugin) {
   plugins[plugin.pluginName] = plugin;
