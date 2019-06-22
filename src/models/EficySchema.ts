@@ -4,6 +4,8 @@ import ViewSchema from './ViewSchema';
 import { IEficySchema, IPlugin, IView } from '../interface';
 import { isArray } from '../utils';
 import { Hook } from 'plugin-decorator';
+import Config from '../constants/Config';
+import loadComponentModels from '../utils/loadComponentModels';
 
 export default class EficySchema extends Vmo implements IEficySchema {
   @Field
@@ -11,18 +13,27 @@ export default class EficySchema extends Vmo implements IEficySchema {
 
   @observable
   public views: ViewSchema[];
+  private readonly componentLibrary: Record<string, any>;
 
   @computed
   public get viewDataMap(): Record<string, ViewSchema> {
     return this.views.reduce((prev, next) => Object.assign(prev, next.viewDataMap), {});
   }
 
+  constructor(data: IEficySchema, componentLibrary = global[Config.defaultComponentMapName] || {}) {
+    super({});
+    this.componentLibrary = componentLibrary;
+    this.load(data);
+  }
+
   @action
   protected load(data: IEficySchema): this {
     super.load(data);
 
+    const componentModels = loadComponentModels(this.componentLibrary);
+
     if (isArray(data.views)) {
-      this.views = data.views.map(viewData => new ViewSchema(viewData));
+      this.views = data.views.map(viewData => new ViewSchema(viewData, componentModels));
     }
 
     return this;

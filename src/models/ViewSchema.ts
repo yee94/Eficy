@@ -1,13 +1,37 @@
-import { IView } from '../interface';
+import { IView, ExtendsViewSchema } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
-import { cloneDeep, deleteObjectField, generateUid, isArray, isEficyView, forEachDeep, mapDeep } from '../utils';
+import { cloneDeep, deleteObjectField, forEachDeep, generateUid, isArray, isEficyView, mapDeep } from '../utils';
 import { action, computed, observable } from 'mobx';
 import Config from '../constants/Config';
+import UnEnumerable from '../utils/decorators/UnEnumerable';
+
+type IComponentsModels = Record<string, new (...args: any) => ViewSchema>;
+export type ExtendsViewSchema = ViewSchema & any;
 
 export default class ViewSchema extends Vmo implements IView {
   public static readonly solidField = ['#', '#view', '#children', '#restProps'];
+  public static isViewSchemaSelf(someObject: any): boolean {
+    return someObject.__proto__.constructor.name === ViewSchema.name;
+  }
+
+  @UnEnumerable
+  private readonly componentModels: IComponentsModels;
+
+  constructor(data: IView, componentModels: IComponentsModels = {}) {
+    super();
+
+    this.componentModels = componentModels || {};
+    const foundModel = this.componentModels[data['#view']];
+
+    this.load(data);
+
+    if (foundModel && ViewSchema.isViewSchemaSelf(this)) {
+      // @ts-ignore
+      return new foundModel(data, componentModels);
+    }
+  }
 
   @Field
   public '#view': string;
@@ -31,6 +55,9 @@ export default class ViewSchema extends Vmo implements IView {
 
   @action.bound
   protected load(data: IView): this {
+    if (!data) {
+      return this;
+    }
     if (!data['#']) {
       data['#'] = generateUid();
     }
@@ -41,7 +68,7 @@ export default class ViewSchema extends Vmo implements IView {
   }
 
   @computed
-  public get viewDataMap(): Record<string, ViewSchema> {
+  public get viewDataMap(): Record<string, ExtendsViewSchema> {
     const viewMaps = { [this['#']]: this };
     const extendViewMap = (viewSchema: ViewSchema) => {
       const childMap = viewSchema.viewDataMap;
@@ -51,17 +78,13 @@ export default class ViewSchema extends Vmo implements IView {
     };
     (this['#children'] || []).forEach(extendViewMap);
 
-    forEachDeep(
-      this['#restProps'],
-      optionValue => {
-        if (optionValue instanceof ViewSchema) {
-          extendViewMap(optionValue);
-        }
+    forEachDeep(this['#restProps'], optionValue => {
+      if (optionValue instanceof ViewSchema) {
+        extendViewMap(optionValue);
+      }
 
-        return optionValue;
-      },
-      Config.loopExceptFns,
-    );
+      return optionValue;
+    });
 
     return viewMaps;
   }
@@ -75,11 +98,13 @@ export default class ViewSchema extends Vmo implements IView {
           return value;
         }
         if (isEficyView(value) && !(value instanceof ViewSchema)) {
-          return new ViewSchema(value);
+          return new ViewSchema(value, this.componentModels);
         }
         return value;
       },
-      Config.loopExceptFns,
+      {
+        exceptFns: Config.loopExceptFns,
+      },
     );
   }
 

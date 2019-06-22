@@ -19,3 +19,5 @@ export interface IActionProps {
   action: string;
   data?: any;
 }
+
+export { ExtendsViewSchema } from '../models/ViewSchema';

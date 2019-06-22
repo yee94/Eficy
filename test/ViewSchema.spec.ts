@@ -2,6 +2,7 @@ import test from 'ava';
 import { forEachDeep, get, isEficyView } from '../src/utils';
 import { ViewSchema } from '../src/models';
 import { isObservableProp } from 'mobx';
+import EficyModel from '../src/components/EficyComponent/EficyModel';
 
 const basicData = {
   '#': 'form',
@@ -80,7 +81,7 @@ const basicData = {
   ],
 };
 
-const viewSchema = new ViewSchema(basicData);
+const viewSchema = new ViewSchema(basicData, { Eficy: EficyModel });
 
 test('when loaded all views(include children) became a ViewSchema', t => {
   let allChildrenViewSchema = 0;

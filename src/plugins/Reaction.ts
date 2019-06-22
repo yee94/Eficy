@@ -57,7 +57,9 @@ export default class Reaction extends BasePlugin {
           }
         });
       },
-      Config.loopExceptFns,
+      {
+        exceptFns: Config.loopExceptFns,
+      },
     );
   }
 

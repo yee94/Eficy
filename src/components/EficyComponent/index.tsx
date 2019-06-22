@@ -2,9 +2,9 @@ import { Component } from 'react';
 import EficyModel from './EficyModel';
 import EficyController from '../../core/Controller';
 
-export default class EficyComponent extends Component<{ model: EficyModel; componentMap: any }> {
-  public static EficyModel: EficyModel;
+class EficyComponent extends Component<{ model: EficyModel; componentMap: any }> {
   private controller: EficyController;
+  public static EficyModel = EficyModel;
 
   constructor(props) {
     super(props);
@@ -19,3 +19,7 @@ export default class EficyComponent extends Component<{ model: EficyModel; compo
     return this.controller.resolver();
   }
 }
+
+EficyComponent.EficyModel = EficyModel;
+
+export default EficyComponent;
