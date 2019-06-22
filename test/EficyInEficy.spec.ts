@@ -40,7 +40,6 @@ test('view Schema did not has child of Eficy', t => {
 });
 
 test('special model', t => {
-  console.log(viewSchema.viewDataMap.eficyComponent);
   t.true(viewSchema.viewDataMap.eficyComponent instanceof EficyModel);
 });
 

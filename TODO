@@ -31,6 +31,7 @@
 - [x] destroy plugin
 - [x] Eficy in another Eficy
 - [x] Eficy in another Eficy unit test
+- [x] Eficy in another Eficy, get child controller
 - [ ] async load ViewSchema
 - [ ] dialog event
 - [ ] css-loader plugin

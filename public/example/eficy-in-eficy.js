@@ -2,27 +2,15 @@ const controller = Eficy.render(
   {
     views: [
       {
-        '#': 'alert',
+        '#': 'alertChild',
         '#view': 'Alert',
-        message: 'Hello this is a Login demo ',
+        message: 'Hello this is for eficy data ${models.eficy.models.input.value}',
         type: 'info',
-        showIcon: true,
-      },
-      {
-        '#view': 'Alert',
-        message: 'quick bind ${models.input.value} ${models.switch.checked} ${models.textarea.value}',
-        type: 'success',
         showIcon: true,
       },
       {
         '#': 'input',
         '#view': 'Input',
-        value: 'value',
-      },
-      {
-        '#': 'textarea',
-        '#view': 'Input.TextArea',
-        '#bindValuePropName': 'value',
         value: 'value',
       },
       {
@@ -33,21 +21,20 @@ const controller = Eficy.render(
       {
         '#': 'div',
         '#view': 'div',
+        style: {
+          padding: '20px',
+          background: '#f2f2f2',
+        },
         '#children': [
           {
+            '#': 'eficy',
             '#view': 'Eficy',
             views: [
               {
-                '#': 'alert',
+                '#': 'alertParent',
                 '#view': 'Alert',
-                message: 'Hello this is a Login demo ',
+                message: 'Hello parent ${parent.models.input.value} ',
                 type: 'info',
-                showIcon: true,
-              },
-              {
-                '#view': 'Alert',
-                message: 'quick bind ${models.input.value} ${models.switch.checked} ${models.textarea.value}',
-                type: 'success',
                 showIcon: true,
               },
               {
@@ -67,15 +54,21 @@ const controller = Eficy.render(
                 checked: true,
               },
             ],
+            events: [
+              {
+                publisher: 'switch@onChange',
+                listeners: [(contrl, ...args) => console.log(contrl.parentController.models.eficy)],
+              },
+            ],
             plugins: ['two-way-bind'],
           },
         ],
       },
     ],
-    reactions: [
+    events: [
       {
-        expression: ctrl => ctrl.models.input.value,
-        effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
+        publisher: 'switch@onChange',
+        listeners: [(contrl, ...args) => console.log(contrl.models.eficy)],
       },
     ],
     plugins: ['two-way-bind'],

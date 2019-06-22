@@ -42,7 +42,9 @@ export default class Events extends BasePlugin {
     let id;
     let action;
     if (typeof publisher === 'string') {
-      [id, action] = publisher.split('@');
+      // @ts-ignore
+      let input = null;
+      [input, id, action] = publisher.match(/(.+?)@(.+)/) || ([] as any);
     } else {
       id = publisher['#'];
       action = publisher.action;

@@ -24,6 +24,7 @@ export default class EficyInEficy extends BasePlugin {
           ...props,
           ref,
           componentMap: this.controller.componentLibrary,
+          parentController: this.controller,
         }),
       );
     }

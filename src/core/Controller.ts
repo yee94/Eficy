@@ -4,7 +4,7 @@ import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
 import { IReactComponent } from 'mobx-react';
-import { action } from 'mobx';
+import { action, observable } from 'mobx';
 import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
 import defaultActions, { IAction } from '../constants/defaultActions';
@@ -18,6 +18,9 @@ export default class EficyController extends PluginTarget {
   public componentMap: Map<ExtendsViewSchema, IReactComponent> = new Map();
   public replaceVariables: <T>(target: T) => T;
   protected actions: Record<string, IAction>;
+
+  @observable.ref
+  public parentController?: EficyController;
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     super();
@@ -117,6 +120,12 @@ export default class EficyController extends PluginTarget {
         return this.models;
       },
     });
+    Object.defineProperty(context, 'parent', {
+      enumerable: true,
+      get: () => {
+        return this.parentController;
+      },
+    });
 
     return createReplacer(context);
   }
@@ -126,5 +135,6 @@ export default class EficyController extends PluginTarget {
       this.uninstall(plugin);
       plugin.destroyPlugin();
     });
+    this.parentController = undefined;
   }
 }
