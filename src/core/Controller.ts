@@ -1,41 +1,40 @@
 import { Hook, PluginTarget } from 'plugin-decorator';
-import { IActionProps, IEficySchema } from '../interface';
+import { IActionProps, IEficySchema, ExtendsViewSchema } from '../interface';
 import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
-import ViewSchema from '../models/ViewSchema';
 import { IReactComponent } from 'mobx-react';
 import { action } from 'mobx';
 import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
 import defaultActions, { IAction } from '../constants/defaultActions';
-import createReplacer from '../utils/relaceVariable';
+import { relaceVariable as createReplacer } from '../utils';
 import * as insideComponents from '../components';
 
 export default class EficyController extends PluginTarget {
   public model: EficySchema;
   public plugins: BasePlugin[];
   public componentLibrary: Record<string, any>;
-  public componentMap: Map<ViewSchema, IReactComponent> = new Map();
+  public componentMap: Map<ExtendsViewSchema, IReactComponent> = new Map();
   public replaceVariables: <T>(target: T) => T;
   protected actions: Record<string, IAction>;
 
   constructor(model: IEficySchema, componentMap?: Record<string, any>) {
     super();
-    this.model = new EficySchema(model);
+    this.componentLibrary = Object.assign({}, insideComponents, componentMap || global[Config.defaultComponentMapName]);
+
+    this.model = new EficySchema(model, this.componentLibrary);
     this.replaceVariables = this.createReplacer();
     this.bindActions();
 
     this.initPlugins(model);
-
-    this.componentLibrary = Object.assign({}, insideComponents, componentMap || global[Config.defaultComponentMapName]);
   }
 
-  public get models(): Record<string, ViewSchema> {
+  public get models(): Record<string, ExtendsViewSchema> {
     return this.model.viewDataMap;
   }
 
-  public getModel(id: string): ViewSchema {
+  public getModel(id: string): ExtendsViewSchema {
     return this.model.viewDataMap[id];
   }
 
@@ -49,7 +48,7 @@ export default class EficyController extends PluginTarget {
   }
 
   @action.bound
-  protected onRegister(model: ViewSchema, ref: IReactComponent) {
+  protected onRegister(model: ExtendsViewSchema, ref: IReactComponent) {
     if (!this.componentMap.get(model)) {
       console.log(`register "${model['#']}" component`);
       this.componentMap.set(model, ref);
@@ -71,7 +70,7 @@ export default class EficyController extends PluginTarget {
    * @returns {T}
    */
   @Hook
-  protected componentWrap<T>(component: T, schema: ViewSchema): T {
+  protected componentWrap<T>(component: T, schema: ExtendsViewSchema): T {
     return component;
   }
 
@@ -82,11 +81,11 @@ export default class EficyController extends PluginTarget {
    * @returns {any}
    */
   @Hook
-  public getResolver(resolverNext: any = resolver, schema?: ViewSchema): any {
+  public getResolver(resolverNext: any = resolver, schema?: ExtendsViewSchema): any {
     return resolverNext;
   }
 
-  public resolver(view?: ViewSchema | ViewSchema[]) {
+  public resolver(view?: ExtendsViewSchema | ExtendsViewSchema[]) {
     return this.getResolver()(view || this.model.views, {
       componentMap: this.componentLibrary,
       onRegister: this.onRegister,

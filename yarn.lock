@@ -5818,10 +5818,10 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
-plugin-decorator@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/plugin-decorator/-/plugin-decorator-1.1.4.tgz#0160e68a5d595dc63b3622c2a1731afac5a7d709"
-  integrity sha512-ZDyX0lH7gbZuZIYnCSOZL7wSPiMIO0K10koOLqWyQYX8hNP6YakJPrlVA6SNVBiI3j0ka4Z4mvMSQjRi0EZWqw==
+plugin-decorator@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/plugin-decorator/-/plugin-decorator-1.2.0.tgz#31b29da2e5c92035370ae7a57146de82e2483307"
+  integrity sha512-CcSihRGRnWZST5agRxdqxenuyn6YbJpnZ5tbrEEGAIgMY1k+bK2MC/M+plz4suGIEnxuXERG0hJjqPs+Ub+3zQ==
 
 plur@^3.1.1:
   version "3.1.1"

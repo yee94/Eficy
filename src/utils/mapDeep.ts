@@ -1,14 +1,9 @@
-import forEachDeep from './forEachDeep';
+import forEachDeep, { IForEachDeepOpts } from './forEachDeep';
 import { set } from './common';
 
-type forDeep = <T>(
-  object: T,
-  cb: (obj: T, path: string) => T,
+type forDeep = <T>(object: T, cb: (obj: T, path: string) => T, options?: IForEachDeepOpts) => T;
 
-  exceptFns?: Array<(gotData: object) => boolean>,
-) => T;
-
-const mapDeep: forDeep = (object, cb, exceptFns = []) => {
+const mapDeep: forDeep = (object, cb, options = {}) => {
   let newObject: any = object;
   forEachDeep(
     object,
@@ -20,7 +15,7 @@ const mapDeep: forDeep = (object, cb, exceptFns = []) => {
         set(newObject, path, result);
       }
     },
-    exceptFns,
+    options,
   );
   return newObject;
 };

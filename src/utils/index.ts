@@ -6,4 +6,6 @@ export { default as forEachDeep } from './forEachDeep';
 export { default as mapDeep } from './mapDeep';
 export { default as relaceVariable } from './relaceVariable';
 export { default as isEficyAction } from './isEficyAction';
+export { default as loadComponentModels } from './loadComponentModels';
 export * from './common';
+export * from './decorators';

@@ -30,6 +30,7 @@
 - [x] destroy controller
 - [x] destroy plugin
 - [x] Eficy in another Eficy
+- [x] Eficy in another Eficy unit test
 - [ ] async load ViewSchema
 - [ ] dialog event
 - [ ] css-loader plugin

@@ -3,14 +3,14 @@ import { get, isArray } from './common';
 
 const addPath = (...paths) => paths.join('.').replace(/^\./, '');
 
-export type forDeep = <T>(
-  object: T,
-  cb: (obj: T, path: string) => void,
-  exceptFns?: Array<(gotData: object) => boolean>,
-) => void;
+export interface IForEachDeepOpts {
+  exceptFns?: Array<(gotData: object, path: string) => boolean>;
+}
 
-const forEachDeep: forDeep = (object, cb, exceptFns = []) => {
-  exceptFns = [gotObject => React.isValidElement(gotObject), ...exceptFns];
+export type forDeep = <T>(object: T, cb: (obj: T, path: string) => void, options?: IForEachDeepOpts) => void;
+
+const forEachDeep: forDeep = (object, cb, options = {}) => {
+  const exceptFns = get(options, 'exceptFns', []);
   const ruedObjects: WeakSet<any> = new WeakSet();
   const fn = (path: string = '') => {
     const gotObject = path ? get(object, path) : object;
@@ -21,25 +21,27 @@ const forEachDeep: forDeep = (object, cb, exceptFns = []) => {
       // except loop
       return;
     }
-    if (exceptFns.some(exceptFn => exceptFn(gotObject))) {
+    if (React.isValidElement(gotObject)) {
       return;
     }
 
     ruedObjects.add(gotObject);
 
-    Object.keys(gotObject).forEach(key => {
-      const value = gotObject[key];
-      if (typeof value !== 'object') {
-        return;
-      }
-      if (isArray(value)) {
-        value.forEach((tmp, ckey) => {
-          fn(addPath(path, key, ckey));
-        });
-      } else {
-        fn(addPath(path, key));
-      }
-    });
+    if (!exceptFns.some(exceptFn => exceptFn(gotObject, path))) {
+      Object.keys(gotObject).forEach(key => {
+        const value = gotObject[key];
+        if (typeof value !== 'object') {
+          return;
+        }
+        if (isArray(value)) {
+          value.forEach((tmp, ckey) => {
+            fn(addPath(path, key, ckey));
+          });
+        } else {
+          fn(addPath(path, key));
+        }
+      });
+    }
 
     cb(gotObject, path);
   };

@@ -1,10 +1,10 @@
 import { ViewSchema } from '../../models';
-import { IEficySchema, IPlugin, IView } from '../../interface';
+import { IPlugin, IView } from '../../interface';
 import { Field } from '@vmojs/base';
 
-export default class EficyModel extends ViewSchema implements IEficySchema {
+export default class EficyModel extends ViewSchema {
   @Field
-  public '#view' = 'Eficy';
+  public '#view': string = 'Eficy';
   @Field
   public views: IView[];
   @Field
