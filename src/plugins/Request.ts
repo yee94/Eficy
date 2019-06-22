@@ -2,7 +2,7 @@ import BasePlugin from './base';
 import EficyController from '../core/Controller';
 import axios, { Method } from 'axios';
 import { IActionProps, IEficySchema } from '../interface';
-import { generateUid } from '../utils';
+import { generateUid, isArray } from '../utils';
 
 type IRequstMethod = (requestParams: IRequst) => Promise<IActionProps>;
 
@@ -13,8 +13,9 @@ declare module '../core/Controller' {
 }
 
 interface IRequst {
-  url?: string;
   '#'?: string;
+  url?: string;
+  immediately?: boolean;
   method?: Method;
   data?: any;
   params?: any;
@@ -23,6 +24,7 @@ interface IRequst {
 
 export default class Request extends BasePlugin {
   public static pluginName: string = 'request';
+  private needImmediatelyRequests: IRequst[] = [];
   public static defaultFormat(resData): IActionProps {
     return resData;
   }
@@ -43,8 +45,11 @@ export default class Request extends BasePlugin {
     }
   };
 
-  public loadOptions(data: IEficySchema & { requests?: IRequst[] }) {
-    const { requests } = data;
+  public loadOptions(data: IEficySchema & { requests?: IRequst | IRequst[] }) {
+    let { requests } = data;
+    if (requests && !isArray(requests)) {
+      requests = [requests];
+    }
     this.options.requests = requests || [];
   }
 
@@ -70,6 +75,7 @@ export default class Request extends BasePlugin {
     this.controller.request = this.request.bind(this);
     this.options.requests.forEach(request => this.addRequest(request));
     this.loadViewRequest();
+    this.runImmediatelyRequests();
   }
 
   private loadViewRequest() {
@@ -87,6 +93,14 @@ export default class Request extends BasePlugin {
       request['#'] = generateUid();
     }
 
+    if (request.immediately === true) {
+      this.needImmediatelyRequests.push(request);
+    }
+
     this.requestMap[request['#']] = request;
+  }
+
+  private runImmediatelyRequests() {
+    this.needImmediatelyRequests.forEach(this.request.bind(this));
   }
 }

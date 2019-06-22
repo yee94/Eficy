@@ -27,11 +27,12 @@ export default class EficySchema extends Vmo implements IEficySchema {
   }
 
   @action
-  protected load(data: IEficySchema): this {
+  public load(data: IEficySchema): this {
     super.load(data);
 
     const componentModels = loadComponentModels(this.componentLibrary);
 
+    this.views = [];
     if (isArray(data.views)) {
       this.views = data.views.map(viewData => new ViewSchema(viewData, componentModels));
     }

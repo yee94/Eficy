@@ -1,16 +1,21 @@
 import EficyModel from '../src/components/EficyComponent/EficyModel';
 import { ViewSchema } from '../src/models';
 import test from 'ava';
+import EficyController from '../src/core/Controller';
+
+import { configure, mount } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+
+configure({ adapter: new Adapter() });
 
 const basicData = {
   '#': 'form',
-  '#view': 'Form',
+  '#view': 'div',
   className: 'test',
-  newField: 'test',
   '#children': [
     {
       '#': 'formItem',
-      '#view': 'Form.Item',
+      '#view': 'span',
     },
     {
       '#': 'eficyComponent',
@@ -18,11 +23,12 @@ const basicData = {
       views: [
         {
           '#': 'message',
-          '#view': 'Message',
+          '#view': 'span',
+          value: 'spanContent',
         },
         {
           '#': 'message2',
-          '#view': 'Message',
+          '#view': 'span',
         },
       ],
     },
@@ -45,4 +51,28 @@ test('special model', t => {
 
 test('eficy scope viewDataMap', t => {
   t.is(Object.keys(viewSchema.viewDataMap.eficyComponent.viewDataMap).length, 1);
+});
+
+const controller = new EficyController({
+  views: [basicData],
+});
+
+mount(controller.resolver());
+
+test('children controller whether loaded', t => {
+  const eficyModel = controller.models.eficyComponent;
+  t.true(eficyModel instanceof EficyModel);
+
+  const childrenController = eficyModel['#controller'];
+  t.true(childrenController instanceof EficyController);
+  t.true(childrenController.parentController === controller);
+});
+
+test('parent get children models', t => {
+  t.is(controller.models.eficyComponent.models.message.value, 'spanContent');
+});
+
+test('children get parent models', t => {
+  const eficyModel = controller.models.eficyComponent;
+  t.is(eficyModel.parentModels.formItem['#view'], 'span');
 });

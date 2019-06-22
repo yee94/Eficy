@@ -29,38 +29,16 @@ const controller = Eficy.render(
           {
             '#': 'eficy',
             '#view': 'Eficy',
-            views: [
-              {
-                '#': 'alertParent',
-                '#view': 'Alert',
-                message: 'Hello parent ${parent.models.input.value} ',
-                type: 'info',
-                showIcon: true,
-              },
-              {
-                '#': 'input',
-                '#view': 'Input',
-                value: 'value',
-              },
-              {
-                '#': 'textarea',
-                '#view': 'Input.TextArea',
-                '#bindValuePropName': 'value',
-                value: 'value',
-              },
-              {
-                '#': 'switch',
-                '#view': 'Switch',
-                checked: true,
-              },
-            ],
+            requests: {
+              immediately: true,
+              url: 'https://easy-mock.com/mock/5d052e5e6d97202d2c7a8998/eficy/request/reload',
+            },
             events: [
               {
                 publisher: 'switch@onChange',
                 listeners: [(contrl, ...args) => console.log(contrl.parentController.models.eficy)],
               },
             ],
-            plugins: ['two-way-bind'],
           },
         ],
       },

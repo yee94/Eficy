@@ -1,10 +1,11 @@
 import BasePlugin from './base';
-import { IReactionOptions, reaction } from 'mobx';
+import { action, IReactionOptions, reaction } from 'mobx';
 import { IActionProps, IEficySchema } from '../interface';
 import EficyController from '../core/Controller';
 import { forEachDeep, isEficyAction, set } from '../utils';
 import { ViewSchema } from '../models';
 import Config from '../constants/Config';
+import { Inject } from 'plugin-decorator';
 
 declare module '../core/Controller' {
   export default interface EficyController {
@@ -32,6 +33,15 @@ export default class Reaction extends BasePlugin {
 
     this.transformReactions();
     this.options.reactions.forEach(event => this.addReaction(event));
+  }
+
+  @Inject
+  @action.bound
+  public run(next, actionProps: IActionProps) {
+    next(actionProps, { needReplaceVariable: !/^refresh|reload$/.test(actionProps.action) });
+    if (actionProps.action === 'refresh') {
+      this.transformReactions();
+    }
   }
 
   /**

@@ -3,6 +3,7 @@ import { IPlugin, IView } from '../../interface';
 import { Field } from '@vmojs/base';
 import EficyController from '../../core/Controller';
 import { action, computed, observable } from 'mobx';
+import { get } from '../../utils';
 
 export default class EficyModel extends ViewSchema {
   @Field
@@ -13,6 +14,8 @@ export default class EficyModel extends ViewSchema {
   public plugins?: IPlugin[];
   @Field
   public events?: any;
+  @Field
+  public requests?: any;
 
   @observable.ref
   public '#controller'?: EficyController;
@@ -20,6 +23,11 @@ export default class EficyModel extends ViewSchema {
   @computed
   public get models() {
     return this['#controller'] ? this['#controller'].models : {};
+  }
+
+  @computed
+  public get parentModels() {
+    return get(this, '#controller.parentController.models', []);
   }
 
   @action.bound
