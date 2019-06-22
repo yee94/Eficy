@@ -71,28 +71,26 @@ const controller = Eficy.render(
     events: [
       {
         publisher: 'button@onClick',
-        listeners: [
-          ctrl => {
-            ctrl.run({ action: 'update', data: { '#': 'button', loading: true } });
-            setTimeout(() => {
-              ctrl.run({
-                action: 'update',
-                data: [
-                  {
-                    '#': 'button',
-                    loading: false,
+        listeners: ctrl => {
+          ctrl.run({ action: 'update', data: { '#': 'button', loading: true } });
+          setTimeout(() => {
+            ctrl.run({
+              action: 'update',
+              data: [
+                {
+                  '#': 'button',
+                  loading: false,
+                },
+                {
+                  '#': 'table',
+                  rowSelection: {
+                    selectedRowKeys: [],
                   },
-                  {
-                    '#': 'table',
-                    rowSelection: {
-                      selectedRowKeys: [],
-                    },
-                  },
-                ],
-              });
-            }, 1000);
-          },
-        ],
+                },
+              ],
+            });
+          }, 1000);
+        },
       },
     ],
   },
