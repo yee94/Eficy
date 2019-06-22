@@ -9,6 +9,9 @@ class EficyComponent extends Component<{ model: EficyModel; componentMap: any; p
   constructor(props) {
     super(props);
     this.controller = new EficyController(props.model, props.componentMap);
+    if (!(props.model instanceof EficyModel)) {
+      return;
+    }
     props.model.bindController(this.controller);
     this.controller.parentController = props.parentController;
   }

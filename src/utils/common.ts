@@ -1,5 +1,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 export const cloneDeep = _cloneDeep;
+import _clone from 'lodash/clone';
+export const clone = _clone;
 import _isArray from 'lodash/isArray';
 export const isArray = _isArray;
 import _get from 'lodash/get';
@@ -12,6 +14,14 @@ import _set from 'lodash/set';
 export const set = _set;
 import _isEmpty from 'lodash/isEmpty';
 export const isEmpty = _isEmpty;
+import _merge from 'lodash/merge';
+export const merge = _merge;
+import _mergeWith from 'lodash/mergeWith';
+export const mergeWith = _mergeWith;
+
+export const MERGE_WAY = {
+  REPLACE: (old, newData) => newData,
+};
 
 export function filterUndefined(obj: Record<string, any>) {
   return pickBy(obj, val => val !== undefined);

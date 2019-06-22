@@ -33,7 +33,9 @@
 - [x] Eficy in another Eficy unit test
 - [x] Eficy in another Eficy, get child controller
 - [x] async load ViewSchema
-- [ ] table example
+- [x] table example
+- [x] function return transform adaptor
+- [x] function return transform adaptor unit test
 - [ ] dialog event
 - [ ] css-loader plugin
 - [ ] function adaptor

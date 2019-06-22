@@ -7,5 +7,8 @@ export { default as mapDeep } from './mapDeep';
 export { default as relaceVariable } from './relaceVariable';
 export { default as isEficyAction } from './isEficyAction';
 export { default as loadComponentModels } from './loadComponentModels';
+export { default as eficyWrap } from './eficyWrap';
 export * from './common';
 export * from './decorators';
+import * as _Logs from './Logs';
+export const Logs = _Logs;

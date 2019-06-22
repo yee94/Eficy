@@ -2,11 +2,13 @@ import React from 'react';
 import { IView } from '../interface';
 import {
   compose,
+  eficyWrap,
   filterUndefined,
   generateUid,
   get,
   isArray,
   isEficyView,
+  Logs,
   mapDeep,
   mergeClassName,
   pickBy,
@@ -29,7 +31,11 @@ export interface IResolverOptions {
  * @param props
  * @returns {any}
  */
-const transformPropsList = props => mapDeep(props, obj => (isEficyView(obj) ? obj : toJS(obj)));
+const transformPropsList = props =>
+  mapDeep(props, obj => (isEficyView(obj) ? obj : toJS(obj)), {
+    isIncludeArray: true,
+    exceptFns: [obj => isEficyView(obj)],
+  });
 
 /**
  * filter "#xxxxxxx" prop option
@@ -60,6 +66,34 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     }
   };
 
+  /**
+   * transform function result to resolver data
+   * eg.
+   *  data => ({'#view':'a',href:"baidu.com"})
+   *  to : data => <a href="baidu.com" />
+   * @param props
+   * @returns {any}
+   */
+  const transformFunctionResult = props =>
+    mapDeep(
+      props,
+      obj => {
+        Object.keys(obj).forEach(key => {
+          const value = obj[key];
+          if (typeof value === 'function') {
+            obj[key] = eficyWrap(value, resultSchema => resolverNext(resultSchema, options));
+          }
+        });
+        return obj;
+      },
+      { isIncludeArray: true },
+    );
+
+  /**
+   * transform children ViewSchema
+   * @param props
+   * @returns {{}}
+   */
   const transformViewComponent = props =>
     Object.keys(props).reduce((prev, next) => {
       const value = props[next];
@@ -99,9 +133,10 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
   }
 
   const componentProps = compose(
+    transformFunctionResult,
+    transformViewComponent,
     transformPropsList,
     filterViewProps,
-    transformViewComponent,
     filterUndefined,
   )({
     ...modelRestProps,
@@ -124,7 +159,15 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 }
 
 export default function observerResolver(schema: IView | IView[], options?: IResolverOptions) {
-  return React.createElement(observer(() => resolverBasic(schema, options)), {
-    key: `observer_${schema['#'] || generateUid()}`,
-  });
+  return React.createElement(
+    observer(() => {
+      const end = Logs.Performance(`rerender "${schema['#view']}" time`);
+      const result = resolverBasic(schema, options);
+      end();
+      return result;
+    }),
+    {
+      key: `observer_${schema['#'] || generateUid()}`,
+    },
+  );
 }

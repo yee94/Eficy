@@ -1,8 +1,18 @@
-import { IView, ExtendsViewSchema } from '../interface';
+import { ExtendsViewSchema, IView } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
-import { cloneDeep, deleteObjectField, forEachDeep, generateUid, isArray, isEficyView, mapDeep } from '../utils';
+import {
+  cloneDeep,
+  deleteObjectField,
+  forEachDeep,
+  generateUid,
+  isArray,
+  isEficyView,
+  mapDeep,
+  MERGE_WAY,
+  mergeWith,
+} from '../utils';
 import { action, computed, observable } from 'mobx';
 import Config from '../constants/Config';
 import UnEnumerable from '../utils/decorators/UnEnumerable';
@@ -38,9 +48,11 @@ export default class ViewSchema extends Vmo implements IView {
   @Field
   public '#': string;
   @Field
-  public '#content': string;
-  @Field
   public '#children': ViewSchema[];
+
+  @Field
+  @observable
+  public '#content': string;
 
   @observable
   public '#restProps': Record<string, any>;
@@ -172,7 +184,11 @@ export default class ViewSchema extends Vmo implements IView {
             },
           });
         } else {
-          this[key] = data[key];
+          if (typeof data[key] === 'object') {
+            this[key] = mergeWith(this[key], data[key], MERGE_WAY.REPLACE);
+          } else {
+            this[key] = data[key];
+          }
         }
       }
     });
