@@ -33,7 +33,9 @@ export default function(schema: IEficySchema, options: string | HTMLElement | IR
     throw new Error('not define valid document');
   }
 
-  ReactDOM.render(controller.resolver(), dom);
+  setTimeout(() => {
+    ReactDOM.render(controller.resolver(), dom);
+  });
 
   return controller;
 }

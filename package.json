@@ -68,13 +68,15 @@
     "failFast": true,
     "compileEnhancements": false,
     "files": [
-      "test/**/*.spec.ts"
+      "test/**/*.spec.ts",
+      "test/**/*.spec.tsx"
     ],
     "sources": [
       "src/**/*.ts"
     ],
     "extensions": [
-      "ts"
+      "ts",
+      "tsx"
     ],
     "require": [
       "ts-node/register",
