@@ -32,10 +32,10 @@
 - [x] Eficy in another Eficy
 - [x] Eficy in another Eficy unit test
 - [x] Eficy in another Eficy, get child controller
-- [ ] async load ViewSchema
+- [x] async load ViewSchema
+- [ ] table example
 - [ ] dialog event
 - [ ] css-loader plugin
-- [ ] table example
 - [ ] function adaptor
 - [ ] event adaptor
 - [ ] plugin bundle

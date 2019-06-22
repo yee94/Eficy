@@ -1,6 +1,6 @@
 import Config from './Config';
 import Controller from '../core/Controller';
-import { IView } from '../interface';
+import { IEficySchema, IView } from '../interface';
 
 export type IAction = (params: any, controller: Controller) => void;
 
@@ -27,6 +27,12 @@ const defaultActions: Record<string, IAction> = {
   },
   updateGlobal(params: { views: IView[] }, controller: Controller) {
     controller.model.update(params);
+  },
+  refresh(params: IEficySchema, controller: Controller) {
+    controller.model.load(params);
+  },
+  reload(params: IEficySchema, controller: Controller) {
+    controller.reload(params);
   },
 };
 

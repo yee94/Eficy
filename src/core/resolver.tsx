@@ -1,6 +1,16 @@
 import React from 'react';
 import { IView } from '../interface';
-import { compose, filterUndefined, get, isArray, isEficyView, mapDeep, mergeClassName, pickBy } from '../utils';
+import {
+  compose,
+  filterUndefined,
+  generateUid,
+  get,
+  isArray,
+  isEficyView,
+  mapDeep,
+  mergeClassName,
+  pickBy,
+} from '../utils';
 import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
 import { toJS } from 'mobx';
@@ -114,5 +124,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 }
 
 export default function observerResolver(schema: IView | IView[], options?: IResolverOptions) {
-  return React.createElement(observer(() => resolverBasic(schema, options)), { key: `observer_${schema['#']}` });
+  return React.createElement(observer(() => resolverBasic(schema, options)), {
+    key: `observer_${schema['#'] || generateUid()}`,
+  });
 }

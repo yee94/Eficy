@@ -27,8 +27,6 @@ export default class ViewSchema extends Vmo implements IView {
 
     this.load(data);
 
-    console.warn('create model', data);
-
     if (foundModel && ViewSchema.isViewSchemaSelf(this)) {
       // @ts-ignore
       return new foundModel(data, componentModels);
