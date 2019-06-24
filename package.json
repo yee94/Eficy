@@ -2,8 +2,9 @@
   "name": "@eficy/core",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "private": false,
   "scripts": {
     "watch": "tsc -w",
     "start": "npm run dev:umd",
