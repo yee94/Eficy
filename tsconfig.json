@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "outDir": "./lib",
     "module": "commonjs",
     "target": "es2017",
@@ -26,6 +26,6 @@
     "downlevelIteration": true,
     "experimentalDecorators": true
   },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./test/**/*.ts"],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
 }
