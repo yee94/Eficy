@@ -30,8 +30,7 @@ export default function(schema: IEficySchema, options: string | HTMLElement | IR
   const controller = new Controller(schema, componentMap);
 
   if (typeof dom !== 'object') {
-    // throw new Error('not define valid document');
-    return controller.resolver();
+    throw new Error('not define valid document');
   }
 
   setTimeout(() => {

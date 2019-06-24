@@ -1,9 +1,13 @@
-import resolver from './core/resolver';
+import * as _Tools from './utils';
+import * as _Models from './models';
 import Controller from './core/Controller';
-import Config from './constants/Config';
-import Plugins from './plugins';
-import * as Tools from './utils';
-import * as Models from './models';
-import renderHelper from './utils/renderHelper';
 
-export default { default: Controller, resolver, Tools, Config, render: renderHelper, Models, Plugins };
+export { default as resolver } from './core/resolver';
+export { default as Config } from './constants/Config';
+export { default as Plugins } from './plugins';
+export const Tools = _Tools;
+export const Models = _Models;
+export { default as render } from './utils/renderHelper';
+export { default as createElement } from './utils/createElement';
+
+export default Controller;
