@@ -4,7 +4,6 @@ import ViewSchema from './ViewSchema';
 import { IEficySchema, IPlugin, IView } from '../interface';
 import { isArray } from '../utils';
 import { Hook } from 'plugin-decorator';
-import Config from '../constants/Config';
 import loadComponentModels from '../utils/loadComponentModels';
 
 export default class EficySchema extends Vmo implements IEficySchema {
@@ -20,7 +19,7 @@ export default class EficySchema extends Vmo implements IEficySchema {
     return this.views.reduce((prev, next) => Object.assign(prev, next.viewDataMap), {});
   }
 
-  constructor(data: IEficySchema, componentLibrary = global[Config.defaultComponentMapName] || {}) {
+  constructor(data: IEficySchema, componentLibrary = {}) {
     super({});
     this.componentLibrary = componentLibrary;
     this.load(data);

@@ -22,6 +22,7 @@
     <script>
       Eficy.Config.successAlert = ({ msg }) => antd.message.success(msg);
       Eficy.Config.failAlert = ({ msg }) => antd.message.error(msg);
+      Eficy.Config.defaultComponentMap = Object.assign({}, antd);
     </script>
 
     <% for (const file of htmlWebpackPlugin.options.files.js) { %>

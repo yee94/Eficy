@@ -39,7 +39,7 @@ module.exports = {
   mode: 'production',
   output: {
     library: 'Eficy',
-    libraryExport: 'default',
+    // libraryExport: '',
     libraryTarget: 'umd',
     filename: '[name].js',
     path: path.resolve(rootPath, 'build'),
@@ -82,5 +82,6 @@ module.exports = {
     react: 'React',
     'react-dom': 'ReactDOM',
     '@alife/next': 'Next',
+    antd: 'antd',
   },
 };

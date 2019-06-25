@@ -53,6 +53,5 @@ const controller = Eficy.render(
   },
   {
     dom: '#container',
-    components: window.antd,
   },
 );
