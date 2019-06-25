@@ -13,7 +13,6 @@ import {
   mergeClassName,
   pickBy,
 } from '../utils';
-import Config from '../constants/Config';
 import ViewSchema from '../models/ViewSchema';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react';
@@ -47,7 +46,7 @@ const wrapMap = new WeakMap();
 
 export function resolverBasic(schema: IView | IView[], options?: IResolverOptions): any {
   const {
-    componentMap = global[Config.defaultComponentMapName] || {},
+    componentMap = {},
     onRegister = null,
     componentWrap = null,
     // tslint:disable-next-line:no-shadowed-variable

@@ -115,8 +115,7 @@ export default class AntForm extends BasePlugin {
 
   private createForm(schema: ViewSchema, component) {
     if (!this.formWrapMap[schema['#']]) {
-      // @ts-ignore
-      this.formWrapMap[schema['#']] = global.antd.Form.create({ name: schema['#'] })(component);
+      this.formWrapMap[schema['#']] = require('antd').Form.create({ name: schema['#'] })(component);
 
       schema.forEachChild(child => {
         this.formChildSet.add(child);

@@ -1,7 +1,6 @@
 import ReactDOM from 'react-dom';
 import Controller from '../core/Controller';
 import { IEficySchema } from '../interface';
-import Config from '../constants/Config';
 
 interface IRenderOptions {
   dom: string | HTMLElement;
@@ -13,7 +12,7 @@ export default function(schema: IEficySchema, options: string | HTMLElement | IR
     throw new Error('render helper options not define');
   }
   let dom: any;
-  let componentMap = global[Config.defaultComponentMapName] || {};
+  let componentMap = {};
   if (typeof options === 'string') {
     dom = options;
   } else if (options.hasOwnProperty('dom')) {

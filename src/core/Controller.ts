@@ -26,7 +26,7 @@ export default class EficyController extends PluginTarget {
 
   constructor(data: IEficySchema, componentMap?: Record<string, any>) {
     super();
-    this.componentLibrary = Object.assign({}, insideComponents, componentMap || global[Config.defaultComponentMapName]);
+    this.componentLibrary = Object.assign({}, insideComponents, Config.defaultComponentMap, componentMap);
     this.replaceVariables = this.createReplacer();
 
     this.reload(data);

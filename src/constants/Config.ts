@@ -1,5 +1,5 @@
 export default {
-  defaultComponentMapName: 'EficyComponentMap',
+  defaultComponentMap: {},
   needTransformPropsList: ['style'],
   successAlert: ({ msg }) => alert(`Success:${msg}`),
   failAlert: ({ msg }) => alert(`Error:${msg}`),
