@@ -6,6 +6,8 @@ import _isArray from 'lodash/isArray';
 export const isArray = _isArray;
 import _get from 'lodash/get';
 export const get = _get;
+import _pick from 'lodash/pick';
+export const pick = _pick;
 import _pickBy from 'lodash/pickBy';
 export const pickBy = _pickBy;
 import _isFunction from 'lodash/isFunction';
@@ -52,4 +54,17 @@ export function deleteObjectField(obj: object, key) {
   } catch (e) {
     obj[key] = undefined;
   }
+}
+
+/**
+ * transform one two some obj to Array
+ * @param obj
+ * @returns {T[]}
+ */
+export function toArr<T>(obj: T | T[]): T[] {
+  if (!isArray(obj)) {
+    obj = [obj as T];
+  }
+
+  return obj as T[];
 }

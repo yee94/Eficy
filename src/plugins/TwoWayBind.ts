@@ -68,4 +68,9 @@ export default class TwoWayBind extends BasePlugin {
 
     return this.syncWrapMap.get(Component);
   }
+
+  public destroyPlugin() {
+    this.syncWrapMap.clear();
+    super.destroyPlugin();
+  }
 }

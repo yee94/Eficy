@@ -36,6 +36,12 @@
 - [x] table example
 - [x] function return transform adaptor
 - [x] function return transform adaptor unit test
+- [x] antd table plugin
+- [x] antd table example
+- [x] request format array & before array
+- [ ] antd table cell performance
+- [ ] plugin sort weight
+- [ ] plugin sort weight
 - [ ] dialog event
 - [ ] css-loader plugin
 - [ ] function adaptor

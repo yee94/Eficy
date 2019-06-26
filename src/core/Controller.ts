@@ -65,6 +65,9 @@ export default class EficyController extends PluginTarget {
 
   @action.bound
   protected onRegister(model: ExtendsViewSchema, ref: IReactComponent) {
+    if (!model['#']) {
+      return;
+    }
     if (!this.componentMap.has(model)) {
       console.log(`register "${model['#']}" component`);
       this.componentMap.set(model, ref);
