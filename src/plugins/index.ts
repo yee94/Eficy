@@ -8,6 +8,7 @@ import TwoWayBind from './TwoWayBind';
 import EficyInEficy from './EficyInEficy';
 
 const plugins: Record<string, new (options) => BasePlugin> = {
+  base: BasePlugin,
   [Events.pluginName]: Events,
   [Request.pluginName]: Request,
   [AntForm.pluginName]: AntForm,

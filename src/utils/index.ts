@@ -10,5 +10,6 @@ export { default as loadComponentModels } from './loadComponentModels';
 export { default as eficyWrap } from './eficyWrap';
 export * from './common';
 export * from './decorators';
+export * from 'plugin-decorator';
 import * as _Logs from './Logs';
 export const Logs = _Logs;
