@@ -21,7 +21,7 @@ type IComponentsModels = Record<string, new (...args: any) => ViewSchema>;
 export type ExtendsViewSchema = ViewSchema & any;
 
 export default class ViewSchema extends Vmo implements IView {
-  public static readonly solidField = ['#', '#view', '#children', '#restProps'];
+  public static readonly solidField = ['#', '#view', '#restProps'];
   public static isViewSchemaSelf(someObject: any): boolean {
     return someObject.__proto__.constructor.name === ViewSchema.name;
   }

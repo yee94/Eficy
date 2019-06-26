@@ -9,7 +9,6 @@ import createReplacer from '../utils/relaceVariable';
 
 interface ITableView extends ViewSchema {
   '#view': 'Table';
-  '#sort': any;
   '#request': IRequest;
   pagination: any;
   columns: any[];
@@ -27,7 +26,7 @@ export default class AntTable extends BasePlugin {
   protected transformValues = options => {
     if (!options) {
       Object.values(this.controller.model.viewDataMap).forEach(model => {
-        model['#view'] === 'Table' && this.applyTableProperty(model);
+        model['#view'] === 'Table' && this.applyTableProperty(model as any);
       });
     }
   };
@@ -71,7 +70,7 @@ export default class AntTable extends BasePlugin {
       const state = this.getRequestParams(tableView);
       config.data = { ...state, ...(config.data || {}) };
 
-      createReplacer({ antdTableState: state })(config);
+      createReplacer({ tableState: state })(config);
 
       return {
         action: 'update',
