@@ -2,7 +2,7 @@ import { action, computed, observable } from 'mobx';
 import { Field, Vmo } from '@vmojs/base';
 import ViewSchema from './ViewSchema';
 import { IEficySchema, IPlugin, IView } from '../interface';
-import { isArray } from '../utils';
+import { cloneDeep, isArray } from '../utils';
 import { Hook } from 'plugin-decorator';
 import loadComponentModels from '../utils/loadComponentModels';
 
@@ -22,7 +22,7 @@ export default class EficySchema extends Vmo implements IEficySchema {
   constructor(data: IEficySchema, componentLibrary = {}) {
     super({});
     this.componentLibrary = componentLibrary;
-    this.load(data);
+    this.load(cloneDeep(data));
   }
 
   @action
