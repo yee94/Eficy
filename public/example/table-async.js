@@ -26,11 +26,11 @@ const controller = Eficy.render(
           url: 'https://easy-mock.com/mock/5d052e5e6d97202d2c7a8998/eficy/table/getlist',
           params: {
             search: '${models.search.value}',
-            current: '${antdTableState.pagination.current}',
-            addressSort: '${antdTableState.sorter.address}',
+            current: '${tableState.pagination.current}',
+            addressSort: '${tableState.sorter.address}',
           },
           data: {
-            sort: '${antdTableState.sorter}',
+            sort: '${tableState.sorter}',
           },
           format: res => ({
             action: 'update',

@@ -20,6 +20,7 @@ export interface IRequest {
   method?: Method;
   data?: any;
   params?: any;
+  headers?: Record<string, string>;
   before?: IBefore | IBefore[];
   format?: IFormat | IFormat[];
 }
@@ -31,10 +32,17 @@ export default class Request extends BasePlugin {
     return resData;
   }
   public static async request(requestParams: IRequest): Promise<IActionProps | IActionProps[]> {
-    const { url = '', method = 'GET', data = {}, params = {}, format = this.defaultFormat } = requestParams;
+    const {
+      url = '',
+      headers = {},
+      method = 'GET',
+      data = {},
+      params = {},
+      format = this.defaultFormat,
+    } = requestParams;
 
     try {
-      const res = await axios({ url, method, data, params });
+      const res = await axios({ url, method, data, params, headers });
       if (!res.data) {
         throw new Error('no data return');
       }

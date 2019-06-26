@@ -122,11 +122,6 @@ test('ViewSchema update solid Field', t => {
       '#view': 'test2',
     }),
   );
-  t.throws(() =>
-    viewSchema.update({
-      '#children': [],
-    }),
-  );
 });
 
 test('ViewSchema overwrite or delete fields', t => {
