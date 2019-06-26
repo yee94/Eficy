@@ -2,33 +2,35 @@ import BasePlugin from './base';
 import EficyController from '../core/Controller';
 import axios, { Method } from 'axios';
 import { IActionProps, IEficySchema } from '../interface';
-import { generateUid, isArray } from '../utils';
-
-type IRequstMethod = (requestParams: IRequst) => Promise<IActionProps>;
+import { cloneDeep, generateUid, isArray, isEficyAction, toArr } from '../utils';
 
 declare module '../core/Controller' {
   export default interface EficyController {
-    request: (requestParams: IRequst & { '#'?: string } | string) => Promise<IActionProps>;
+    request: (requestParams: IRequest & { '#'?: string } | string) => Promise<IActionProps>;
   }
 }
 
-interface IRequst {
+type IBefore = (config: any, controller: EficyController) => IActionProps | void;
+type IFormat = (beforeData: any) => IActionProps;
+
+export interface IRequest {
   '#'?: string;
   url?: string;
   immediately?: boolean;
   method?: Method;
   data?: any;
   params?: any;
-  format?: (beforeData: any) => IActionProps;
+  before?: IBefore | IBefore[];
+  format?: IFormat | IFormat[];
 }
 
 export default class Request extends BasePlugin {
   public static pluginName: string = 'request';
-  private needImmediatelyRequests: IRequst[] = [];
+  private needImmediatelyRequests: IRequest[] = [];
   public static defaultFormat(resData): IActionProps {
     return resData;
   }
-  public static request: IRequstMethod = async function(requestParams) {
+  public static async request(requestParams: IRequest): Promise<IActionProps | IActionProps[]> {
     const { url = '', method = 'GET', data = {}, params = {}, format = this.defaultFormat } = requestParams;
 
     try {
@@ -36,16 +38,17 @@ export default class Request extends BasePlugin {
       if (!res.data) {
         throw new Error('no data return');
       }
-      return format(res.data);
+      const result = toArr(format).map(formatFn => formatFn(res.data));
+      return result.length === 1 ? result[0] : result;
     } catch (e) {
       return {
         action: 'fail',
         data: { msg: e.message },
       };
     }
-  };
+  }
 
-  public loadOptions(data: IEficySchema & { requests?: IRequst | IRequst[] }) {
+  public loadOptions(data: IEficySchema & { requests?: IRequest | IRequest[] }) {
     let { requests } = data;
     if (requests && !isArray(requests)) {
       requests = [requests];
@@ -53,19 +56,31 @@ export default class Request extends BasePlugin {
     this.options.requests = requests || [];
   }
 
-  private requestMap: Record<string, IRequst> = {};
+  private requestMap: Record<string, IRequest> = {};
 
-  public async request(requestParams: IRequst & { '#'?: string } | string) {
+  public async request(requestParams: IRequest & { '#'?: string } | string) {
     if (typeof requestParams === 'string') {
       requestParams = { '#': requestParams };
     }
     const { '#': id = '', ...restConfig } = requestParams;
     const presetRequestConfig = this.requestMap[id] || {};
 
-    const requestConfig = this.controller.replaceVariables(Object.assign({}, presetRequestConfig, restConfig));
+    const requestConfig = this.controller.replaceVariables(
+      cloneDeep(Object.assign({}, presetRequestConfig, restConfig)),
+    );
+
+    if (requestConfig.before) {
+      toArr(requestConfig.before).forEach(before => {
+        const beforeAction = before(requestConfig, this.controller);
+        if (beforeAction && isEficyAction(beforeAction)) {
+          this.controller.run(beforeAction);
+        }
+      });
+    }
+
     const action = await Request.request(requestConfig);
 
-    this.controller.run(action);
+    toArr(action).forEach(act => this.controller.run(act));
 
     return action;
   }
@@ -88,7 +103,7 @@ export default class Request extends BasePlugin {
     });
   }
 
-  private addRequest(request: IRequst) {
+  private addRequest(request: IRequest) {
     if (!request['#']) {
       request['#'] = generateUid();
     }

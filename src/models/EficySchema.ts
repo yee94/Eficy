@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx';
 import { Field, Vmo } from '@vmojs/base';
-import ViewSchema from './ViewSchema';
+import ViewSchema, { ExtendsViewSchema } from './ViewSchema';
 import { IEficySchema, IPlugin, IView } from '../interface';
 import { cloneDeep, isArray } from '../utils';
 import { Hook } from 'plugin-decorator';
@@ -11,11 +11,11 @@ export default class EficySchema extends Vmo implements IEficySchema {
   public plugins: IPlugin[];
 
   @observable
-  public views: ViewSchema[];
+  public views: ExtendsViewSchema[];
   private readonly componentLibrary: Record<string, any>;
 
   @computed
-  public get viewDataMap(): Record<string, ViewSchema> {
+  public get viewDataMap(): Record<string, ExtendsViewSchema> {
     return this.views.reduce((prev, next) => Object.assign(prev, next.viewDataMap), {});
   }
 

@@ -3,6 +3,7 @@ import Request from '../src/plugins/Request';
 import EficyController from '../src/core/Controller';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { IActionProps } from '../src/interface';
 // 设置模拟调试器实例
 const mock = new MockAdapter(axios);
 
@@ -65,21 +66,21 @@ const controller = new EficyController({
 });
 
 test('request return', async t => {
-  t.true((await Request.request({ url: 'xxxxxx' })).action === 'fail');
+  t.true(((await Request.request({ url: 'xxxxxx' })) as IActionProps).action === 'fail');
 
-  t.true((await Request.request({ url: '/success' })).action === 'success');
+  t.true(((await Request.request({ url: '/success' })) as IActionProps).action === 'success');
 
-  const resPost = await Request.request({
+  const resPost = (await Request.request({
     url: '/post',
     method: 'POST',
     params: { name2: 'param1' },
     data: {
       name: 'Hello Eficy',
     },
-  });
+  })) as IActionProps;
   t.true(resPost.data.name === 'Hello Eficy' && resPost.data.name2 === 'param1');
 
-  const resFormat = await Request.request({
+  const resFormat = (await Request.request({
     url: '/format',
     format: beforeData => {
       const { errcode, ...rest } = beforeData;
@@ -88,7 +89,7 @@ test('request return', async t => {
         data: rest,
       };
     },
-  });
+  })) as IActionProps;
 
   t.true(resFormat.action === 'success');
   t.deepEqual(resFormat.data, { result1: 'Hello', message: 'success request' });

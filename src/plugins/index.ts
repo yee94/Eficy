@@ -6,15 +6,17 @@ import Request from './Request';
 import Reaction from './Reaction';
 import TwoWayBind from './TwoWayBind';
 import EficyInEficy from './EficyInEficy';
+import AntTable from './AntTable';
 
 const plugins: Record<string, new (options) => BasePlugin> = {
   base: BasePlugin,
   [Events.pluginName]: Events,
   [Request.pluginName]: Request,
-  [AntForm.pluginName]: AntForm,
   [Reaction.pluginName]: Reaction,
   [TwoWayBind.pluginName]: TwoWayBind,
   [EficyInEficy.pluginName]: EficyInEficy,
+  [AntForm.pluginName]: AntForm,
+  [AntTable.pluginName]: AntTable,
 };
 
 export default plugins;
