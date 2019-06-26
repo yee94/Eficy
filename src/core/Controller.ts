@@ -26,6 +26,7 @@ export default class EficyController extends PluginTarget {
 
   constructor(data: IEficySchema, componentMap?: Record<string, any>) {
     super();
+    console.log('######333333#####3 create controller');
     this.componentLibrary = Object.assign({}, insideComponents, Config.defaultComponentMap, componentMap);
     this.replaceVariables = this.createReplacer();
 
@@ -156,6 +157,7 @@ export default class EficyController extends PluginTarget {
 
   public destroy() {
     this.clearPlugins();
+    this.componentMap.clear();
     this.parentController = undefined;
   }
 }

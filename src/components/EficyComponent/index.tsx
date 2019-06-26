@@ -9,16 +9,18 @@ class EficyComponent extends Component<{ model: EficyModel; componentMap: any; p
   constructor(props) {
     super(props);
     this.controller = new EficyController(props.model, props.componentMap);
-    if (!(props.model instanceof EficyModel)) {
-      return;
+    if (props.model instanceof EficyModel) {
+      // return;
+      props.model.bindController(this.controller);
+      this.controller.parentController = props.parentController;
     }
-    props.model.bindController(this.controller);
-    this.controller.parentController = props.parentController;
   }
 
   public componentWillUnmount() {
-    this.props.model.removeController(this.controller);
     this.controller.destroy();
+    if (this.props.model.removeController) {
+      this.props.model.removeController(this.controller);
+    }
   }
 
   public render() {
