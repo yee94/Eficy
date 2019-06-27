@@ -20,6 +20,8 @@ import _merge from 'lodash/merge';
 export const merge = _merge;
 import _mergeWith from 'lodash/mergeWith';
 export const mergeWith = _mergeWith;
+import _isEqual from 'lodash/isEqual';
+export const isEqual = _isEqual;
 
 export const MERGE_WAY = {
   REPLACE: (old, newData) => newData,
