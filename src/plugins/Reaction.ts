@@ -21,7 +21,7 @@ interface IReaction {
 
 export default class Reaction extends BasePlugin {
   public static pluginName: string = 'reaction';
-  private disposeArr: Array<() => void> = [];
+  protected disposeArr: Array<() => void> = [];
 
   public loadOptions(data: IEficySchema & { reactions?: IReaction[] }) {
     const { reactions } = data;
@@ -94,12 +94,5 @@ export default class Reaction extends BasePlugin {
         },
       ),
     );
-  }
-
-  public destroyPlugin() {
-    while (this.disposeArr.length) {
-      const disposeFn = this.disposeArr.pop();
-      disposeFn && disposeFn();
-    }
   }
 }

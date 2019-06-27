@@ -5,6 +5,7 @@ import { Plugin } from 'plugin-decorator';
 export default class BasePlugin extends Plugin {
   protected controller: EficyController;
   protected transformValues: any; // transform schema values hook
+  protected disposeArr: Array<() => void> = [];
 
   public loadOptions(data: IEficySchema & any): void {
     // need to extends
@@ -16,16 +17,25 @@ export default class BasePlugin extends Plugin {
     if (this.transformValues) {
       this.transformValues();
 
-      // @ts-ignore
-      this.controller.model.updateViews.addHook((next, newData: IEficySchema) => {
+      const transformFn = (next, newData: IEficySchema) => {
         next();
         this.transformValues(newData);
-      });
+      };
+      // @ts-ignore
+      this.controller.model.updateViews.addHook(transformFn);
+      this.disposeArr.push(
+        // @ts-ignore
+        () => this.controller.model.updateViews.removeHook(transformFn),
+      );
     }
   }
 
   public destroyPlugin() {
-    // need to extends
+    while (this.disposeArr.length) {
+      const disposeFn = this.disposeArr.pop();
+      disposeFn && disposeFn();
+    }
+
     // @ts-ignore
     this.controller = undefined;
   }
