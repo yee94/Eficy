@@ -22,6 +22,8 @@ import _mergeWith from 'lodash/mergeWith';
 export const mergeWith = _mergeWith;
 import _isEqual from 'lodash/isEqual';
 export const isEqual = _isEqual;
+import _isObject from 'lodash/isObject';
+export const isObject = (arg: object) => _isObject(arg) && !isArray(arg);
 
 export const MERGE_WAY = {
   REPLACE: (old, newData) => newData,

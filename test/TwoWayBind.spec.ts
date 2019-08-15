@@ -36,15 +36,3 @@ test('change input value', t => {
   wrapper.find(`input.eid-input`).simulate('change', { target: { value: 'hello' } });
   t.is(controller.models.input.value, 'hello');
 });
-
-test('change checkbox value', t => {
-  wrapper.find('input.eid-checkbox').simulate('change', { target: { checked: false } });
-  // @ts-ignore
-  t.is(controller.models.checkbox.checked, false);
-});
-
-test('change self field', t => {
-  wrapper.find('input.eid-input2').simulate('change', { target: { field2: 'hello' } });
-  // @ts-ignore
-  t.is(controller.models.input2.field2, 'hello');
-});

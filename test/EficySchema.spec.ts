@@ -139,12 +139,21 @@ test('update EfficySchema ', t => {
       {
         '#': 'input',
         placeholder: 'test',
+        prefixes: [
+          {
+            '#view': 'Icon',
+            type: 'user',
+            style: { color: 'rgba(0,0,0,.25)' },
+          },
+        ],
       },
     ],
   });
 
   // @ts-ignore
   t.is(eficySchema.viewDataMap.input.placeholder, 'test');
+
+  t.is(eficySchema.viewDataMap.input.prefixes.length, 1);
 });
 
 test('overwrite EfficySchema', t => {

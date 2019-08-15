@@ -9,6 +9,7 @@ import {
   generateUid,
   isArray,
   isEficyView,
+  isObject,
   mapDeep,
   MERGE_WAY,
   mergeWith,
@@ -184,7 +185,7 @@ export default class ViewSchema extends Vmo implements IView {
             },
           });
         } else {
-          if (typeof data[key] === 'object') {
+          if (isObject(data[key])) {
             this[key] = mergeWith(this[key], data[key], MERGE_WAY.REPLACE);
           } else {
             this[key] = data[key];
