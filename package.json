@@ -1,6 +1,6 @@
 {
   "name": "@eficy/core",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -13,7 +13,8 @@
     "build:umd": "rimraf build;webpack --config webpack.js",
     "lint": "tslint --project .",
     "test": "nyc --silent ava",
-    "prettier": "pretty-quick --staged"
+    "prettier": "pretty-quick --staged",
+    "prepublish": "npm run lint && npm run test && npm run build"
   },
   "pre-commit": [
     "build",

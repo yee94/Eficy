@@ -158,6 +158,14 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 }
 
 export default function observerResolver(schema: IView | IView[], options?: IResolverOptions) {
+  const { componentMap = {} } = options || {};
+  const hasRenderFn = get(componentMap, `${schema['#view']}.prototype.render`, false);
+
+  if (!hasRenderFn) {
+    // if there has not render function just return Basic Component result
+    return resolverBasic(schema, options);
+  }
+
   return React.createElement(
     observer(() => {
       const end = Logs.Performance(`rerender "${schema['#view']}" time`);

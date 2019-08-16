@@ -6,7 +6,7 @@ export function replaceStr(target: string, vars: any): any {
 
   const replaceOneReg = (value: string): string => {
     try {
-      const valueScope = value.split('.')[0];
+      const valueScope = value.split('.')[0].replace(/\W+/gi, '');
       if (valueScope && Object.keys(vars).every(varName => varName !== valueScope)) {
         return `\$\{${value}\}`;
       }

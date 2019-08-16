@@ -2,10 +2,7 @@ import { IBindOption, IChangeFn } from './index';
 
 export const makeDefaultChangeFn = (propName): IChangeFn => {
   return {
-    onChange: e => {
-      console.log('#################', propName, e.target[propName]);
-      return { [propName]: e.target ? e.target[propName] : e };
-    },
+    onChange: e => ({ [propName]: e.target ? e.target[propName] : e }),
   };
 };
 
@@ -20,7 +17,7 @@ export const defaultBindOptions: IBindOption[] = [
   { '#view': 'CheckBox', changeFns: makeDefaultChangeFn('checked') },
   { '#view': 'Radio', changeFns: makeDefaultChangeFn('checked') },
   { '#view': 'Radio.Group', changeFns: makeDefaultChangeFn('value') },
-  { '#view': 'CheckBox.Group', changeFns: makeDefaultChangeFn('value') },
+  { '#view': 'Checkbox.Group', changeFns: makeDefaultChangeFn('value') },
   {
     '#view': 'Upload',
     changeFns: {
