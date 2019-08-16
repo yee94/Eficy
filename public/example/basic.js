@@ -168,6 +168,57 @@ const controller = Eficy.render(
         '#view': 'Switch',
         checked: true,
       },
+      {
+        '#view': 'div',
+        '#children': [
+          {
+            '#view': 'Upload',
+            '#': 'upload',
+            action: '/upload.do',
+            listType: 'picture-card',
+            fileList: [
+              {
+                uid: '-1',
+                name: 'image.png',
+                status: 'done',
+                url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              },
+              {
+                uid: '-2',
+                name: 'image.png',
+                status: 'done',
+                url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              },
+              {
+                uid: '-3',
+                name: 'image.png',
+                status: 'done',
+                url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              },
+              {
+                uid: '-4',
+                name: 'image.png',
+                status: 'done',
+                url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              },
+              {
+                uid: '-5',
+                name: 'image.png',
+                status: 'done',
+                url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+              },
+            ],
+            '#children': [
+              { '#view': 'Icon', type: 'plus' },
+              {
+                '#view': 'div',
+                className: 'ant-upload-text',
+                '#content': 'Upload',
+              },
+            ],
+          },
+        ],
+      },
     ],
     reactions: [
       {
