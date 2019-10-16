@@ -52,6 +52,9 @@ export default class ViewSchema extends Vmo implements IView {
   public '#children': ViewSchema[];
 
   @Field
+  public '#staticProps': Record<string, any> = {};
+
+  @Field
   @observable
   public '#content': string;
 

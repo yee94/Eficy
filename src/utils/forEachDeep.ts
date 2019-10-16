@@ -23,7 +23,7 @@ const forEachDeep: forDeep = (object, cb, options = {}) => {
       // except loop
       return;
     }
-    if (React.isValidElement(gotObject)) {
+    if (React.isValidElement(gotObject) || gotObject instanceof React.Component) {
       return;
     }
 

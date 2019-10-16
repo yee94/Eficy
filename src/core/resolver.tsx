@@ -112,6 +112,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     '#restProps': restProps,
     '#children': childrenSchema,
     '#content': content,
+    '#staticProps': staticProps,
     className: configClassName,
     key,
     ...modelRestProps
@@ -141,6 +142,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
   )({
     ...modelRestProps,
     ...restProps,
+    ...staticProps,
     key: 'key' in schema ? key : id,
     className: mergeClassName(configClassName, `eid-${id}`, `e-${componentName}`),
     ref: onRegister ? registerComponent : undefined,
@@ -167,19 +169,17 @@ export default function observerResolver(schema: IView | IView[], options?: IRes
     return resolverBasic(schema, options);
   }
 
-  if (schema['#isAtom']) {
-    return resolverBasic(schema, Object.assign({}, options, { getResolver: () => resolverBasic }));
-  }
-
   return React.createElement(
-    observer(() => {
+    observer(props => {
+      schema['#staticProps'] && Object.assign(schema['#staticProps'], props);
+
       const end = Logs.Performance(`rerender "${schema['#view']}" time`);
       const result = resolverBasic(schema, options);
       end();
       return result;
     }),
     {
-      key: `observer_${schema['#'] || generateUid()}`,
+      key: 'key' in schema ? schema.key : `observer_${schema['#'] || generateUid()}`,
     },
   );
 }

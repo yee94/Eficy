@@ -14,7 +14,6 @@ const controller = Eficy.render(
               },
               {
                 '#view': 'Menu',
-                '#isAtom': true,
                 theme: 'dark',
                 mode: 'horizontal',
                 defaultSelectedKeys: ['2'],
@@ -47,7 +46,6 @@ const controller = Eficy.render(
             '#children': [
               {
                 '#view': 'Breadcrumb',
-                '#isAtom': true,
                 style: { margin: '16px 0' },
                 '#children': [
                   {
