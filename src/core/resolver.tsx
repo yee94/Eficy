@@ -77,10 +77,10 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     mapDeep(
       props,
       obj => {
-        Object.keys(obj).forEach(key => {
-          const value = obj[key];
+        Object.keys(obj).forEach(objKey => {
+          const value = obj[objKey];
           if (typeof value === 'function') {
-            obj[key] = eficyWrap(value, resultSchema => resolverNext(resultSchema, options));
+            obj[objKey] = eficyWrap(value, resultSchema => resolverNext(resultSchema, options));
           }
         });
         return obj;
@@ -113,6 +113,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     '#children': childrenSchema,
     '#content': content,
     className: configClassName,
+    key,
     ...modelRestProps
   } = schema;
 
@@ -140,7 +141,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
   )({
     ...modelRestProps,
     ...restProps,
-    key: id,
+    key: 'key' in schema ? key : id,
     className: mergeClassName(configClassName, `eid-${id}`, `e-${componentName}`),
     ref: onRegister ? registerComponent : undefined,
     children: childrenSchema,
@@ -164,6 +165,10 @@ export default function observerResolver(schema: IView | IView[], options?: IRes
   if (!hasRenderFn) {
     // if there has not render function just return Basic Component result
     return resolverBasic(schema, options);
+  }
+
+  if (schema['#isAtom']) {
+    return resolverBasic(schema, Object.assign({}, options, { getResolver: () => resolverBasic }));
   }
 
   return React.createElement(
