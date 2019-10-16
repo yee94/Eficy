@@ -33,7 +33,7 @@ const controller = Eficy.render(
     ],
     requests: {
       immediately: true,
-      url: 'https://easy-mock.com/mock/5d052e5e6d97202d2c7a8998/eficy/form/uploadData',
+      url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/form/uploadData',
       format: beforeData => {
         const { errcode, data } = beforeData;
         console.log(data);
