@@ -39,7 +39,9 @@
 - [x] antd table plugin
 - [x] antd table example
 - [x] request format array & before array
-- [ ] antd table cell performance
+- [x] antd table cell performance
+- [x] add layout example
+- [ ] remove isAtom option
 - [ ] plugin sort weight
 - [ ] plugin sort weight
 - [ ] dialog event
