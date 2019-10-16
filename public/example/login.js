@@ -92,11 +92,11 @@ const controller = Eficy.render(
       },
       {
         '#': 'mock',
-        url: 'https://easy-mock.com/mock/5d052e5e6d97202d2c7a8998/eficy/request/success',
+        url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/success',
       },
       {
         '#': 'mock_update',
-        url: 'https://easy-mock.com/mock/5d052e5e6d97202d2c7a8998/eficy/request/update',
+        url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/update',
       },
     ],
     events: [

@@ -31,7 +31,7 @@ const controller = Eficy.render(
             '#view': 'Eficy',
             requests: {
               immediately: true,
-              url: 'https://easy-mock.com/mock/5d052e5e6d97202d2c7a8998/eficy/request/reload',
+              url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/reload',
             },
             events: [
               {
