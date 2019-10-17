@@ -3,6 +3,7 @@ const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const rootPath = path.resolve(__dirname, './');
+const flatten = require('lodash/flatten');
 
 function getView(globPath, flag) {
   let files = glob.sync(globPath);
@@ -30,6 +31,7 @@ function getView(globPath, flag) {
   return entries;
 }
 const pagesConfig = getView('./public/example/*js');
+const layoutConfig = getView('./public/layout/*js');
 
 module.exports = {
   context: rootPath,
@@ -76,7 +78,28 @@ module.exports = {
         },
       });
     }),
+    ...flatten(
+      Object.keys(layoutConfig).map(pageChunk => {
+        const layoutFile = path.basename(layoutConfig[pageChunk]);
+        return Object.keys(pagesConfig).map(contentChunk => {
+          const filename = path.basename(pagesConfig[contentChunk]);
+          return new HtmlWebpackPlugin({
+            filename: `${pageChunk}/${contentChunk}.html`,
+            template: `public/layout.html`,
+            chunks: ['index'],
+            inject: false,
+            files: {
+              js: [filename],
+            },
+            layout: {
+              js: [layoutFile],
+            },
+          });
+        });
+      }),
+    ),
     new CopyPlugin([{ from: 'public/example', to: 'example' }]),
+    new CopyPlugin([{ from: 'public/layout', to: 'layout' }]),
   ],
   externals: {
     react: 'React',

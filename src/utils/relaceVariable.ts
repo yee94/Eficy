@@ -42,14 +42,18 @@ export function replaceStr(target: string, vars: any): any {
 export default function createReplacer(ctxes): <T>(target: T) => T {
   return (target: any) => {
     if (target instanceof Object) {
-      return mapDeep(target, obj => {
-        Object.keys(obj).forEach(key => {
-          const value = obj[key];
-          obj[key] = typeof value === 'string' ? replaceStr(value, ctxes) : value;
-        });
+      return mapDeep(
+        target,
+        obj => {
+          Object.keys(obj).forEach(key => {
+            const value = obj[key];
+            obj[key] = typeof value === 'string' ? replaceStr(value, ctxes) : value;
+          });
 
-        return obj;
-      });
+          return obj;
+        },
+        { isIncludeArray: true },
+      );
     } else if (typeof target === 'string') {
       return replaceStr(target, ctxes);
     }

@@ -26,11 +26,13 @@
     </script>
 
     <% for (const file of htmlWebpackPlugin.options.files.js) { %>
-    <script type="text/javascript" src="<%=file %>"></script>
+    <script type="text/javascript" src="/example/<%=file %>"></script>
+    <% } %> <% for (const file of htmlWebpackPlugin.options.layout.js) { %>
+    <script type="text/javascript" src="/layout/<%=file %>"></script>
     <% } %>
 
     <script>
-      var controller = Eficy.render(window.renderData, {
+      var controller = Eficy.render(window.layoutRenderData, {
         dom: '#container',
       });
     </script>
