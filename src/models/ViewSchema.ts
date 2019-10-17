@@ -69,7 +69,7 @@ export default class ViewSchema extends Vmo implements IView {
   @observable
   public style: CSS.Properties;
 
-  @action.bound
+  @action
   protected load(data: IView): this {
     if (!data) {
       return this;
@@ -105,7 +105,7 @@ export default class ViewSchema extends Vmo implements IView {
     return viewMaps;
   }
 
-  @action.bound
+  @action
   private transformViewSchema(data: IView) {
     return mapDeep(
       data,
@@ -124,7 +124,7 @@ export default class ViewSchema extends Vmo implements IView {
     );
   }
 
-  @action.bound
+  @action
   public overwrite(data: IView) {
     [...Object.keys(this), ...Object.keys(this['#restProps'])].forEach(key => {
       if (ViewSchema.solidField.includes(key)) {
@@ -152,7 +152,7 @@ export default class ViewSchema extends Vmo implements IView {
     return this;
   }
 
-  @action.bound
+  @action
   public update(data: IView, isInit = false): this {
     if (!this['#restProps']) {
       this['#restProps'] = {};
@@ -165,10 +165,7 @@ export default class ViewSchema extends Vmo implements IView {
 
     Object.keys(data).forEach(key => {
       if (!isInit && ViewSchema.solidField.includes(key)) {
-        if (data[key] === this[key]) {
-          return;
-        }
-        throw new Error(`Can not update static property ${ViewSchema.solidField.join(',')}`);
+        return;
       }
 
       // @ts-ignore
