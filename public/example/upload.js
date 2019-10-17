@@ -1,56 +1,51 @@
-const controller = Eficy.render(
-  {
-    views: [
-      {
-        '#view': 'Upload',
-        '#': 'upload',
-        action: '/upload.do',
-        listType: 'picture-card',
-        fileList: [],
-        '#children': [
-          {
-            '#view': 'div',
-            '#children': [
-              { '#view': 'Icon', type: 'plus' },
-              {
-                '#view': 'div',
-                className: 'ant-upload-text',
-                '#content': 'Upload',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    events: [
-      {
-        publisher: 'upload@onChange',
-        listeners: (ctrl, { fileList }) => {
-          console.log(fileList);
-          ctrl.run({ action: 'update', data: { '#': 'upload', fileList } });
-        },
-      },
-    ],
-    requests: {
-      immediately: true,
-      url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/form/uploadData',
-      format: beforeData => {
-        const { errcode, data } = beforeData;
-        console.log(data);
-        return {
-          action: 'update',
-          data: [
+window.renderData = {
+  views: [
+    {
+      '#view': 'Upload',
+      '#': 'upload',
+      action: '/upload.do',
+      listType: 'picture-card',
+      fileList: [],
+      '#children': [
+        {
+          '#view': 'div',
+          '#children': [
+            { '#view': 'Icon', type: 'plus' },
             {
-              '#': 'upload',
-              fileList: data,
+              '#view': 'div',
+              className: 'ant-upload-text',
+              '#content': 'Upload',
             },
           ],
-        };
+        },
+      ],
+    },
+  ],
+  events: [
+    {
+      publisher: 'upload@onChange',
+      listeners: (ctrl, { fileList }) => {
+        console.log(fileList);
+        ctrl.run({ action: 'update', data: { '#': 'upload', fileList } });
       },
     },
-    plugins: ['two-way-bind'],
+  ],
+  requests: {
+    immediately: true,
+    url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/form/uploadData',
+    format: beforeData => {
+      const { errcode, data } = beforeData;
+      console.log(data);
+      return {
+        action: 'update',
+        data: [
+          {
+            '#': 'upload',
+            fileList: data,
+          },
+        ],
+      };
+    },
   },
-  {
-    dom: '#container',
-  },
-);
+  plugins: ['two-way-bind'],
+};

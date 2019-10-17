@@ -31,7 +31,7 @@ const forEachDeep: forDeep = (object, cb, options = {}) => {
 
     cb(gotObject, path);
 
-    if (!exceptFns.some(exceptFn => exceptFn(gotObject, path)) && !isArray(gotObject)) {
+    if (!exceptFns.some(exceptFn => exceptFn(gotObject, path))) {
       Object.keys(gotObject).forEach(key => {
         const value = gotObject[key];
         if (typeof value !== 'object') {
