@@ -2,7 +2,7 @@ import { action, computed, observable } from 'mobx';
 import { Field, Vmo } from '@vmojs/base';
 import ViewSchema, { ExtendsViewSchema } from './ViewSchema';
 import { IEficySchema, IPlugin, IView } from '../interface';
-import { cloneDeep, isArray } from '../utils';
+import { cloneDeep, get, isArray } from '../utils';
 import { Hook } from 'plugin-decorator';
 import loadComponentModels from '../utils/loadComponentModels';
 
@@ -17,6 +17,22 @@ export default class EficySchema extends Vmo implements IEficySchema {
   @computed
   public get viewDataMap(): Record<string, ExtendsViewSchema> {
     return this.views.reduce((prev, next) => Object.assign(prev, next.viewDataMap), {});
+  }
+
+  /**
+   * get ViewModel by key , include children
+   * eg. eficy.alert
+   * @param key
+   * @returns {unknown}
+   */
+  public getViewModel(key: string): ExtendsViewSchema {
+    const steps = `${key}`.split('.');
+    const viewMap = this.viewDataMap;
+    return steps.reduce(
+      (previousValue, currentValue) =>
+        previousValue ? get(previousValue, `models.${currentValue}`) : viewMap[currentValue],
+      null,
+    );
   }
 
   constructor(data: IEficySchema, componentLibrary = {}) {
@@ -41,10 +57,9 @@ export default class EficySchema extends Vmo implements IEficySchema {
 
   @Hook
   public updateViews(data: IEficySchema, cb: (viewSchema: ViewSchema, viewData: IView) => void) {
-    const viewMap = this.viewDataMap;
     if (isArray(data.views)) {
       data.views.forEach(viewData => {
-        const viewModel = viewMap[viewData['#']] as ViewSchema;
+        const viewModel = this.getViewModel(viewData['#']) as ViewSchema;
         if (viewModel) {
           cb(viewModel, viewData);
         }

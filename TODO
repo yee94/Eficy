@@ -41,7 +41,8 @@
 - [x] request format array & before array
 - [x] antd table cell performance
 - [x] add layout example
-- [ ] remove isAtom option
+- [x] remove isAtom option
+- [x] parent change child eficy value
 - [ ] plugin sort weight
 - [ ] plugin sort weight
 - [ ] dialog event

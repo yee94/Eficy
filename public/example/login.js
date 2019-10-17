@@ -3,7 +3,7 @@ window.renderData = {
     {
       '#': 'alert',
       '#view': 'Alert',
-      message: 'Hello this is a Login demo',
+      message: 'Hello this is a Login demo ${models.input.value}',
       type: 'info',
       showIcon: true,
     },
@@ -134,6 +134,10 @@ setInterval(() => {
       {
         '#': 'alert',
         message: '${models.input.value} haha',
+      },
+      {
+        '#': 'eficy.alert',
+        message: '${models.eficy.models.input.value} haha',
       },
     ],
   });

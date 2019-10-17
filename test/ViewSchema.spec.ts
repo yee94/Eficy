@@ -117,11 +117,10 @@ test('ViewSchema update Field props', t => {
 });
 
 test('ViewSchema update solid Field', t => {
-  t.throws(() =>
-    viewSchema.update({
-      '#view': 'test2',
-    }),
-  );
+  viewSchema.update({
+    '#view': 'test2',
+  });
+  t.is(viewSchema['#view'], 'Form');
 });
 
 test('ViewSchema overwrite or delete fields', t => {
