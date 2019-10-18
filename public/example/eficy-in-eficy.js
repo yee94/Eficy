@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#': 'alertChild',
@@ -49,4 +49,4 @@ window.renderData = {
     },
   ],
   plugins: ['two-way-bind'],
-};
+});

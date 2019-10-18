@@ -1,16 +1,28 @@
-import * as _Tools from './utils';
-import * as _Models from './models';
+import * as Tools from './utils';
+import * as Models from './models';
 import Controller from './core/Controller';
+import EficyComponent from './components/EficyComponent';
 
-export { default as resolver } from './core/resolver';
-export { default as Config } from './constants/Config';
-export { default as Plugins } from './plugins';
-export { install as installPlugin } from './plugins';
-export const Tools = _Tools;
-export const Models = _Models;
-export { default as render } from './utils/renderHelper';
-export { default as ViewSchema } from './models/ViewSchema';
-export { default as createElement } from './utils/createElement';
-export { default as EficyComponent } from './components/EficyComponent';
-export const controller = Controller;
+import resolver from './core/resolver';
+import Config from './constants/Config';
+import Plugins from './plugins';
+import { install as installPlugin } from './plugins';
+import render from './utils/renderHelper';
+import ViewSchema from './models/ViewSchema';
+import createElement from './utils/createElement';
+
 export default Controller;
+
+export {
+  resolver,
+  Config,
+  Plugins,
+  installPlugin,
+  render,
+  ViewSchema,
+  createElement,
+  EficyComponent,
+  Controller,
+  Tools,
+  Models,
+};

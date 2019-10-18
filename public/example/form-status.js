@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#view': 'Form',
@@ -214,4 +214,4 @@ window.renderData = {
       ],
     },
   ],
-};
+});

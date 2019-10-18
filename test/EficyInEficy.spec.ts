@@ -63,7 +63,7 @@ test('children controller whether loaded', t => {
   const eficyModel = controller.models.eficyComponent;
   t.true(eficyModel instanceof EficyModel);
 
-  const childrenController = eficyModel['#controller'];
+  const childrenController = eficyModel.controller;
   t.true(childrenController instanceof EficyController);
   t.true(childrenController.parentController === controller);
 });

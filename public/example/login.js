@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#': 'alert',
@@ -114,7 +114,7 @@ window.renderData = {
     },
   ],
   plugins: ['ant-form'],
-};
+});
 
 setTimeout(() => {
   controller.model.update({

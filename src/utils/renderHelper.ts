@@ -7,6 +7,16 @@ interface IRenderOptions {
   components: Record<string, any>;
 }
 
+export function renderReact(reactTree, dom) {
+  dom = typeof dom === 'string' ? document.querySelector(dom) : dom;
+
+  if (typeof dom !== 'object') {
+    throw new Error('not define valid document');
+  }
+
+  ReactDOM.render(reactTree, dom);
+}
+
 export default function(schema: IEficySchema, options: string | HTMLElement | IRenderOptions) {
   if (!options) {
     throw new Error('render helper options not define');
@@ -24,16 +34,10 @@ export default function(schema: IEficySchema, options: string | HTMLElement | IR
     dom = options;
   }
 
-  dom = typeof dom === 'string' ? document.querySelector(dom) : dom;
-
   const controller = new Controller(schema, componentMap);
 
-  if (typeof dom !== 'object') {
-    throw new Error('not define valid document');
-  }
-
   setTimeout(() => {
-    ReactDOM.render(controller.resolver(), dom);
+    controller.render(dom);
   });
 
   return controller;

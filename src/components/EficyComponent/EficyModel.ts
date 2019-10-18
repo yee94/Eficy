@@ -18,25 +18,25 @@ export default class EficyModel extends ViewSchema {
   public requests?: any;
 
   @observable.ref
-  public '#controller'?: EficyController;
+  public controller?: EficyController;
 
   @computed
   public get models() {
-    return this['#controller'] ? this['#controller'].models : {};
+    return this.controller ? this.controller.models : {};
   }
 
   @computed
   public get parentModels() {
-    return get(this, '#controller.parentController.models', []);
+    return get(this, 'controller.parentController.models', []);
   }
 
   @action.bound
   public bindController(controller: EficyController) {
-    this['#controller'] = controller;
+    this.controller = controller;
   }
 
   @action.bound
   public removeController(controller: EficyController) {
-    this['#controller'] = undefined;
+    this.controller = undefined;
   }
 }

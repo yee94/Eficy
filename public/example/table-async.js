@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#': 'toolbar',
@@ -122,4 +122,4 @@ window.renderData = {
       listeners: ctrl => ctrl.request('getTableData'),
     },
   ],
-};
+});

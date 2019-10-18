@@ -1,4 +1,4 @@
-window.layoutRenderData = {
+window.layoutController = new Eficy.Controller({
   views: [
     {
       id: 'components-layout-demo-custom-trigger',
@@ -92,7 +92,7 @@ window.layoutRenderData = {
               '#children': [
                 {
                   '#view': 'Eficy',
-                  ...window.renderData,
+                  controller: window.renderController,
                 },
               ],
             },
@@ -135,4 +135,4 @@ margin-bottom: 40px;
 `,
     },
   ],
-};
+});

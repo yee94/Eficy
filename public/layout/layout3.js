@@ -1,4 +1,4 @@
-window.layoutRenderData = {
+window.layoutController = new Eficy.Controller({
   views: [
     {
       id: 'components-layout-demo-top-side',
@@ -204,7 +204,7 @@ window.layoutRenderData = {
                     {
                       '#': 'eficy',
                       '#view': 'Eficy',
-                      ...window.renderData,
+                      controller: window.renderController,
                     },
                   ],
                 },
@@ -220,7 +220,7 @@ window.layoutRenderData = {
           },
         },
         {
-          '#view': 'Footer',
+          '#view': 'Layout.Footer',
           style: {
             textAlign: 'center',
             padding: '20px 0',
@@ -240,4 +240,4 @@ window.layoutRenderData = {
 }`,
     },
   ],
-};
+});

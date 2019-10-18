@@ -8,7 +8,7 @@ for (let i = 0; i < 46; i++) {
   });
 }
 
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#view': 'div',
@@ -92,4 +92,4 @@ window.renderData = {
       },
     },
   ],
-};
+});
