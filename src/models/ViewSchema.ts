@@ -36,11 +36,11 @@ export default class ViewSchema extends Vmo implements IView {
     this.componentModels = componentModels || {};
     const foundModel = this.componentModels[data['#view']];
 
-    this.load(data);
-
     if (foundModel && ViewSchema.isViewSchemaSelf(this)) {
       // @ts-ignore
       return new foundModel(data, componentModels);
+    } else {
+      this.load(data);
     }
   }
 
@@ -119,7 +119,7 @@ export default class ViewSchema extends Vmo implements IView {
         return value;
       },
       {
-        exceptFns: Config.loopExceptFns,
+        exceptFns: [...Config.loopExceptFns, obj => obj['#view'] === 'Eficy'],
       },
     );
   }

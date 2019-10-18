@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#view': 'Table',
@@ -89,4 +89,5 @@ window.renderData = {
       ],
     },
   ],
-};
+});
+// window.renderController = new Eficy.Controller({};

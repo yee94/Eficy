@@ -8,6 +8,7 @@ import {
   get,
   isArray,
   isEficyView,
+  isPlainObject,
   Logs,
   mapDeep,
   mergeClassName,
@@ -24,6 +25,8 @@ export interface IResolverOptions {
   getResolver?: <T>(resolverNext?: T, schema?: ViewSchema) => T;
 }
 
+const filterProps = obj => !isPlainObject(obj) || isEficyView(obj);
+
 /**
  * transform prop list to a normal js ,except ViewSchema
  * such as style
@@ -31,9 +34,9 @@ export interface IResolverOptions {
  * @returns {any}
  */
 const transformPropsList = props =>
-  mapDeep(props, obj => (isEficyView(obj) ? obj : toJS(obj)), {
+  mapDeep(props, obj => (filterProps(obj) ? obj : toJS(obj)), {
     isIncludeArray: true,
-    exceptFns: [obj => isEficyView(obj)],
+    exceptFns: [filterProps],
   });
 
 /**
@@ -85,7 +88,10 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
         });
         return obj;
       },
-      { isIncludeArray: true },
+      {
+        isIncludeArray: true,
+        exceptFns: [obj => !isPlainObject(obj)],
+      },
     );
 
   /**
@@ -122,6 +128,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 
   if (!Component) {
     // throw new Error(`Not found "${schema['#view']}" component`);
+    // may be div, span
     Component = schema['#view'];
   }
 
@@ -142,14 +149,14 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
   )({
     ...modelRestProps,
     ...restProps,
-    ...staticProps,
     key: 'key' in schema ? key : id,
     className: mergeClassName(configClassName, `eid-${id}`, `e-${componentName}`),
-    ref: onRegister ? registerComponent : undefined,
     children: childrenSchema,
   });
 
+  Object.assign(componentProps, staticProps);
   componentProps.model = schema;
+  componentProps.ref = onRegister ? registerComponent : undefined;
 
   const { children = [], ...childProps } = componentProps;
 

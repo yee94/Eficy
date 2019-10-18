@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   views: [
     {
       '#view': 'Upload',
@@ -48,4 +48,4 @@ window.renderData = {
     },
   },
   plugins: ['two-way-bind'],
-};
+});

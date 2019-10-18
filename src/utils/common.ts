@@ -1,28 +1,29 @@
 import _cloneDeep from 'lodash/cloneDeep';
-export const cloneDeep = _cloneDeep;
 import _clone from 'lodash/clone';
-export const clone = _clone;
 import _isArray from 'lodash/isArray';
-export const isArray = _isArray;
 import _get from 'lodash/get';
-export const get = _get;
 import _pick from 'lodash/pick';
-export const pick = _pick;
 import _pickBy from 'lodash/pickBy';
-export const pickBy = _pickBy;
 import _isFunction from 'lodash/isFunction';
-export const isFunction = _isFunction;
 import _set from 'lodash/set';
-export const set = _set;
 import _isEmpty from 'lodash/isEmpty';
-export const isEmpty = _isEmpty;
 import _merge from 'lodash/merge';
-export const merge = _merge;
 import _mergeWith from 'lodash/mergeWith';
-export const mergeWith = _mergeWith;
 import _isEqual from 'lodash/isEqual';
-export const isEqual = _isEqual;
 import _isObject from 'lodash/isObject';
+
+export const cloneDeep = _cloneDeep;
+export const clone = _clone;
+export const isArray = _isArray;
+export const get = _get;
+export const pick = _pick;
+export const pickBy = _pickBy;
+export const isFunction = _isFunction;
+export const set = _set;
+export const isEmpty = _isEmpty;
+export const merge = _merge;
+export const mergeWith = _mergeWith;
+export const isEqual = _isEqual;
 export const isObject = (arg: object) => _isObject(arg) && !isArray(arg);
 
 export const MERGE_WAY = {
@@ -71,4 +72,17 @@ export function toArr<T>(obj: T | T[]): T[] {
   }
 
   return obj as T[];
+}
+
+/**
+ * A plain object is a simple object literal, it is not an instance of a class. Returns true if the input `typeof` is `object` and directly decends from `Object`.
+ *
+ * @param input
+ * @returns {false | boolean}
+ */
+export function isPlainObject(input) {
+  if (isArray(input)) {
+    return true;
+  }
+  return input !== null && typeof input === 'object' && input.constructor === Object;
 }

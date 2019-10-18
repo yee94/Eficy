@@ -1,4 +1,4 @@
-window.renderData = {
+window.renderController = new Eficy.Controller({
   requests: {
     immediately: true,
     url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/reload',
@@ -9,4 +9,4 @@ window.renderData = {
       listeners: [(contrl, ...args) => console.log(contrl.models.eficy)],
     },
   ],
-};
+});

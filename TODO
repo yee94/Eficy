@@ -43,6 +43,8 @@
 - [x] add layout example
 - [x] remove isAtom option
 - [x] parent change child eficy value
+- [x] eficy controller accept
+- [ ] table performance
 - [ ] plugin sort weight
 - [ ] plugin sort weight
 - [ ] dialog event

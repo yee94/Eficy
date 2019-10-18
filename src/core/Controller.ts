@@ -11,6 +11,7 @@ import defaultActions, { IAction } from '../constants/defaultActions';
 import { get, relaceVariable as createReplacer } from '../utils';
 import * as insideComponents from '../components';
 import * as React from 'react';
+import { renderReact } from '../utils/renderHelper';
 
 export default class EficyController extends PluginTarget {
   public plugins: BasePlugin[];
@@ -148,6 +149,12 @@ export default class EficyController extends PluginTarget {
     });
 
     return createReplacer(context);
+  }
+
+  public render(option: string | HTMLElement) {
+    const dom = typeof option === 'string' ? document.querySelector(option) : option;
+
+    return renderReact(this.resolver(), dom);
   }
 
   private clearPlugins() {
