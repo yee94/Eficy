@@ -1,7 +1,7 @@
 import BasePlugin from './base';
 import EficyController from '../core/Controller';
-import { IEficySchema } from '../interface';
-import { isArray, isFunction } from '../utils';
+import { ExtendsViewSchema, IEficySchema } from '../interface';
+import { forEachDeep, isArray, isFunction, isPlainObject } from '../utils';
 import { ViewSchema } from '../models';
 
 type IListenerFn = (controller: EficyController, ...args: any) => void;
@@ -30,6 +30,30 @@ export default class Events extends BasePlugin {
       console.warn('There are too many events plugin at EficyController!');
     }
     this.options.events.forEach(event => this.addEvent(event));
+    Object.values(this.controller.model.viewDataMap).forEach(this.wrapEvent.bind(this));
+  }
+
+  /**
+   * wrap schema @xxx functions
+   * @param schema
+   */
+  private wrapEvent(schema: ExtendsViewSchema) {
+    forEachDeep(
+      schema['#restProps'],
+      obj => {
+        Object.keys(obj).forEach(objKey => {
+          const value = obj[objKey];
+          if (typeof value === 'function') {
+            obj[objKey] = this.makeEventWrapFn(obj[objKey]);
+          }
+        });
+        return obj;
+      },
+      {
+        isIncludeArray: true,
+        exceptFns: [obj => !isPlainObject(obj)],
+      },
+    );
   }
 
   /**
@@ -42,9 +66,7 @@ export default class Events extends BasePlugin {
     let id;
     let action;
     if (typeof publisher === 'string') {
-      // @ts-ignore
-      let input = null;
-      [input, id, action] = publisher.match(/(.+?)@(.+)/) || ([] as any);
+      [, id, action] = publisher.match(/(.+?)@(.+)/) || ([] as any);
     } else {
       id = publisher['#'];
       action = publisher.action;
@@ -67,13 +89,31 @@ export default class Events extends BasePlugin {
    * @param schema
    */
   private addActionsToSchema(fns: IListenerFn[], action, schema: ViewSchema) {
-    let targetFn: (...args: any) => void;
-    if (isFunction(schema[action])) {
-      targetFn = schema[action];
+    schema[action] = this.makeEventWrapFn(schema[action], fns);
+  }
+
+  /**
+   * build controller wrap function
+   * @param originFunction
+   * @param fns
+   * @returns {(...args) => void}
+   */
+  private makeEventWrapFn(originFunction: (...args: any) => any, fns?: IListenerFn[]): IListenerFn {
+    let targetFn: IListenerFn;
+    if (isFunction(originFunction)) {
+      targetFn = originFunction;
     }
-    schema[action] = (...args) => {
-      fns.forEach(fn => fn(this.controller, ...args));
-      targetFn && targetFn(...args);
+    return (...args) => {
+      fns && fns.forEach(fn => fn(this.controller, ...args));
+      // console.log(targetFn.toString(), targetFn.caller);
+      const fnStr = targetFn.toString();
+      // TODO:: 定义一种好用的格式
+      // if(has)
+      // if(/ck/)
+
+      // console.log(path);
+      // this.controller,
+      return targetFn && targetFn(...args);
     };
   }
 }
