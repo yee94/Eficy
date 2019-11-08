@@ -53,8 +53,8 @@ window.renderController = new Eficy.Controller({
       dataSource: data,
       rowSelection: {
         selectedRowKeys: [],
-        onChange: selectedRowKeys => {
-          controller.run({
+        onChange: (ctrl, selectedRowKeys) => {
+          ctrl.run({
             action: 'update',
             data: {
               '#': 'table',
