@@ -46,7 +46,6 @@ export default class Request extends BasePlugin {
       if (!res.data) {
         throw new Error('no data return');
       }
-      debugger
       const result = toArr(format).map(formatFn => formatFn(res.data));
       return result.length === 1 ? result[0] : result;
     } catch (e) {
