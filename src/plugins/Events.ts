@@ -30,21 +30,22 @@ export default class Events extends BasePlugin {
       console.warn('There are too many events plugin at EficyController!');
     }
     this.options.events.forEach(event => this.addEvent(event));
-    Object.values(this.controller.model.viewDataMap).forEach(this.wrapEvent.bind(this));
+    Object.values(this.controller.model.viewDataMap).forEach(this.wrapSpecialFunction.bind(this));
   }
 
   /**
    * wrap schema @xxx functions
    * @param schema
    */
-  private wrapEvent(schema: ExtendsViewSchema) {
+  private wrapSpecialFunction(schema: ExtendsViewSchema) {
     forEachDeep(
       schema['#restProps'],
       obj => {
         Object.keys(obj).forEach(objKey => {
           const value = obj[objKey];
-          if (typeof value === 'function') {
-            obj[objKey] = this.makeEventWrapFn(obj[objKey]);
+          if (typeof value === 'function' && /^@\w+/.test(objKey)) {
+            delete obj[objKey];
+            obj[objKey.replace('@', '')] = this.wrapController(value);
           }
         });
         return obj;
@@ -89,31 +90,23 @@ export default class Events extends BasePlugin {
    * @param schema
    */
   private addActionsToSchema(fns: IListenerFn[], action, schema: ViewSchema) {
-    schema[action] = this.makeEventWrapFn(schema[action], fns);
-  }
-
-  /**
-   * build controller wrap function
-   * @param originFunction
-   * @param fns
-   * @returns {(...args) => void}
-   */
-  private makeEventWrapFn(originFunction: (...args: any) => any, fns?: IListenerFn[]): IListenerFn {
-    let targetFn: IListenerFn;
+    const originFunction = schema[action];
+    let targetFn;
     if (isFunction(originFunction)) {
       targetFn = originFunction;
     }
-    return (...args) => {
-      fns && fns.forEach(fn => fn(this.controller, ...args));
-      // console.log(targetFn.toString(), targetFn.caller);
-      const fnStr = targetFn.toString();
-      // TODO:: 定义一种好用的格式
-      // if(has)
-      // if(/ck/)
-
-      // console.log(path);
-      // this.controller,
+    schema[action] = (...args) => {
+      fns && fns.map(this.wrapController.bind(this)).forEach((fn: any) => fn());
       return targetFn && targetFn(...args);
     };
+  }
+
+  /**
+   * return a injected Controller function
+   * @param fn
+   * @returns {(...args) => any}
+   */
+  private wrapController(fn: (...args: any) => any): IListenerFn {
+    return (...args) => fn(this.controller, ...args);
   }
 }

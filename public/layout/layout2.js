@@ -96,9 +96,6 @@ window.layoutController = new Eficy.Controller({
     float: left;
 }
 
-.layout-container{
-margin-bottom: 40px;
-}
 `,
     },
   ],
