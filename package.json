@@ -22,6 +22,10 @@
     "test",
     "prettier"
   ],
+  "files": [
+    "lib",
+    "build"
+  ],
   "author": "xiaobebe <wyy.xb@qq.com>",
   "license": "ISC",
   "devDependencies": {
