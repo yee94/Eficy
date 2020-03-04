@@ -1,5 +1,5 @@
 import { Hook, PluginTarget } from 'plugin-decorator';
-import { ExtendsViewSchema, IActionProps, IEficySchema } from '../interface';
+import { ExtendsViewSchema, IActionProps, IEficySchema, IView } from '../interface';
 import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
@@ -25,7 +25,7 @@ export default class EficyController extends PluginTarget {
   @observable.ref
   public parentController?: EficyController;
 
-  constructor(data: IEficySchema, componentMap?: Record<string, any>) {
+  constructor(data: IEficySchema | IView, componentMap?: Record<string, any>) {
     super();
     this.componentLibrary = Object.assign({}, insideComponents, Config.defaultComponentMap, componentMap);
     this.replaceVariables = this.createReplacer();
@@ -33,7 +33,10 @@ export default class EficyController extends PluginTarget {
     this.reload(data);
   }
 
-  public reload(data: IEficySchema) {
+  public reload(data: IEficySchema | IView) {
+    if ('#view' in data) {
+      data = { views: [data] };
+    }
     this.clearPlugins();
     this.model = new EficySchema(data, this.componentLibrary);
     this.bindActions();
