@@ -14,7 +14,7 @@
     "lint": "tslint --project .",
     "test": "nyc --silent ava",
     "prettier": "pretty-quick --staged",
-    "prepublish": "npm run lint && npm run test && npm run build"
+    "prepublish": "npm run lint && npm run test && npm run build && npm run build:umd"
   },
   "pre-commit": [
     "build",
