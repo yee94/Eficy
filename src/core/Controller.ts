@@ -34,7 +34,7 @@ export default class EficyController extends PluginTarget {
   }
 
   public reload(data: IEficySchema | IView) {
-    if ('#view' in data) {
+    if (!('views' in data) && '#view' in data) {
       data = { views: [data] };
     }
     this.clearPlugins();
