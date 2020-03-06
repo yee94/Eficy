@@ -6,12 +6,12 @@ export function replaceStr(target: string, vars: any): any {
 
   const replaceOneReg = (value: string): string => {
     try {
-      if (/^[^()=]+$/.test(value)) {
+      if (/^[^()=!<>+]+$/.test(value)) {
         const notFound = Symbol('not found');
         const result = get(vars, value, notFound);
         if (result !== notFound) {
           return result;
-        } else {
+        } else if (/^[\w.]+$/.test(value)) {
           return `\$\{${value}\}`;
         }
       }
