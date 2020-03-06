@@ -8,6 +8,9 @@ import TwoWayBind from './TwoWayBind';
 import EficyInEficy from './EficyInEficy';
 import AntTable from './AntTable';
 
+/**
+ * 框架内置插件
+ */
 const plugins: Record<string, new (options) => BasePlugin> = {
   base: BasePlugin,
   [Events.pluginName]: Events,
@@ -19,13 +22,15 @@ const plugins: Record<string, new (options) => BasePlugin> = {
   [AntTable.pluginName]: AntTable,
 };
 
-export default plugins;
-
+/**
+ * 内置默认加载插件
+ */
 export const buildInPlugins: IPlugin[] = [
   Events.pluginName,
   Request.pluginName,
   Reaction.pluginName,
   EficyInEficy.pluginName,
+  TwoWayBind.pluginName,
 ];
 
 export function install(plugin) {
@@ -44,3 +49,5 @@ export function pluginFactory(pluginOpt: IPlugin): BasePlugin {
 
   return new pluginInstance(pluginOpt[1]);
 }
+
+export default plugins;

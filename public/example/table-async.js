@@ -22,13 +22,12 @@ window.renderController = new Eficy.Controller({
       '#view': 'Table',
       '#request': {
         '#': 'getTableData',
-        url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/table/getlist',
+        url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/table/getlist',
         params: {
           search: '${models.search.value}',
-          current: '${tableState.pagination.current}',
-          addressSort: '${tableState.sorter.address}',
         },
         data: {
+          search: '${models.search.value}',
           sort: '${tableState.sorter}',
         },
         format: res => ({
@@ -115,7 +114,7 @@ window.renderController = new Eficy.Controller({
       dataSource: [],
     },
   ],
-  plugins: ['two-way-bind', 'ant-table'],
+  plugins: ['ant-table'],
   events: [
     {
       publisher: 'search@onSearch',

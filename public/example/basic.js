@@ -225,5 +225,4 @@ window.renderController = new Eficy.Controller({
       effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
     },
   ],
-  plugins: ['two-way-bind'],
 });

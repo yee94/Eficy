@@ -1,33 +1,44 @@
 window.renderController = new Eficy.Controller({
   views: [
     {
-      '#': 'alert',
-      '#view': 'Alert',
-      message: 'Hello this is a Login demo ${models.input.value}',
-      type: 'info',
-      showIcon: true,
-    },
-    {
+      style: {
+        marginTop: 30,
+      },
+      name: 'form',
       '#': 'form',
       '#view': 'Form',
+      labelCol: { span: 6 },
+      wrapperCol: { span: 14 },
+      initialValues: { email: 'wyy.xb@qq.com', remember: true },
       '#children': [
         {
           '#view': 'Form.Item',
+          wrapperCol: { offset: 4, span: 16 },
+          '#children': [
+            {
+              '#': 'alert',
+              '#view': 'Alert',
+              message: 'Hello this is a Login demo ${models.input.value}',
+              type: 'info',
+              showIcon: true,
+            },
+          ],
+        },
+        {
+          '#view': 'Form.Item',
           label: 'E-mail',
+          name: 'email',
+          rules: [
+            {
+              type: 'email',
+              message: 'The input is not valid E-mail!',
+            },
+          ],
           '#children': [
             {
               '#': 'input',
+              value: 'wyy.xb@qq.com',
               '#view': 'Input',
-              value: 'value',
-              '#field': {
-                name: 'email',
-                rules: [
-                  {
-                    type: 'email',
-                    message: 'The input is not valid E-mail!',
-                  },
-                ],
-              },
               placeholder: 'username',
               prefix: {
                 '#view': 'Icon',
@@ -40,18 +51,16 @@ window.renderController = new Eficy.Controller({
         {
           '#view': 'Form.Item',
           label: 'password',
+          name: 'password',
+          rules: [
+            {
+              required: true,
+              message: 'Please input your Password!',
+            },
+          ],
           '#children': [
             {
               '#view': 'Input.Password',
-              '#field': {
-                name: 'password',
-                rules: [
-                  {
-                    required: true,
-                    message: 'Please input your Password!',
-                  },
-                ],
-              },
               placeholder: 'password',
               prefix: {
                 '#view': 'Icon',
@@ -62,16 +71,20 @@ window.renderController = new Eficy.Controller({
         },
         {
           '#view': 'Form.Item',
+          name: 'remember',
+          valuePropName: 'checked',
+          wrapperCol: { offset: 6, span: 14 },
           '#children': [
             {
               '#view': 'Checkbox',
-              '#field': {
-                name: 'remember',
-                valuePropName: 'checked',
-                initialValue: true,
-              },
               '#content': 'Remember me',
             },
+          ],
+        },
+        {
+          '#view': 'Form.Item',
+          wrapperCol: { offset: 6, span: 14 },
+          '#children': [
             {
               '#': 'button',
               '#view': 'Button',
@@ -91,11 +104,11 @@ window.renderController = new Eficy.Controller({
     },
     {
       '#': 'mock',
-      url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/success',
+      url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/success',
     },
     {
       '#': 'mock_update',
-      url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/update',
+      url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/update',
     },
   ],
   events: [
@@ -113,7 +126,6 @@ window.renderController = new Eficy.Controller({
       ],
     },
   ],
-  plugins: ['ant-form'],
 });
 
 setTimeout(() => {
