@@ -16,8 +16,16 @@ window.renderController = new Eficy.Controller({
     {
       '#': 'validate_other',
       '#view': 'Form',
+      name: 'test',
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
+      initialValues: {
+        email: 'value',
+        'input-number': 3,
+        'checkbox-group': ['A', 'B'],
+        slider: 40,
+        rate: 3.5,
+      },
       '#children': [
         {
           '#view': 'Form.Item',
@@ -27,21 +35,17 @@ window.renderController = new Eficy.Controller({
 
         {
           '#view': 'Form.Item',
+          name: 'email',
           label: 'E-mail',
+          rules: [
+            {
+              type: 'email',
+              message: 'The input is not valid E-mail!',
+            },
+          ],
           '#children': [
             {
-              '#': 'input',
               '#view': 'Input',
-              value: 'value',
-              '#field': {
-                name: 'email',
-                rules: [
-                  {
-                    type: 'email',
-                    message: 'The input is not valid E-mail!',
-                  },
-                ],
-              },
               placeholder: 'username',
               prefix: {
                 '#view': 'Icon',
@@ -53,15 +57,13 @@ window.renderController = new Eficy.Controller({
         },
         {
           '#view': 'Form.Item',
+          name: 'select',
           label: 'Select',
           hasFeedback: true,
+          rules: [{ required: true, message: 'Please select your country!' }],
           '#children': [
             {
               '#view': 'Select',
-              '#field': {
-                name: 'select',
-                rules: [{ required: true, message: 'Please select your country!' }],
-              },
               placeholder: 'Please select a country',
               '#children': [
                 {
@@ -81,14 +83,12 @@ window.renderController = new Eficy.Controller({
 
         {
           '#view': 'Form.Item',
+          name: 'select-multiple',
+          rules: [{ required: true, message: 'Please select your favourite colors!', type: 'array' }],
           label: 'Select[multiple]',
           '#children': [
             {
               '#view': 'Select',
-              '#field': {
-                name: 'select-multiple',
-                rules: [{ required: true, message: 'Please select your favourite colors!', type: 'array' }],
-              },
               placeholder: 'Please select favourite colors',
               mode: 'multiple',
               '#children': [
@@ -115,13 +115,10 @@ window.renderController = new Eficy.Controller({
         {
           '#view': 'Form.Item',
           label: 'InputNumber',
+          name: 'input-number',
           '#children': [
             {
               '#view': 'InputNumber',
-              '#field': {
-                name: 'input-number',
-                initialValue: 3,
-              },
               min: 1,
               max: 10,
             },
@@ -131,26 +128,21 @@ window.renderController = new Eficy.Controller({
         {
           '#view': 'Form.Item',
           label: 'Switch',
+          name: 'switch',
           '#children': [
             {
               '#view': 'Switch',
-              '#field': {
-                name: 'switch',
-                // valuePropName: 'checked'
-              },
             },
           ],
         },
 
         {
           '#view': 'Form.Item',
+          name: 'slider',
           label: 'Slider',
           '#children': [
             {
               '#view': 'Slider',
-              '#field': {
-                name: 'slider',
-              },
               marks: {
                 0: 'A',
                 20: 'B',
@@ -164,14 +156,12 @@ window.renderController = new Eficy.Controller({
         },
 
         {
+          name: 'radio-group',
           '#view': 'Form.Item',
           label: 'Radio.Group',
           '#children': [
             {
               '#view': 'Radio.Group',
-              '#field': {
-                name: 'radio-group',
-              },
               '#children': [
                 {
                   '#view': 'Radio',
@@ -194,14 +184,12 @@ window.renderController = new Eficy.Controller({
         },
 
         {
+          name: 'radio-button',
           '#view': 'Form.Item',
           label: 'Radio.Button',
           '#children': [
             {
               '#view': 'Radio.Group',
-              '#field': {
-                name: 'radio-button',
-              },
               '#children': [
                 {
                   '#view': 'Radio.Button',
@@ -225,14 +213,11 @@ window.renderController = new Eficy.Controller({
 
         {
           '#view': 'Form.Item',
+          name: 'checkbox-group',
           label: 'Checkbox.Group',
           '#children': [
             {
               '#view': 'Checkbox.Group',
-              '#field': {
-                name: 'checkbox-group',
-                initialValue: ['A', 'B'],
-              },
               style: { width: '100%' },
               '#children': [
                 {
@@ -303,14 +288,11 @@ window.renderController = new Eficy.Controller({
 
         {
           '#view': 'Form.Item',
+          name: 'rate',
           label: 'Rate',
           '#children': [
             {
               '#view': 'Rate',
-              '#field': {
-                name: 'rate',
-                initialValue: 3.5,
-              },
             },
           ],
         },
@@ -401,5 +383,4 @@ window.renderController = new Eficy.Controller({
       effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
     },
   ],
-  plugins: ['ant-form'],
 });

@@ -13,6 +13,9 @@ declare module '../models/ViewSchema' {
   }
 }
 
+/**
+ * 只适用于3.x , 4.x后不需要插件，爽
+ */
 export default class AntForm extends BasePlugin {
   public static pluginName: string = 'ant-form';
 

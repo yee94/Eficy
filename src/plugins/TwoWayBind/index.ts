@@ -26,6 +26,9 @@ export interface IPluginProps {
   bindFields: string[];
 }
 
+/**
+ * 用于数据双向绑定
+ */
 export default class TwoWayBind extends BasePlugin {
   public static pluginName: string = 'two-way-bind';
   public static defaultBindFields = ['value', 'checked'];

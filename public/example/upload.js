@@ -32,7 +32,7 @@ window.renderController = new Eficy.Controller({
   ],
   requests: {
     immediately: true,
-    url: 'http://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/form/uploadData',
+    url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/form/uploadData',
     format: beforeData => {
       const { errcode, data } = beforeData;
       console.log(data);
@@ -47,5 +47,4 @@ window.renderController = new Eficy.Controller({
       };
     },
   },
-  plugins: ['two-way-bind'],
 });
