@@ -6,16 +6,13 @@ export function replaceStr(target: string, vars: any): any {
 
   const replaceOneReg = (value: string): string => {
     try {
-      const valueScope = value.split('.')[0].replace(/\W+/gi, '');
-      if (valueScope && Object.keys(vars).every(varName => varName !== valueScope)) {
-        return `\$\{${value}\}`;
-      }
-
-      if (/^[^()]+$/.test(value)) {
+      if (/^[^()=]+$/.test(value)) {
         const notFound = Symbol('not found');
         const result = get(vars, value, notFound);
         if (result !== notFound) {
           return result;
+        } else {
+          return `\$\{${value}\}`;
         }
       }
 

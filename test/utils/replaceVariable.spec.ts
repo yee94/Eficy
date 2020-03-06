@@ -100,6 +100,10 @@ test('replace basic', t => {
   t.is(replaceStr('Hello ${model.getViewDataMap("form")["#view"]}', { model: viewSchema }), 'Hello Form');
 });
 
+test('replacer replace function', t => {
+  t.is(replaceStr('Hello ${isTrue==="0"}', { isTrue: '0' }), 'Hello true');
+});
+
 test('replace other type', t => {
   t.is(replaceStr('${model.viewDataMap.form.#view}', { model: viewSchema }), 'Form');
   t.is(replaceStr('${model.viewDataMap.form.bool}', { model: viewSchema }), true);
