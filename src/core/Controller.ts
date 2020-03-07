@@ -124,12 +124,16 @@ export default class EficyController extends PluginTarget {
   private initPlugins(data: IEficySchema) {
     const pluginItemVO = [...(this.model.plugins || []), ...buildInPlugins];
 
-    pluginItemVO.map(pluginFactory).forEach(plugin => {
-      if (plugin) {
-        plugin.loadOptions(data);
-        this.install(plugin);
-      }
-    });
+    const runSet: Set<BasePlugin> = new Set();
+
+    pluginItemVO
+      .map(pluginItem => pluginFactory(pluginItem, runSet))
+      .forEach(plugin => {
+        if (plugin) {
+          plugin.loadOptions(data);
+          this.install(plugin);
+        }
+      });
   }
 
   @action.bound
