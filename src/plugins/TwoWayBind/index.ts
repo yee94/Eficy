@@ -32,6 +32,7 @@ export interface IPluginProps {
 export default class TwoWayBind extends BasePlugin {
   public static pluginName: string = 'two-way-bind';
   public static defaultBindFields = ['value', 'checked'];
+  public static uniq = true;
 
   public defaultOptions = {
     bindOptions: [],
