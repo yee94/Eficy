@@ -3,6 +3,7 @@ import { IEficySchema } from '../interface';
 import { Plugin } from 'plugin-decorator';
 
 export default class BasePlugin extends Plugin {
+  public static uniq?: boolean = false;
   protected controller: EficyController;
   protected transformValues: any; // transform schema values hook
   protected disposeArr: Array<() => void> = [];
