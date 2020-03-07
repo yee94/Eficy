@@ -1,6 +1,7 @@
 import * as Tools from './utils';
 import * as Models from './models';
 import * as Mobx from 'mobx';
+import { observer } from 'mobx-react';
 import Controller from './core/Controller';
 import EficyComponent from './components/EficyComponent';
 
@@ -13,6 +14,8 @@ import ViewSchema from './models/ViewSchema';
 import createElement from './utils/createElement';
 
 export default Controller;
+
+Object.assign(Mobx, { observer });
 
 export {
   resolver,
