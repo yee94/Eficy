@@ -1,5 +1,6 @@
 import * as Tools from './utils';
 import * as Models from './models';
+import * as Mobx from 'mobx';
 import Controller from './core/Controller';
 import EficyComponent from './components/EficyComponent';
 
@@ -25,4 +26,5 @@ export {
   Controller,
   Tools,
   Models,
+  Mobx,
 };
