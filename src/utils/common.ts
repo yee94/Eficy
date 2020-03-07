@@ -11,7 +11,6 @@ import _merge from 'lodash/merge';
 import _mergeWith from 'lodash/mergeWith';
 import _isEqual from 'lodash/isEqual';
 import _isObject from 'lodash/isObject';
-import _uniqBy from 'lodash/uniqBy';
 
 export const cloneDeep = _cloneDeep;
 export const clone = _clone;
@@ -25,7 +24,6 @@ export const isEmpty = _isEmpty;
 export const merge = _merge;
 export const mergeWith = _mergeWith;
 export const isEqual = _isEqual;
-export const uniqBy = _uniqBy;
 export const isObject = (arg: object) => _isObject(arg) && !isArray(arg);
 
 export const MERGE_WAY = {

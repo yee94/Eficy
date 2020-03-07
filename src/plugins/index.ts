@@ -37,19 +37,18 @@ export function install(plugin) {
   plugins[plugin.pluginName] = plugin;
 }
 
-export function pluginFactory(pluginOpt: IPlugin): BasePlugin | null {
+export function pluginFactory(pluginOpt: IPlugin, runSet: Set<BasePlugin>): BasePlugin | null {
   if (typeof pluginOpt === 'string') {
     pluginOpt = [pluginOpt, {}];
   }
   const pluginName = pluginOpt[0];
   const pluginInstance: any = plugins[pluginName];
 
-  if (pluginInstance.uniq) {
-    if (pluginInstance._runed) {
-      return null;
-    }
-    pluginInstance._runed = true;
+  if (pluginInstance.uniq && runSet.has(pluginInstance)) {
+    return null;
   }
+
+  runSet.add(pluginInstance);
 
   if (!pluginInstance) {
     throw new Error(`Not found plugin: ${pluginName}`);
