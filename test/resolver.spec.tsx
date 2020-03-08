@@ -24,3 +24,8 @@ const wrapper = mount(resolver(basicData, { componentMap: testComponents }));
 test('transformFunctionResult test', t => {
   t.is(wrapper.find(`a.test-item1`).length, 1);
 });
+
+test('test #if', t => {
+  const data = Object.assign(basicData, { '#if': false });
+  t.is(resolver(data, { componentMap: testComponents }), null);
+});

@@ -56,6 +56,10 @@ export default class ViewSchema extends Vmo implements IView {
 
   @Field
   @observable
+  public '#if': boolean;
+
+  @Field
+  @observable
   public '#content': string;
 
   @observable
@@ -76,6 +80,10 @@ export default class ViewSchema extends Vmo implements IView {
     }
     if (!data['#']) {
       data['#'] = generateUid();
+    }
+
+    if (!('#if' in data)) {
+      data['#if'] = true;
     }
 
     this.update(data, true);

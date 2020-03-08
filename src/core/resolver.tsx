@@ -114,6 +114,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 
   const {
     '#': id,
+    '#if': ifRenderComponent = true,
     '#view': componentName,
     '#restProps': restProps,
     '#children': childrenSchema,
@@ -123,6 +124,10 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     key,
     ...modelRestProps
   } = schema;
+
+  if (!ifRenderComponent) {
+    return null;
+  }
 
   let Component = get(componentMap, schema['#view']);
 
