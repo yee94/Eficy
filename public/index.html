@@ -24,12 +24,14 @@
       Eficy.Config.failAlert = ({ msg }) => antd.message.error(msg);
       Eficy.Config.defaultComponentMap = Object.assign({}, antd);
     </script>
+    <script crossorigin="anonymous" src="https://g.alicdn.com/code/npm/@alife/dada-schema-editor/0.0.37/index.js"></script>
 
     <% for (const file of htmlWebpackPlugin.options.files.js) { %>
     <script type="text/javascript" src="<%=file %>"></script>
     <% } %>
 
     <script>
+      window.renderController &&
       window.renderController.render('#container');
     </script>
   </body>
