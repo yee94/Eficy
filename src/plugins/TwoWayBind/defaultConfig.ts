@@ -2,7 +2,15 @@ import { IBindOption, IChangeFn } from './index';
 
 export const makeDefaultChangeFn = (propName): IChangeFn => {
   return {
-    onChange: e => ({ [propName]: e.target ? e.target[propName] : e }),
+    onChange: e => {
+      const value = e.target ? e.target[propName] : e;
+
+      if (typeof value === 'object') {
+        return {};
+      }
+
+      return { [propName]: value };
+    },
   };
 };
 
