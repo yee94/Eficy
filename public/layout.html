@@ -32,7 +32,8 @@
     <% } %>
 
     <script>
-      window.layoutController.render('#container');
+      window.renderController &&
+      window.renderController.render('#container');
     </script>
   </body>
 </html>
