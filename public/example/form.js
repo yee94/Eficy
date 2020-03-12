@@ -16,6 +16,10 @@ window.renderController = new Eficy.Controller({
     {
       '#': 'validate_other',
       '#view': 'Form',
+      '@onFinish': ($ctrl, ...args) => {
+        console.log(args);
+        debugger;
+      },
       name: 'test',
       labelCol: { span: 6 },
       wrapperCol: { span: 14 },
@@ -45,11 +49,12 @@ window.renderController = new Eficy.Controller({
           ],
           '#children': [
             {
+              '#': 'input',
+              value: 'value',
               '#view': 'Input',
               placeholder: 'username',
               prefix: {
-                '#view': 'Icon',
-                type: 'user',
+                '#view': 'Icons.UserOutlined',
                 style: { color: 'rgba(0,0,0,.25)' },
               },
             },
@@ -312,8 +317,7 @@ window.renderController = new Eficy.Controller({
                   '#view': 'Button',
                   '#children': [
                     {
-                      '#view': 'Icon',
-                      type: 'upload',
+                      '#view': 'Icons.CloudUploadOutlined',
                     },
                     {
                       '#view': 'span',
@@ -340,8 +344,7 @@ window.renderController = new Eficy.Controller({
                   className: 'ant-upload-drag-icon',
                   '#children': [
                     {
-                      '#view': 'Icon',
-                      type: 'inbox',
+                      '#view': 'Icons.InboxOutlined',
                     },
                   ],
                 },

@@ -15,7 +15,7 @@ import {
   pickBy,
 } from '../utils';
 import ViewSchema from '../models/ViewSchema';
-import { toJS } from 'mobx';
+import { runInAction, toJS } from 'mobx';
 import { observer } from 'mobx-react';
 
 export interface IResolverOptions {
@@ -152,6 +152,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     filterViewProps,
     filterUndefined,
   )({
+    ...staticProps,
     ...modelRestProps,
     ...restProps,
     key: 'key' in schema ? key : id,
@@ -159,7 +160,6 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     children: childrenSchema,
   });
 
-  Object.assign(componentProps, staticProps);
   componentProps.model = schema;
   componentProps.ref = onRegister ? registerComponent : undefined;
 
@@ -181,7 +181,10 @@ export default function observerResolver(schema: IView | IView[], options?: IRes
     return resolverBasic(schema, options);
   }
 
-  return React.createElement(
+  // return props to Mobx React element to keep type.props right. Eg. Tabs -> Tabs.TabPane
+  const restProps = runInAction(() => transformPropsList(schema['#restProps']));
+
+  const memoElement = React.createElement(
     observer(props => {
       schema['#staticProps'] && Object.assign(schema['#staticProps'], props);
 
@@ -191,7 +194,10 @@ export default function observerResolver(schema: IView | IView[], options?: IRes
       return result;
     }),
     {
+      ...restProps,
       key: 'key' in schema ? schema.key : `observer_${schema['#'] || generateUid()}`,
     },
   );
+
+  return memoElement;
 }

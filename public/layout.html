@@ -14,6 +14,7 @@
     <script src="https://cdn.bootcss.com/react-dom/16.9.0-alpha.0/umd/react-dom.development.js"></script>
     <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdn.bootcss.com/antd/4.0.0/antd.js"></script>
+    <script src="https://unpkg.com/@ant-design/icons@4.0.2/dist/index.umd.js"></script>
 
     <% for(var k in htmlWebpackPlugin.files.chunks){ %> <% if(k!=='main'){ %>
     <script type="text/javascript" src="<%= htmlWebpackPlugin.files.chunks[k].entry %>"></script>
@@ -22,8 +23,12 @@
     <script>
       Eficy.Config.successAlert = ({ msg }) => antd.message.success(msg);
       Eficy.Config.failAlert = ({ msg }) => antd.message.error(msg);
-      Eficy.Config.defaultComponentMap = Object.assign({}, antd);
+      Eficy.Config.defaultComponentMap = Object.assign({}, antd, { Icons: icons });
     </script>
+    <script
+      crossorigin="anonymous"
+      src="https://g.alicdn.com/code/npm/@alife/dada-schema-editor/0.0.37/index.js"
+    ></script>
 
     <% for (const file of htmlWebpackPlugin.options.files.js) { %>
     <script type="text/javascript" src="/example/<%=file %>"></script>
@@ -32,8 +37,7 @@
     <% } %>
 
     <script>
-      window.renderController &&
-      window.renderController.render('#container');
+      window.layoutController && window.layoutController.render('#container');
     </script>
   </body>
 </html>
