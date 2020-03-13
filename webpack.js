@@ -38,13 +38,12 @@ module.exports = {
   entry: {
     index: './src/index.ts',
   },
-  mode: 'production',
   output: {
     library: 'Eficy',
     // libraryExport: '',
     libraryTarget: 'umd',
     filename: '[name].js',
-    path: path.resolve(rootPath, 'build'),
+    path: path.resolve(rootPath, 'dist'),
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
