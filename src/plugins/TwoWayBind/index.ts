@@ -3,11 +3,11 @@ import { Inject } from 'plugin-decorator';
 import * as React from 'react';
 import { get } from '../../utils';
 import BasePlugin from '../base';
-import ViewSchema from '../../models/ViewSchema';
+import ViewNode from '../../models/ViewNode';
 import { defaultBindOptions, makeDefaultChangeFn } from './defaultConfig';
 
-declare module '../../models/ViewSchema' {
-  export default interface ViewSchema {
+declare module '../../models/ViewNode' {
+  export default interface ViewNode {
     '#bindValuePropName': string;
     value: any;
   }
@@ -49,7 +49,7 @@ export default class TwoWayBind extends BasePlugin {
     this.options.bindFields.concat(TwoWayBind.defaultBindFields);
   }
 
-  protected getWrapProps<T>(props: T & { model: ViewSchema }, changeFns: IChangeFn): T {
+  protected getWrapProps<T>(props: T & { model: ViewNode }, changeFns: IChangeFn): T {
     const { model } = props;
     const appendProps = Object.entries(changeFns).reduce((prev, [key, handlerChangeFn]) => {
       const wrapFn = (...args) => {
@@ -68,7 +68,7 @@ export default class TwoWayBind extends BasePlugin {
 
   @Bind
   @Inject
-  public componentWrap(next, Component, schema: ViewSchema) {
+  public componentWrap(next, Component, schema: ViewNode) {
     let SyncWrapComponent = next();
 
     const changeFns = this.findChangeFnsBySchema(schema);
@@ -79,7 +79,7 @@ export default class TwoWayBind extends BasePlugin {
     return SyncWrapComponent;
   }
 
-  private findChangeFnsBySchema(schema: ViewSchema): IChangeFn | null {
+  private findChangeFnsBySchema(schema: ViewNode): IChangeFn | null {
     const bindOption = this.options.bindOptions.find(({ '#view': viewName }) => viewName === schema['#view']);
     if (bindOption) {
       return bindOption.changeFns;
@@ -101,7 +101,7 @@ export default class TwoWayBind extends BasePlugin {
     if (!this.syncWrapMap.get(Component)) {
       this.syncWrapMap.set(
         Component,
-        React.forwardRef((props: { model: ViewSchema }, ref) =>
+        React.forwardRef((props: { model: ViewNode }, ref) =>
           React.createElement(Component, {
             ref,
             ...this.getWrapProps(props, changeFns),

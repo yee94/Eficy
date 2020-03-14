@@ -1,11 +1,11 @@
 import BasePlugin from './base';
-import ViewSchema from '../models/ViewSchema';
+import ViewNode from '../models/ViewNode';
 import { Bind } from 'lodash-decorators';
 import { Inject } from 'plugin-decorator';
 import * as React from 'react';
 
-declare module '../models/ViewSchema' {
-  export default interface ViewSchema {
+declare module '../models/ViewNode' {
+  export default interface ViewNode {
     '#bindValuePropName': string;
     value: any;
   }
@@ -16,7 +16,7 @@ export default class EficyInEficy extends BasePlugin {
 
   @Bind
   @Inject
-  public componentWrap(next, Component, schema: ViewSchema) {
+  public componentWrap(next, Component, schema: ViewNode) {
     let SyncWrapComponent = next();
     if (schema['#view'] === 'Eficy') {
       SyncWrapComponent = React.forwardRef((props, ref) =>

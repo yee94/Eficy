@@ -1,9 +1,9 @@
 import forEachDeep from './forEachDeep';
-import ViewSchema from '../models/ViewSchema';
+import ViewNode from '../models/ViewNode';
 
 export default function loadComponentModels(
   componentLibrary: Record<string, any>,
-): Record<string, new (...args: any) => ViewSchema> {
+): Record<string, new (...args: any) => ViewNode> {
   const componentModelMap = {};
 
   forEachDeep(componentLibrary, objMaps => {

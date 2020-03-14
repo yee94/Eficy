@@ -1,5 +1,5 @@
 import { Hook, PluginTarget } from 'plugin-decorator';
-import { ExtendsViewSchema, IActionProps, IEficySchema, IView } from '../interface';
+import { ExtendsViewNode, IActionProps, IEficySchema, IView } from '../interface';
 import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
@@ -16,7 +16,7 @@ import { renderReact } from '../utils/renderHelper';
 export default class EficyController extends PluginTarget {
   public plugins: BasePlugin[];
   public componentLibrary: Record<string, any>;
-  public componentMap: Map<ExtendsViewSchema, IReactComponent> = new Map();
+  public componentMap: Map<ExtendsViewNode, IReactComponent> = new Map();
   public replaceVariables: <T>(target: T) => T;
   protected actions: Record<string, IAction>;
 
@@ -43,11 +43,11 @@ export default class EficyController extends PluginTarget {
     this.initPlugins(data);
   }
 
-  public get models(): Record<string, ExtendsViewSchema> {
+  public get models(): Record<string, ExtendsViewNode> {
     return this.model.viewDataMap;
   }
 
-  public getModel(id: string): ExtendsViewSchema {
+  public getModel(id: string): ExtendsViewNode {
     return this.model.viewDataMap[id];
   }
 
@@ -68,7 +68,7 @@ export default class EficyController extends PluginTarget {
   }
 
   @action.bound
-  protected onRegister(model: ExtendsViewSchema, ref: IReactComponent) {
+  protected onRegister(model: ExtendsViewNode, ref: IReactComponent) {
     if (!model['#']) {
       return;
     }
@@ -93,7 +93,7 @@ export default class EficyController extends PluginTarget {
    * @returns {T}
    */
   @Hook
-  protected componentWrap<T>(component: T, schema: ExtendsViewSchema): T {
+  protected componentWrap<T>(component: T, schema: ExtendsViewNode): T {
     return component;
   }
 
@@ -104,11 +104,11 @@ export default class EficyController extends PluginTarget {
    * @returns {any}
    */
   @Hook
-  public getResolver(resolverNext: any = resolver, schema?: ExtendsViewSchema): any {
+  public getResolver(resolverNext: any = resolver, schema?: ExtendsViewNode): any {
     return resolverNext;
   }
 
-  public resolver(view?: ExtendsViewSchema | ExtendsViewSchema[]) {
+  public resolver(view?: ExtendsViewNode | ExtendsViewNode[]) {
     return React.createElement(
       observer(() =>
         this.getResolver()(view || this.model.views, {

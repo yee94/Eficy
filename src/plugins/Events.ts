@@ -1,8 +1,8 @@
 import BasePlugin from './base';
 import EficyController from '../core/Controller';
-import { ExtendsViewSchema, IEficySchema } from '../interface';
+import { ExtendsViewNode, IEficySchema } from '../interface';
 import { forEachDeep, isArray, isFunction, isPlainObject } from '../utils';
-import { ViewSchema } from '../models';
+import { ViewNode } from '../models';
 
 type IListenerFn = (controller: EficyController, ...args: any) => void;
 
@@ -37,7 +37,7 @@ export default class Events extends BasePlugin {
    * wrap schema @xxx functions
    * @param schema
    */
-  private wrapSpecialFunction(schema: ExtendsViewSchema) {
+  private wrapSpecialFunction(schema: ExtendsViewNode) {
     forEachDeep(
       schema['#restProps'],
       obj => {
@@ -58,7 +58,7 @@ export default class Events extends BasePlugin {
   }
 
   /**
-   * resolver event and add to ViewSchema
+   * resolver event and add to ViewNode
    * @param event
    */
   private addEvent(event: IEvent) {
@@ -77,9 +77,9 @@ export default class Events extends BasePlugin {
     }
 
     const viewDataMap = this.controller.model.viewDataMap;
-    const viewSchema = viewDataMap[id] as ViewSchema;
-    if (viewSchema) {
-      this.addActionsToSchema(listeners as IListenerFn[], action, viewSchema);
+    const viewNode = viewDataMap[id] as ViewNode;
+    if (viewNode) {
+      this.addActionsToSchema(listeners as IListenerFn[], action, viewNode);
     }
   }
 
@@ -89,7 +89,7 @@ export default class Events extends BasePlugin {
    * @param action
    * @param schema
    */
-  private addActionsToSchema(fns: IListenerFn[], action, schema: ViewSchema) {
+  private addActionsToSchema(fns: IListenerFn[], action, schema: ViewNode) {
     const originFunction = schema[action];
     let targetFn;
     if (isFunction(originFunction)) {

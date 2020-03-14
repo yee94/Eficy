@@ -1,14 +1,14 @@
 import React, { ReactElement } from 'react';
 import BasePlugin from './base';
-import ViewSchema from '../models/ViewSchema';
+import ViewNode from '../models/ViewNode';
 import { get, isArray } from '../utils';
 import { Bind } from 'lodash-decorators';
 import { resolverBasic } from '../core/resolver';
 import { Inject } from 'plugin-decorator';
 import { action, observable, toJS } from 'mobx';
 
-declare module '../models/ViewSchema' {
-  export default interface ViewSchema {
+declare module '../models/ViewNode' {
+  export default interface ViewNode {
     '#field': any;
   }
 }
@@ -22,7 +22,7 @@ export default class AntForm extends BasePlugin {
   public formMap: Record<string, any> = {};
   private formC2PMap: Record<string, string> = {};
   private formWrapMap: Record<string, any> = {};
-  private formChildSet: WeakSet<ViewSchema> = new WeakSet<ViewSchema>();
+  private formChildSet: WeakSet<ViewNode> = new WeakSet<ViewNode>();
 
   @observable
   private formFields = {};
@@ -31,7 +31,7 @@ export default class AntForm extends BasePlugin {
     checked: ['Switch', 'Radio', 'CheckBox'],
     fileList: ['Upload', 'Upload.Dragger'],
   };
-  private static getPropsName(model: ViewSchema) {
+  private static getPropsName(model: ViewNode) {
     for (const key of Object.keys(this.propNamesMap)) {
       const values = this.propNamesMap[key];
       if (values.includes(model['#view'])) {
@@ -116,7 +116,7 @@ export default class AntForm extends BasePlugin {
     Object.assign(this.formFields, fieldsValue);
   }
 
-  private createForm(schema: ViewSchema, component) {
+  private createForm(schema: ViewNode, component) {
     if (!this.formWrapMap[schema['#']]) {
       this.formWrapMap[schema['#']] = require('antd').Form.create({ name: schema['#'] })(component);
 
@@ -130,7 +130,7 @@ export default class AntForm extends BasePlugin {
 
   @Bind
   @Inject
-  public getResolver(next, resolver1, schema?: ViewSchema) {
+  public getResolver(next, resolver1, schema?: ViewNode) {
     let resolver = next();
     if (schema && (schema['#view'] === 'Form' || this.formChildSet.has(schema))) {
       resolver = resolverBasic;
@@ -140,13 +140,13 @@ export default class AntForm extends BasePlugin {
 
   @Bind
   @Inject
-  public componentWrap(next, Component, schema: ViewSchema) {
+  public componentWrap(next, Component, schema: ViewNode) {
     let AntFormWrapComponent = next();
     if (schema['#view'] === 'Form') {
       AntFormWrapComponent = this.createForm(
         schema,
-        React.forwardRef((props: { model: ViewSchema; form: any; children: ReactElement[] }, ref) => {
-          const model = props.model as ViewSchema;
+        React.forwardRef((props: { model: ViewNode; form: any; children: ReactElement[] }, ref) => {
+          const model = props.model as ViewNode;
           this.formMap[model['#']] = props.form;
 
           const form = props.form;
