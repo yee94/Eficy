@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx';
 import { Field, Vmo } from '@vmojs/base';
-import ViewSchema, { ExtendsViewSchema } from './ViewSchema';
+import ViewNode, { ExtendsViewNode } from './ViewNode';
 import { IEficySchema, IPlugin, IView } from '../interface';
 import { get, isArray } from '../utils';
 import { Hook } from 'plugin-decorator';
@@ -11,11 +11,11 @@ export default class EficySchema extends Vmo implements IEficySchema {
   public plugins: IPlugin[];
 
   @observable
-  public views: ExtendsViewSchema[];
+  public views: ExtendsViewNode[];
   private readonly componentLibrary: Record<string, any>;
 
   @computed
-  public get viewDataMap(): Record<string, ExtendsViewSchema> {
+  public get viewDataMap(): Record<string, ExtendsViewNode> {
     return this.views.reduce((prev, next) => Object.assign(prev, next.viewDataMap), {});
   }
 
@@ -25,7 +25,7 @@ export default class EficySchema extends Vmo implements IEficySchema {
    * @param key
    * @returns {unknown}
    */
-  public getViewModel(key: string): ExtendsViewSchema {
+  public getViewModel(key: string): ExtendsViewNode {
     const steps = `${key}`.split('.');
     const viewMap = this.viewDataMap;
     return steps.reduce(
@@ -49,17 +49,17 @@ export default class EficySchema extends Vmo implements IEficySchema {
 
     this.views = [];
     if (isArray(data.views)) {
-      this.views = data.views.map(viewData => new ViewSchema(viewData, componentModels));
+      this.views = data.views.map(viewData => new ViewNode(viewData, componentModels));
     }
 
     return this;
   }
 
   @Hook
-  public updateViews(data: IEficySchema, cb: (viewSchema: ViewSchema, viewData: IView) => void) {
+  public updateViews(data: IEficySchema, cb: (viewNode: ViewNode, viewData: IView) => void) {
     if (isArray(data.views)) {
       data.views.forEach(viewData => {
-        const viewModel = this.getViewModel(viewData['#']) as ViewSchema;
+        const viewModel = this.getViewModel(viewData['#']) as ViewNode;
         if (viewModel) {
           cb(viewModel, viewData);
         }

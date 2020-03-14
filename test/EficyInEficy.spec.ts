@@ -1,5 +1,5 @@
 import EficyModel from '../src/components/EficyComponent/EficyModel';
-import { ViewSchema } from '../src/models';
+import { ViewNode } from '../src/models';
 import test from 'ava';
 import EficyController from '../src/core/Controller';
 
@@ -35,22 +35,22 @@ const basicData = {
   ],
 };
 
-const viewSchema = new ViewSchema(basicData, { Eficy: EficyModel });
+const viewNode = new ViewNode(basicData, { Eficy: EficyModel });
 
 test('view Schema has Eficy child', t => {
-  t.true(Object.keys(viewSchema.viewDataMap).includes('eficyComponent'));
+  t.true(Object.keys(viewNode.viewDataMap).includes('eficyComponent'));
 });
 
 test('view Schema did not has child of Eficy', t => {
-  t.false(Object.keys(viewSchema.viewDataMap).includes('message'));
+  t.false(Object.keys(viewNode.viewDataMap).includes('message'));
 });
 
 test('special model', t => {
-  t.true(viewSchema.viewDataMap.eficyComponent instanceof EficyModel);
+  t.true(viewNode.viewDataMap.eficyComponent instanceof EficyModel);
 });
 
 test('eficy scope viewDataMap', t => {
-  t.is(Object.keys(viewSchema.viewDataMap.eficyComponent.viewDataMap).length, 1);
+  t.is(Object.keys(viewNode.viewDataMap.eficyComponent.viewDataMap).length, 1);
 });
 
 const controller = new EficyController({

@@ -10,7 +10,7 @@ import Config from './constants/Config';
 import Plugins from './plugins';
 import { install as installPlugin } from './plugins';
 import render from './utils/renderHelper';
-import ViewSchema from './models/ViewSchema';
+import ViewNode from './models/ViewNode';
 import createElement from './utils/createElement';
 
 export default Controller;
@@ -23,7 +23,7 @@ export {
   Plugins,
   installPlugin,
   render,
-  ViewSchema,
+  ViewNode,
   createElement,
   EficyComponent,
   Controller,

@@ -1,11 +1,11 @@
-import { ViewSchema } from '../../models';
+import { ViewNode } from '../../models';
 import { IPlugin, IView } from '../../interface';
 import { Field } from '@vmojs/base';
 import EficyController from '../../core/Controller';
 import { action, computed, observable } from 'mobx';
 import { get } from '../../utils';
 
-export default class EficyModel extends ViewSchema {
+export default class EficyModel extends ViewNode {
   @Field
   public '#view': string = 'Eficy';
   @Field
