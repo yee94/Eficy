@@ -14,21 +14,21 @@ import {
   mergeClassName,
   pickBy,
 } from '../utils';
-import ViewSchema from '../models/ViewSchema';
+import ViewNode from '../models/ViewNode';
 import { runInAction, toJS } from 'mobx';
 import { observer } from 'mobx-react';
 
 export interface IResolverOptions {
   componentMap?: any;
-  onRegister?: (schema: ViewSchema, componentRef) => void;
-  componentWrap?: <T>(component: T, schema: ViewSchema) => T;
-  getResolver?: <T>(resolverNext?: T, schema?: ViewSchema) => T;
+  onRegister?: (schema: ViewNode, componentRef) => void;
+  componentWrap?: <T>(component: T, schema: ViewNode) => T;
+  getResolver?: <T>(resolverNext?: T, schema?: ViewNode) => T;
 }
 
 const filterProps = obj => !isPlainObject(obj) || isEficyView(obj);
 
 /**
- * transform prop list to a normal js ,except ViewSchema
+ * transform prop list to a normal js ,except ViewNode
  * such as style
  * @param props
  * @returns {any}
@@ -95,7 +95,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
     );
 
   /**
-   * transform children ViewSchema
+   * transform children ViewNode
    * @param props
    * @returns {{}}
    */

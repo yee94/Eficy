@@ -1,13 +1,13 @@
 import BasePlugin from './base';
 import { IRequest } from './Request';
 import { generateUid, pick, toArr } from '../utils';
-import { ViewSchema } from '../models';
+import { ViewNode } from '../models';
 import { Bind } from 'lodash-decorators';
 import { Inject } from 'plugin-decorator';
 import * as React from 'react';
 import createReplacer from '../utils/relaceVariable';
 
-interface ITableView extends ViewSchema {
+interface ITableView extends ViewNode {
   '#view': 'Table';
   '#request': IRequest;
   pagination: any;
@@ -100,7 +100,7 @@ export default class AntTable extends BasePlugin {
 
   @Bind
   @Inject
-  public componentWrap(next, Component, schema: ViewSchema) {
+  public componentWrap(next, Component, schema: ViewNode) {
     let SyncWrapComponent = next();
     if (schema['#view'] === 'Table') {
       SyncWrapComponent = this.getSyncWrapComponent(Component);

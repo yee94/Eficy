@@ -1,4 +1,4 @@
-import { ExtendsViewSchema, IView } from '../interface';
+import { ExtendsViewNode, IView } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
@@ -18,13 +18,13 @@ import { action, computed, observable } from 'mobx';
 import Config from '../constants/Config';
 import UnEnumerable from '../utils/decorators/UnEnumerable';
 
-type IComponentsModels = Record<string, new (...args: any) => ViewSchema>;
-export type ExtendsViewSchema = ViewSchema & any;
+type IComponentsModels = Record<string, new (...args: any) => ViewNode>;
+export type ExtendsViewNode = ViewNode & any;
 
-export default class ViewSchema extends Vmo implements IView {
+export default class ViewNode extends Vmo implements IView {
   public static readonly solidField = ['#', '#view', '#restProps'];
-  public static isViewSchemaSelf(someObject: any): boolean {
-    return someObject.__proto__.constructor.name === ViewSchema.name;
+  public static isInstance(someObject: any): boolean {
+    return someObject.__proto__.constructor.name === ViewNode.name;
   }
 
   @UnEnumerable
@@ -36,7 +36,7 @@ export default class ViewSchema extends Vmo implements IView {
     this.componentModels = componentModels || {};
     const foundModel = this.componentModels[data['#view']];
 
-    if (foundModel && ViewSchema.isViewSchemaSelf(this)) {
+    if (foundModel && ViewNode.isInstance(this)) {
       // @ts-ignore
       return new foundModel(data, componentModels);
     } else {
@@ -49,7 +49,7 @@ export default class ViewSchema extends Vmo implements IView {
   @Field
   public '#': string;
   @Field
-  public '#children': ViewSchema[];
+  public '#children': ViewNode[];
 
   @Field
   public '#staticProps': Record<string, any> = {};
@@ -92,10 +92,10 @@ export default class ViewSchema extends Vmo implements IView {
   }
 
   @computed
-  public get viewDataMap(): Record<string, ExtendsViewSchema> {
+  public get viewDataMap(): Record<string, ExtendsViewNode> {
     const viewMaps = { [this['#']]: this };
-    const extendViewMap = (viewSchema: ViewSchema) => {
-      const childMap = viewSchema.viewDataMap;
+    const extendViewMap = (viewNode: ViewNode) => {
+      const childMap = viewNode.viewDataMap;
       if (childMap) {
         Object.assign(viewMaps, childMap);
       }
@@ -103,7 +103,7 @@ export default class ViewSchema extends Vmo implements IView {
     (this['#children'] || []).forEach(extendViewMap);
 
     forEachDeep(this['#restProps'], optionValue => {
-      if (optionValue instanceof ViewSchema) {
+      if (optionValue instanceof ViewNode) {
         extendViewMap(optionValue);
       }
 
@@ -114,15 +114,15 @@ export default class ViewSchema extends Vmo implements IView {
   }
 
   @action
-  private transformViewSchema(data: IView) {
+  private transformViewNode(data: IView) {
     return mapDeep(
       data,
       (value: IView, path) => {
         if (!path) {
           return value;
         }
-        if (isEficyView(value) && !(value instanceof ViewSchema)) {
-          return new ViewSchema(value, this.componentModels);
+        if (isEficyView(value) && !(value instanceof ViewNode)) {
+          return new ViewNode(value, this.componentModels);
         }
         return value;
       },
@@ -135,10 +135,10 @@ export default class ViewSchema extends Vmo implements IView {
   @action
   public overwrite(data: IView) {
     [...Object.keys(this), ...Object.keys(this['#restProps'])].forEach(key => {
-      if (ViewSchema.solidField.includes(key)) {
+      if (ViewNode.solidField.includes(key)) {
         return;
       }
-      const originValue = ViewSchema.prototype[key];
+      const originValue = ViewNode.prototype[key];
       switch (typeof originValue) {
         case 'function':
         case 'object':
@@ -169,10 +169,10 @@ export default class ViewSchema extends Vmo implements IView {
       });
     }
 
-    data = this.transformViewSchema(data);
+    data = this.transformViewNode(data);
 
     Object.keys(data).forEach(key => {
-      if (!isInit && ViewSchema.solidField.includes(key)) {
+      if (!isInit && ViewNode.solidField.includes(key)) {
         return;
       }
 
@@ -205,7 +205,7 @@ export default class ViewSchema extends Vmo implements IView {
     return this;
   }
 
-  public forEachChild(cb: (child: ViewSchema) => void) {
+  public forEachChild(cb: (child: ViewNode) => void) {
     if (isArray(this['#children'])) {
       this['#children'].forEach(child => {
         cb(child);
