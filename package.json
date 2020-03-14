@@ -4,13 +4,14 @@
   "description": "",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "unpkg": "./dist/index.min.js",
   "private": false,
   "scripts": {
     "watch": "tsc -w",
     "start": "npm run dev:umd",
     "dev:umd": "webpack-dev-server --config webpack.dev.js",
     "build": "rimraf lib; tsc;",
-    "build:umd": "rimraf build;webpack --config webpack.js",
+    "build:umd": "rimraf dist;webpack --config webpack.js && webpack --config webpack.prod.js",
     "lint": "tslint --project .",
     "test": "nyc --silent ava",
     "prettier": "pretty-quick --staged",
@@ -24,9 +25,9 @@
   ],
   "files": [
     "lib",
-    "build"
+    "dist"
   ],
-  "author": "xiaobebe <wyy.xb@qq.com>",
+  "author": "xiaobe <wyy.xb@qq.com>",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.4.5",
@@ -50,6 +51,7 @@
     "pretty-quick": "^1.11.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "terser-webpack-plugin": "^2.3.5",
     "ts-loader": "^6.0.2",
     "ts-node": "^8.2.0",
     "tslint": "^5.17.0",
