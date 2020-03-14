@@ -3,7 +3,7 @@ import { action, IReactionOptions, reaction } from 'mobx';
 import { IActionProps, IEficySchema } from '../interface';
 import EficyController from '../core/Controller';
 import { forEachDeep, isEficyAction, set } from '../utils';
-import { ViewSchema } from '../models';
+import { ViewNode } from '../models';
 import Config from '../constants/Config';
 import { Inject } from 'plugin-decorator';
 
@@ -53,7 +53,7 @@ export default class Reaction extends BasePlugin {
       models,
       (value: any, path) => {
         Object.entries(value).forEach(([key, itemValue]) => {
-          if (ViewSchema.solidField.includes(key)) {
+          if (ViewNode.solidField.includes(key)) {
             return;
           }
           if (typeof itemValue === 'string') {

@@ -1,6 +1,6 @@
 import test from 'ava';
 import { forEachDeep, get, isEficyView } from '../src/utils';
-import { ViewSchema } from '../src/models';
+import { ViewNode } from '../src/models';
 import { isObservableProp } from 'mobx';
 import EficyModel from '../src/components/EficyComponent/EficyModel';
 
@@ -81,84 +81,84 @@ const basicData = {
   ],
 };
 
-const viewSchema = new ViewSchema(basicData, { Eficy: EficyModel });
+const viewNode = new ViewNode(basicData, { Eficy: EficyModel });
 
-test('when loaded all views(include children) became a ViewSchema', t => {
-  let allChildrenViewSchema = 0;
-  forEachDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
+test('when loaded all views(include children) became a ViewNode', t => {
+  let allChildrenViewNode = 0;
+  forEachDeep(viewNode, obj => isEficyView(obj) && allChildrenViewNode++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
-  t.is(basicDataCount, allChildrenViewSchema);
+  t.is(basicDataCount, allChildrenViewNode);
 });
 
 test('lodash get field path', t => {
-  const field = get(viewSchema, '#children.0.#children.0.#field', undefined);
+  const field = get(viewNode, '#children.0.#children.0.#field', undefined);
 
   t.is(!!field, true);
 });
 
-test('ViewSchema update restProps', t => {
-  viewSchema.update({
+test('ViewNode update restProps', t => {
+  viewNode.update({
     newField: 'test',
   });
 
   // @ts-ignore
-  t.is(viewSchema.newField, 'test');
-  t.is(viewSchema['#restProps'].newField, 'test');
-  t.true(!!get(viewSchema, 'newField', false));
+  t.is(viewNode.newField, 'test');
+  t.is(viewNode['#restProps'].newField, 'test');
+  t.true(!!get(viewNode, 'newField', false));
 });
 
-test('ViewSchema update Field props', t => {
-  viewSchema.update({
+test('ViewNode update Field props', t => {
+  viewNode.update({
     className: 'test2',
   });
 
-  t.is(viewSchema.className, 'test2');
-  t.true(isObservableProp(viewSchema, 'className'));
+  t.is(viewNode.className, 'test2');
+  t.true(isObservableProp(viewNode, 'className'));
 });
 
-test('ViewSchema update solid Field', t => {
-  viewSchema.update({
+test('ViewNode update solid Field', t => {
+  viewNode.update({
     '#view': 'test2',
   });
-  t.is(viewSchema['#view'], 'Form');
+  t.is(viewNode['#view'], 'Form');
 });
 
-test('ViewSchema overwrite or delete fields', t => {
-  viewSchema.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
+test('ViewNode overwrite or delete fields', t => {
+  viewNode.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
 
   // @ts-ignore
-  t.is(viewSchema.newField, undefined);
-  t.deepEqual(viewSchema['#restProps'], { newField2: 'cool' });
+  t.is(viewNode.newField, undefined);
+  t.deepEqual(viewNode['#restProps'], { newField2: 'cool' });
   // @ts-ignore
-  t.is(viewSchema.newField, undefined);
-  t.is(viewSchema.className, undefined);
-  t.is(viewSchema['#children'], undefined);
+  t.is(viewNode.newField, undefined);
+  t.is(viewNode.className, undefined);
+  t.is(viewNode['#children'], undefined);
 });
 
-test('ViewSchema overwrite solid fields', t => {
-  viewSchema.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
+test('ViewNode overwrite solid fields', t => {
+  viewNode.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
 
-  t.is(viewSchema['#view'], 'Form');
-  t.is(viewSchema['#'] !== undefined, true);
+  t.is(viewNode['#view'], 'Form');
+  t.is(viewNode['#'] !== undefined, true);
 });
 
-test.serial('ViewSchema overwrite children fields', t => {
-  viewSchema.overwrite(basicData);
+test.serial('ViewNode overwrite children fields', t => {
+  viewNode.overwrite(basicData);
 
-  let allChildrenViewSchema = 0;
-  forEachDeep(viewSchema, obj => isEficyView(obj) && allChildrenViewSchema++);
+  let allChildrenViewNode = 0;
+  forEachDeep(viewNode, obj => isEficyView(obj) && allChildrenViewNode++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
 
-  t.is(basicDataCount, allChildrenViewSchema);
+  t.is(basicDataCount, allChildrenViewNode);
 });
 
-test('ViewSchema update restProps after overwrite', t => {
-  viewSchema.update({
+test('ViewNode update restProps after overwrite', t => {
+  viewNode.update({
     newField: 'test',
   });
 
   // @ts-ignore
-  t.is(viewSchema.newField, 'test');
-  t.is(viewSchema['#restProps'].newField, 'test');
-  t.true(!!get(viewSchema, 'newField', false));
+  t.is(viewNode.newField, 'test');
+  t.is(viewNode['#restProps'].newField, 'test');
+  t.true(!!get(viewNode, 'newField', false));
 });

@@ -1,6 +1,6 @@
 import test from 'ava';
 import createReplacer, { replaceStr } from '../../src/utils/relaceVariable';
-import { ViewSchema } from '../../src/models';
+import { ViewNode } from '../../src/models';
 
 // tslint:disable-next-line:no-empty
 const fn = () => {};
@@ -84,36 +84,35 @@ const basicData = {
   ],
 };
 
-const viewSchema = new ViewSchema(basicData);
+const viewNode = new ViewNode(basicData);
 
 // @ts-ignore
-viewSchema.getViewDataMap = function(key: string) {
+viewNode.getViewDataMap = function(key: string) {
   return this.viewDataMap[key];
 };
 
 test('replace basic', t => {
-  t.is(replaceStr('Hello ${model.viewDataMap.form.#view}', { model: viewSchema }), 'Hello Form');
+  t.is(replaceStr('Hello ${model.viewDataMap.form.#view}', { model: viewNode }), 'Hello Form');
   t.is(
-    replaceStr('Hello ${model.viewDataMap.form.#view} , Hello ${model.viewDataMap.form.#}', { model: viewSchema }),
+    replaceStr('Hello ${model.viewDataMap.form.#view} , Hello ${model.viewDataMap.form.#}', { model: viewNode }),
     'Hello Form , Hello form',
   );
-  t.is(replaceStr('Hello ${model.getViewDataMap("form")["#view"]}', { model: viewSchema }), 'Hello Form');
+  t.is(replaceStr('Hello ${model.getViewDataMap("form")["#view"]}', { model: viewNode }), 'Hello Form');
 });
 
 test('replacer replace function', t => {
   t.is(replaceStr('Hello ${isTrue==="0"}', { isTrue: '0' }), 'Hello true');
   t.is(replaceStr('${!!isTrue}', { isTrue: '0' }), true);
-  t.is(replaceStr('${isTrue.0.asd}', { isTrue: '0' }), "${isTrue.0.asd}");
+  t.is(replaceStr('${isTrue.0.asd}', { isTrue: '0' }), '${isTrue.0.asd}');
 });
-
 
 test('replace other type', t => {
-  t.is(replaceStr('${model.viewDataMap.form.#view}', { model: viewSchema }), 'Form');
-  t.is(replaceStr('${model.viewDataMap.form.bool}', { model: viewSchema }), true);
-  t.is(replaceStr('${model.viewDataMap.form.fn}', { model: viewSchema }), fn);
+  t.is(replaceStr('${model.viewDataMap.form.#view}', { model: viewNode }), 'Form');
+  t.is(replaceStr('${model.viewDataMap.form.bool}', { model: viewNode }), true);
+  t.is(replaceStr('${model.viewDataMap.form.fn}', { model: viewNode }), fn);
 });
 
-const replacer = createReplacer({ model: viewSchema });
+const replacer = createReplacer({ model: viewNode });
 
 test('replacer replace str', t => {
   t.is(replacer('Hello ${model.viewDataMap.form.#view}'), 'Hello Form');
