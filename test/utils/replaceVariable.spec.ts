@@ -93,6 +93,7 @@ viewNode.getViewDataMap = function(key: string) {
 
 test('replace basic', t => {
   t.is(replaceStr('Hello ${model.viewDataMap.form.#view}', { model: viewNode }), 'Hello Form');
+  t.is(replaceStr('Hello ${model.undefined}', { model: viewNode }), 'Hello ${model.undefined}');
   t.is(
     replaceStr('Hello ${model.viewDataMap.form.#view} , Hello ${model.viewDataMap.form.#}', { model: viewNode }),
     'Hello Form , Hello form',
