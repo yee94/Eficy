@@ -12,12 +12,13 @@ import { get, relaceVariable as createReplacer } from '../utils';
 import * as insideComponents from '../components';
 import * as React from 'react';
 import { renderReact } from '../utils/renderHelper';
+import { IReplaceOptions } from '../utils/relaceVariable';
 
 export default class EficyController extends PluginTarget {
   public plugins: BasePlugin[];
   public componentLibrary: Record<string, any>;
   public componentMap: Map<ExtendsViewNode, IReactComponent> = new Map();
-  public replaceVariables: <T>(target: T) => T;
+  public replaceVariables: <T>(target: T, options?: IReplaceOptions) => T;
   protected actions: Record<string, IAction>;
 
   @observable.ref

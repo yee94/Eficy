@@ -18,7 +18,6 @@ window.renderController = new Eficy.Controller({
       '#view': 'Form',
       '@onFinish': ($ctrl, ...args) => {
         console.log(args);
-        debugger;
       },
       name: 'test',
       labelCol: { span: 6 },

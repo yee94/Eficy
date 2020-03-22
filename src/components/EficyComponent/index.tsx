@@ -2,7 +2,11 @@ import { Component } from 'react';
 import EficyModel from './EficyModel';
 import EficyController from '../../core/Controller';
 
-class EficyComponent extends Component<{ model: EficyModel; componentMap: any; parentController: EficyController }> {
+class EficyComponent extends Component<{
+  model: EficyModel;
+  componentMap: any;
+  parentController: EficyController;
+}> {
   private controller: EficyController;
   public static EficyModel = EficyModel;
 
@@ -19,7 +23,7 @@ class EficyComponent extends Component<{ model: EficyModel; componentMap: any; p
   public componentWillUnmount() {
     this.controller.destroy();
     if (this.props.model && this.props.model.removeController) {
-      this.props.model.removeController(this.controller);
+      this.props.model.removeController();
     }
   }
 
