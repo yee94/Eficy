@@ -20,7 +20,7 @@ English | [简体中文](./README-zh_CN.md)
 - Refine the scope of component changes, and view component rendering performance in real time
 - Support Plugin customization, can uniformly configure HOC, easily achieve front-end OOP
 - suitable for large multi-page applications
-- Seamless access to AntD 4.0+
+- Works seamlessly with AntD 4.0+
 
 ## 🖥 Environment Support
 
