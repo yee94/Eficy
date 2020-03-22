@@ -1,6 +1,11 @@
 import { get, mapDeep } from './index';
 
-export function replaceStr(target: string, vars: any): any {
+export interface IReplaceOptions {
+  keepExpression: boolean;
+}
+
+export function replaceStr(target: string, vars: any, options?: IReplaceOptions): any {
+  const { keepExpression = true } = options || {};
   const needToParse = /^\${([^}]+)}$/.test(target); // string to other type
   const reg = new RegExp('\\${([^}]+)}', 'g');
 
@@ -11,7 +16,7 @@ export function replaceStr(target: string, vars: any): any {
         const result = get(vars, value, notFound);
         if (result !== notFound) {
           return result;
-        } else if (/^[\w.]+$/.test(value)) {
+        } else if (/^[\w.]+$/.test(value) && keepExpression) {
           return `\$\{${value}\}`;
         }
       }
@@ -32,19 +37,23 @@ export function replaceStr(target: string, vars: any): any {
   return needToParse
     ? replaceJustOneToParse()
     : target.replace(reg, ($value, value) => {
-        return replaceOneReg(value);
+        const result = replaceOneReg(value);
+        if (result === undefined) {
+          return '';
+        }
+        return result;
       });
 }
 
 export default function createReplacer(ctxes): <T>(target: T) => T {
-  return (target: any) => {
+  return (target: any, options?: IReplaceOptions) => {
     if (target instanceof Object) {
       return mapDeep(
         target,
         obj => {
           Object.keys(obj).forEach(key => {
             const value = obj[key];
-            obj[key] = typeof value === 'string' ? replaceStr(value, ctxes) : value;
+            obj[key] = typeof value === 'string' ? replaceStr(value, ctxes, options) : value;
           });
 
           return obj;
@@ -52,7 +61,7 @@ export default function createReplacer(ctxes): <T>(target: T) => T {
         { isIncludeArray: true },
       );
     } else if (typeof target === 'string') {
-      return replaceStr(target, ctxes);
+      return replaceStr(target, ctxes, options);
     }
 
     return target;

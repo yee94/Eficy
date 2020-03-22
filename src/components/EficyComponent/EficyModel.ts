@@ -4,6 +4,7 @@ import { Field } from '@vmojs/base';
 import EficyController from '../../core/Controller';
 import { action, computed, observable } from 'mobx';
 import { get } from '../../utils';
+import UnEnumerable from '../../utils/decorators/UnEnumerable';
 
 export default class EficyModel extends ViewNode {
   @Field
@@ -17,6 +18,7 @@ export default class EficyModel extends ViewNode {
   @Field
   public requests?: any;
 
+  @UnEnumerable
   @observable.ref
   public controller?: EficyController;
 
@@ -36,7 +38,7 @@ export default class EficyModel extends ViewNode {
   }
 
   @action.bound
-  public removeController(controller: EficyController) {
+  public removeController() {
     this.controller = undefined;
   }
 }

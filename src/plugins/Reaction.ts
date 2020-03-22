@@ -57,10 +57,10 @@ export default class Reaction extends BasePlugin {
             return;
           }
           if (typeof itemValue === 'string') {
-            const replaceValue = this.controller.replaceVariables(itemValue);
+            const replaceValue = this.controller.replaceVariables(itemValue, { keepExpression: false });
             if (replaceValue !== itemValue) {
               this.addReaction({
-                expression: controller => controller.replaceVariables(itemValue),
+                expression: controller => controller.replaceVariables(itemValue, { keepExpression: false }),
                 effect: result => set(models, `${path}.${key}`, result),
               });
             }
@@ -68,7 +68,7 @@ export default class Reaction extends BasePlugin {
         });
       },
       {
-        exceptFns: Config.loopExceptFns,
+        exceptFns: [schema => schema['#view'] === 'Eficy', ...Config.loopExceptFns],
       },
     );
   }

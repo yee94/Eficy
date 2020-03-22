@@ -3,19 +3,34 @@ window.renderController = new Eficy.Controller({
     {
       '#': 'alertChild',
       '#view': 'Alert',
-      message: 'Hello this is for eficy data ${models.eficy.models.input.value}',
+      message: 'Hello this is for eficy data ${models.input.value} ${models.eficy.models.input.value}',
       type: 'info',
       showIcon: true,
     },
     {
       '#': 'input',
       '#view': 'Input',
-      value: 'value',
     },
     {
-      '#': 'switch',
-      '#view': 'Switch',
-      checked: true,
+      '#view': 'Button',
+      '#content': 'Click To Change Eficy',
+      '@onClick': ctrl => {
+        ctrl.models.eficy.controller.run({
+          action: 'reload',
+          data: {
+            views: [
+              {
+                '#view': 'Alert',
+                message: 'new content ${models.input.value}',
+              },
+              {
+                '#': 'input',
+                '#view': 'Input',
+              },
+            ],
+          },
+        });
+      },
     },
     {
       '#': 'div',
