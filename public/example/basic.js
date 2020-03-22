@@ -1,15 +1,8 @@
 window.renderController = new Eficy.Controller({
   views: [
     {
-      '#': 'alert',
       '#view': 'Alert',
-      message: 'Hello this is a Login demo ',
-      type: 'info',
-      showIcon: true,
-    },
-    {
-      '#view': 'Alert',
-      message: 'quick bind ${models.input.value} ${models.switch.checked} ${models.textarea.value}',
+      message: 'quick bind ${models.input.value}',
       type: 'success',
       showIcon: true,
     },
@@ -217,12 +210,6 @@ window.renderController = new Eficy.Controller({
           ],
         },
       ],
-    },
-  ],
-  reactions: [
-    {
-      expression: ctrl => ctrl.models.input.value,
-      effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
     },
   ],
 });

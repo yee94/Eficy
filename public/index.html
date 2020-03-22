@@ -4,16 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eficy-core</title>
-    <!--    <link rel="stylesheet" href="//assets.alicdn.com/g/next/next/1.13.9/next.min.css" />-->
-    <link rel="stylesheet" href="https://cdn.bootcss.com/antd/4.0.2/antd.css" />
+    <link rel="stylesheet" href="https://unpkg.com/antd@4.0.3/dist/antd.min.css" />
   </head>
   <body>
     <div id="container"></div>
 
-    <script src="https://cdn.bootcss.com/react/16.9.0-alpha.0/umd/react.development.js"></script>
-    <script src="https://cdn.bootcss.com/react-dom/16.9.0-alpha.0/umd/react-dom.development.js"></script>
-    <script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
-    <script src="https://cdn.bootcss.com/antd/4.0.2/antd.js"></script>
+    <script src="https://unpkg.com/react@16.13.1/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.13.1/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/moment@2.24.0/min/moment.min.js"></script>
+    <script src="https://unpkg.com/antd@4.0.3/dist/antd.min.js"></script>
     <script src="https://unpkg.com/@ant-design/icons@4.0.2/dist/index.umd.js"></script>
 
     <% for(var k in htmlWebpackPlugin.files.chunks){ %> <% if(k!=='main'){ %>
@@ -25,10 +24,6 @@
       Eficy.Config.failAlert = ({ msg }) => antd.message.error(msg);
       Eficy.Config.defaultComponentMap = Object.assign({}, antd, { Icons: icons });
     </script>
-    <script
-      crossorigin="anonymous"
-      src="https://g.alicdn.com/code/npm/@alife/dada-schema-editor/0.0.37/index.js"
-    ></script>
 
     <% for (const file of htmlWebpackPlugin.options.files.js) { %>
     <script type="text/javascript" src="<%=file %>"></script>
