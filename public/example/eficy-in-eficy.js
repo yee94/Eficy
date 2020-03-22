@@ -15,19 +15,21 @@ window.renderController = new Eficy.Controller({
       '#view': 'Button',
       '#content': 'Click To Change Eficy',
       '@onClick': ctrl => {
-        ctrl.models.eficy.controller.run({
-          action: 'reload',
+        ctrl.run({
+          action: 'overwrite',
           data: {
-            views: [
-              {
-                '#view': 'Alert',
-                message: 'new content ${models.input.value}',
-              },
-              {
-                '#': 'input',
-                '#view': 'Input',
-              },
-            ],
+            eficy: {
+              views: [
+                {
+                  '#view': 'Alert',
+                  message: 'new content ${models.input.value}',
+                },
+                {
+                  '#': 'input',
+                  '#view': 'Input',
+                },
+              ],
+            },
           },
         });
       },
