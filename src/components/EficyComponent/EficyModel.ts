@@ -32,6 +32,25 @@ export default class EficyModel extends ViewNode {
     return get(this, 'controller.parentController.models', []);
   }
 
+  @action
+  public overwrite(data: IView) {
+    this.controller &&
+      this.controller.run({
+        action: 'reload',
+        data,
+      });
+
+    return this;
+  }
+
+  public update(data: IView, isInit = false): this {
+    if (isInit) {
+      return super.update(data, isInit);
+    }
+    console.warn('Eficy component can not update, please use "overwrite" instead!');
+    return this;
+  }
+
   @action.bound
   public bindController(controller: EficyController) {
     this.controller = controller;
