@@ -1,4 +1,4 @@
-import { ExtendsViewNode, IView } from '../interface';
+import { IView } from '../interface';
 import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';

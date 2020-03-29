@@ -22,12 +22,14 @@ const defaultActions: Record<string, IAction> = {
   },
   update(params: Record<string, IView> | IView | IView[], controller: Controller) {
     if (isObject(params) && !('#' in params)) {
+      // @ts-ignore
       params = Object.entries(params).map(([id, item]) => ({ '#': id, ...item }));
     }
     controller.model.update({ views: params instanceof Array ? params : [params] });
   },
   overwrite(params: IView | IView[], controller: Controller) {
     if (isObject(params) && !('#' in params)) {
+      // @ts-ignore
       params = Object.entries(params).map(([id, item]) => ({ '#': id, ...item }));
     }
     controller.model.overwrite({ views: params instanceof Array ? params : [params] });
