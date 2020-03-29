@@ -48,7 +48,9 @@ export default class ViewNode extends Vmo implements IView {
   public '#view': string;
   @Field
   public '#': string;
+
   @Field
+  @observable.ref
   public '#children': ViewNode[];
 
   @Field
