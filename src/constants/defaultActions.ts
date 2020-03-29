@@ -2,6 +2,7 @@ import Config from './Config';
 import Controller from '../core/Controller';
 import { IEficySchema, IView } from '../interface';
 import { isObject } from '../utils';
+import { IRequest } from '../plugins/Request';
 
 export type IAction = (params: any, controller: Controller) => void;
 
@@ -40,6 +41,13 @@ const defaultActions: Record<string, IAction> = {
   reload(params: IEficySchema, controller: Controller) {
     controller.reload(params);
   },
+  request(params: IRequest, controller: Controller) {
+    return controller.request(params);
+  },
 };
+
+export function installAction(action: Record<string, IAction>) {
+  return Object.assign(defaultActions, action);
+}
 
 export default defaultActions;
