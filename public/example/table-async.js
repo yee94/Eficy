@@ -58,7 +58,10 @@ window.renderController = new Eficy.Controller({
         {
           title: 'Age',
           dataIndex: 'age',
-          filters: [{ text: 'Male', value: 'male' }, { text: 'Female', value: 'female' }],
+          filters: [
+            { text: 'Male', value: 'male' },
+            { text: 'Female', value: 'female' },
+          ],
           filteredValue: ['male'],
           key: 'age2',
         },
@@ -105,6 +108,9 @@ window.renderController = new Eficy.Controller({
               },
               {
                 '#view': 'a',
+                '@onClick': ctrl => {
+                  console.log('click delete');
+                },
                 '#content': `Delete`,
               },
             ],

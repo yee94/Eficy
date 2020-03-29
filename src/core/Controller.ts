@@ -75,7 +75,7 @@ export default class EficyController extends PluginTarget {
       return;
     }
     if (!this.componentMap.has(model)) {
-      console.log(`register "${model['#']}" component`);
+      // console.log(`register "${model['#']}" component`);
       this.componentMap.set(model, ref);
     } else {
       // console.warn(`"${model['#']}" component already register `);

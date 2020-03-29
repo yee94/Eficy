@@ -3,6 +3,8 @@ import EficyController from '../core/Controller';
 import { ExtendsViewNode, IEficySchema } from '../interface';
 import { forEachDeep, isArray, isFunction, isPlainObject } from '../utils';
 import { ViewNode } from '../models';
+import { Bind } from 'lodash-decorators';
+import { Inject } from 'plugin-decorator';
 
 type IListenerFn = (controller: EficyController, ...args: any) => void;
 
@@ -30,7 +32,16 @@ export default class Events extends BasePlugin {
       console.warn('There are too many events plugin at EficyController!');
     }
     this.options.events.forEach(event => this.addEvent(event));
-    Object.values(this.controller.model.viewDataMap).forEach(this.wrapSpecialFunction.bind(this));
+    // Object.values(this.controller.model.viewDataMap).forEach(this.wrapSpecialFunction.bind(this));
+  }
+
+  @Bind
+  @Inject
+  public getResolver(next) {
+    const originResolver = next();
+    return (viewNode, ...args) => {
+      return originResolver(this.wrapSpecialFunction(viewNode), ...args);
+    };
   }
 
   /**
@@ -38,8 +49,10 @@ export default class Events extends BasePlugin {
    * @param schema
    */
   private wrapSpecialFunction(schema: ExtendsViewNode) {
+    const targetSchema = schema instanceof ViewNode ? schema['#restProps'] : schema;
+
     forEachDeep(
-      schema['#restProps'],
+      targetSchema,
       obj => {
         Object.keys(obj).forEach(objKey => {
           const value = obj[objKey];
@@ -55,6 +68,8 @@ export default class Events extends BasePlugin {
         exceptFns: [obj => !isPlainObject(obj)],
       },
     );
+
+    return schema;
   }
 
   /**

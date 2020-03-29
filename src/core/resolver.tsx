@@ -139,7 +139,7 @@ export function resolverBasic(schema: IView | IView[], options?: IResolverOption
 
   if (componentWrap) {
     if (!wrapMap.get(schema)) {
-      console.log('component wrap create', componentName);
+      // console.log('component wrap create', componentName);
       wrapMap.set(schema, componentWrap(Component, schema));
     }
     Component = wrapMap.get(schema);
