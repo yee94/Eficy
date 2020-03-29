@@ -12,6 +12,7 @@ import { install as installPlugin } from './plugins';
 import render from './utils/renderHelper';
 import ViewNode from './models/ViewNode';
 import createElement from './utils/createElement';
+import { installAction } from './constants/defaultActions';
 
 export default Controller;
 
@@ -22,6 +23,7 @@ export {
   Config,
   Plugins,
   installPlugin,
+  installAction,
   render,
   ViewNode,
   createElement,
