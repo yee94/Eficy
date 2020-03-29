@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { installAction } from './defaultActions';
 
 export default {
   defaultComponentMap: {},
@@ -7,4 +8,5 @@ export default {
   failAlert: ({ msg }) => alert(`Error:${msg}`),
   loopExceptFns: [],
   requestInterceptors: axios.interceptors,
+  installAction,
 };
