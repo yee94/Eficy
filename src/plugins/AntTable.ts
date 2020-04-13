@@ -6,6 +6,7 @@ import { Bind } from 'lodash-decorators';
 import { Inject } from 'plugin-decorator';
 import * as React from 'react';
 import createReplacer from '../utils/relaceVariable';
+import { action } from 'mobx';
 
 interface ITableView extends ViewNode {
   '#view': 'Table';
@@ -18,6 +19,7 @@ interface IRequestParams {
   pagination: { current: number; pageSize: number; total: number };
   sorter: Record<string, string>;
   filters: Record<string, string[]>;
+  _beforeExtend?: string;
 }
 
 export default class AntTable extends BasePlugin {
@@ -31,7 +33,7 @@ export default class AntTable extends BasePlugin {
     }
   };
   private tableWrapMap = new WeakMap();
-  private tableStates: Record<string, { pagination; filters; sorter }> = {};
+  private tableStates: Record<string, IRequestParams> = {};
 
   /**
    * resolver tableSchema
@@ -67,10 +69,7 @@ export default class AntTable extends BasePlugin {
 
     const requestConfig: IRequest = Object.assign({}, autoAddConfig, originConfig);
     const beforeInside = config => {
-      const state = this.getRequestParams(tableView);
-      config.data = { ...state, ...(config.data || {}) };
-
-      createReplacer({ tableState: state })(config);
+      config.data = this.getRequestParams(tableView, config.data);
 
       return {
         action: 'update',
@@ -91,11 +90,25 @@ export default class AntTable extends BasePlugin {
   /**
    * get table request params
    * @param model
-   * @returns {{pagination: {}; sorter: {}; filters: {}}}
+   * @returns {{pagination: {}, sorter: {}, filters: {}}}
+   * @param extendParams
    */
-  protected getRequestParams(model: ITableView): IRequestParams {
-    const { pagination = {}, sorter = {}, filters = {} } = this.tableStates[model['#']] || {};
-    return { pagination, sorter, filters };
+  protected getRequestParams(model: ITableView, extendParams?: Record<string, any>): IRequestParams {
+    const { pagination = {} as any, sorter = {}, filters = {}, _beforeExtend: before = {} } =
+      this.tableStates[model['#']] || ({} as IRequestParams);
+
+    const tableState = { pagination, sorter, filters };
+
+    const userParams = createReplacer({ tableState })(extendParams);
+
+    if (JSON.stringify(userParams) !== before) {
+      pagination.current = 1;
+      this.changeTwoWayBindValue(model);
+    }
+
+    this.tableStates[model['#']]._beforeExtend = JSON.stringify(userParams);
+
+    return { ...tableState, ...(userParams || {}) };
   }
 
   @Bind
@@ -153,7 +166,10 @@ export default class AntTable extends BasePlugin {
     const { model } = props;
 
     pagination = pick(pagination, 'current,pageSize,total'.split(','));
-    sorter = { [sorter.field]: sorter.order };
+    if (!Array.isArray(sorter)) {
+      sorter = !!sorter ? [sorter] : [];
+    }
+    sorter = sorter.reduce((prev, sorterOne) => Object.assign(prev, { [sorterOne.field]: sorterOne.order }), {});
 
     const { columns } = model;
     filters = Object.keys(filters).reduce((prev, componentKey) => {
@@ -162,7 +178,7 @@ export default class AntTable extends BasePlugin {
       return prev;
     }, {});
 
-    this.tableStates[model['#']] = { pagination, filters, sorter };
+    this.tableStates[model['#']] = { ...(this.tableStates[model['#']] || {}), pagination, filters, sorter };
 
     this.controller.request(model['#request']);
 
@@ -175,9 +191,13 @@ export default class AntTable extends BasePlugin {
    * change some table value
    * @param model
    */
+  @action
   private changeTwoWayBindValue(model) {
-    const { filters } = this.tableStates[model['#']];
+    const { filters, pagination } = this.tableStates[model['#']];
     const column = model.columns.find(col => !!col.filteredValue);
+    if (model instanceof ViewNode) {
+      model.update({ pagination });
+    }
     if (column) {
       column.filteredValue = filters[column.dataIndex] || [];
     }

@@ -1,10 +1,11 @@
 import BasePlugin from './base';
 import EficyController from '../core/Controller';
 import { ExtendsViewNode, IEficySchema } from '../interface';
-import { forEachDeep, isArray, isFunction, isPlainObject } from '../utils';
+import { forEachDeep, isArray, isEficyView, isFunction, isPlainObject } from '../utils';
 import { ViewNode } from '../models';
 import { Bind } from 'lodash-decorators';
 import { Inject } from 'plugin-decorator';
+import { runInAction } from 'mobx';
 
 type IListenerFn = (controller: EficyController, ...args: any) => void;
 
@@ -49,25 +50,28 @@ export default class Events extends BasePlugin {
    * @param schema
    */
   private wrapSpecialFunction(schema: ExtendsViewNode) {
-    const targetSchema = schema instanceof ViewNode ? schema['#restProps'] : schema;
+    runInAction(() => {
+      const targetSchema = schema instanceof ViewNode ? schema['#restProps'] : schema;
 
-    forEachDeep(
-      targetSchema,
-      obj => {
-        Object.keys(obj).forEach(objKey => {
-          const value = obj[objKey];
-          if (typeof value === 'function' && /^@\w+/.test(objKey)) {
-            delete obj[objKey];
-            obj[objKey.replace('@', '')] = this.wrapController(value);
-          }
-        });
-        return obj;
-      },
-      {
-        isIncludeArray: true,
-        exceptFns: [obj => !isPlainObject(obj)],
-      },
-    );
+      forEachDeep(
+        targetSchema,
+        obj => {
+          Object.keys(obj).forEach(objKey => {
+            if (/^@\w+/.test(objKey) && typeof obj[objKey] === 'function') {
+              // not read mobx object before
+              const value = obj[objKey];
+              delete obj[objKey];
+              obj[objKey.replace('@', '')] = this.wrapController(value);
+            }
+          });
+          return obj;
+        },
+        {
+          isIncludeArray: true,
+          exceptFns: [obj => !isPlainObject(obj) || isEficyView(obj)],
+        },
+      );
+    });
 
     return schema;
   }

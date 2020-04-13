@@ -54,6 +54,15 @@ export default class EficyController extends PluginTarget {
   }
 
   /**
+   * get Actions
+   * @returns {Record<string, IAction>}
+   */
+  @Hook
+  public getActions(): Record<string, IAction> {
+    return this.actions;
+  }
+
+  /**
    * run actions
    * @param actionProps
    * @param options
@@ -62,11 +71,12 @@ export default class EficyController extends PluginTarget {
   public run(actionProps: IActionProps, options: { needReplaceVariable?: boolean } = {}) {
     const needReplaceVariable = get(options, 'needReplaceVariable', true);
     const { action: actionName, data } = actionProps;
-    if (!actionName || !this.actions[actionName]) {
+    const actions = this.getActions();
+    if (!actionName || !actions[actionName]) {
       throw new Error(`not found valid action for "${actionName}"`);
     }
 
-    this.actions[actionName](needReplaceVariable ? this.replaceVariables(data) : data, this);
+    actions[actionName](needReplaceVariable ? this.replaceVariables(data) : data, this);
   }
 
   @action.bound

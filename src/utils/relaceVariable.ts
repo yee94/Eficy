@@ -48,7 +48,7 @@ export function replaceStr(target: string, vars: any, options?: IReplaceOptions)
 export default function createReplacer(ctxes): <T>(target: T) => T {
   return (target: any, options?: IReplaceOptions) => {
     if (target instanceof Object) {
-      return mapDeep(
+      mapDeep(
         target,
         obj => {
           Object.keys(obj).forEach(key => {
