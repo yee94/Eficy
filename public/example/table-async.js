@@ -1,6 +1,10 @@
 window.renderController = new Eficy.Controller({
   views: [
     {
+      '#view': 'span',
+      '#content': 'Pagination: ${JSON.stringify(models.table.pagination)}',
+    },
+    {
       '#': 'toolbar',
       '#view': 'div',
       '#children': [
@@ -109,7 +113,7 @@ window.renderController = new Eficy.Controller({
               {
                 '#view': 'a',
                 '@onClick': ctrl => {
-                  console.log('click delete');
+                  console.log('click delete', ctrl);
                 },
                 '#content': `Delete`,
               },
@@ -121,10 +125,16 @@ window.renderController = new Eficy.Controller({
     },
   ],
   plugins: ['ant-table'],
+  actions: {
+    search(data) {
+      const ctrl = this;
+      ctrl.request('getTableData');
+    },
+  },
   events: [
     {
       publisher: 'search@onSearch',
-      listeners: ctrl => ctrl.request('getTableData'),
+      listeners: ctrl => ctrl.run({ action: 'search' }),
     },
   ],
 });

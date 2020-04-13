@@ -44,8 +44,11 @@
 - [x] remove isAtom option
 - [x] parent change child eficy value
 - [x] eficy controller accept
+- [x] Table pagination current
+- [x] Table pagination store
+- [x] Action registry plugin
+
 - [ ] table performance
-- [ ] plugin sort weight
 - [ ] plugin sort weight
 - [ ] dialog event
 - [ ] css-loader plugin

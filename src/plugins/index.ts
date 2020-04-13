@@ -7,6 +7,7 @@ import Reaction from './Reaction';
 import TwoWayBind from './TwoWayBind';
 import EficyInEficy from './EficyInEficy';
 import AntTable from './AntTable';
+import Action from './Actions';
 
 /**
  * 框架内置插件
@@ -14,6 +15,7 @@ import AntTable from './AntTable';
 const plugins: Record<string, new (options) => BasePlugin> = {
   base: BasePlugin,
   [Events.pluginName]: Events,
+  [Action.pluginName]: Action,
   [Request.pluginName]: Request,
   [Reaction.pluginName]: Reaction,
   [TwoWayBind.pluginName]: TwoWayBind,
@@ -27,6 +29,7 @@ const plugins: Record<string, new (options) => BasePlugin> = {
  */
 export const buildInPlugins: IPlugin[] = [
   Events.pluginName,
+  Action.pluginName,
   Request.pluginName,
   Reaction.pluginName,
   EficyInEficy.pluginName,

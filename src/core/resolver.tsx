@@ -191,6 +191,7 @@ export default function observerResolver(schema: IView | IView[], options?: IRes
       const end = Logs.Performance(`rerender "${schema['#view']}" time`);
       const result = resolverBasic(schema, options);
       end();
+
       return result;
     }),
     {

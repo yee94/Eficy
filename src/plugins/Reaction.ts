@@ -68,7 +68,11 @@ export default class Reaction extends BasePlugin {
         });
       },
       {
-        exceptFns: [schema => schema['#view'] === 'Eficy', ...Config.loopExceptFns],
+        exceptFns: [
+          schema => schema['#view'] === 'Eficy',
+          (schema, path) => /#request/.test(path),
+          ...Config.loopExceptFns,
+        ],
       },
     );
   }
