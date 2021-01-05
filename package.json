@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "@vmojs/base": "^1.0.4",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.1",
     "mobx": "^5.14.0",
