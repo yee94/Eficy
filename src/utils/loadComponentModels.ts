@@ -6,10 +6,10 @@ export default function loadComponentModels(
 ): Record<string, new (...args: any) => ViewNode> {
   const componentModelMap = {};
 
-  forEachDeep(componentLibrary, objMaps => {
-    Object.keys(objMaps).forEach(key => {
+  forEachDeep(componentLibrary, (objMaps) => {
+    Object.keys(objMaps).forEach((key) => {
       const component = objMaps[key];
-      if (component.EficyModel) {
+      if (component?.EficyModel) {
         componentModelMap[key] = component.EficyModel;
       }
     });
