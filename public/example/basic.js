@@ -2,9 +2,53 @@ window.renderController = new Eficy.Controller({
   views: [
     {
       '#view': 'Alert',
-      message: 'quick bind ${models.input.value}',
+
+      // '#dataSource': [
+      //   {
+      //     uiType: 'span',
+      //     message: 'quick bind ${models.input.value}',
+      //   },
+      // ],
+      dataSource: [
+        {
+          uiType: 'span',
+          message: 'quick bind ${models.input.value}',
+        },
+      ],
       type: 'success',
       showIcon: true,
+    },
+    {
+      uiType: '',
+    },
+    {
+      columns: [
+        {
+          nodeType: 'React',
+          label: false,
+          uiType: '',
+        },
+        {
+          nodeType: 'React',
+          label: false,
+          uiType: '',
+        },
+        {
+          nodeType: 'React',
+          label: false,
+          uiType: '',
+        },
+        {
+          nodeType: 'React',
+          label: false,
+          uiType: '',
+        },
+        {
+          nodeType: 'React',
+          label: false,
+          uiType: '',
+        },
+      ],
     },
     {
       '#': 'input',

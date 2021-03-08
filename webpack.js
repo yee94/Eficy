@@ -15,7 +15,7 @@ function getView(globPath, flag) {
     pathname,
     extname;
 
-  files.forEach(item => {
+  files.forEach((item) => {
     entry = item;
     dirname = path.dirname(entry); //当前目录
     extname = path.extname(entry); //后缀
@@ -65,7 +65,7 @@ module.exports = {
     ],
   },
   plugins: [
-    ...Object.keys(pagesConfig).map(pageChunk => {
+    ...Object.keys(pagesConfig).map((pageChunk) => {
       const filename = path.basename(pagesConfig[pageChunk]);
       return new HtmlWebpackPlugin({
         filename: `example/${pageChunk}.html`,
@@ -78,9 +78,9 @@ module.exports = {
       });
     }),
     ...flatten(
-      Object.keys(layoutConfig).map(pageChunk => {
+      Object.keys(layoutConfig).map((pageChunk) => {
         const layoutFile = path.basename(layoutConfig[pageChunk]);
-        return Object.keys(pagesConfig).map(contentChunk => {
+        return Object.keys(pagesConfig).map((contentChunk) => {
           const filename = path.basename(pagesConfig[contentChunk]);
           return new HtmlWebpackPlugin({
             filename: `${pageChunk}/${contentChunk}.html`,
@@ -101,9 +101,18 @@ module.exports = {
     new CopyPlugin([{ from: 'public/layout', to: 'layout' }]),
   ],
   externals: {
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    '@alife/next': 'Next',
+    react: {
+      commonjs: 'react',
+      commonjs2: 'react',
+      amd: 'React',
+      root: 'React',
+    },
+    'react-dom': {
+      commonjs: 'react-dom',
+      commonjs2: 'react-dom',
+      amd: 'ReactDOM',
+      root: 'ReactDOM',
+    },
     antd: 'antd',
   },
 };
