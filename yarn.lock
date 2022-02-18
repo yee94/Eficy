@@ -942,7 +942,7 @@ acorn@^6.0.1, acorn@^6.0.5, acorn@^6.1.1:
 
 aggregate-error@^3.0.0:
   version "3.0.1"
-  resolved "https://registry.npm.alibaba-inc.com/aggregate-error/download/aggregate-error-3.0.1.tgz#db2fe7246e536f40d9b5442a39e117d7dd6a24e0"
+  resolved "https://registry.yarnpkg.com/aggregate-error/download/aggregate-error-3.0.1.tgz#db2fe7246e536f40d9b5442a39e117d7dd6a24e0"
   integrity sha1-2y/nJG5Tb0DZtUQqOeEX191qJOA=
   dependencies:
     clean-stack "^2.0.0"
@@ -976,7 +976,7 @@ ajv-keywords@^3.1.0:
 
 ajv-keywords@^3.4.1:
   version "3.4.1"
-  resolved "https://registry.npm.alibaba-inc.com/ajv-keywords/download/ajv-keywords-3.4.1.tgz#ef916e271c64ac12171fd8384eaae6b2345854da"
+  resolved "https://registry.yarnpkg.com/ajv-keywords/download/ajv-keywords-3.4.1.tgz#ef916e271c64ac12171fd8384eaae6b2345854da"
   integrity sha1-75FuJxxkrBIXH9g4TqrmsjRYVNo=
 
 ajv@^6.1.0, ajv@^6.5.5:
@@ -991,7 +991,7 @@ ajv@^6.1.0, ajv@^6.5.5:
 
 ajv@^6.12.0:
   version "6.12.0"
-  resolved "https://registry.npm.alibaba-inc.com/ajv/download/ajv-6.12.0.tgz#06d60b96d87b8454a5adaba86e7854da629db4b7"
+  resolved "https://registry.yarnpkg.com/ajv/download/ajv-6.12.0.tgz#06d60b96d87b8454a5adaba86e7854da629db4b7"
   integrity sha1-BtYLlth7hFSlrauobnhU2mKdtLc=
   dependencies:
     fast-deep-equal "^3.1.1"
@@ -1680,7 +1680,7 @@ cacache@^11.3.2:
 
 cacache@^13.0.1:
   version "13.0.1"
-  resolved "https://registry.npm.alibaba-inc.com/cacache/download/cacache-13.0.1.tgz#a8000c21697089082f85287a1aec6e382024a71c"
+  resolved "https://registry.yarnpkg.com/cacache/download/cacache-13.0.1.tgz#a8000c21697089082f85287a1aec6e382024a71c"
   integrity sha1-qAAMIWlwiQgvhSh6GuxuOCAkpxw=
   dependencies:
     chownr "^1.1.2"
@@ -1860,7 +1860,7 @@ chownr@^1.1.1:
 
 chownr@^1.1.2:
   version "1.1.4"
-  resolved "https://registry.npm.alibaba-inc.com/chownr/download/chownr-1.1.4.tgz#6fc9d7b42d32a583596337666e7d08084da2cc6b"
+  resolved "https://registry.yarnpkg.com/chownr/download/chownr-1.1.4.tgz#6fc9d7b42d32a583596337666e7d08084da2cc6b"
   integrity sha1-b8nXtC0ypYNZYzdmbn0ICE2izGs=
 
 chrome-trace-event@^1.0.0:
@@ -1912,7 +1912,7 @@ clean-css@4.2.x:
 
 clean-stack@^2.0.0:
   version "2.2.0"
-  resolved "https://registry.npm.alibaba-inc.com/clean-stack/download/clean-stack-2.2.0.tgz#ee8472dbb129e727b31e8a10a427dee9dfe4008b"
+  resolved "https://registry.yarnpkg.com/clean-stack/download/clean-stack-2.2.0.tgz#ee8472dbb129e727b31e8a10a427dee9dfe4008b"
   integrity sha1-7oRy27Ep5yezHooQpCfe6d/kAIs=
 
 clean-stack@^2.1.0:
@@ -2050,7 +2050,7 @@ commander@^2.12.1, commander@^2.19.0, commander@~2.20.0:
 
 commander@^2.20.0:
   version "2.20.3"
-  resolved "https://registry.npm.alibaba-inc.com/commander/download/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
+  resolved "https://registry.yarnpkg.com/commander/download/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha1-/UhehMA+tIgcIHIrpIA16FMa6zM=
 
 commander@~2.19.0:
@@ -3169,7 +3169,7 @@ fast-deep-equal@^2.0.1:
 
 fast-deep-equal@^3.1.1:
   version "3.1.1"
-  resolved "https://registry.npm.alibaba-inc.com/fast-deep-equal/download/fast-deep-equal-3.1.1.tgz#545145077c501491e33b15ec408c294376e94ae4"
+  resolved "https://registry.yarnpkg.com/fast-deep-equal/download/fast-deep-equal-3.1.1.tgz#545145077c501491e33b15ec408c294376e94ae4"
   integrity sha1-VFFFB3xQFJHjOxXsQIwpQ3bpSuQ=
 
 fast-diff@^1.1.2:
@@ -3266,7 +3266,7 @@ find-cache-dir@^2.0.0, find-cache-dir@^2.1.0:
 
 find-cache-dir@^3.2.0:
   version "3.3.1"
-  resolved "https://registry.npm.alibaba-inc.com/find-cache-dir/download/find-cache-dir-3.3.1.tgz#89b33fad4a4670daa94f855f7fbe31d6d84fe880"
+  resolved "https://registry.yarnpkg.com/find-cache-dir/download/find-cache-dir-3.3.1.tgz#89b33fad4a4670daa94f855f7fbe31d6d84fe880"
   integrity sha1-ibM/rUpGcNqpT4Vff74x1thP6IA=
   dependencies:
     commondir "^1.0.1"
@@ -3387,7 +3387,7 @@ fs-minipass@^1.2.5:
 
 fs-minipass@^2.0.0:
   version "2.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/fs-minipass/download/fs-minipass-2.1.0.tgz#7f5036fdbf12c63c169190cbe4199c852271f9fb"
+  resolved "https://registry.yarnpkg.com/fs-minipass/download/fs-minipass-2.1.0.tgz#7f5036fdbf12c63c169190cbe4199c852271f9fb"
   integrity sha1-f1A2/b8SxjwWkZDL5BmchSJx+fs=
   dependencies:
     minipass "^3.0.0"
@@ -3530,7 +3530,7 @@ glob@^7.0.3, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3:
 
 glob@^7.1.4:
   version "7.1.6"
-  resolved "https://registry.npm.alibaba-inc.com/glob/download/glob-7.1.6.tgz#141f33b81a7c2492e125594307480c46679278a6"
+  resolved "https://registry.yarnpkg.com/glob/download/glob-7.1.6.tgz#141f33b81a7c2492e125594307480c46679278a6"
   integrity sha1-FB8zuBp8JJLhJVlDB0gMRmeSeKY=
   dependencies:
     fs.realpath "^1.0.0"
@@ -3633,7 +3633,7 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2:
 
 graceful-fs@^4.2.2:
   version "4.2.3"
-  resolved "https://registry.npm.alibaba-inc.com/graceful-fs/download/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
+  resolved "https://registry.yarnpkg.com/graceful-fs/download/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
   integrity sha1-ShL/G2A3bvCYYsIJPt2Qgyi+hCM=
 
 handle-thing@^2.0.0:
@@ -3672,7 +3672,7 @@ has-flag@^3.0.0:
 
 has-flag@^4.0.0:
   version "4.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/has-flag/download/has-flag-4.0.0.tgz#944771fd9c81c81265c4d6941860da06bb59479b"
+  resolved "https://registry.yarnpkg.com/has-flag/download/has-flag-4.0.0.tgz#944771fd9c81c81265c4d6941860da06bb59479b"
   integrity sha1-lEdx/ZyByBJlxNaUGGDaBrtZR5s=
 
 has-symbols@^1.0.0:
@@ -3995,7 +3995,7 @@ indexof@0.0.1:
 
 infer-owner@^1.0.4:
   version "1.0.4"
-  resolved "https://registry.npm.alibaba-inc.com/infer-owner/download/infer-owner-1.0.4.tgz#c4cefcaa8e51051c2a40ba2ce8a3d27295af9467"
+  resolved "https://registry.yarnpkg.com/infer-owner/download/infer-owner-1.0.4.tgz#c4cefcaa8e51051c2a40ba2ce8a3d27295af9467"
   integrity sha1-xM78qo5RBRwqQLos6KPScpWvlGc=
 
 inflight@^1.0.4:
@@ -4446,7 +4446,7 @@ istanbul-reports@^2.2.4:
 
 jest-worker@^25.1.0:
   version "25.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/jest-worker/download/jest-worker-25.1.0.tgz#75d038bad6fdf58eba0d2ec1835856c497e3907a"
+  resolved "https://registry.yarnpkg.com/jest-worker/download/jest-worker-25.1.0.tgz#75d038bad6fdf58eba0d2ec1835856c497e3907a"
   integrity sha1-ddA4utb99Y66DS7Bg1hWxJfjkHo=
   dependencies:
     merge-stream "^2.0.0"
@@ -4848,7 +4848,7 @@ make-dir@^3.0.0:
 
 make-dir@^3.0.2:
   version "3.0.2"
-  resolved "https://registry.npm.alibaba-inc.com/make-dir/download/make-dir-3.0.2.tgz#04a1acbf22221e1d6ef43559f43e05a90dbb4392"
+  resolved "https://registry.yarnpkg.com/make-dir/download/make-dir-3.0.2.tgz#04a1acbf22221e1d6ef43559f43e05a90dbb4392"
   integrity sha1-BKGsvyIiHh1u9DVZ9D4FqQ27Q5I=
   dependencies:
     semver "^6.0.0"
@@ -4978,7 +4978,7 @@ merge-source-map@^1.1.0:
 
 merge-stream@^2.0.0:
   version "2.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/merge-stream/download/merge-stream-2.0.0.tgz#52823629a14dd00c9770fb6ad47dc6310f2c1f60"
+  resolved "https://registry.yarnpkg.com/merge-stream/download/merge-stream-2.0.0.tgz#52823629a14dd00c9770fb6ad47dc6310f2c1f60"
   integrity sha1-UoI2KaFN0AyXcPtq1H3GMQ8sH2A=
 
 merge2@^1.2.3:
@@ -5105,21 +5105,21 @@ minimist@~0.0.1:
 
 minipass-collect@^1.0.2:
   version "1.0.2"
-  resolved "https://registry.npm.alibaba-inc.com/minipass-collect/download/minipass-collect-1.0.2.tgz#22b813bf745dc6edba2576b940022ad6edc8c617"
+  resolved "https://registry.yarnpkg.com/minipass-collect/download/minipass-collect-1.0.2.tgz#22b813bf745dc6edba2576b940022ad6edc8c617"
   integrity sha1-IrgTv3Rdxu26JXa5QAIq1u3Ixhc=
   dependencies:
     minipass "^3.0.0"
 
 minipass-flush@^1.0.5:
   version "1.0.5"
-  resolved "https://registry.npm.alibaba-inc.com/minipass-flush/download/minipass-flush-1.0.5.tgz#82e7135d7e89a50ffe64610a787953c4c4cbb373"
+  resolved "https://registry.yarnpkg.com/minipass-flush/download/minipass-flush-1.0.5.tgz#82e7135d7e89a50ffe64610a787953c4c4cbb373"
   integrity sha1-gucTXX6JpQ/+ZGEKeHlTxMTLs3M=
   dependencies:
     minipass "^3.0.0"
 
 minipass-pipeline@^1.2.2:
   version "1.2.2"
-  resolved "https://registry.npm.alibaba-inc.com/minipass-pipeline/download/minipass-pipeline-1.2.2.tgz#3dcb6bb4a546e32969c7ad710f2c79a86abba93a"
+  resolved "https://registry.yarnpkg.com/minipass-pipeline/download/minipass-pipeline-1.2.2.tgz#3dcb6bb4a546e32969c7ad710f2c79a86abba93a"
   integrity sha1-PctrtKVG4ylpx61xDyx5qGq7qTo=
   dependencies:
     minipass "^3.0.0"
@@ -5134,7 +5134,7 @@ minipass@^2.2.1, minipass@^2.3.5:
 
 minipass@^3.0.0, minipass@^3.1.1:
   version "3.1.1"
-  resolved "https://registry.npm.alibaba-inc.com/minipass/download/minipass-3.1.1.tgz#7607ce778472a185ad6d89082aa2070f79cedcd5"
+  resolved "https://registry.yarnpkg.com/minipass/download/minipass-3.1.1.tgz#7607ce778472a185ad6d89082aa2070f79cedcd5"
   integrity sha1-dgfOd4RyoYWtbYkIKqIHD3nO3NU=
   dependencies:
     yallist "^4.0.0"
@@ -5752,7 +5752,7 @@ p-limit@^2.0.0, p-limit@^2.2.0:
 
 p-limit@^2.2.2:
   version "2.2.2"
-  resolved "https://registry.npm.alibaba-inc.com/p-limit/download/p-limit-2.2.2.tgz#61279b67721f5287aa1c13a9a7fbbc48c9291b1e"
+  resolved "https://registry.yarnpkg.com/p-limit/download/p-limit-2.2.2.tgz#61279b67721f5287aa1c13a9a7fbbc48c9291b1e"
   integrity sha1-YSebZ3IfUoeqHBOpp/u8SMkpGx4=
   dependencies:
     p-try "^2.0.0"
@@ -5785,7 +5785,7 @@ p-map@^2.0.0:
 
 p-map@^3.0.0:
   version "3.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/p-map/download/p-map-3.0.0.tgz#d704d9af8a2ba684e2600d9a215983d4141a979d"
+  resolved "https://registry.yarnpkg.com/p-map/download/p-map-3.0.0.tgz#d704d9af8a2ba684e2600d9a215983d4141a979d"
   integrity sha1-1wTZr4orpoTiYA2aIVmD1BQal50=
   dependencies:
     aggregate-error "^3.0.0"
@@ -6022,7 +6022,7 @@ pkg-dir@^3.0.0:
 
 pkg-dir@^4.1.0:
   version "4.2.0"
-  resolved "https://registry.npm.alibaba-inc.com/pkg-dir/download/pkg-dir-4.2.0.tgz#f099133df7ede422e81d1d8448270eeb3e4261f3"
+  resolved "https://registry.yarnpkg.com/pkg-dir/download/pkg-dir-4.2.0.tgz#f099133df7ede422e81d1d8448270eeb3e4261f3"
   integrity sha1-8JkTPfft5CLoHR2ESCcO6z5CYfM=
   dependencies:
     find-up "^4.0.0"
@@ -6682,8 +6682,15 @@ rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3:
 
 rimraf@^2.7.1:
   version "2.7.1"
-  resolved "https://registry.npm.alibaba-inc.com/rimraf/download/rimraf-2.7.1.tgz#35797f13a7fdadc566142c29d4f07ccad483e3ec"
+  resolved "https://registry.yarnpkg.com/rimraf/download/rimraf-2.7.1.tgz#35797f13a7fdadc566142c29d4f07ccad483e3ec"
   integrity sha1-NXl/E6f9rcVmFCwp1PB8ytSD4+w=
+  dependencies:
+    glob "^7.1.3"
+
+rimraf@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-3.0.2.tgz#f1a5402ba6220ad52cc1282bac1ae3aa49fd061a"
+  integrity sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
   dependencies:
     glob "^7.1.3"
 
@@ -6758,7 +6765,7 @@ schema-utils@^1.0.0:
 
 schema-utils@^2.6.4:
   version "2.6.5"
-  resolved "https://registry.npm.alibaba-inc.com/schema-utils/download/schema-utils-2.6.5.tgz#c758f0a7e624263073d396e29cd40aa101152d8a"
+  resolved "https://registry.yarnpkg.com/schema-utils/download/schema-utils-2.6.5.tgz#c758f0a7e624263073d396e29cd40aa101152d8a"
   integrity sha1-x1jwp+YkJjBz05binNQKoQEVLYo=
   dependencies:
     ajv "^6.12.0"
@@ -6824,7 +6831,7 @@ serialize-javascript@^1.7.0:
 
 serialize-javascript@^2.1.2:
   version "2.1.2"
-  resolved "https://registry.npm.alibaba-inc.com/serialize-javascript/download/serialize-javascript-2.1.2.tgz#ecec53b0e0317bdc95ef76ab7074b7384785fa61"
+  resolved "https://registry.yarnpkg.com/serialize-javascript/download/serialize-javascript-2.1.2.tgz#ecec53b0e0317bdc95ef76ab7074b7384785fa61"
   integrity sha1-7OxTsOAxe9yV73arcHS3OEeF+mE=
 
 serve-index@^1.9.1:
@@ -7013,7 +7020,7 @@ source-map-support@^0.5.12, source-map-support@^0.5.6, source-map-support@~0.5.1
 
 source-map-support@~0.5.12:
   version "0.5.16"
-  resolved "https://registry.npm.alibaba-inc.com/source-map-support/download/source-map-support-0.5.16.tgz#0ae069e7fe3ba7538c64c98515e35339eac5a042"
+  resolved "https://registry.yarnpkg.com/source-map-support/download/source-map-support-0.5.16.tgz#0ae069e7fe3ba7538c64c98515e35339eac5a042"
   integrity sha1-CuBp5/47p1OMZMmFFeNTOerFoEI=
   dependencies:
     buffer-from "^1.0.0"
@@ -7139,7 +7146,7 @@ ssri@^6.0.1:
 
 ssri@^7.0.0:
   version "7.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/ssri/download/ssri-7.1.0.tgz#92c241bf6de82365b5c7fb4bd76e975522e1294d"
+  resolved "https://registry.yarnpkg.com/ssri/download/ssri-7.1.0.tgz#92c241bf6de82365b5c7fb4bd76e975522e1294d"
   integrity sha1-ksJBv23oI2W1x/tL126XVSLhKU0=
   dependencies:
     figgy-pudding "^3.5.1"
@@ -7324,7 +7331,7 @@ supports-color@^6.1.0:
 
 supports-color@^7.0.0:
   version "7.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/supports-color/download/supports-color-7.1.0.tgz#68e32591df73e25ad1c4b49108a2ec507962bfd1"
+  resolved "https://registry.yarnpkg.com/supports-color/download/supports-color-7.1.0.tgz#68e32591df73e25ad1c4b49108a2ec507962bfd1"
   integrity sha1-aOMlkd9z4lrRxLSRCKLsUHliv9E=
   dependencies:
     has-flag "^4.0.0"
@@ -7382,7 +7389,7 @@ terser-webpack-plugin@^1.1.0:
 
 terser-webpack-plugin@^2.3.5:
   version "2.3.5"
-  resolved "https://registry.npm.alibaba-inc.com/terser-webpack-plugin/download/terser-webpack-plugin-2.3.5.tgz#5ad971acce5c517440ba873ea4f09687de2f4a81"
+  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/download/terser-webpack-plugin-2.3.5.tgz#5ad971acce5c517440ba873ea4f09687de2f4a81"
   integrity sha1-WtlxrM5cUXRAuoc+pPCWh94vSoE=
   dependencies:
     cacache "^13.0.1"
@@ -7405,9 +7412,9 @@ terser@^4.0.0:
     source-map-support "~0.5.10"
 
 terser@^4.4.3:
-  version "4.6.6"
-  resolved "https://registry.npm.alibaba-inc.com/terser/download/terser-4.6.6.tgz#da2382e6cafbdf86205e82fb9a115bd664d54863"
-  integrity sha1-2iOC5sr734YgXoL7mhFb1mTVSGM=
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-4.8.0.tgz#63056343d7c70bb29f3af665865a46fe03a0df17"
+  integrity sha512-EAPipTNeWsb/3wLPeup1tVPaXfIaU68xMnVdPafIL1TV05OhASArYyIfFvnvJCNrR2NIOvDVNNTFRa+Re2MWyw==
   dependencies:
     commander "^2.20.0"
     source-map "~0.6.1"
@@ -8053,7 +8060,7 @@ webpack-sources@^1.3.0:
 
 webpack-sources@^1.4.3:
   version "1.4.3"
-  resolved "https://registry.npm.alibaba-inc.com/webpack-sources/download/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
+  resolved "https://registry.yarnpkg.com/webpack-sources/download/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
   integrity sha1-7t2OwLko+/HL/plOItLYkPMwqTM=
   dependencies:
     source-list-map "^2.0.0"
@@ -8264,7 +8271,7 @@ yallist@^3.0.0, yallist@^3.0.2, yallist@^3.0.3:
 
 yallist@^4.0.0:
   version "4.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/yallist/download/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
+  resolved "https://registry.yarnpkg.com/yallist/download/yallist-4.0.0.tgz#9bb92790d9c0effec63be73519e11a35019a3a72"
   integrity sha1-m7knkNnA7/7GO+c1GeEaNQGaOnI=
 
 yargs-parser@^10.0.0:
