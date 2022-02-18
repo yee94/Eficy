@@ -3,7 +3,6 @@ const glob = require('glob');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const rootPath = path.resolve(__dirname, './');
-const flatten = require('lodash/flatten');
 
 function getView(globPath, flag) {
   let files = glob.sync(globPath);
@@ -15,7 +14,7 @@ function getView(globPath, flag) {
     pathname,
     extname;
 
-  files.forEach((item) => {
+  files.forEach(item => {
     entry = item;
     dirname = path.dirname(entry); //当前目录
     extname = path.extname(entry); //后缀
@@ -32,6 +31,46 @@ function getView(globPath, flag) {
 }
 const pagesConfig = getView('./public/example/*js');
 const layoutConfig = getView('./public/layout/*js');
+
+const pageGroup = {
+  default: Object.keys(pagesConfig).map(pageChunk => {
+    const filename = path.basename(pagesConfig[pageChunk]);
+    return {
+      name: pageChunk,
+      filename: `example/${pageChunk}.html`,
+      template: `public/index.html`,
+      chunks: ['index'],
+      inject: false,
+      files: {
+        js: [filename],
+      },
+    };
+  }),
+  ...Object.fromEntries(
+    Object.keys(layoutConfig).map(pageChunk => {
+      const layoutFile = path.basename(layoutConfig[pageChunk]);
+      return [
+        pageChunk,
+        Object.keys(pagesConfig).map(contentChunk => {
+          const filename = path.basename(pagesConfig[contentChunk]);
+          return {
+            name: contentChunk,
+            filename: `${pageChunk}/${contentChunk}.html`,
+            template: `public/layout.html`,
+            chunks: ['index'],
+            inject: false,
+            files: {
+              js: [filename],
+            },
+            layout: {
+              js: [layoutFile],
+            },
+          };
+        }),
+      ];
+    }),
+  ),
+};
 
 module.exports = {
   context: rootPath,
@@ -65,38 +104,15 @@ module.exports = {
     ],
   },
   plugins: [
-    ...Object.keys(pagesConfig).map((pageChunk) => {
-      const filename = path.basename(pagesConfig[pageChunk]);
-      return new HtmlWebpackPlugin({
-        filename: `example/${pageChunk}.html`,
-        template: `public/index.html`,
-        chunks: ['index'],
-        inject: false,
-        files: {
-          js: [filename],
-        },
-      });
+    ...Object.values(pageGroup)
+      .flat()
+      .map(config => new HtmlWebpackPlugin(config)),
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: `public/listing.html`,
+      inject: false,
+      pageGroup,
     }),
-    ...flatten(
-      Object.keys(layoutConfig).map((pageChunk) => {
-        const layoutFile = path.basename(layoutConfig[pageChunk]);
-        return Object.keys(pagesConfig).map((contentChunk) => {
-          const filename = path.basename(pagesConfig[contentChunk]);
-          return new HtmlWebpackPlugin({
-            filename: `${pageChunk}/${contentChunk}.html`,
-            template: `public/layout.html`,
-            chunks: ['index'],
-            inject: false,
-            files: {
-              js: [filename],
-            },
-            layout: {
-              js: [layoutFile],
-            },
-          });
-        });
-      }),
-    ),
     new CopyPlugin([{ from: 'public/example', to: 'example' }]),
     new CopyPlugin([{ from: 'public/layout', to: 'layout' }]),
   ],
