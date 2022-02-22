@@ -15,8 +15,11 @@
     <script src="https://unpkg.com/antd@4.0.3/dist/antd.min.js"></script>
     <script src="https://unpkg.com/@ant-design/icons@4.0.2/dist/index.umd.js"></script>
 
-    <% for(var k in htmlWebpackPlugin.files.chunks){ %> <% if(k!=='main'){ %>
-    <script type="text/javascript" src="<%= htmlWebpackPlugin.files.chunks[k].entry %>"></script>
+    <% for(var k in htmlWebpackPlugin.options.chunks){ %> <% if(k!=='main'){ %>
+    <script
+      type="text/javascript"
+      src="<%= htmlWebpackPlugin.files.publicPath %><%= htmlWebpackPlugin.options.chunks[k] %>.js"
+    ></script>
     <% } %> <% } %>
 
     <script>

@@ -113,8 +113,7 @@ module.exports = {
       inject: false,
       pageGroup,
     }),
-    new CopyPlugin([{ from: 'public/example', to: 'example' }]),
-    new CopyPlugin([{ from: 'public/layout', to: 'layout' }]),
+    new CopyPlugin({ patterns: [{ from: 'public/example', to: 'example' }, { from: 'public/layout', to: 'layout' }] }),
   ],
   externals: {
     react: {
