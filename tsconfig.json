@@ -1,31 +1,20 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
-    "outDir": "./lib",
-    "module": "commonjs",
-    "target": "es2017",
-    "lib": ["es2017", "dom"],
-    "sourceMap": true,
-    "inlineSources": true,
-    "allowJs": false,
+    "target": "ES2018",
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
     "jsx": "react",
-    "removeComments": true,
+    "strict": true,
     "declaration": true,
-    "moduleResolution": "node",
-    "traceResolution": false,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": false,
-    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "types": ["vitest/globals"],
+    "removeComments": false,
+    "strictNullChecks": false,
     "esModuleInterop": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true,
-    "typeRoots": ["./@types", "node_modules/@types"],
-    "allowSyntheticDefaultImports": true,
-    "downlevelIteration": true,
-    "experimentalDecorators": true
-  },
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+    "noImplicitAny": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
 }

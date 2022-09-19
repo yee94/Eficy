@@ -85,7 +85,7 @@ export default class TwoWayBind extends BasePlugin {
       return bindOption.changeFns;
     }
 
-    const twoWayBindField = ['#bindValuePropName', ...this.options.bindFields].find(field =>
+    const twoWayBindField = ['#bindValuePropName', ...this.options.bindFields].find((field) =>
       schema.hasOwnProperty(field),
     );
 

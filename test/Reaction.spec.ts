@@ -1,5 +1,5 @@
-import test from 'ava';
 import EficyController from '../src/core/Controller';
+import { expect } from 'vitest';
 
 const basicData = {
   views: [
@@ -25,7 +25,7 @@ const basicData = {
   ],
   reactions: [
     {
-      expression: ctrl => ctrl.models.input.value,
+      expression: (ctrl) => ctrl.models.input.value,
       effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
     },
   ],
@@ -33,19 +33,14 @@ const basicData = {
 
 const controller = new EficyController(basicData);
 
-test('init reaction', t => {
-  // @ts-ignore
-  t.is(controller.models.alert.message, 'value');
-  // @ts-ignore
-  t.is(controller.models.alert2.message, 'Hello value');
+test('init reaction', (t) => {
+  expect(controller.models.alert.message).toBe('value');
+  expect(controller.models.alert2.message).toBe('Hello value');
 });
 
-test('basic reaction', t => {
-  // @ts-ignore
+test('basic reaction', (t) => {
   controller.models.input.value = 'test1';
 
-  // @ts-ignore
-  t.is(controller.models.alert.message, 'test1');
-  // @ts-ignore
-  t.is(controller.models.alert2.message, 'Hello test1');
+  expect(controller.models.alert.message).toBe('test1');
+  expect(controller.models.alert2.message).toBe('Hello test1');
 });

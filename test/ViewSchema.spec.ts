@@ -1,8 +1,8 @@
-import test from 'ava';
 import { forEachDeep, get, isEficyView } from '../src/utils';
 import { ViewNode } from '../src/models';
 import { isObservableProp } from 'mobx';
 import EficyModel from '../src/components/EficyComponent/EficyModel';
+import { expect } from 'vitest';
 
 const basicData = {
   '#': 'form',
@@ -83,82 +83,82 @@ const basicData = {
 
 const viewNode = new ViewNode(basicData, { Eficy: EficyModel });
 
-test('when loaded all views(include children) became a ViewNode', t => {
+test('when loaded all views(include children) became a ViewNode', (t) => {
   let allChildrenViewNode = 0;
-  forEachDeep(viewNode, obj => isEficyView(obj) && allChildrenViewNode++);
+  forEachDeep(viewNode, (obj) => isEficyView(obj) && allChildrenViewNode++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
-  t.is(basicDataCount, allChildrenViewNode);
+  expect(basicDataCount).toBe(allChildrenViewNode);
 });
 
-test('lodash get field path', t => {
+test('lodash get field path', (t) => {
   const field = get(viewNode, '#children.0.#children.0.#field', undefined);
 
-  t.is(!!field, true);
+  expect(!!field).toBe(true);
 });
 
-test('ViewNode update restProps', t => {
+test('ViewNode update restProps', (t) => {
   viewNode.update({
     newField: 'test',
   });
 
   // @ts-ignore
-  t.is(viewNode.newField, 'test');
-  t.is(viewNode['#restProps'].newField, 'test');
-  t.true(!!get(viewNode, 'newField', false));
+  expect(viewNode.newField).toBe('test');
+  expect(viewNode['#restProps'].newField).toBe('test');
+  expect(!!get(viewNode, 'newField', false)).toBeTruthy();
 });
 
-test('ViewNode update Field props', t => {
+test('ViewNode update Field props', (t) => {
   viewNode.update({
     className: 'test2',
   });
 
-  t.is(viewNode.className, 'test2');
-  t.true(isObservableProp(viewNode, 'className'));
+  expect(viewNode.className).toBe('test2');
+  expect(isObservableProp(viewNode, 'className')).toBeTruthy();
 });
 
-test('ViewNode update solid Field', t => {
+test('ViewNode update solid Field', (t) => {
   viewNode.update({
     '#view': 'test2',
   });
-  t.is(viewNode['#view'], 'Form');
+  expect(viewNode['#view']).toBe('Form');
 });
 
-test('ViewNode overwrite or delete fields', t => {
+test('ViewNode overwrite or delete fields', (t) => {
   viewNode.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
 
   // @ts-ignore
-  t.is(viewNode.newField, undefined);
-  t.deepEqual(viewNode['#restProps'], { newField2: 'cool' });
+  expect(viewNode.newField).toBe(undefined);
+  expect(viewNode['#restProps']).toEqual({ newField2: 'cool' });
   // @ts-ignore
-  t.is(viewNode.newField, undefined);
-  t.is(viewNode.className, undefined);
-  t.is(viewNode['#children'], undefined);
+  expect(viewNode.newField).toBe(undefined);
+  expect(viewNode.className).toBe(undefined);
+  expect(viewNode['#children']).toBe(undefined);
 });
 
-test('ViewNode overwrite solid fields', t => {
+test('ViewNode overwrite solid fields', (t) => {
   viewNode.overwrite({ style: { background: '#fff' }, newField2: 'cool' });
 
-  t.is(viewNode['#view'], 'Form');
-  t.is(viewNode['#'] !== undefined, true);
+  expect(viewNode['#view']).toBe('Form');
+  expect(viewNode['#'] !== undefined).toBe(true);
 });
 
-test.serial('ViewNode overwrite children fields', t => {
+test('ViewNode overwrite children fields', (t) => {
   viewNode.overwrite(basicData);
 
   let allChildrenViewNode = 0;
-  forEachDeep(viewNode, obj => isEficyView(obj) && allChildrenViewNode++);
+  forEachDeep(viewNode, (obj) => isEficyView(obj) && allChildrenViewNode++);
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
 
-  t.is(basicDataCount, allChildrenViewNode);
+  expect(basicDataCount).toBe(allChildrenViewNode);
 });
 
-test('ViewNode update restProps after overwrite', t => {
+test('ViewNode update restProps after overwrite', (t) => {
   viewNode.update({
     newField: 'test',
   });
 
   // @ts-ignore
-  t.is(viewNode.newField, 'test');
-  t.is(viewNode['#restProps'].newField, 'test');
-  t.true(!!get(viewNode, 'newField', false));
+  expect(viewNode.newField).toBe('test');
+  expect(viewNode['#restProps'].newField).toBe('test');
+  expect(!!get(viewNode, 'newField', false)).toBeTruthy();
 });
