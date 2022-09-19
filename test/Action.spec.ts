@@ -1,4 +1,3 @@
-import test from 'ava';
 import Controller from '../src/core/Controller';
 
 const controller = new Controller({
@@ -11,31 +10,32 @@ const controller = new Controller({
   ],
 });
 
-test('base actions', t => {
+test('base actions', (t) => {
   // @ts-ignore
-  t.is(!!Object.keys(controller.actions).length, true);
+  expect(!!Object.keys(controller.actions).length).toBe(true);
 });
 
 let result: any = false;
-test.serial('add base action', t => {
+
+test('add base action', (t) => {
   const newAction = { testAction: () => (result = true) };
   controller.bindActions(newAction);
 
   // @ts-ignore
-  t.is(!!controller.actions.testAction, true);
+  expect(!!controller.actions.testAction).toBe(true);
 });
 
-test('run action', t => {
+test('run action', (t) => {
   controller.run({ action: 'testAction', data: {} });
 
-  t.is(result, true);
+  expect(result).toBe(true);
 });
 
-test('replace action result variable', t => {
+test('replace action result variable', (t) => {
   result = '';
-  const newAction = { testUpdate: str => (result = str) };
+  const newAction = { testUpdate: (str) => (result = str) };
   controller.bindActions(newAction);
   controller.run({ action: 'testUpdate', data: '${models.alert.message}' });
 
-  t.is(result, 'Hello this is a Login demo');
+  expect(result).toBe('Hello this is a Login demo');
 });

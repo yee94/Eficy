@@ -3,7 +3,7 @@ import { ExtendsViewNode, IActionProps, IEficySchema, IView } from '../interface
 import resolver from './resolver';
 import EficySchema from '../models/EficySchema';
 import Config from '../constants/Config';
-import { observer, IReactComponent } from 'mobx-react';
+import { observer } from 'mobx-react';
 import { action, observable } from 'mobx';
 import { buildInPlugins, pluginFactory } from '../plugins';
 import BasePlugin from '../plugins/base';
@@ -13,6 +13,7 @@ import * as insideComponents from '../components';
 import * as React from 'react';
 import { renderReact } from '../utils/renderHelper';
 import { IReplaceOptions } from '../utils/relaceVariable';
+import { IReactComponent } from 'mobx-react/dist/types/IReactComponent';
 
 export default class EficyController extends PluginTarget {
   public plugins: BasePlugin[];
@@ -138,8 +139,8 @@ export default class EficyController extends PluginTarget {
     const runSet: Set<BasePlugin> = new Set();
 
     pluginItemVO
-      .map(pluginItem => pluginFactory(pluginItem, runSet))
-      .forEach(plugin => {
+      .map((pluginItem) => pluginFactory(pluginItem, runSet))
+      .forEach((plugin) => {
         if (plugin) {
           plugin.loadOptions(data);
           this.install(plugin);
@@ -178,7 +179,7 @@ export default class EficyController extends PluginTarget {
   }
 
   private clearPlugins() {
-    [...this.plugins].forEach(plugin => {
+    [...this.plugins].forEach((plugin) => {
       this.uninstall(plugin);
       plugin.destroyPlugin();
     });

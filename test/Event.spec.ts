@@ -1,5 +1,4 @@
 import EficyController from '../src/core/Controller';
-import test from 'ava';
 
 let runTimes = 0;
 const eventFn = () => {
@@ -38,21 +37,17 @@ const eficyController = new EficyController(
   {},
 );
 
-test('event added', t => {
-  // @ts-ignore
-  t.is(!!eficyController.model.viewDataMap.form.onSubmit, true);
-  // @ts-ignore
+test('event added', (t) => {
+  expect(!!eficyController.model.viewDataMap.form.onSubmit).toBe(true);
   eficyController.model.viewDataMap.form.onSubmit();
-  t.is(runTimes, 1);
+  expect(runTimes).toBe(1);
   initTimes();
 
-  // @ts-ignore
   eficyController.model.viewDataMap.form.onSubmit2();
-  t.is(runTimes, 2);
+  expect(runTimes).toBe(2);
   initTimes();
 
-  // @ts-ignore
   eficyController.model.viewDataMap.form.onClick();
-  t.is(runTimes, 1);
+  expect(runTimes).toBe(1);
   initTimes();
 });

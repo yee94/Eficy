@@ -1,9 +1,9 @@
-import test from 'ava';
 import Request from '../src/plugins/Request';
 import EficyController from '../src/core/Controller';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { IActionProps } from '../src/interface';
+import { expect } from 'vitest';
 // 设置模拟调试器实例
 const mock = new MockAdapter(axios);
 
@@ -14,7 +14,7 @@ mock.onGet('/success').reply(200, {
   },
 });
 
-mock.onPost('/post').reply(config => {
+mock.onPost('/post').reply((config) => {
   const { name } = JSON.parse(config.data);
   const { name2 } = config.params;
   return [
@@ -65,10 +65,10 @@ const controller = new EficyController({
   requests: [{ '#': 'updateRequest', url: '/update' }],
 });
 
-test('request return', async t => {
-  t.true(((await Request.request({ url: 'xxxxxx' })) as IActionProps).action === 'fail');
+test('request return', async (t) => {
+  expect(((await Request.request({ url: 'xxxxxx' })) as IActionProps).action === 'fail').toBeTruthy();
 
-  t.true(((await Request.request({ url: '/success' })) as IActionProps).action === 'success');
+  expect(((await Request.request({ url: '/success' })) as IActionProps).action === 'success').toBeTruthy();
 
   const resPost = (await Request.request({
     url: '/post',
@@ -78,11 +78,11 @@ test('request return', async t => {
       name: 'Hello Eficy',
     },
   })) as IActionProps;
-  t.true(resPost.data.name === 'Hello Eficy' && resPost.data.name2 === 'param1');
+  expect(resPost.data.name === 'Hello Eficy' && resPost.data.name2 === 'param1').toBeTruthy();
 
   const resFormat = (await Request.request({
     url: '/format',
-    format: beforeData => {
+    format: (beforeData) => {
       const { errcode, ...rest } = beforeData;
       return {
         action: errcode ? 'fail' : 'success',
@@ -91,23 +91,21 @@ test('request return', async t => {
     },
   })) as IActionProps;
 
-  t.true(resFormat.action === 'success');
-  t.deepEqual(resFormat.data, { result1: 'Hello', message: 'success request' });
+  expect(resFormat.action === 'success').toBeTruthy();
+  expect(resFormat.data).toEqual({ result1: 'Hello', message: 'success request' });
 });
 
-test('controller request', async t => {
-  t.true(!!controller.request);
+test('controller request', async (t) => {
+  expect(!!controller.request).toBeTruthy();
 
   await controller.request('updateRequest');
-  // @ts-ignore
-  t.is(controller.getModel('alert').type, 'success');
+  expect(controller.getModel('alert').type).toBe('success');
 
   await controller.request({ url: '/update2' });
-  // @ts-ignore
-  t.is(controller.getModel('alert').type, 'info');
+  expect(controller.getModel('alert').type).toBe('info');
 });
 
-test('controller request replace variable', async t => {
+test('controller request replace variable', async (t) => {
   const resPost = await controller.request({
     url: '/post',
     method: 'POST',
@@ -117,6 +115,5 @@ test('controller request replace variable', async t => {
     },
   });
 
-  // @ts-ignore
-  t.is(resPost.data.name, 'Hello Alert');
+  expect(resPost.data.name).toBe('Hello Alert');
 });

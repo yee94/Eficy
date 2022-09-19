@@ -1,5 +1,5 @@
-import generate from 'nanoid/generate';
+import { nanoid } from 'nanoid';
 
 export default function generateUid(pre = ''): string {
-  return pre + generate('1234567890abcdefgher', 10);
+  return pre + nanoid(10);
 }

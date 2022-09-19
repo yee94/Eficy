@@ -1,8 +1,7 @@
 import EficyModel from '../src/components/EficyComponent/EficyModel';
 import { ViewNode } from '../src/models';
-import test from 'ava';
 import EficyController from '../src/core/Controller';
-
+import { beforeEach, describe } from 'vitest';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
@@ -37,42 +36,46 @@ const basicData = {
 
 const viewNode = new ViewNode(basicData, { Eficy: EficyModel });
 
-test('view Schema has Eficy child', t => {
-  t.true(Object.keys(viewNode.viewDataMap).includes('eficyComponent'));
+test('view Schema has Eficy child', () => {
+  expect(Object.keys(viewNode.viewDataMap).includes('eficyComponent')).toBeTruthy();
 });
 
-test('view Schema did not has child of Eficy', t => {
-  t.false(Object.keys(viewNode.viewDataMap).includes('message'));
+test('view Schema did not has child of Eficy', (t) => {
+  expect(Object.keys(viewNode.viewDataMap).includes('message')).toBeFalsy();
 });
 
-test('special model', t => {
-  t.true(viewNode.viewDataMap.eficyComponent instanceof EficyModel);
+test('special model', (t) => {
+  expect(viewNode.viewDataMap.eficyComponent instanceof EficyModel).toBeTruthy();
 });
 
-test('eficy scope viewDataMap', t => {
-  t.is(Object.keys(viewNode.viewDataMap.eficyComponent.viewDataMap).length, 1);
+test('eficy scope viewDataMap', (t) => {
+  expect(Object.keys(viewNode.viewDataMap.eficyComponent.viewDataMap).length).toBe(1);
 });
 
 const controller = new EficyController({
   views: [basicData],
 });
 
-mount(controller.resolver());
+describe('render resolver', () => {
+  beforeEach(() => {
+    mount(controller.resolver());
+  });
 
-test('children controller whether loaded', t => {
-  const eficyModel = controller.models.eficyComponent;
-  t.true(eficyModel instanceof EficyModel);
+  test('children controller whether loaded', (t) => {
+    const eficyModel = controller.models.eficyComponent;
+    expect(eficyModel instanceof EficyModel).toBeTruthy();
 
-  const childrenController = eficyModel.controller;
-  t.true(childrenController instanceof EficyController);
-  t.true(childrenController.parentController === controller);
-});
+    const childrenController = eficyModel.controller;
+    expect(childrenController instanceof EficyController).toBeTruthy();
+    expect(childrenController.parentController === controller).toBeTruthy();
+  });
 
-test('parent get children models', t => {
-  t.is(controller.models.eficyComponent.models.message.value, 'spanContent');
-});
+  test('parent get children models', (t) => {
+    expect(controller.models.eficyComponent.models.message.value).toBe('spanContent');
+  });
 
-test('children get parent models', t => {
-  const eficyModel = controller.models.eficyComponent;
-  t.is(eficyModel.parentModels.formItem['#view'], 'span');
+  test('children get parent models', (t) => {
+    const eficyModel = controller.models.eficyComponent;
+    expect(eficyModel.parentModels.formItem['#view']).toBe('span');
+  });
 });

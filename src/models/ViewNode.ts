@@ -1,5 +1,4 @@
 import { IView } from '../interface';
-import * as CSS from 'csstype';
 import { Vmo } from '@vmojs/base';
 import { Field } from '@vmojs/base/bundle';
 import {
@@ -17,6 +16,7 @@ import {
 import { action, computed, observable } from 'mobx';
 import Config from '../constants/Config';
 import UnEnumerable from '../utils/decorators/UnEnumerable';
+import { CSSProperties } from 'react';
 
 type IComponentsModels = Record<string, new (...args: any) => ViewNode>;
 export type ExtendsViewNode = ViewNode & any;
@@ -73,7 +73,7 @@ export default class ViewNode extends Vmo implements IView {
 
   @Field
   @observable
-  public style: CSS.Properties;
+  public style: CSSProperties;
 
   @action
   protected load(data: IView): this {
@@ -104,7 +104,7 @@ export default class ViewNode extends Vmo implements IView {
     };
     (this['#children'] || []).forEach(extendViewMap);
 
-    forEachDeep(this['#restProps'], optionValue => {
+    forEachDeep(this['#restProps'], (optionValue) => {
       if (optionValue instanceof ViewNode) {
         extendViewMap(optionValue);
       }
@@ -129,14 +129,14 @@ export default class ViewNode extends Vmo implements IView {
         return value;
       },
       {
-        exceptFns: [...Config.loopExceptFns, obj => obj['#view'] === 'Eficy'],
+        exceptFns: [...Config.loopExceptFns, (obj) => obj['#view'] === 'Eficy'],
       },
     );
   }
 
   @action
   public overwrite(data: IView) {
-    [...Object.keys(this), ...Object.keys(this['#restProps'])].forEach(key => {
+    [...Object.keys(this), ...Object.keys(this['#restProps'])].forEach((key) => {
       if (ViewNode.solidField.includes(key)) {
         return;
       }
@@ -173,7 +173,7 @@ export default class ViewNode extends Vmo implements IView {
 
     data = this.transformViewNode(data);
 
-    Object.keys(data).forEach(key => {
+    Object.keys(data).forEach((key) => {
       if (!isInit && ViewNode.solidField.includes(key)) {
         return;
       }
@@ -209,7 +209,7 @@ export default class ViewNode extends Vmo implements IView {
 
   public forEachChild(cb: (child: ViewNode) => void) {
     if (isArray(this['#children'])) {
-      this['#children'].forEach(child => {
+      this['#children'].forEach((child) => {
         cb(child);
         if (isArray(child['#children'])) {
           child.forEachChild(cb);

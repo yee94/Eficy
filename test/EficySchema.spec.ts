@@ -1,4 +1,3 @@
-import test from 'ava';
 import { EficySchema } from '../src/models';
 
 const basicData = {
@@ -124,16 +123,16 @@ const basicData = {
 
 const eficySchema = new EficySchema(basicData);
 
-test('load EficySchema check views number', t => {
+test('load EficySchema check views number', (t) => {
   const basicDataCount = (JSON.stringify(basicData).match(/#view/g) || []).length;
-  t.is(Object.keys(eficySchema.viewDataMap).length, basicDataCount);
+  expect(Object.keys(eficySchema.viewDataMap).length).toBe(basicDataCount);
 });
 
-test('load EficySchema check plugins', t => {
-  t.is(eficySchema.plugins.length, 1);
+test('load EficySchema check plugins', (t) => {
+  expect(eficySchema.plugins.length).toBe(1);
 });
 
-test('update EfficySchema ', t => {
+test('update EfficySchema ', (t) => {
   eficySchema.update({
     views: [
       {
@@ -151,12 +150,12 @@ test('update EfficySchema ', t => {
   });
 
   // @ts-ignore
-  t.is(eficySchema.viewDataMap.input.placeholder, 'test');
+  expect(eficySchema.viewDataMap.input.placeholder).toBe('test');
 
-  t.is(eficySchema.viewDataMap.input.prefixes.length, 1);
+  expect(eficySchema.viewDataMap.input.prefixes.length).toBe(1);
 });
 
-test('overwrite EfficySchema', t => {
+test('overwrite EfficySchema', (t) => {
   eficySchema.overwrite({
     views: [
       {
@@ -166,10 +165,10 @@ test('overwrite EfficySchema', t => {
     ],
   });
 
-  t.is(eficySchema.viewDataMap.form['#children'], undefined);
+  expect(eficySchema.viewDataMap.form['#children']).toBe(undefined);
   // @ts-ignore
-  t.is(eficySchema.viewDataMap.form.newField, 'test');
-  t.is(Object.keys(eficySchema.viewDataMap).length, 2);
+  expect(eficySchema.viewDataMap.form.newField).toBe('test');
+  expect(Object.keys(eficySchema.viewDataMap).length).toBe(2);
   // @ts-ignore
-  t.is(eficySchema.viewDataMap.alert.message, 'Hello this is a Login demo');
+  expect(eficySchema.viewDataMap.alert.message).toBe('Hello this is a Login demo');
 });

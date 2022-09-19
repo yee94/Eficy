@@ -1,4 +1,4 @@
-import { ViewNode } from '../../models';
+import ViewNode from '../../models/ViewNode';
 import { IPlugin, IView } from '../../interface';
 import { Field } from '@vmojs/base';
 import EficyController from '../../core/Controller';
