@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ESNext",
+    "module": "ESNext",
+    "types": ["vite/client"],
+    "paths": {
+      "~/*": ["src/*"]
+    }
+  },
+  "exclude": ["**/dist/**"]
+}

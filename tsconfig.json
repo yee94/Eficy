@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["packages/src/*"]
     }
   }
 }
