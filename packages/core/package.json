@@ -1,6 +1,6 @@
 {
   "name": "@eficy/core",
-  "version": "2.0.0",
+  "version": "2.0.1-beta.0",
   "description": "A front-end orchestration framework by JSON.",
   "main": "./dist/esm/index.js",
   "exports": {
