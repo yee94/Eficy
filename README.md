@@ -5,13 +5,11 @@
 [![](https://flat.badgen.net/npm/v/@eficy/core?icon=npm)](https://www.npmjs.com/package/@eficy/core)
 [![NPM downloads](http://img.shields.io/npm/dm/@eficy/core.svg?style=flat-square)](http://npmjs.com/@eficy/core)
 
-<p align="center">
-  <a href="https://stackblitz.com/edit/eficy-demo?file=src%2Fexamples%2Fbasic.js"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
-</p>
-
 Eficy, a front-end orchestration framework.Can orchestrate any React components library through JSON configuration, simple configuration can generate complete page.
 
 Recommended for use with component libraries: [AntD](https://ant.design/)
+
+<a href="https://stackblitz.com/edit/eficy-demo?file=src%2Fexamples%2Fbasic.js"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
 
 English | [简体中文](./README-zh_CN.md)
 
