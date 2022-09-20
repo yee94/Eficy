@@ -2,8 +2,7 @@
   "name": "@eficy/core",
   "version": "2.0.0",
   "description": "A front-end orchestration framework by JSON.",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
+  "main": "./dist/esm/index.js",
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
@@ -15,12 +14,13 @@
   "unpkg": "./dist/umd/core.min.js",
   "private": false,
   "scripts": {
-    "dev": "pnpm -r --parallel --filter='./packages/*' run dev",
+    "dev": "father dev",
+    "build": "father build",
     "test": "vitest run",
     "prettier": "pretty-quick --staged",
-    "build": "pnpm -r --filter='./packages/*' run build",
     "play": "pnpm -C playground run dev",
-    "prepublishOnly": "npm run test && npm run build"
+    "prepublishOnly": "npm run test && npm run build",
+    "webstorm-integration": "vitest --watch --reporter=dot --reporter=json --outputFile=.vitest-result.json"
   },
   "repository": {
     "type": "git",
@@ -35,15 +35,23 @@
   ],
   "author": "xiaobe <wyy.xb@qq.com>",
   "license": "ISC",
-  "devDependencies": {
-    "@types/enzyme": "^3.10.12",
-    "axios-mock-adapter": "^1.21.2",
-    "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.6",
-    "father": "^4.0.5",
-    "happy-dom": "^6.0.4",
-    "prettier": "^2.7.1",
-    "pretty-quick": "^3.1.3",
-    "vitest": "^0.23.4"
+  "dependencies": {
+    "@babel/runtime": "^7.19.0",
+    "@vmojs/base": "^1.0.4",
+    "antd": "^4.23.2",
+    "axios": "^0.27.2",
+    "lodash": "^4.17.21",
+    "lodash-decorators": "^6.0.1",
+    "mobx": "^5.15.7",
+    "mobx-react": "^6.3.1",
+    "nanoid": "^4.0.0",
+    "plugin-decorator": "^1.6.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
+  },
+  "peerDependencies": {
+    "antd": "^4.0.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
   }
 }
