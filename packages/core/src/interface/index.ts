@@ -20,4 +20,4 @@ export interface IActionProps {
   data?: any;
 }
 
-export { ExtendsViewNode } from '../models/ViewNode';
+export type { ExtendsViewNode } from '../models/ViewNode';

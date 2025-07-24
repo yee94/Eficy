@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2018",
+    "lib": ["es2018", "dom"],
+    "module": "ESNext",
     "moduleResolution": "Node",
     "experimentalDecorators": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "strict": true,
     "declaration": true,
     "skipLibCheck": true,
@@ -12,9 +14,19 @@
     "removeComments": false,
     "strictNullChecks": false,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "paths": {
-      "@/*": ["packages/src/*"]
+      "@eficy/core": ["packages/core/src"]
     }
-  }
+  },
+  "include": [
+    "packages/*/src/**/*",
+    "packages/*/test/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "lib"
+  ]
 }
