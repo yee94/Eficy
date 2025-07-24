@@ -1,6 +1,7 @@
-import * as Eficy from '@eficy/core';
-export default () =>
-  new Eficy.Controller({
+import Eficy from '@eficy/core-v2';
+export default () => {
+  const controller = Eficy.createController();
+  return controller.load({
     requests: {
       immediately: true,
       url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/reload',
@@ -11,4 +12,5 @@ export default () =>
         listeners: [(contrl, ...args) => console.log(contrl.models.eficy)],
       },
     ],
-  }).resolver();
+  }).render();
+};

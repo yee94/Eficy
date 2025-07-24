@@ -1,0 +1,51 @@
+{
+  "name": "@eficy/core-v2",
+  "version": "3.0.0-alpha.0",
+  "description": "A modern front-end orchestration framework by JSON with dependency injection and signals.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.iife.js",
+  "jsdelivr": "./dist/index.global.iife.js",
+  "private": false,
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prettier": "pretty-quick --staged",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaobebe/eficy.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "xiaobe <wyy.xb@qq.com>",
+  "license": "ISC",
+  "dependencies": {
+    "ahooks": "^3.8.0",
+    "axios": "^1.6.0",
+    "lodash": "^4.17.21",
+    "nanoid": "^5.0.0",
+    "reactjs-signal": "^1.0.0",
+    "tsyringe": "^4.8.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "pretty-quick": "^3.3.1",
+    "tsdown": "^0.13.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
+  }
+}

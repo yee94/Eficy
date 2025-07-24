@@ -1,9 +1,14 @@
-import * as Eficy from '@eficy/core';
-import { useLocation, useNavigate, useMatch } from 'react-router';
+import React from 'react';
+import Eficy from '@eficy/core-v2';
+import { useLocation, useNavigate } from 'react-router';
 
 export default ({ children: elements, routes }) => {
   const navigate = useNavigate();
-  return new Eficy.Controller({
+  const location = useLocation();
+  
+  const controller = Eficy.createController();
+  
+  const layoutElement = controller.load({
     views: [
       {
         id: 'components-layout-demo-custom-trigger',
@@ -16,24 +21,30 @@ export default ({ children: elements, routes }) => {
               {
                 '#view': 'div',
                 className: 'logo',
+                style: {
+                  height: '32px',
+                  margin: '16px',
+                  background: 'rgba(255, 255, 255, 0.3)'
+                }
               },
               {
                 '#view': 'Menu',
                 items: routes.map((item) => {
                   return {
                     key: `/${item.path}`,
-                    onClick() {
+                    onClick: () => {
                       navigate(item.path);
                     },
-                    label: item.path,
+                    label: item.path || 'Home',
                   };
                 }),
-                selectedKeys: [useMatch(useLocation().pathname).pathname],
+                selectedKeys: [location.pathname],
                 theme: 'dark',
                 mode: 'inline',
               },
             ],
             trigger: null,
+            collapsible: true,
           },
           {
             '#view': 'Layout',
@@ -42,8 +53,16 @@ export default ({ children: elements, routes }) => {
                 '#view': 'Layout.Header',
                 '#children': [
                   {
-                    '#view': 'Icon',
+                    '#view': 'div',
                     className: 'trigger',
+                    style: {
+                      fontSize: '18px',
+                      lineHeight: '64px',
+                      padding: '0 24px',
+                      cursor: 'pointer',
+                      transition: 'color 0.3s',
+                    },
+                    '#content': 'Eficy V2 Playground'
                   },
                 ],
                 style: {
@@ -53,53 +72,28 @@ export default ({ children: elements, routes }) => {
               },
               {
                 '#view': 'Layout.Content',
-                style: {
-                  margin: '24px 16px',
-                  padding: 24,
-                  background: '#fff',
-                  minHeight: 280,
-                },
-                '#content': elements,
+                '#children': [
+                  {
+                    '#view': 'div',
+                    style: {
+                      margin: '24px 16px',
+                      padding: 24,
+                      minHeight: 280,
+                      background: '#fff',
+                    },
+                    '#children': [],
+                  },
+                ],
               },
             ],
           },
         ],
-      },
-
-      {
-        '#view': 'style',
-        '#content': `#components-layout-demo-custom-trigger .trigger {
-  font-size: 18px;
-  line-height: 64px;
-  padding: 0 24px;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-#components-layout-demo-custom-trigger .trigger:hover {
-  color: #1890ff;
-}
-
-#components-layout-demo-custom-trigger .logo {
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 16px;
-}
-
-#components-layout-demo-top-side .logo {
-    width: 120px;
-    height: 31px;
-    background: rgba(255, 255, 255, 0.2);
-    margin: 16px 28px 16px 0;
-    float: left;
-}
-
-main.ant-layout-content > *:not(:last-child){
-  margin-bottom: 16px
-}
-
-`,
+        style: {
+          minHeight: '100vh',
+        },
       },
     ],
-  }).resolver();
+  }).render();
+  
+  return React.createElement('div', { className: 'layout-wrapper' }, layoutElement, elements);
 };

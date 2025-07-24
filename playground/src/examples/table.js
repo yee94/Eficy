@@ -1,6 +1,7 @@
-import * as Eficy from '@eficy/core';
-export default () =>
-  new Eficy.Controller({
+import Eficy from '@eficy/core-v2';
+export default () => {
+  const controller = Eficy.createController();
+  return controller.load({
     views: [
       {
         '#view': 'Table',
@@ -91,5 +92,5 @@ export default () =>
         ],
       },
     ],
-  }).resolver();
-// export default () => new Eficy.Controller({};
+  }).render();
+};

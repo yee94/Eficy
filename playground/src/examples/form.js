@@ -1,6 +1,9 @@
-import * as Eficy from '@eficy/core';
-export default () =>
-  new Eficy.Controller({
+import Eficy from '@eficy/core-v2';
+
+export default () => {
+  const controller = Eficy.createController();
+  
+  return controller.load({
     views: [
       {
         '#': 'alert',
@@ -381,10 +384,5 @@ export default () =>
         ],
       },
     ],
-    reactions: [
-      {
-        expression: (ctrl) => ctrl.models.input.value,
-        effect: (effectResult, ctrl) => (ctrl.models.alert.message = effectResult),
-      },
-    ],
-  }).resolver();
+  }).render();
+};

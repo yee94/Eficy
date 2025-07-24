@@ -8,7 +8,7 @@ for (let i = 0; i < 46; i++) {
   });
 }
 
-import * as Eficy from '@eficy/core';
+import * as Eficy from '@eficy/core-v2';
 export default () =>
   new Eficy.Controller({
     views: [

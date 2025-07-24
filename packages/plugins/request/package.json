@@ -1,0 +1,27 @@
+{
+  "name": "@eficy/plugin-request",
+  "version": "1.0.0",
+  "description": "Request plugin for Eficy framework",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@eficy/core-v2": "workspace:*",
+    "tsyringe": "^4.8.0"
+  },
+  "devDependencies": {
+    "tsdown": "^0.13.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
+  }
+}

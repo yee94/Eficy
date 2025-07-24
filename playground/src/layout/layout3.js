@@ -1,4 +1,4 @@
-import * as Eficy from '@eficy/core';
+import * as Eficy from '@eficy/core-v2';
 import { useLocation, useNavigate, useMatch } from 'react-router';
 
 export default ({ children: elements, routes }) => {

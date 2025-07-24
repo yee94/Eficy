@@ -1,6 +1,9 @@
-import * as Eficy from '@eficy/core';
-export default () =>
-  new Eficy.Controller({
+import Eficy from '@eficy/core-v2';
+
+export default () => {
+  const controller = Eficy.createController();
+  
+  return controller.load({
     views: [
       {
         '#view': 'Alert',
@@ -16,7 +19,6 @@ export default () =>
       {
         '#': 'textarea',
         '#view': 'Input.TextArea',
-        '#bindValuePropName': 'value',
         value: 'value',
       },
 
@@ -43,9 +45,6 @@ export default () =>
         style: {
           marginBottom: 40,
         },
-        '#field': {
-          name: 'slider',
-        },
         marks: {
           0: 'A',
           20: 'B',
@@ -58,9 +57,6 @@ export default () =>
 
       {
         '#view': 'Radio.Group',
-        '#field': {
-          name: 'radio-button',
-        },
         '#children': [
           {
             '#view': 'Radio.Button',
@@ -82,10 +78,7 @@ export default () =>
 
       {
         '#view': 'Checkbox.Group',
-        '#field': {
-          name: 'checkbox-group',
-          initialValue: ['A', 'B'],
-        },
+        defaultValue: ['A', 'B'],
         style: { width: '100%' },
         '#children': [
           {
@@ -216,4 +209,5 @@ export default () =>
         ],
       },
     ],
-  }).resolver();
+  }).render();
+};

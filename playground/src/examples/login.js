@@ -1,4 +1,4 @@
-import * as Eficy from '@eficy/core';
+import * as Eficy from '@eficy/core-v2';
 const controller = new Eficy.Controller({
   views: [
     {
