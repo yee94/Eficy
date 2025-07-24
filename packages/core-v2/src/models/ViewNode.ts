@@ -109,8 +109,24 @@ export class ViewNode {
    * 获取值
    */
   public get<T>(key: string): T {
+    // 特殊处理 #children，返回 ViewNode 数组而不是原始数据
+    if (key === '#children') {
+      return this.getChildren() as T;
+    }
+    
     const signal = this.getSignal<T>(key);
     return signal ? signal.get() : undefined as T;
+  }
+
+  /**
+   * 获取子节点数组
+   */
+  public getChildren(): ViewNode[] {
+    const children: ViewNode[] = [];
+    for (const child of this.childNodeMap.values()) {
+      children.push(child);
+    }
+    return children;
   }
 
   /**

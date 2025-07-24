@@ -455,7 +455,9 @@ function App() {
 
   const renderExample = () => {
     try {
-      return eficy.createElement(examples[currentExample]);
+      const element = eficy.createElement(examples[currentExample]);
+      console.log(element);
+      return element;
     } catch (error) {
       console.error('渲染错误:', error);
       return (
