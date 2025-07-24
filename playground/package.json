@@ -9,13 +9,21 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "^4.7.0",
+    "@ant-design/icons": "^5.0.0",
     "@eficy/core": "workspace:*",
-    "antd": "^4.23.2",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
+    "@eficy/core-v2": "workspace:*",
+    "@vmojs/base": "^1.0.4",
+    "antd": "^5.0.0",
+    "lodash-decorators": "^6.0.1",
+    "mobx": "^6.13.7",
+    "mobx-react": "^9.2.0",
+    "plugin-decorator": "^1.8.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router": "^6.4.0",
-    "react-router-dom": "^6.4.0"
+    "react-router-dom": "^6.4.0",
+    "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.8.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",

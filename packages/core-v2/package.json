@@ -1,7 +1,7 @@
 {
-  "name": "@eficy/core",
-  "version": "2.0.1",
-  "description": "A front-end orchestration framework by JSON.",
+  "name": "@eficy/core-v2",
+  "version": "2.0.0-alpha.1",
+  "description": "A front-end orchestration framework by JSON - Version 2.0 with modern architecture",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -13,35 +13,37 @@
     "dev": "tsdown --watch",
     "build": "tsdown",
     "test": "vitest run",
+    "test:watch": "vitest",
     "prettier": "pretty-quick --staged",
-    "play": "pnpm -C playground run dev",
-    "prepublishOnly": "npm run test && npm run build",
-    "webstorm-integration": "vitest --watch --reporter=dot --reporter=json --outputFile=.vitest-result.json"
+    "prepublishOnly": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiaobebe/eficy.git"
+    "url": "https://github.com/xiaobebe/eficy.git",
+    "directory": "packages/core-v2"
   },
-  "pre-commit": [
-    "test",
-    "prettier"
-  ],
   "files": [
     "dist"
   ],
   "author": "xiaobe <wyy.xb@qq.com>",
   "license": "ISC",
   "dependencies": {
-    "ahooks": "^3.8.0",
-    "axios": "^1.6.0",
-    "lodash": "^4.17.21",
-    "nanoid": "^5.0.0",
+    "tsyringe": "^4.8.0",
     "reactjs-signal": "^2.0.1",
     "alien-signals": "^2.0.1",
-    "tsyringe": "^4.8.0"
+    "ahooks": "^3.8.0",
+    "lodash": "^4.17.21",
+    "axios": "^1.6.0",
+    "nanoid": "^5.0.0",
+    "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.195",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
   }
-}
+} 

@@ -1,0 +1,274 @@
+import 'reflect-metadata';
+import React, { ReactElement } from 'react';
+import { createRoot, Root } from 'react-dom/client';
+import { container, DependencyContainer } from 'tsyringe';
+
+import { EficyContainer } from '../container/Container';
+import { TOKENS } from '../container/tokens';
+import { 
+  IEficyCore, 
+  IViewConfig, 
+  IEficySchema, 
+  IConfigService,
+  IComponentRegistry,
+  ISignalManager,
+  IPluginConfig
+} from '../interfaces';
+
+// 服务实现
+import { ConfigService } from '../services/ConfigService';
+import { ComponentRegistry } from '../services/ComponentRegistry';
+import { SignalManager } from '../reactive/SignalManager';
+import { PluginManager } from '../plugins/PluginManager';
+import { ViewNode } from '../models/ViewNode';
+
+// 内置插件
+import { RequestPlugin } from '../plugins/builtin/RequestPlugin';
+import { EventPlugin } from '../plugins/builtin/EventPlugin';
+import { ActionPlugin } from '../plugins/builtin/ActionPlugin';
+
+/**
+ * Eficy框架核心类
+ * 新版本采用面向对象设计，基于tsyringe依赖注入
+ */
+export class EficyCore implements IEficyCore {
+  private eficyContainer: EficyContainer;
+  private childContainer: DependencyContainer;
+  private pluginManager: PluginManager;
+  private isInitialized = false;
+  private domRoot?: Root;
+
+  constructor() {
+    this.eficyContainer = new EficyContainer();
+    this.childContainer = this.eficyContainer.createChildContainer('eficy-instance');
+    
+    // 初始化核心服务
+    this.initializeCoreServices();
+    
+    // 获取插件管理器
+    this.pluginManager = this.childContainer.resolve(TOKENS.PLUGIN_MANAGER);
+    
+    // 注册内置插件
+    this.registerBuiltinPlugins();
+    
+    this.isInitialized = true;
+  }
+
+  /**
+   * 初始化核心服务
+   */
+  private initializeCoreServices(): void {
+    // 注册核心服务
+    this.childContainer.registerSingleton(TOKENS.CONFIG_SERVICE, ConfigService);
+    this.childContainer.registerSingleton(TOKENS.COMPONENT_REGISTRY, ComponentRegistry);
+    this.childContainer.registerSingleton(TOKENS.SIGNAL_MANAGER, SignalManager);
+    this.childContainer.registerSingleton(TOKENS.PLUGIN_MANAGER, PluginManager);
+    
+    // 注册ViewNode工厂
+    this.childContainer.register(TOKENS.VIEW_NODE_FACTORY, {
+      useFactory: (container: DependencyContainer) => {
+        return (data?: IViewConfig) => {
+          const signalManager = container.resolve<ISignalManager>(TOKENS.SIGNAL_MANAGER);
+          return new ViewNode(signalManager, data);
+        };
+      }
+    });
+    
+    // 注册核心实例
+    this.childContainer.registerInstance(TOKENS.EFICY_CORE, this);
+  }
+
+  /**
+   * 注册内置插件
+   */
+  private registerBuiltinPlugins(): void {
+    this.pluginManager.register(new RequestPlugin());
+    this.pluginManager.register(new EventPlugin());
+    this.pluginManager.register(new ActionPlugin());
+  }
+
+  /**
+   * 配置框架
+   */
+  config(options: Record<string, unknown>): this {
+    if (!this.isInitialized) {
+      throw new Error('EficyCore is not initialized');
+    }
+
+    const configService = this.childContainer.resolve<IConfigService>(TOKENS.CONFIG_SERVICE);
+    configService.extend(options);
+
+    // 如果配置中包含组件映射，更新组件注册表
+    if (options.componentMap) {
+      const componentRegistry = this.childContainer.resolve<IComponentRegistry>(TOKENS.COMPONENT_REGISTRY);
+      componentRegistry.extend(options.componentMap as Record<string, unknown>);
+    }
+
+    return this;
+  }
+
+  /**
+   * 扩展组件库（递归覆盖）
+   */
+  extend(options: { componentMap?: Record<string, unknown>; [key: string]: unknown }): this {
+    if (!this.isInitialized) {
+      throw new Error('EficyCore is not initialized');
+    }
+
+    const { componentMap, ...otherOptions } = options;
+
+    // 扩展组件库
+    if (componentMap) {
+      const componentRegistry = this.childContainer.resolve<IComponentRegistry>(TOKENS.COMPONENT_REGISTRY);
+      componentRegistry.extend(componentMap);
+    }
+
+    // 扩展其他配置
+    if (Object.keys(otherOptions).length > 0) {
+      const configService = this.childContainer.resolve<IConfigService>(TOKENS.CONFIG_SERVICE);
+      configService.recursiveOverride(otherOptions);
+    }
+
+    return this;
+  }
+
+  /**
+   * 创建React元素
+   */
+  createElement(schema: IViewConfig | IEficySchema): ReactElement {
+    if (!this.isInitialized) {
+      throw new Error('EficyCore is not initialized');
+    }
+
+    // 标准化schema
+    const normalizedSchema = this.normalizeSchema(schema);
+    
+    // 安装插件
+    if (normalizedSchema.plugins) {
+      this.pluginManager.installMany(normalizedSchema.plugins, this.childContainer);
+    }
+
+    // 创建ViewNode
+    const viewNodeFactory = this.childContainer.resolve(TOKENS.VIEW_NODE_FACTORY);
+    const rootViewNode = viewNodeFactory(normalizedSchema.views?.[0]);
+
+    // 使用解析器创建React元素
+    // TODO: 实现解析器
+    return this.resolveToElement(rootViewNode);
+  }
+
+  /**
+   * 渲染到DOM
+   */
+  render(schema: IViewConfig | IEficySchema, containerElement: string | HTMLElement): void {
+    if (!this.isInitialized) {
+      throw new Error('EficyCore is not initialized');
+    }
+
+    const element = this.createElement(schema);
+    
+    const domElement = typeof containerElement === 'string' 
+      ? document.querySelector(containerElement) 
+      : containerElement;
+
+    if (!domElement) {
+      throw new Error('Container element not found');
+    }
+
+    // 清理之前的root
+    if (this.domRoot) {
+      this.domRoot.unmount();
+    }
+
+    // 创建新的root并渲染
+    this.domRoot = createRoot(domElement);
+    this.domRoot.render(element);
+  }
+
+  /**
+   * 获取容器
+   */
+  getContainer(): DependencyContainer {
+    return this.childContainer;
+  }
+
+  /**
+   * 销毁实例
+   */
+  destroy(): void {
+    if (this.domRoot) {
+      this.domRoot.unmount();
+      this.domRoot = undefined;
+    }
+
+    // 清理插件
+    this.pluginManager.clear(this.childContainer);
+    
+    // 清理容器
+    this.eficyContainer.clearChildContainer('eficy-instance');
+    
+    this.isInitialized = false;
+  }
+
+  /**
+   * 标准化schema
+   */
+  private normalizeSchema(schema: IViewConfig | IEficySchema): IEficySchema {
+    // 如果是单个视图配置，包装为完整schema
+    if ('#view' in schema) {
+      return {
+        views: [schema as IViewConfig],
+        plugins: []
+      };
+    }
+    
+    return schema as IEficySchema;
+  }
+
+  /**
+   * 解析ViewNode为React元素（临时实现）
+   */
+  private resolveToElement(viewNode: ViewNode): ReactElement {
+    // TODO: 实现完整的解析器
+    // 这里先返回一个简单的div作为占位符
+    return React.createElement('div', { 
+      key: viewNode.get('#') || 'root',
+      'data-eficy': 'placeholder' 
+    }, 'Eficy Core v2.0 - Under Construction');
+  }
+
+  /**
+   * 获取配置服务
+   */
+  getConfigService(): IConfigService {
+    return this.childContainer.resolve<IConfigService>(TOKENS.CONFIG_SERVICE);
+  }
+
+  /**
+   * 获取组件注册表
+   */
+  getComponentRegistry(): IComponentRegistry {
+    return this.childContainer.resolve<IComponentRegistry>(TOKENS.COMPONENT_REGISTRY);
+  }
+
+  /**
+   * 获取信号管理器
+   */
+  getSignalManager(): ISignalManager {
+    return this.childContainer.resolve<ISignalManager>(TOKENS.SIGNAL_MANAGER);
+  }
+
+  /**
+   * 获取插件管理器
+   */
+  getPluginManager(): PluginManager {
+    return this.pluginManager;
+  }
+
+  /**
+   * 创建新的实例
+   */
+  static create(): EficyCore {
+    return new EficyCore();
+  }
+} 
