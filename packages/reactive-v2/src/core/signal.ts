@@ -1,89 +1,94 @@
-import { signal as alienSignal, computed as alienComputed, effect as alienEffect, effectScope } from 'alien-signals';
+import { 
+  signal as preactSignal, 
+  computed as preactComputed, 
+  effect as preactEffect,
+  batch,
+  untracked
+} from '@preact/signals-core';
 import type { Signal, ComputedSignal, Dispose } from '../types/index';
 
-// ==================== 基础 Signal 创建 ====================
+// ==================== Signal 实现 ====================
 
 /**
  * 创建响应式信号
  */
 export function signal<T>(initialValue: T): Signal<T> {
-  return alienSignal(initialValue);
+  const preactSig = preactSignal(initialValue);
+  
+  // 适配 alien-signals 风格的 API（函数调用风格）
+  function signalAccessor(): T;
+  function signalAccessor(newValue: T): T;
+  function signalAccessor(...args: [] | [T]): T {
+    if (args.length === 0) {
+      return preactSig.value;
+    }
+    const [newValue] = args;
+    preactSig.value = newValue;
+    return newValue;
+  }
+  
+  return signalAccessor as Signal<T>;
 }
 
 /**
  * 创建计算信号
  */
 export function computed<T>(getter: () => T): ComputedSignal<T> {
-  return alienComputed(getter);
+  const preactComp = preactComputed(getter);
+  
+  // 适配 alien-signals 风格的 API
+  function computedAccessor(): T {
+    return preactComp.value;
+  }
+  
+  return computedAccessor as ComputedSignal<T>;
 }
 
 /**
- * 创建支持批处理的副作用
+ * 创建副作用
  */
 export function effect(fn: () => void): Dispose {
-  let isScheduled = false;
-  let isBatching = false;
-  
-  const wrappedFn = () => {
-    // 检查是否在批处理中
-    try {
-      const batchModule = require('./batch');
-      isBatching = batchModule.isBatchingUpdates();
-    } catch (error) {
-      isBatching = false;
-    }
-    
-    if (isBatching && !isScheduled) {
-      // 在批处理中，延迟执行
-      isScheduled = true;
-      queueMicrotask(() => {
-        isScheduled = false;
-        // 再次检查批处理状态
-        try {
-          const batchModule = require('./batch');
-          if (!batchModule.isBatchingUpdates()) {
-            fn();
-          }
-        } catch (error) {
-          fn();
-        }
-      });
-    } else if (!isBatching) {
-      // 不在批处理中，立即执行
-      fn();
-    }
-  };
-  
-  return alienEffect(wrappedFn);
+  // 暂时使用类型断言，等待安装新依赖后修复
+  return preactEffect(fn as any);
 }
 
-// ==================== 批处理相关 ====================
+/**
+ * 导出原生批处理函数
+ */
+export { batch };
 
 /**
- * 导出 effectScope 用于批处理
+ * 导出 untracked 函数
  */
-export { effectScope };
+export { untracked };
 
 // ==================== 工具函数 ====================
 
 /**
  * 检查是否为信号
  */
-export function isSignal<T>(value: unknown): value is Signal<T> {
-  return typeof value === 'function' && '_signal' in value;
+export function isSignal(value: unknown): value is Signal<unknown> {
+  return typeof value === 'function';
 }
 
 /**
- * 获取信号的当前值（不收集依赖）
+ * 只读访问信号值（不建立依赖关系）
  */
 export function peek<T>(signal: Signal<T>): T {
-  // alien-signals 的 peek 实现
-  return (signal as unknown as { peek?: () => T }).peek?.() ?? signal();
+  return untracked(() => signal());
 }
 
 /**
- * 创建只读计算信号
+ * 创建只读信号
  */
-export function readonly<T>(getter: () => T): ComputedSignal<T> {
-  return computed(getter);
+export function readonly<T>(signal: Signal<T>): ComputedSignal<T> {
+  return computed(() => signal());
+}
+
+/**
+ * 效果作用域（为了兼容性保留）
+ */
+export function effectScope(fn: () => void): () => void {
+  const dispose = effect(fn);
+  return dispose;
 } 

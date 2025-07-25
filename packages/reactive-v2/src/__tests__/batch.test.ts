@@ -3,43 +3,76 @@ import { signal, computed, effect } from '../core/signal';
 import { batch, isBatchingUpdates, clearPendingEffects } from '../core/batch';
 
 describe('Batch', () => {
-  describe('batch', () => {
+  describe('basic batching', () => {
     it('should batch multiple signal updates', () => {
       const count = signal(0);
-      const spy = vi.fn();
+      const name = signal('test');
       
+      const spy = vi.fn();
       effect(() => {
-        spy(count());
+        spy({ count: count(), name: name() });
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(0);
+      expect(spy).toHaveBeenLastCalledWith({ count: 0, name: 'test' });
       
-      // 批处理中更新多个信号
+      // preact/signals-core 的原生批处理应该真正批处理更新
       batch(() => {
-        count(5);
         count(10);
-        count(15);
-      });
-
-      // 注意：alien-signals 默认每次更新都会触发 effect
-      // 所以我们期望每次更新都会调用 effect
-      expect(spy).toHaveBeenCalledTimes(4); // 1 初始 + 3 更新
-      expect(spy).toHaveBeenLastCalledWith(15);
-    });
-
-    it('should return value from batched function', () => {
-      const result = batch(() => {
-        return 42;
+        name('updated');
+        count(20);
       });
       
-      expect(result).toBe(42);
+      // 使用原生批处理，effect 应该只被调用一次（不包括初始调用）
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenLastCalledWith({ count: 20, name: 'updated' });
     });
 
-    it('should handle nested batches', () => {
-      const count = signal(0);
+    it('should handle computed values in batch', () => {
+      const a = signal(1);
+      const b = signal(2);
+      const sum = computed(() => a() + b());
+      
       const spy = vi.fn();
+      effect(() => {
+        spy(sum());
+      });
       
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenLastCalledWith(3);
+      
+      batch(() => {
+        a(10);
+        b(20);
+      });
+      
+      // 原生批处理应该只触发一次计算
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenLastCalledWith(30);
+    });
+
+    it('should track batching status', () => {
+      expect(isBatchingUpdates()).toBe(false);
+      
+      batch(() => {
+        expect(isBatchingUpdates()).toBe(true);
+        
+        batch(() => {
+          expect(isBatchingUpdates()).toBe(true);
+        });
+        
+        expect(isBatchingUpdates()).toBe(true);
+      });
+      
+      expect(isBatchingUpdates()).toBe(false);
+    });
+  });
+
+  describe('nested batching', () => {
+    it('should handle nested batch calls', () => {
+      const count = signal(0);
+      
+      const spy = vi.fn();
       effect(() => {
         spy(count());
       });
@@ -48,154 +81,108 @@ describe('Batch', () => {
       
       batch(() => {
         count(1);
+        
         batch(() => {
           count(2);
-          batch(() => {
-            count(3);
-            count(4);
-          });
+          count(3);
         });
+        
+        count(4);
       });
-
-      // alien-signals 会为每次更新触发 effect
-      expect(spy).toHaveBeenCalledTimes(5); // 1 初始 + 4 更新
+      
+      // 嵌套批处理应该被合并为一次更新
+      expect(spy).toHaveBeenCalledTimes(2);
       expect(spy).toHaveBeenLastCalledWith(4);
     });
-
-    it('should handle errors in batch', () => {
-      expect(() => {
-        batch(() => {
-          throw new Error('Batch error');
-        });
-      }).toThrow('Batch error');
-    });
   });
 
-  describe('isBatchingUpdates', () => {
-    it('should return false by default', () => {
-      expect(isBatchingUpdates()).toBe(false);
-    });
-
-    it('should return true during batch execution', () => {
-      let duringBatch = false;
+  describe('batch with complex scenarios', () => {
+    it('should handle multiple signals and computed values', () => {
+      const x = signal(1);
+      const y = signal(2);
+      const z = signal(3);
+      
+      const sum = computed(() => x() + y() + z());
+      const product = computed(() => x() * y() * z());
+      
+      const sumSpy = vi.fn();
+      const productSpy = vi.fn();
+      
+      effect(() => sumSpy(sum()));
+      effect(() => productSpy(product()));
+      
+      expect(sumSpy).toHaveBeenCalledTimes(1);
+      expect(productSpy).toHaveBeenCalledTimes(1);
       
       batch(() => {
-        duringBatch = isBatchingUpdates();
+        x(2);
+        y(3);
+        z(4);
       });
       
-      expect(duringBatch).toBe(true);
-      expect(isBatchingUpdates()).toBe(false);
+      // 每个 effect 应该只被调用一次（不包括初始调用）
+      expect(sumSpy).toHaveBeenCalledTimes(2);
+      expect(productSpy).toHaveBeenCalledTimes(2);
+      expect(sumSpy).toHaveBeenLastCalledWith(9); // 2+3+4
+      expect(productSpy).toHaveBeenLastCalledWith(24); // 2*3*4
     });
 
-    it('should handle nested batch state correctly', () => {
-      const states: boolean[] = [];
-      
-      batch(() => {
-        states.push(isBatchingUpdates()); // true
-        batch(() => {
-          states.push(isBatchingUpdates()); // true  
-          batch(() => {
-            states.push(isBatchingUpdates()); // true
-          });
-          states.push(isBatchingUpdates()); // true
-        });
-        states.push(isBatchingUpdates()); // true
-      });
-      
-      states.push(isBatchingUpdates()); // false
-      
-      expect(states).toEqual([true, true, true, true, true, false]);
-    });
-  });
-
-  describe('complex batch scenarios', () => {
-    it('should handle multiple signals with computed dependencies', () => {
-      const a = signal(1);
-      const b = signal(2);
-      const c = signal(3);
-      const total = computed(() => a() + b() + c());
-      const doubled = computed(() => total() * 2);
+    it('should handle conditional updates in batch', () => {
+      const condition = signal(true);
+      const value = signal(0);
       
       const spy = vi.fn();
-      
       effect(() => {
-        spy(doubled());
-      });
-      
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(12); // (1+2+3) * 2
-      
-      batch(() => {
-        a(5);
-        b(10);
-        c(15);
-      });
-
-      // alien-signals 会为每次更新触发 effect
-      expect(spy).toHaveBeenCalledTimes(4); // 1 初始 + 3 更新
-      expect(spy).toHaveBeenLastCalledWith(60); // (5+10+15)*2
-    });
-
-    it('should batch effects with conditional dependencies', () => {
-      const mode = signal('a');
-      const valueA = signal(5);
-      const valueB = signal(10);
-      
-      const spy = vi.fn();
-      
-      effect(() => {
-        const currentMode = mode();
-        if (currentMode === 'a') {
-          spy(`a: ${valueA()}`);
-        } else {
-          spy(`b: ${valueB()}`);
+        if (condition()) {
+          spy(value());
         }
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('a: 5');
       
       batch(() => {
-        mode('b');
-        valueB(20);
+        condition(false);
+        value(100); // 这个变化不应该触发 effect，因为 condition 是 false
+        condition(true);
+        value(200);
       });
-
-      // alien-signals 会为每次更新触发 effect
-      expect(spy).toHaveBeenCalledTimes(3); // 1 初始 + 2 更新
-      expect(spy).toHaveBeenLastCalledWith('b: 20');
+      
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenLastCalledWith(200);
     });
+  });
 
-    it('should preserve execution order within batch', () => {
-      const operations: string[] = [];
+  describe('batch return value', () => {
+    it('should return the result of the batched function', () => {
       const count = signal(0);
       
-      effect(() => {
-        operations.push(`effect: ${count()}`);
+      const result = batch(() => {
+        count(5);
+        return count() * 2;
       });
       
-      operations.push('before batch');
+      expect(result).toBe(10);
+    });
+
+    it('should propagate errors from batched function', () => {
+      const count = signal(0);
       
-      batch(() => {
-        operations.push('batch start');
-        count(1);
-        operations.push('batch middle');
-        count(2);
-        operations.push('batch end');
-      });
+      expect(() => {
+        batch(() => {
+          count(5);
+          throw new Error('Test error');
+        });
+      }).toThrow('Test error');
       
-      operations.push('after batch');
-      
-      // 验证执行顺序保持正确
-      expect(operations).toEqual([
-        'effect: 0',
-        'before batch',
-        'batch start',
-        'effect: 1',
-        'batch middle', 
-        'effect: 2',
-        'batch end',
-        'after batch'
-      ]);
+      // 即使出错，状态更新也应该生效
+      expect(count()).toBe(5);
+    });
+  });
+
+  describe('compatibility functions', () => {
+    it('should provide clearPendingEffects for compatibility', () => {
+      // 这是一个兼容性函数，不应该抛出错误
+      expect(() => clearPendingEffects()).not.toThrow();
     });
   });
 }); 

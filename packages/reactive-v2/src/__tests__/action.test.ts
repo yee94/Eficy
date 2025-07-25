@@ -6,26 +6,25 @@ describe('Action', () => {
   describe('action', () => {
     it('should create an action that batches updates', () => {
       const count = signal(0);
-      const spy = vi.fn();
       
+      const spy = vi.fn();
       effect(() => {
         spy(count());
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(0);
-
+      
       const updateAction = action(() => {
         count(5);
         count(10);
         count(15);
       });
-
+      
       updateAction();
-
-      // 注意：alien-signals 默认每次更新都会触发 effect
-      // 所以我们期望每次更新都会调用 effect
-      expect(spy).toHaveBeenCalledTimes(4); // 1 初始 + 3 更新
+      
+      // 使用 preact/signals-core 的原生批处理，真正只调用一次！
+      expect(spy).toHaveBeenCalledTimes(2); // 1 初始 + 1 批处理后的更新
       expect(spy).toHaveBeenLastCalledWith(15);
     });
 
@@ -66,27 +65,29 @@ describe('Action', () => {
 
     it('should nest actions properly', () => {
       const count = signal(0);
-      const spy = vi.fn();
       
+      const spy = vi.fn();
       effect(() => {
         spy(count());
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
-
+      
       const outerAction = action(() => {
         count(10);
+        
         const innerAction = action(() => {
           count(20);
-          count(30);
         });
+        
         innerAction();
+        count(30);
       });
-
+      
       outerAction();
 
-      // alien-signals 会为每次更新触发 effect
-      expect(spy).toHaveBeenCalledTimes(4); // 1 初始 + 3 更新
+      // 嵌套的 action 也会被正确批处理
+      expect(spy).toHaveBeenCalledTimes(2); // 1 初始 + 1 批处理后的更新
       expect(spy).toHaveBeenLastCalledWith(30);
     });
   });
@@ -151,11 +152,9 @@ describe('Action', () => {
     });
 
     it('should handle conditional state updates', () => {
-      const mode = signal<'add' | 'multiply'>('add');
-      const value = signal(5);
-      const result = computed(() => {
-        return mode() === 'add' ? value() + 10 : value() * 2;
-      });
+      const condition = signal(true);
+      const multiplier = signal(2);
+      const result = computed(() => condition() ? 4 * multiplier() : 0);
       
       const spy = vi.fn();
       effect(() => {
@@ -163,19 +162,18 @@ describe('Action', () => {
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(15); // 5 + 10
+      expect(spy).toHaveBeenCalledWith(8); // true ? 4 * 2 : 0
       
       const updateAction = action(() => {
-        if (mode() === 'add') {
-          mode('multiply');
-          value(8);
-        }
+        multiplier(4); // result would be 16
+        condition(false); // but then becomes 0
       });
       
       updateAction();
       
-      expect(spy).toHaveBeenCalledTimes(3); // 1 初始 + 2 更新
-      expect(spy).toHaveBeenLastCalledWith(16); // 8 * 2
+      // 原生批处理确保只计算最终结果
+      expect(spy).toHaveBeenCalledTimes(2); // 1 初始 + 1 批处理后的更新
+      expect(spy).toHaveBeenLastCalledWith(0); // false ? 4 * 4 : 0
     });
 
     it('should preserve function name and properties', () => {

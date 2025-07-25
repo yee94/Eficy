@@ -119,10 +119,6 @@ importers:
         version: 18.3.7(@types/react@18.3.23)
 
   packages/reactive:
-    dependencies:
-      alien-signals:
-        specifier: ^2.0.5
-        version: 2.0.5
     devDependencies:
       benny:
         specifier: ^3.6.15
@@ -133,6 +129,9 @@ importers:
 
   packages/reactive-v2:
     dependencies:
+      '@preact/signals-core':
+        specifier: ^1.11.0
+        version: 1.11.0
       alien-signals:
         specifier: ^2.0.5
         version: 2.0.5
@@ -698,6 +697,9 @@ packages:
 
   '@oxc-project/types@0.77.3':
     resolution: {integrity: sha512-5Vh+neJhhxuF0lYCjZXbxjqm2EO6YJ1jG+KuHntrd6VY67OMpYhWq2cZhUhy+xL9qLJVJRaeII7Xj9fciA6v7A==}
+
+  '@preact/signals-core@1.11.0':
+    resolution: {integrity: sha512-jglbibeWHuFRzEWVFY/TT7wB1PppJxmcSfUHcK+2J9vBRtiooMfw6tAPttojNYrrpdGViqAYCbPpmWYlMm+eMQ==}
 
   '@quansync/fs@0.1.3':
     resolution: {integrity: sha512-G0OnZbMWEs5LhDyqy2UL17vGhSVHkQIfVojMtEWVenvj0V5S84VBgy86kJIuNsGDp2p7sTKlpSIpBUWdC35OKg==}
@@ -3919,6 +3921,8 @@ snapshots:
   '@oxc-project/runtime@0.77.3': {}
 
   '@oxc-project/types@0.77.3': {}
+
+  '@preact/signals-core@1.11.0': {}
 
   '@quansync/fs@0.1.3':
     dependencies:
