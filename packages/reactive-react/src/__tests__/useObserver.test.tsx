@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, act, waitFor } from '@testing-library/react'
-import { signal, computed, action } from '@eficy/reactive'
+import { signal, createComputed, createAction } from '@eficy/reactive'
 import { useObserver } from '../hooks/useObserver'
 
 describe('useObserver', () => {
@@ -27,7 +27,7 @@ describe('useObserver', () => {
   
   it('should work with computed values', async () => {
     const count = signal(5)
-    const doubled = computed(() => count() * 2)
+    const doubled = createComputed(() => count() * 2)
     
     function Component() {
       return useObserver(() => (
@@ -52,7 +52,7 @@ describe('useObserver', () => {
     const name = signal('test')
     let renderCount = 0
     
-    const updateBoth = action(() => {
+    const updateBoth = createAction(() => {
       count(10)
       name('updated')
     })

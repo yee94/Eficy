@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
-import { signal, action } from '@eficy/reactive'
+import { signal, createAction } from '@eficy/reactive'
 import { observer } from '../observer'
 
 describe('observer', () => {
@@ -26,7 +26,7 @@ describe('observer', () => {
   it('should work with action', async () => {
     const count = signal(0)
     
-    const increment = action(() => {
+    const increment = createAction(() => {
       count(count() + 1)
     })
     
@@ -52,7 +52,7 @@ describe('observer', () => {
   it('should handle props correctly', async () => {
     const count = signal(0)
     
-    const Counter = observer<{ prefix: string }>((props) => (
+    const Counter = observer((props: { prefix: string }) => (
       <div data-testid="counter">{props.prefix}: {count()}</div>
     ))
     

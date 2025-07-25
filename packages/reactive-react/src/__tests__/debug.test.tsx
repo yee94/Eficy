@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, act, waitFor } from '@testing-library/react'
-import { signal, action, effect } from '@eficy/reactive'
+import { signal, createAction, effect } from '@eficy/reactive'
 import { useObserver } from '../hooks/useObserver'
 
 describe('Debug Tests', () => {
@@ -29,7 +29,7 @@ describe('Debug Tests', () => {
     expect(lastValue!).toBe(1)
     
     // 通过 action 修改
-    const increment = action(() => {
+    const increment = createAction(() => {
       console.log('Inside action, setting count to 2')
       count(2)
     })

@@ -28,10 +28,9 @@
       "require": "./dist/index.js",
       "types": "./dist/index.d.mts"
     },
-    "./annotation": {
-      "import": "./dist/annotation.mjs",
-      "require": "./dist/annotation.js",
-      "types": "./dist/annotation.d.mts"
+    "./package.json": {
+      "import": "./package.json",
+      "require": "./package.json"
     }
   },
   "repository": {
