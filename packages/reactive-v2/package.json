@@ -1,7 +1,9 @@
 {
-  "name": "@eficy/reactive",
-  "version": "2.3.7",
+  "name": "@eficy/reactive-v2",
+  "version": "1.0.0",
   "license": "MIT",
+  "description": "现代化的注解式响应式状态管理库，基于 alien-signals",
+  "keywords": ["reactive", "signal", "state-management", "annotation", "typescript"],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -10,7 +12,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xiaobebe/eficy.git",
-    "directory": "packages/reactive"
+    "directory": "packages/reactive-v2"
   },
   "bugs": {
     "url": "https://github.com/xiaobebe/eficy/issues"
@@ -20,24 +22,28 @@
     "npm": ">=3.0.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "dev": "tsdown --watch",
     "build": "tsdown",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "dumi dev",
-    "build:docs": "dumi build",
-    "benchmark": "ts-node ./benchmark",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run test && npm run build"
   },
+  "dependencies": {
+    "alien-signals": "^2.0.5"
+  },
   "devDependencies": {
-    "benny": "^3.6.15",
-    "lodash": "^4.17.21"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "tsdown": "^0.13.0",
+    "vitest": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "gitHead": "ac79c196ae9324889aca5e0501146f9b37b04283"
-}
+  }
+} 
