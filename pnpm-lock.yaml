@@ -137,14 +137,57 @@ importers:
         specifier: ^18.0.0
         version: 18.3.7(@types/react@18.3.23)
 
+  packages/core-v3:
+    dependencies:
+      '@eficy/reactive':
+        specifier: workspace:~
+        version: link:../reactive
+      '@eficy/reactive-react':
+        specifier: workspace:~
+        version: link:../reactive-react
+      antd:
+        specifier: ^4.24.16
+        version: 4.24.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      axios:
+        specifier: ^0.27.2
+        version: 0.27.2
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      nanoid:
+        specifier: ^4.0.2
+        version: 4.0.2
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.0(@testing-library/dom@9.3.4)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ^18.0.0
+        version: 18.3.23
+      '@types/react-dom':
+        specifier: ^18.0.0
+        version: 18.3.7(@types/react@18.3.23)
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+
   packages/reactive:
     dependencies:
       '@preact/signals-core':
         specifier: ^1.5.0
         version: 1.11.0
       reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: ^0.1.13
+        version: 0.1.14
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -2841,9 +2884,6 @@ packages:
 
   reflect-metadata@0.1.14:
     resolution: {integrity: sha512-ZhYeb6nRaXCfhnndflDK8qI6ZQ/YcWZCISRAWICW9XYqMUwjZM9Z0DveWX/ABN01oxSHwVxKQmxeYZSsm0jh5A==}
-
-  reflect-metadata@0.2.2:
-    resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
 
   regexp.prototype.flags@1.5.4:
     resolution: {integrity: sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==}
@@ -6392,8 +6432,6 @@ snapshots:
       strip-indent: 3.0.0
 
   reflect-metadata@0.1.14: {}
-
-  reflect-metadata@0.2.2: {}
 
   regexp.prototype.flags@1.5.4:
     dependencies:

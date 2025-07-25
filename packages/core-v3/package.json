@@ -1,0 +1,56 @@
+{
+  "name": "@eficy/core-v3",
+  "version": "3.0.0",
+  "description": "A front-end orchestration framework by JSON.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.iife.js",
+  "jsdelivr": "./dist/index.global.iife.js",
+  "private": false,
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run",
+    "prettier": "pretty-quick --staged",
+    "play": "pnpm -C playground run dev",
+    "prepublishOnly": "npm run test && npm run build",
+    "webstorm-integration": "vitest --watch --reporter=dot --reporter=json --outputFile=.vitest-result.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaobebe/eficy.git"
+  },
+  "pre-commit": [
+    "test",
+    "prettier"
+  ],
+  "files": [
+    "dist"
+  ],
+  "author": "xiaobe <wyy.xb@qq.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@eficy/reactive": "workspace:~",
+    "@eficy/reactive-react": "workspace:~",
+    "antd": "^4.24.16",
+    "axios": "^0.27.2",
+    "lodash": "^4.17.21",
+    "nanoid": "^4.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "peerDependencies": {
+    "antd": "^4.0.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "jsdom": "^26.1.0"
+  }
+}
