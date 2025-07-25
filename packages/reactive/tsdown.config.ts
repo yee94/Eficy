@@ -6,5 +6,6 @@ export default defineConfig({
   dts: true,
   target: 'es2020',
   clean: true,
-  globalName: 'EficyReactive',
+  globalName: 'EficyReactiveV2',
+  external: ['alien-signals'],
 }); 

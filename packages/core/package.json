@@ -32,16 +32,22 @@
   "author": "xiaobe <wyy.xb@qq.com>",
   "license": "ISC",
   "dependencies": {
-    "ahooks": "^3.8.0",
-    "axios": "^1.6.0",
+    "@babel/runtime": "^7.28.2",
+    "@vmojs/base": "^1.0.4",
+    "antd": "^4.24.16",
+    "axios": "^0.27.2",
     "lodash": "^4.17.21",
-    "nanoid": "^5.0.0",
-    "reactjs-signal": "^2.0.1",
-    "alien-signals": "^2.0.1",
-    "tsyringe": "^4.8.0"
+    "lodash-decorators": "^6.0.1",
+    "mobx": "^5.15.7",
+    "mobx-react": "^6.3.1",
+    "nanoid": "^4.0.2",
+    "plugin-decorator": "^1.8.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "antd": "^4.0.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
   }
 }
