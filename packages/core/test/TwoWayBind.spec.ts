@@ -1,9 +1,7 @@
 import EficyController from '../src/core/Controller';
-import { mount, configure } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { render, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { expect } from 'vitest';
-
-configure({ adapter: new Adapter() });
 
 const basicData = {
   views: [
@@ -30,9 +28,12 @@ const basicData = {
 
 const controller = new EficyController(basicData);
 
-const wrapper = mount(controller.resolver());
-
 test('change input value', (t) => {
-  wrapper.find(`input.eid-input`).simulate('change', { target: { value: 'hello' } });
+  const { container } = render(controller.resolver());
+  
+  const inputElement = container.querySelector('input.eid-input');
+  expect(inputElement).toBeTruthy();
+  
+  fireEvent.change(inputElement, { target: { value: 'hello' } });
   expect(controller.models.input.value).toBe('hello');
 });

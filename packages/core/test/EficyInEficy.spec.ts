@@ -2,10 +2,8 @@ import EficyModel from '../src/components/EficyComponent/EficyModel';
 import { ViewNode } from '../src/models';
 import EficyController from '../src/core/Controller';
 import { beforeEach, describe } from 'vitest';
-import { configure, mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-
-configure({ adapter: new Adapter() });
+import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
 const basicData = {
   '#': 'form',
@@ -58,7 +56,7 @@ const controller = new EficyController({
 
 describe('render resolver', () => {
   beforeEach(() => {
-    mount(controller.resolver());
+    render(controller.resolver());
   });
 
   test('children controller whether loaded', (t) => {

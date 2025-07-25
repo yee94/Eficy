@@ -37,10 +37,7 @@
   "author": "xiaobe <wyy.xb@qq.com>",
   "license": "ISC",
   "devDependencies": {
-    "@types/enzyme": "^3.10.19",
     "axios-mock-adapter": "^1.22.0",
-    "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.8",
     "happy-dom": "^6.0.4",
     "lodash-es": "^4.17.21",
     "pre-commit": "^1.2.2",
