@@ -11,13 +11,4 @@ export default defineConfig([
     globalName: 'EficyReactive',
     external: ['@preact/signals-core', 'reflect-metadata'],
   },
-  // annotation 入口 - 只支持 CJS 和 ESM
-  {
-    entry: 'src/annotation.ts',
-    format: ['cjs', 'esm'],
-    dts: true,
-    target: 'es2020',
-    outDir: 'dist',
-    external: ['@preact/signals-core', 'reflect-metadata'],
-  }
 ]); 
