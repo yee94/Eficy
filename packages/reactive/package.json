@@ -1,0 +1,46 @@
+{
+  "name": "@eficy/reactive",
+  "version": "2.3.7",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "unpkg": "./dist/index.iife.js",
+  "jsdelivr": "./dist/index.iife.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaobebe/eficy.git",
+    "directory": "packages/reactive"
+  },
+  "bugs": {
+    "url": "https://github.com/xiaobebe/eficy/issues"
+  },
+  "homepage": "https://github.com/xiaobebe/eficy#readme",
+  "engines": {
+    "npm": ">=3.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "dumi dev",
+    "build:docs": "dumi build",
+    "benchmark": "ts-node ./benchmark",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@vue/reactivity": "^3.0.11",
+    "benny": "^3.6.15",
+    "dumi": "^1.1.0-rc.8",
+    "lodash": "^4.17.21",
+    "mobx": "^6.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "ac79c196ae9324889aca5e0501146f9b37b04283"
+}
