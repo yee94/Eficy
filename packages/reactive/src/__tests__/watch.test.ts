@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { watch, watchMultiple, watchOnce, watchDebounced } from '../core/watch';
 import { signal, computed } from '../core/signal';
 import { ref } from '../observables/ref';
@@ -9,9 +9,6 @@ describe('Watch', () => {
     vi.useFakeTimers();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
 
   describe('watch', () => {
     it('should watch signal changes', () => {

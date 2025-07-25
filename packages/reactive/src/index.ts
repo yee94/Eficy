@@ -1,30 +1,19 @@
-// ==================== 核心响应式功能 ====================
-export { signal, computed, effect, effectScope, isSignal, peek, readonly } from './core/signal';
-export { batch, isBatchingUpdates, clearPendingEffects, batchScope } from './core/batch';
-export { action, isAction, getOriginalFunction, boundAction } from './core/action';
-export { watch, watchMultiple, watchOnce, watchDebounced } from './core/watch';
-
-// ==================== 统一的 Observable API ====================
-export { observable } from './observables/observable';
-
-// ==================== 真正的装饰器支持 ====================
+// ==================== 装饰器支持 (优先级最高) ====================
 export { 
-  observable as observableDecorator, 
-  computed as computedDecorator, 
-  action as actionDecorator,
+  observable, 
+  computed, 
+  action,
   makeObservable,
   ObservableClass
 } from './decorators';
 
-// ==================== 基于 Computed 的批处理优化 ====================
-export { 
-  batchedSignal, 
-  batchedEffect, 
-  batchedComputed,
-  createStore, 
-  derived, 
-  createBatchScope 
-} from './core/computed-batch';
+// ==================== 核心响应式功能 ====================
+export { signal, effect, effectScope, isSignal, peek, readonly } from './core/signal';
+export { computed as createComputed } from './core/signal'; // 避免与装饰器冲突，使用别名
+export { batch, isBatchingUpdates, clearPendingEffects, batchScope } from './core/batch';
+export { action as createAction, isAction, getOriginalFunction, boundAction } from './core/action'; // 避免与装饰器冲突，使用别名
+export { watch, watchMultiple, watchOnce, watchDebounced } from './core/watch';
+
 
 // ==================== observe 系统 ====================
 export {
@@ -39,21 +28,9 @@ export {
 } from './core/observe';
 
 // ==================== 响应式集合 ====================
-export { observableArray, isObservableArray, toObservableArray } from './observables/array';
-export { observableObject, isObservableObject, toObservableObject } from './observables/object';
 export { ref, readonly as readonlyRef, shallowRef, isRef, unref, toRef, toRefs, customRef } from './observables/ref';
 
-// ==================== ES6 集合支持 ====================
-export {
-  observableMap,
-  isObservableMap,
-  observableSet,
-  isObservableSet,
-  observableWeakMap,
-  isObservableWeakMap,
-  observableWeakSet,
-  isObservableWeakSet
-} from './observables/collections';
+
 
 // ==================== 注解式类定义 ====================
 export { defineReactiveClass, observable as observableAnnotation, computed as computedAnnotation, actionAnnotation, autobind } from './annotations/class';
@@ -92,17 +69,13 @@ export {
 export type * from './types/index';
 
 // ==================== 默认导出（便捷访问）====================
-import { signal, computed, effect } from './core/signal';
+import { signal, computed as createComputed, effect } from './core/signal';
 import { batch } from './core/batch';
-import { action } from './core/action';
+import { action as createAction } from './core/action';
 import { watch } from './core/watch';
 import { observe } from './core/observe';
-import { observable } from './observables/observable';
-import { makeObservable, ObservableClass } from './decorators';
-import { batchedSignal, batchedEffect, batchedComputed, createStore, derived } from './core/computed-batch';
-import { observableArray } from './observables/array';
-import { observableObject } from './observables/object';
-import { observableMap, observableSet, observableWeakMap, observableWeakSet } from './observables/collections';
+import { observable, computed, action, makeObservable, ObservableClass } from './decorators';
+// 移除已删除的批处理优化功能
 import { ref, isRef, unref } from './observables/ref';
 import { defineReactiveClass } from './annotations/class';
 import { isSignal } from './core/signal';
@@ -110,36 +83,24 @@ import { isAction } from './core/action';
 import { toRaw, toJS, markRaw, hasCollected } from './utils/helpers';
 
 export default {
-  // 核心
+  // 核心 signals
   signal,
-  computed,
+  createComputed,
   effect,
   batch,
-  action,
+  createAction,
   watch,
   observe,
   
-  // 统一的 Observable API
+  // 装饰器 (优先级最高)
   observable,
-  
-  // 装饰器支持
+  computed,
+  action,
   makeObservable,
   ObservableClass,
   
-  // 优化版本
-  batchedSignal,
-  batchedEffect,
-  batchedComputed,
-  createStore,
-  derived,
 
-  // 集合
-  observableArray,
-  observableObject,
-  observableMap,
-  observableSet,
-  observableWeakMap,
-  observableWeakSet,
+  // 集合 (简化版)
   ref,
   defineReactiveClass,
 

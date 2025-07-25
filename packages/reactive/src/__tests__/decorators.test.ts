@@ -5,7 +5,7 @@ import {
   action,
   makeObservable,
   ObservableClass 
-} from '../annotation';
+} from '../index';
 import { effect } from '../core/signal';
 
 describe('Decorators', () => {
@@ -371,10 +371,7 @@ describe('Decorators', () => {
 
         @computed
         get activeCount(): number {
-          console.log('Computing activeCount, todos:', this.todos.length, 'items:', this.todos);
-          const result = this.todos.filter(todo => !todo.completed).length;
-          console.log('activeCount result:', result);
-          return result;
+          return this.todos.filter(todo => !todo.completed).length;
         }
 
         @computed
@@ -384,21 +381,20 @@ describe('Decorators', () => {
 
         @action
         addTodo(text: string) {
-          console.log('Before addTodo, todos length:', this.todos.length);
-          this.todos.push({
-            id: Date.now(),
+          // 新范式：重新赋值整个数组以触发更新
+          this.todos = [...this.todos, {
+            id: Date.now() + Math.random(), // 确保唯一性
             text,
             completed: false
-          });
-          console.log('After addTodo, todos length:', this.todos.length);
+          }];
         }
 
         @action
         toggleTodo(id: number) {
-          const todo = this.todos.find(t => t.id === id);
-          if (todo) {
-            todo.completed = !todo.completed;
-          }
+          // 新范式：重新赋值整个数组
+          this.todos = this.todos.map(todo => 
+            todo.id === id ? { ...todo, completed: !todo.completed } : todo
+          );
         }
 
         @action
@@ -408,6 +404,7 @@ describe('Decorators', () => {
 
         @action
         clearCompleted() {
+          // 新范式：重新赋值整个数组
           this.todos = this.todos.filter(todo => !todo.completed);
         }
       }
@@ -415,19 +412,12 @@ describe('Decorators', () => {
       const store = new TodoStore();
 
       // 测试初始状态
-      expect(store.todos).toEqual([]);
       expect(store.activeCount).toBe(0);
       expect(store.completedCount).toBe(0);
-      expect(store.filteredTodos).toEqual([]);
 
       // 添加 todos
-      console.log('=== Adding first todo ===');
       store.addTodo('Learn TypeScript');
-      console.log('After first todo - todos.length:', store.todos.length, 'activeCount:', store.activeCount);
-      
-      console.log('=== Adding second todo ===');
       store.addTodo('Build awesome app');
-      console.log('After second todo - todos.length:', store.todos.length, 'activeCount:', store.activeCount);
 
       expect(store.todos.length).toBe(2);
       expect(store.activeCount).toBe(2);

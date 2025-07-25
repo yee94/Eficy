@@ -1,9 +1,5 @@
 import { signal, computed as createComputed } from '../core/signal';
 import { action as createAction } from '../core/action';
-import { observableArray } from '../observables/array';
-import { observableObject } from '../observables/object';
-import { observableMap, observableSet } from '../observables/collections';
-import { isArray, isObject, isMap, isSet } from '../utils/helpers';
 import 'reflect-metadata';
 
 // ==================== 装饰器元数据键 ====================
@@ -28,31 +24,14 @@ interface ActionMetadata {
   name?: string;
 }
 
-// ==================== 工具函数 ====================
-
-/**
- * 根据值的类型创建合适的 observable
- */
-function createObservableForValue(value: any) {
-  if (isArray(value)) {
-    return observableArray(value);
-  }
-  if (isMap(value)) {
-    return observableMap(value);
-  }
-  if (isSet(value)) {
-    return observableSet(value);
-  }
-  if (isObject(value) && value.constructor === Object) {
-    return observableObject(value);
-  }
-  return signal(value);
-}
-
 // ==================== 装饰器实现 ====================
 
 /**
- * @observable 装饰器 - 将属性标记为可观察的
+ * @observable 装饰器 - 将属性转换为 signal
+ * 
+ * 使用示例：
+ * @observable name = 'John';
+ * @observable(0) count!: number;
  */
 export function observable<T = any>(target: any, propertyKey: string | symbol, descriptor?: PropertyDescriptor): any;
 export function observable<T = any>(initialValue?: T): PropertyDecorator;
@@ -74,7 +53,10 @@ export function observable<T = any>(targetOrValue?: any, propertyKey?: string | 
 }
 
 /**
- * @computed 装饰器 - 将 getter 标记为计算属性
+ * @computed 装饰器 - 将 getter 转换为 computed signal
+ * 
+ * 使用示例：
+ * @computed get fullName() { return this.firstName + ' ' + this.lastName; }
  */
 export function computed(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
   const existingMetadata: ComputedMetadata[] = Reflect.getMetadata(COMPUTED_KEY, target) || [];
@@ -84,7 +66,11 @@ export function computed(target: any, propertyKey: string | symbol, descriptor: 
 }
 
 /**
- * @action 装饰器 - 将方法标记为 action
+ * @action 装饰器 - 将方法包装为 action（批处理）
+ * 
+ * 使用示例：
+ * @action updateProfile() { ... }
+ * @action('save user') save() { ... }
  */
 export function action(target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor): PropertyDescriptor;
 export function action(name?: string): MethodDecorator;
@@ -110,52 +96,25 @@ export function action(targetOrName?: any, propertyKey?: string | symbol, descri
 // ==================== 核心函数 ====================
 
 /**
- * 简化版 makeObservable - 只做简单的代理工作
+ * makeObservable - 将类实例转换为响应式对象
+ * 基于 signals 本质，简单直接：
+ * - @observable 属性 → signal
+ * - @computed getter → computed signal  
+ * - @action 方法 → 批处理包装
  */
 export function makeObservable<T extends object>(instance: T, annotations?: Record<string | symbol, any>): T {
   const ctor = instance.constructor;
 
   if (annotations) {
-    // 方案3: 基于配置对象的方式
+    // 基于配置对象的方式
     for (const [key, annotation] of Object.entries(annotations)) {
       if (annotation === observable) {
         const currentValue = (instance as any)[key];
-        let observableInstance = createObservableForValue(currentValue);
+        const valueSignal = signal(currentValue);
         
-        // 创建 setter 函数
-        const createSetter = () => (value: any) => {
-          // 智能类型检测：如果新值的类型与当前 observable 不匹配，重新创建
-          const needsRecreation = (
-            (isArray(value) && typeof observableInstance === 'function') ||
-            (!isArray(value) && typeof observableInstance !== 'function')
-          );
-          
-          if (needsRecreation) {
-            observableInstance = createObservableForValue(value);
-            
-            // 重新定义属性以更新闭包中的 observableInstance
-            Object.defineProperty(instance, key, {
-              get() {
-                return typeof observableInstance === 'function' ? observableInstance() : observableInstance;
-              },
-              set: createSetter(), // 创建新的 setter
-              enumerable: true,
-              configurable: true
-            });
-          } else {
-            // 类型匹配，直接更新值
-            if (typeof observableInstance === 'function') {
-              observableInstance(value);
-            }
-          }
-        };
-        
-        // 创建正确的 getter/setter
         Object.defineProperty(instance, key, {
-          get() {
-            return typeof observableInstance === 'function' ? observableInstance() : observableInstance;
-          },
-          set: createSetter(),
+          get: () => valueSignal(),
+          set: (newValue: any) => valueSignal(newValue),
           enumerable: true,
           configurable: true
         });
@@ -178,58 +137,67 @@ export function makeObservable<T extends object>(instance: T, annotations?: Reco
       }
     }
   } else {
-    // 方案1: 基于装饰器元数据的方式 - 暂时留空，让我们先实现其他方案
-    // TODO: 实现装饰器方案的简化版本
+    // 基于装饰器元数据的方式
+    
+    // 处理 @observable 装饰的属性 - 转换为 signal
+    const observableMetadata: ObservableMetadata[] = Reflect.getMetadata(OBSERVABLE_KEY, ctor.prototype) || [];
+    for (const meta of observableMetadata) {
+      const key = meta.key;
+      const currentValue = meta.initialValue !== undefined ? meta.initialValue : (instance as any)[key];
+      const valueSignal = signal(currentValue);
+      
+      Object.defineProperty(instance, key, {
+        get: () => valueSignal(),
+        set: (newValue: any) => valueSignal(newValue),
+        enumerable: true,
+        configurable: true
+      });
+    }
+    
+    // 处理 @computed 装饰的属性 - 转换为 computed signal
+    const computedMetadata: ComputedMetadata[] = Reflect.getMetadata(COMPUTED_KEY, ctor.prototype) || [];
+    for (const meta of computedMetadata) {
+      const key = meta.key;
+      const descriptor = Object.getOwnPropertyDescriptor(ctor.prototype, key);
+      if (descriptor?.get) {
+        const originalGetter = descriptor.get;
+        const computedInstance = createComputed(() => originalGetter.call(instance));
+        Object.defineProperty(instance, key, {
+          get: () => computedInstance(),
+          enumerable: true,
+          configurable: false
+        });
+      }
+    }
+    
+    // 处理 @action 装饰的方法 - 包装为 action
+    const actionMetadata: ActionMetadata[] = Reflect.getMetadata(ACTION_KEY, ctor.prototype) || [];
+    for (const meta of actionMetadata) {
+      const key = meta.key;
+      const originalMethod = (instance as any)[key];
+      if (typeof originalMethod === 'function') {
+        (instance as any)[key] = createAction(originalMethod.bind(instance));
+      }
+    }
   }
 
   return instance;
 }
 
 /**
- * 方案1: 基础响应式类（自动调用 makeObservable）
+ * ObservableClass - 自动调用 makeObservable 的基类
+ * 
+ * 使用示例：
+ * class UserStore extends ObservableClass {
+ *   @observable name = '';
+ *   @computed get displayName() { return this.name || 'Anonymous'; }
+ *   @action updateName(name: string) { this.name = name; }
+ * }
  */
 export class ObservableClass {
   constructor() {
     makeObservable(this);
   }
-}
-
-// ==================== 方案2: 现代装饰器实现 ====================
-
-/**
- * 现代装饰器版本的 @observable（需要配合 accessor 关键字）
- */
-export function observableAccessor<T>(
-  target: ClassAccessorDecoratorTarget<any, T>,
-  context: ClassAccessorDecoratorContext<any, T>
-): ClassAccessorDecoratorResult<any, T> {
-  return {
-    get() {
-      // 获取内部存储的 observable
-      const key = `__observable_${String(context.name)}`;
-      if (!(key in this)) {
-        // 首次访问时创建 observable
-        const initialValue = target.get?.call(this);
-        this[key] = createObservableForValue(initialValue);
-      }
-      const observable = this[key];
-      return typeof observable === 'function' ? observable() : observable;
-    },
-    set(value: T) {
-      const key = `__observable_${String(context.name)}`;
-      if (!(key in this)) {
-        this[key] = createObservableForValue(value);
-      } else {
-        const observable = this[key];
-        if (typeof observable === 'function') {
-          observable(value);
-        } else {
-          // 重新创建 observable
-          this[key] = createObservableForValue(value);
-        }
-      }
-    }
-  };
 }
 
 // ==================== 导出 ====================
