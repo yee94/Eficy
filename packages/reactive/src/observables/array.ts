@@ -20,9 +20,15 @@ export function observableArray<T>(initialArray: T[] = []): ObservableArray<T> {
       arraySignal([...newArray]);
     },
     
-    // 获取长度
+    // 获取长度 - 确保建立依赖关系
     get length() {
-      return arraySignal().length;
+      const arr = arraySignal(); // 这里建立依赖关系
+      return arr.length;
+    },
+    
+    // 添加一个内部方法来触发依赖追踪
+    __trackDependency() {
+      arraySignal(); // 触发依赖追踪
     },
     
     // 获取元素

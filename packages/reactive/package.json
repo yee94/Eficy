@@ -22,10 +22,22 @@
   "types": "./dist/index.d.mts",
   "unpkg": "./dist/index.iife.js",
   "jsdelivr": "./dist/index.iife.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.mts"
+    },
+    "./annotation": {
+      "import": "./dist/annotation.mjs",
+      "require": "./dist/annotation.js",
+      "types": "./dist/annotation.d.mts"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xiaobebe/eficy.git",
-    "directory": "packages/reactive-v2"
+    "directory": "packages/reactive"
   },
   "bugs": {
     "url": "https://github.com/xiaobebe/eficy/issues"
@@ -47,11 +59,13 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "dependencies": {
-    "@preact/signals-core": "^1.11.0"
+    "@preact/signals-core": "^1.5.0",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^1.0.0",
+    "esbuild-decorators": "^0.2.4",
     "tsdown": "^0.13.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"

@@ -1,23 +1,22 @@
 import React, { forwardRef, memo, Fragment } from 'react'
-import hoistNonReactStatics from 'hoist-non-react-statics'
 import { useObserver } from './hooks/useObserver'
-import { IObserverOptions, IObserverProps, ReactFC } from './types'
+import type { IObserverOptions, IObserverProps, ReactFC } from './types'
 
-export function observer<
-  P,
-  Options extends IObserverOptions = IObserverOptions
->(
+// 简化的 hoist 实现，只复制必要的静态属性
+function hoistStatics(target: unknown, source: unknown) {
+  const keys = ['displayName', 'propTypes', 'defaultProps'] as const
+  for (const key of keys) {
+    if (typeof source === 'object' && source !== null && key in source) {
+      ;(target as Record<string, unknown>)[key] = (source as Record<string, unknown>)[key]
+    }
+  }
+  return target
+}
+
+export function observer<P = any>(
   component: ReactFC<P>,
-  options?: Options
-): React.MemoExoticComponent<
-  ReactFC<
-    Options extends { forwardRef: true }
-      ? P & {
-          ref?: 'ref' extends keyof P ? P['ref'] : React.RefAttributes<any>
-        }
-      : React.PropsWithoutRef<P>
-  >
-> {
+  options?: IObserverOptions
+): React.MemoExoticComponent<any> {
   const realOptions = {
     forwardRef: false,
     ...options,
@@ -33,7 +32,7 @@ export function observer<
 
   const memoComponent = memo(wrappedComponent)
 
-  hoistNonReactStatics(memoComponent, component)
+  hoistStatics(memoComponent, component)
 
   if (realOptions.displayName) {
     memoComponent.displayName = realOptions.displayName

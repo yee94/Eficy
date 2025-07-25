@@ -1,39 +1,53 @@
 {
-  "name": "@formily/reactive-react",
-  "version": "2.3.7",
+  "name": "@eficy/reactive-react",
+  "version": "1.0.0",
   "license": "MIT",
-  "main": "lib",
-  "module": "esm",
-  "umd:main": "dist/formily.reactive-react.umd.production.js",
-  "unpkg": "dist/formily.reactive-react.umd.production.js",
-  "jsdelivr": "dist/formily.reactive-react.umd.production.js",
-  "jsnext:main": "esm",
+  "description": "React bindings for @eficy/reactive - MobX-compatible reactive state management with React integration",
+  "keywords": [
+    "reactive",
+    "react",
+    "state-management",
+    "mobx",
+    "mobx-compatible",
+    "observer",
+    "hooks",
+    "typescript",
+    "preact-signals"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "unpkg": "./dist/index.iife.js",
+  "jsdelivr": "./dist/index.iife.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alibaba/formily.git"
+    "url": "git+https://github.com/xiaobebe/eficy.git",
+    "directory": "packages/reactive-react"
   },
-  "types": "esm/index.d.ts",
   "bugs": {
-    "url": "https://github.com/alibaba/formily/issues"
+    "url": "https://github.com/xiaobebe/eficy/issues"
   },
-  "homepage": "https://github.com/alibaba/formily#readme",
+  "homepage": "https://github.com/xiaobebe/eficy#readme",
   "engines": {
     "npm": ">=3.0.0"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "start": "dumi dev",
-    "build": "rimraf -rf lib esm dist && npm run build:cjs && npm run build:esm && npm run build:umd",
-    "build:cjs": "tsc --project tsconfig.build.json",
-    "build:esm": "tsc --project tsconfig.build.json --module es2015 --outDir esm",
-    "build:umd": "rollup --config",
-    "build:docs": "dumi build"
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "peerDependencies": {
     "@types/react": ">=16.8.0",
     "@types/react-dom": ">=16.8.0",
     "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
-    "react-is": ">=16.8.0"
+    "react-dom": ">=16.8.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -43,15 +57,25 @@
       "optional": true
     }
   },
-  "devDependencies": {
-    "dumi": "^1.1.0-rc.8"
-  },
   "dependencies": {
-    "@formily/reactive": "2.3.7",
-    "hoist-non-react-statics": "^3.3.2"
+    "@eficy/reactive": "workspace:*",
+    "@preact/signals-react": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tsdown": "^0.13.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "jsdom": "^23.0.0"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "gitHead": "ac79c196ae9324889aca5e0501146f9b37b04283"
+  }
 }

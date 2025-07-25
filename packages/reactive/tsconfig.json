@@ -15,15 +15,8 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2020", "DOM"]
+    "lib": ["ESNext"]
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "dist",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "src/__tests__/*"
-  ]
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/__tests__/*", "./dist/*", "./node_modules/*"]
 } 

@@ -1,11 +1,20 @@
 // ==================== 核心响应式功能 ====================
 export { signal, computed, effect, effectScope, isSignal, peek, readonly } from './core/signal';
 export { batch, isBatchingUpdates, clearPendingEffects, batchScope } from './core/batch';
-export { action, isAction, getOriginalFunction, actionDecorator, boundAction } from './core/action';
+export { action, isAction, getOriginalFunction, boundAction } from './core/action';
 export { watch, watchMultiple, watchOnce, watchDebounced } from './core/watch';
 
 // ==================== 统一的 Observable API ====================
 export { observable } from './observables/observable';
+
+// ==================== 真正的装饰器支持 ====================
+export { 
+  observable as observableDecorator, 
+  computed as computedDecorator, 
+  action as actionDecorator,
+  makeObservable,
+  ObservableClass
+} from './decorators';
 
 // ==================== 基于 Computed 的批处理优化 ====================
 export { 
@@ -89,6 +98,7 @@ import { action } from './core/action';
 import { watch } from './core/watch';
 import { observe } from './core/observe';
 import { observable } from './observables/observable';
+import { makeObservable, ObservableClass } from './decorators';
 import { batchedSignal, batchedEffect, batchedComputed, createStore, derived } from './core/computed-batch';
 import { observableArray } from './observables/array';
 import { observableObject } from './observables/object';
@@ -111,6 +121,10 @@ export default {
   
   // 统一的 Observable API
   observable,
+  
+  // 装饰器支持
+  makeObservable,
+  ObservableClass,
   
   // 优化版本
   batchedSignal,

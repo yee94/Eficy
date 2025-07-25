@@ -11,41 +11,148 @@ A modern annotation-based reactive state management library with **MobX-compatib
 - **🔄 No Proxy**: Better compatibility without Proxy dependency
 - **🎨 Flexible Design**: Supports arrays, objects and complex state structures
 - **🧪 Well Tested**: >90% test coverage with comprehensive unit tests
+- **🎯 Decorator Support**: TypeScript decorators for class-based reactive programming
 
 ## 📦 Installation
 
 ```bash
-npm install @eficy/reactive
+npm install @eficy/reactive reflect-metadata
 # or
-yarn add @eficy/reactive
+yarn add @eficy/reactive reflect-metadata
 # or
-pnpm add @eficy/reactive
+pnpm add @eficy/reactive reflect-metadata
 ```
+
+**Note**: `reflect-metadata` is required for decorator support.
 
 ## 🚀 Quick Start
 
-### Basic Reactive State
+### Function-based API (Recommended)
 
 ```typescript
-import { signal, computed, effect, action } from '@eficy/reactive';
+import { observable, computed, effect, action } from '@eficy/reactive';
 
 // Create reactive state
-const count = signal(0);
-const doubled = computed(() => count() * 2);
+const userStore = observable({
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 25
+});
+
+// Create computed values
+const fullName = computed(() => `${userStore.get('firstName')} ${userStore.get('lastName')}`);
+const isAdult = computed(() => userStore.get('age') >= 18);
 
 // Auto-run effects
 effect(() => {
-  console.log(`Count: ${count()}, Doubled: ${doubled()}`);
+  console.log(`User: ${fullName()}, Adult: ${isAdult()}`);
 });
 
-// Create action (MobX-style)
-const increment = action(() => {
-  count(count() + 1);
+// Create actions (MobX-style)
+const updateUser = action((first: string, last: string, age: number) => {
+  userStore.set('firstName', first);
+  userStore.set('lastName', last);
+  userStore.set('age', age);
 });
 
 // Trigger updates
-increment(); // Output: Count: 1, Doubled: 2
+updateUser('Jane', 'Smith', 30); // Output: User: Jane Smith, Adult: true
 ```
+
+### Decorator-based API (Class Style)
+
+For TypeScript projects with decorator support, you can use the class-based API:
+
+```typescript
+import 'reflect-metadata';
+import { observable, computed, action, makeObservable, ObservableClass } from '@eficy/reactive/annotation';
+
+// Option 1: Manual makeObservable
+class UserStore {
+  @observable
+  firstName = 'John';
+
+  @observable
+  lastName = 'Doe';
+
+  @observable
+  age = 25;
+
+  @computed
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  @computed
+  get isAdult(): boolean {
+    return this.age >= 18;
+  }
+
+  @action
+  updateUser(first: string, last: string, age: number) {
+    this.firstName = first;
+    this.lastName = last;
+    this.age = age;
+  }
+
+  constructor() {
+    makeObservable(this);
+  }
+}
+
+// Option 2: ObservableClass base class (auto makeObservable)
+class UserStore extends ObservableClass {
+  @observable
+  firstName = 'John';
+
+  @observable
+  lastName = 'Doe';
+
+  @observable
+  age = 25;
+
+  @computed
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  @computed
+  get isAdult(): boolean {
+    return this.age >= 18;
+  }
+
+  @action
+  updateUser(first: string, last: string, age: number) {
+    this.firstName = first;
+    this.lastName = last;
+    this.age = age;
+  }
+}
+
+// Usage
+const store = new UserStore();
+
+effect(() => {
+  console.log(`User: ${store.fullName}, Adult: ${store.isAdult}`);
+});
+
+store.updateUser('Jane', 'Smith', 30);
+```
+
+### Decorator Configuration
+
+To use decorators, ensure your TypeScript configuration supports them:
+
+```json
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+If using Vite or other build tools, you may need additional configuration for decorator support.
 
 ### Observable Arrays (MobX-Compatible)
 
@@ -75,240 +182,141 @@ addTodo('Exercise'); // Automatically triggers updates
 ### Observable Objects (MobX-Compatible)
 
 ```typescript
-import { observableObject, action } from '@eficy/reactive';
+import { observableObject } from '@eficy/reactive';
 
 const user = observableObject({
   name: 'John',
-  age: 25,
-  email: 'john@example.com'
-});
-
-// Object operations
-const updateUser = action((updates: Partial<typeof user.value>) => {
-  user.update(updates);
-});
-
-const growOlder = action(() => {
-  user.set('age', user.get('age') + 1);
-});
-
-// Watch object changes
-effect(() => {
-  console.log(`User: ${user.get('name')}, Age: ${user.get('age')}`);
-});
-
-updateUser({ age: 26 }); // Triggers update
-```
-
-### Class-Based Reactive Stores (MobX-Style)
-
-```typescript
-import { defineReactiveClass, observable, computed, actionAnnotation } from '@eficy/reactive';
-
-const Store = defineReactiveClass({
-  // Observable state (like MobX @observable)
-  count: observable(0),
-  name: observable('Hello'),
-  
-  // Computed values (like MobX @computed)
-  displayText: computed(function(this: any) {
-    return `${this.name()}: ${this.count()}`;
-  }),
-  
-  // Actions (like MobX @action)
-  increment: actionAnnotation(function(this: any) {
-    this.count(this.count() + 1);
-  }),
-  
-  setName: actionAnnotation(function(this: any, newName: string) {
-    this.name(newName);
-  }),
-  
-  reset: actionAnnotation(function(this: any) {
-    this.count(0);
-    this.name('Hello');
-  })
-});
-
-// Usage
-effect(() => {
-  console.log(Store.displayText());
-});
-
-Store.increment(); // Triggers update
-Store.setName('World'); // Triggers update
-```
-
-## 🎯 Batching (MobX runInAction equivalent)
-
-### Automatic Batching
-
-All `action` functions automatically batch updates:
-
-```typescript
-const state = {
-  x: signal(0),
-  y: signal(0),
-  z: signal(0)
-};
-
-const sum = computed(() => state.x() + state.y() + state.z());
-
-effect(() => {
-  console.log('Sum:', sum()); // Only prints once
-});
-
-// Action automatically batches multiple state updates
-const updateAll = action(() => {
-  state.x(1);  // These updates are batched
-  state.y(2);  // Only triggers effect once
-  state.z(3);
-});
-
-updateAll();
-```
-
-### Manual Batching
-
-```typescript
-import { batch } from '@eficy/reactive';
-
-// Manual batching (like MobX runInAction)
-batch(() => {
-  state.x(10);
-  state.y(20);
-  state.z(30);
-}); // Only triggers one update
-```
-
-## 👀 Watching Changes (MobX observe equivalent)
-
-```typescript
-import { watch, ref } from '@eficy/reactive';
-
-const name = ref('Alice');
-const age = ref(20);
-
-// Watch single value changes
-const stopWatching = watch(
-  () => name.value,
-  (newName, oldName) => {
-    console.log(`Name changed from ${oldName} to ${newName}`);
+  email: 'john@example.com',
+  preferences: {
+    theme: 'dark',
+    notifications: true
   }
-);
+});
 
-// Watch computed value changes
-const fullInfo = computed(() => `${name.value}-${age.value}`);
-watch(
-  () => fullInfo(),
-  (newInfo, oldInfo) => {
-    console.log(`Info updated: ${newInfo}`);
-  }
-);
+// Reactive updates
+effect(() => {
+  console.log(`${user.get('name')} (${user.get('email')})`);
+});
 
-name.value = 'Bob'; // Triggers watcher
+// Update nested properties
+user.set('name', 'Jane');
+user.update({ email: 'jane@example.com' });
 ```
 
 ## 📚 API Reference
 
-### Core API (MobX-Compatible)
+### Core Functions
 
-| API | Description | Example |
-|-----|-------------|---------|
-| `signal(value)` | Create reactive state | `const count = signal(0)` |
-| `computed(fn)` | Create computed value (like MobX @computed) | `const doubled = computed(() => count() * 2)` |
-| `effect(fn)` | Auto-run effect (like MobX autorun) | `effect(() => console.log(count()))` |
-| `action(fn)` | Create batched action (like MobX @action) | `const inc = action(() => count(count() + 1))` |
-| `batch(fn)` | Manual batching (like MobX runInAction) | `batch(() => { /* multiple updates */ })` |
+- **`signal(initialValue)`** - Create a reactive signal
+- **`computed(fn)`** - Create a computed value that automatically updates
+- **`effect(fn)`** - Create a side effect that runs when dependencies change
+- **`action(fn)`** - Wrap function to batch updates and improve performance
+- **`batch(fn)`** - Manually batch multiple updates
+- **`watch(signal, callback)`** - Watch for signal changes
 
-### Collection API
+### Observable Creation
 
-| API | Description | Example |
-|-----|-------------|---------|
-| `observableArray(arr)` | Create observable array (like MobX observable.array) | `const list = observableArray([1, 2, 3])` |
-| `observableObject(obj)` | Create observable object (like MobX observable.object) | `const user = observableObject({ name: 'Alice' })` |
-| `defineReactiveClass(def)` | Create reactive class | `const Store = defineReactiveClass({ count: observable(0) })` |
+- **`observable(value)`** - Auto-detect type and create appropriate observable
+- **`observable.box(value)`** - Create observable primitive (signal)
+- **`observable.object(obj)`** - Create observable object
+- **`observable.array(arr)`** - Create observable array
+- **`observable.map(map)`** - Create observable Map
+- **`observable.set(set)`** - Create observable Set
 
-### Utility API
+### Decorators (from '@eficy/reactive/annotation')
 
-| API | Description | Example |
-|-----|-------------|---------|
-| `watch(getter, callback)` | Watch value changes (like MobX observe) | `watch(() => count(), (new, old) => {})` |
-| `ref(value)` | Create reactive reference | `const name = ref('Alice')` |
+- **`@observable`** - Mark class property as observable
+- **`@observable(initialValue)`** - Mark property as observable with initial value
+- **`@computed`** - Mark getter as computed property
+- **`@action`** - Mark method as action
+- **`@action('name')`** - Mark method as action with custom name
+- **`makeObservable(instance)`** - Apply decorators to class instance
+- **`ObservableClass`** - Base class that auto-applies makeObservable
 
-## 🔄 Migration Guide
+### Collections
 
-### From MobX to @eficy/reactive
+- **`observableArray<T>(items?)`** - Reactive array with MobX-compatible API
+- **`observableObject<T>(obj)`** - Reactive object with get/set methods
+- **`observableMap<K,V>(entries?)`** - Reactive Map
+- **`observableSet<T>(values?)`** - Reactive Set
 
-```typescript
-// MobX
-import { observable, computed, autorun, action, runInAction } from 'mobx';
+## 🎯 Migration from MobX
 
-const state = observable({ count: 0 });
-const doubled = computed(() => state.count * 2);
-autorun(() => console.log(state.count));
-const increment = action(() => state.count++);
-
-// @eficy/reactive (compatible API)
-import { observableObject, computed, effect, action } from '@eficy/reactive';
-
-const state = observableObject({ count: 0 });
-const doubled = computed(() => state.get('count') * 2);
-effect(() => console.log(state.get('count')));
-const increment = action(() => state.set('count', state.get('count') + 1));
-```
-
-### From V1 to V2
+This library is designed to be largely compatible with MobX patterns:
 
 ```typescript
-// V1 (Proxy-based)
-const state = observable({ count: 0 });
-autorun(() => console.log(state.count));
-state.count++;
+// MobX style
+import { observable, computed, action, makeObservable } from 'mobx';
 
-// V2 (Signal-based) 
-const count = signal(0);
-effect(() => console.log(count()));
-count(count() + 1);
-
-// Or using object wrapper
-const state = observableObject({ count: 0 });
-effect(() => console.log(state.get('count')));
-state.set('count', state.get('count') + 1);
+// @eficy/reactive style (very similar!)
+import { observable, computed, action, makeObservable } from '@eficy/reactive/annotation';
 ```
 
-## ✨ Best Practices
+Key differences:
 
-1. **Use actions for mutations**: All state modifications should be wrapped in actions (like MobX)
-2. **Leverage computed values**: Avoid complex calculations in effects
-3. **Clean up effects**: Remember to call the cleanup function returned by effect
-4. **Avoid direct mutations**: Use provided methods instead of direct state modification
-5. **Type safety**: Leverage TypeScript's type system for better development experience
+1. Uses `@preact/signals-core` instead of Proxy-based reactivity
+2. Requires `reflect-metadata` for decorators
+3. Function-based API available as alternative to class-based
+4. Some advanced MobX features may not be available
 
-## 🚀 Performance Features
+## ⚡ Performance Tips
 
-- **Fine-grained Signal-based updates**: Only updates truly dependent parts
-- **Automatic batching**: Prevents unnecessary re-computations (like MobX)
-- **Lower memory footprint**: More lightweight compared to Proxy-based solutions
-- **Faster access**: Direct function calls without proxy overhead
+1. **Use actions for batching**: Wrap multiple state updates in `action()` for better performance
+2. **Computed caching**: Computed values are automatically cached and only recalculate when dependencies change
+3. **Selective observation**: Only observe the data you actually need in components
+4. **Avoid creating observables in render**: Create observables outside render functions
 
 ## 🧪 Testing
 
-```bash
-# Run tests
-npm test
+```typescript
+import { signal, effect } from '@eficy/reactive';
 
-# Run tests with coverage report
-npm run test:coverage
+// Test reactive behavior
+const count = signal(0);
+let effectRuns = 0;
 
-# Watch mode
-npm run test:watch
+effect(() => {
+  effectRuns++;
+  count(); // Read signal to create dependency
+});
+
+expect(effectRuns).toBe(1);
+
+count(5);
+expect(effectRuns).toBe(2);
 ```
 
-## 📄 License
+## 📝 TypeScript Support
 
-MIT License
+This library is written in TypeScript and provides excellent type inference:
+
+```typescript
+// Types are automatically inferred
+const user = observable({
+  name: 'John',    // string
+  age: 25,         // number
+  active: true     // boolean
+});
+
+// TypeScript knows the return type
+const greeting = computed(() => {
+  return `Hello, ${user.get('name')}!`; // string
+});
+```
+
+## 🔗 Ecosystem
+
+- **[@eficy/reactive-react](../reactive-react)** - React bindings for @eficy/reactive
+- **[@eficy/core](../core)** - UI framework using @eficy/reactive
+
+## 📜 License
+
+MIT License - see LICENSE file for details.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please check the [Contributing Guide](../../CONTRIBUTING.md) for more information. 
+Contributions welcome! Please read our contributing guidelines and submit pull requests to our repository.
+
+---
+
+**Made with ❤️ by the Eficy team** 
