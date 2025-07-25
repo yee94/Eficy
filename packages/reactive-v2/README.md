@@ -1,60 +1,60 @@
-# @eficy/reactive-v2
+# @eficy/reactive
 
-现代化的注解式响应式状态管理库，基于 `alien-signals` 构建，专注于简洁的 API 和高性能。
+A modern annotation-based reactive state management library with **MobX-compatible API**, powered by `@preact/signals-core` for high-performance reactivity.
 
-## 🚀 核心特性
+## 🚀 Key Features
 
-- **🎯 基于 Signal**: 使用 `alien-signals` 提供高性能响应式
-- **📝 注解式 API**: 简洁的声明式状态管理
-- **⚡ 自动批处理**: Action 自动批处理状态更新
-- **📦 类型安全**: 完整的 TypeScript 支持
-- **🔄 无 Proxy**: 不依赖 Proxy，兼容性更好
-- **🎨 灵活设计**: 支持数组、对象等复杂状态
-- **🧪 全面测试**: 覆盖率 > 90% 的单元测试
+- **🎯 Signal-Based**: High-performance reactivity powered by `@preact/signals-core`
+- **📝 MobX-Compatible API**: Familiar annotations and patterns from MobX
+- **⚡ Automatic Batching**: Actions automatically batch state updates
+- **📦 Type-Safe**: Full TypeScript support with excellent type inference
+- **🔄 No Proxy**: Better compatibility without Proxy dependency
+- **🎨 Flexible Design**: Supports arrays, objects and complex state structures
+- **🧪 Well Tested**: >90% test coverage with comprehensive unit tests
 
-## 📦 安装
+## 📦 Installation
 
 ```bash
-npm install @eficy/reactive-v2
+npm install @eficy/reactive
 # or
-yarn add @eficy/reactive-v2
+yarn add @eficy/reactive
 # or
-pnpm add @eficy/reactive-v2
+pnpm add @eficy/reactive
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 基础响应式状态
+### Basic Reactive State
 
 ```typescript
-import { signal, computed, effect, action } from '@eficy/reactive-v2';
+import { signal, computed, effect, action } from '@eficy/reactive';
 
-// 创建响应式状态
+// Create reactive state
 const count = signal(0);
 const doubled = computed(() => count() * 2);
 
-// 自动运行效果
+// Auto-run effects
 effect(() => {
   console.log(`Count: ${count()}, Doubled: ${doubled()}`);
 });
 
-// 创建 action
+// Create action (MobX-style)
 const increment = action(() => {
   count(count() + 1);
 });
 
-// 触发更新
-increment(); // 输出: Count: 1, Doubled: 2
+// Trigger updates
+increment(); // Output: Count: 1, Doubled: 2
 ```
 
-### 响应式数组
+### Observable Arrays (MobX-Compatible)
 
 ```typescript
-import { observableArray, action } from '@eficy/reactive-v2';
+import { observableArray, action } from '@eficy/reactive';
 
-const todos = observableArray<string>(['学习', '工作']);
+const todos = observableArray<string>(['Learn', 'Work']);
 
-// 数组操作自动触发更新
+// Array operations automatically trigger updates
 const addTodo = action((todo: string) => {
   todos.push(todo);
 });
@@ -63,27 +63,27 @@ const removeTodo = action((index: number) => {
   todos.splice(index, 1);
 });
 
-// 监听数组变化
+// Watch array changes
 effect(() => {
   console.log('Todos:', todos.toArray());
   console.log('Count:', todos.length);
 });
 
-addTodo('运动'); // 自动触发更新
+addTodo('Exercise'); // Automatically triggers updates
 ```
 
-### 响应式对象
+### Observable Objects (MobX-Compatible)
 
 ```typescript
-import { observableObject, action } from '@eficy/reactive-v2';
+import { observableObject, action } from '@eficy/reactive';
 
 const user = observableObject({
-  name: '张三',
+  name: 'John',
   age: 25,
-  email: 'zhangsan@example.com'
+  email: 'john@example.com'
 });
 
-// 对象操作
+// Object operations
 const updateUser = action((updates: Partial<typeof user.value>) => {
   user.update(updates);
 });
@@ -92,30 +92,30 @@ const growOlder = action(() => {
   user.set('age', user.get('age') + 1);
 });
 
-// 监听对象变化
+// Watch object changes
 effect(() => {
-  console.log(`用户: ${user.get('name')}, 年龄: ${user.get('age')}`);
+  console.log(`User: ${user.get('name')}, Age: ${user.get('age')}`);
 });
 
-updateUser({ age: 26 }); // 触发更新
+updateUser({ age: 26 }); // Triggers update
 ```
 
-### 注解式类定义
+### Class-Based Reactive Stores (MobX-Style)
 
 ```typescript
-import { defineReactiveClass, observable, computed, actionAnnotation } from '@eficy/reactive-v2';
+import { defineReactiveClass, observable, computed, actionAnnotation } from '@eficy/reactive';
 
 const Store = defineReactiveClass({
-  // 响应式状态
+  // Observable state (like MobX @observable)
   count: observable(0),
   name: observable('Hello'),
   
-  // 计算属性
+  // Computed values (like MobX @computed)
   displayText: computed(function(this: any) {
     return `${this.name()}: ${this.count()}`;
   }),
   
-  // Actions
+  // Actions (like MobX @action)
   increment: actionAnnotation(function(this: any) {
     this.count(this.count() + 1);
   }),
@@ -130,20 +130,20 @@ const Store = defineReactiveClass({
   })
 });
 
-// 使用
+// Usage
 effect(() => {
   console.log(Store.displayText());
 });
 
-Store.increment(); // 触发更新
-Store.setName('World'); // 触发更新
+Store.increment(); // Triggers update
+Store.setName('World'); // Triggers update
 ```
 
-## 🎯 批处理 (Batch)
+## 🎯 Batching (MobX runInAction equivalent)
 
-### 自动批处理
+### Automatic Batching
 
-所有 `action` 自动进行批处理：
+All `action` functions automatically batch updates:
 
 ```typescript
 const state = {
@@ -155,90 +155,110 @@ const state = {
 const sum = computed(() => state.x() + state.y() + state.z());
 
 effect(() => {
-  console.log('Sum:', sum()); // 只会打印一次
+  console.log('Sum:', sum()); // Only prints once
 });
 
-// Action 自动批处理多个状态更新
+// Action automatically batches multiple state updates
 const updateAll = action(() => {
-  state.x(1);  // 这些更新会被批处理
-  state.y(2);  // 只触发一次 effect
+  state.x(1);  // These updates are batched
+  state.y(2);  // Only triggers effect once
   state.z(3);
 });
 
 updateAll();
 ```
 
-### 手动批处理
+### Manual Batching
 
 ```typescript
-import { batch } from '@eficy/reactive-v2';
+import { batch } from '@eficy/reactive';
 
-// 手动批处理
+// Manual batching (like MobX runInAction)
 batch(() => {
   state.x(10);
   state.y(20);
   state.z(30);
-}); // 只触发一次更新
+}); // Only triggers one update
 ```
 
-## 👀 监听变化 (Watch)
+## 👀 Watching Changes (MobX observe equivalent)
 
 ```typescript
-import { watch, ref } from '@eficy/reactive-v2';
+import { watch, ref } from '@eficy/reactive';
 
 const name = ref('Alice');
 const age = ref(20);
 
-// 监听单个值变化
+// Watch single value changes
 const stopWatching = watch(
   () => name.value,
   (newName, oldName) => {
-    console.log(`名字从 ${oldName} 改为 ${newName}`);
+    console.log(`Name changed from ${oldName} to ${newName}`);
   }
 );
 
-// 监听计算值变化
+// Watch computed value changes
 const fullInfo = computed(() => `${name.value}-${age.value}`);
 watch(
   () => fullInfo(),
   (newInfo, oldInfo) => {
-    console.log(`信息更新: ${newInfo}`);
+    console.log(`Info updated: ${newInfo}`);
   }
 );
 
-name.value = 'Bob'; // 触发监听器
+name.value = 'Bob'; // Triggers watcher
 ```
 
-## 📚 API 参考
+## 📚 API Reference
 
-### 核心 API
+### Core API (MobX-Compatible)
 
-| API | 描述 | 示例 |
-|-----|------|------|
-| `signal(value)` | 创建响应式状态 | `const count = signal(0)` |
-| `computed(fn)` | 创建计算属性 | `const doubled = computed(() => count() * 2)` |
-| `effect(fn)` | 自动运行效果 | `effect(() => console.log(count()))` |
-| `action(fn)` | 创建批处理动作 | `const inc = action(() => count(count() + 1))` |
-| `batch(fn)` | 手动批处理 | `batch(() => { /* 多个更新 */ })` |
+| API | Description | Example |
+|-----|-------------|---------|
+| `signal(value)` | Create reactive state | `const count = signal(0)` |
+| `computed(fn)` | Create computed value (like MobX @computed) | `const doubled = computed(() => count() * 2)` |
+| `effect(fn)` | Auto-run effect (like MobX autorun) | `effect(() => console.log(count()))` |
+| `action(fn)` | Create batched action (like MobX @action) | `const inc = action(() => count(count() + 1))` |
+| `batch(fn)` | Manual batching (like MobX runInAction) | `batch(() => { /* multiple updates */ })` |
 
-### 集合 API
+### Collection API
 
-| API | 描述 | 示例 |
-|-----|------|------|
-| `observableArray(arr)` | 创建响应式数组 | `const list = observableArray([1, 2, 3])` |
-| `observableObject(obj)` | 创建响应式对象 | `const user = observableObject({ name: 'Alice' })` |
-| `defineReactiveClass(def)` | 创建响应式类 | `const Store = defineReactiveClass({ count: observable(0) })` |
+| API | Description | Example |
+|-----|-------------|---------|
+| `observableArray(arr)` | Create observable array (like MobX observable.array) | `const list = observableArray([1, 2, 3])` |
+| `observableObject(obj)` | Create observable object (like MobX observable.object) | `const user = observableObject({ name: 'Alice' })` |
+| `defineReactiveClass(def)` | Create reactive class | `const Store = defineReactiveClass({ count: observable(0) })` |
 
-### 工具 API
+### Utility API
 
-| API | 描述 | 示例 |
-|-----|------|------|
-| `watch(getter, callback)` | 监听值变化 | `watch(() => count(), (new, old) => {})` |
-| `ref(value)` | 创建响应式引用 | `const name = ref('Alice')` |
+| API | Description | Example |
+|-----|-------------|---------|
+| `watch(getter, callback)` | Watch value changes (like MobX observe) | `watch(() => count(), (new, old) => {})` |
+| `ref(value)` | Create reactive reference | `const name = ref('Alice')` |
 
-## 🔄 迁移指南
+## 🔄 Migration Guide
 
-### 从 V1 迁移到 V2
+### From MobX to @eficy/reactive
+
+```typescript
+// MobX
+import { observable, computed, autorun, action, runInAction } from 'mobx';
+
+const state = observable({ count: 0 });
+const doubled = computed(() => state.count * 2);
+autorun(() => console.log(state.count));
+const increment = action(() => state.count++);
+
+// @eficy/reactive (compatible API)
+import { observableObject, computed, effect, action } from '@eficy/reactive';
+
+const state = observableObject({ count: 0 });
+const doubled = computed(() => state.get('count') * 2);
+effect(() => console.log(state.get('count')));
+const increment = action(() => state.set('count', state.get('count') + 1));
+```
+
+### From V1 to V2
 
 ```typescript
 // V1 (Proxy-based)
@@ -251,44 +271,44 @@ const count = signal(0);
 effect(() => console.log(count()));
 count(count() + 1);
 
-// 或使用对象包装
+// Or using object wrapper
 const state = observableObject({ count: 0 });
 effect(() => console.log(state.get('count')));
 state.set('count', state.get('count') + 1);
 ```
 
-## ✨ 最佳实践
+## ✨ Best Practices
 
-1. **优先使用 action**: 所有状态修改都应该在 action 中进行
-2. **合理使用计算属性**: 避免在 effect 中进行复杂计算
-3. **及时清理**: 记得调用 effect 返回的清理函数
-4. **避免直接修改**: 不要直接修改响应式状态，使用提供的方法
-5. **类型安全**: 充分利用 TypeScript 的类型系统
+1. **Use actions for mutations**: All state modifications should be wrapped in actions (like MobX)
+2. **Leverage computed values**: Avoid complex calculations in effects
+3. **Clean up effects**: Remember to call the cleanup function returned by effect
+4. **Avoid direct mutations**: Use provided methods instead of direct state modification
+5. **Type safety**: Leverage TypeScript's type system for better development experience
 
-## 🚀 性能特点
+## 🚀 Performance Features
 
-- **基于 Signal 的细粒度更新**: 只更新真正依赖的部分
-- **自动批处理**: 避免不必要的重复计算
-- **更少的内存占用**: 相比 Proxy 方案更轻量
-- **更快的访问速度**: 直接函数调用，无代理开销
+- **Fine-grained Signal-based updates**: Only updates truly dependent parts
+- **Automatic batching**: Prevents unnecessary re-computations (like MobX)
+- **Lower memory footprint**: More lightweight compared to Proxy-based solutions
+- **Faster access**: Direct function calls without proxy overhead
 
-## 🧪 测试
+## 🧪 Testing
 
 ```bash
-# 运行测试
+# Run tests
 npm test
 
-# 运行测试并生成覆盖率报告
+# Run tests with coverage report
 npm run test:coverage
 
-# 监听模式
+# Watch mode
 npm run test:watch
 ```
 
-## 📄 许可证
+## 📄 License
 
 MIT License
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎贡献代码！请查看 [贡献指南](../../CONTRIBUTING.md) 了解更多信息。 
+Contributions are welcome! Please check the [Contributing Guide](../../CONTRIBUTING.md) for more information. 
