@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import resolver from '../src/core/resolver';
 import React from 'react';
-import { expect } from 'vitest';
+import { expect, test, describe, it } from 'vitest';
 
 const testComponents = {
   testComponent1: (props) => <div>{props.render?.()}</div>,

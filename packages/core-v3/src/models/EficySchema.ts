@@ -1,9 +1,9 @@
-import { observable, computed, action, ObservableClass } from '@eficy/reactive';
+import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
 import ViewNode from './ViewNode';
 import type { IEficySchema, IPlugin } from '../interfaces';
 import { isArray } from '../utils';
 
-export default class EficySchema extends ObservableClass implements IEficySchema {
+export default class EficySchema implements IEficySchema {
   public plugins: IPlugin[];
 
   @observable
@@ -39,8 +39,8 @@ export default class EficySchema extends ObservableClass implements IEficySchema
   }
 
   constructor(data: IEficySchema) {
-    super();
     this.load(data);
+    makeObservable(this);
   }
 
   @action

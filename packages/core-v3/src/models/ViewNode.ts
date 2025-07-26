@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { observable, computed, action, ObservableClass } from '@eficy/reactive';
+import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
 import { isFunction } from 'lodash';
 import { setOmit } from '../utils/common';
 import type { IViewData } from '../interfaces';
@@ -8,7 +8,7 @@ import type { ReactElement } from 'react';
 // 框架特殊字段，不会传递给组件
 const FRAMEWORK_FIELDS = new Set(['#', '#view', '#children', '#content', '#if', '#staticProps']);
 
-export default class ViewNode extends ObservableClass {
+export default class ViewNode {
   // 唯一标识
   public readonly id: string = nanoid();
 
@@ -37,9 +37,8 @@ export default class ViewNode extends ObservableClass {
   public models: Record<string, ViewNode> = {};
 
   constructor(data: IViewData) {
-    super();
-    // ObservableClass 已经调用了 makeObservable
     this.load(data);
+    makeObservable(this);
   }
 
   /**
@@ -47,6 +46,10 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   private load(data: IViewData): void {
+    console.log('📥 ViewNode.load called:', { 
+      currentId: this['#'], 
+      newData: data 
+    });
     // 设置核心字段
     this['#'] = data['#'] || this.id;
     this['#view'] = data['#view'] || 'div';
@@ -70,6 +73,12 @@ export default class ViewNode extends ObservableClass {
     // 设置其他属性
     const otherProps = setOmit(data, FRAMEWORK_FIELDS);
     this.dynamicProps = { ...otherProps };
+    console.log('✅ ViewNode.load completed:', { 
+      id: this['#'], 
+      view: this['#view'],
+      content: this['#content'],
+      dynamicProps: this.dynamicProps
+    });
   }
 
   /**
@@ -116,15 +125,23 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   updateField(key: string, value: any): void {
+          console.log('🔄 ViewNode.updateField called:', { 
+        id: this['#'], 
+        field: key, 
+        oldValue: FRAMEWORK_FIELDS.has(key) ? (this as any)[key] : this.dynamicProps[key],
+        newValue: value 
+      });
     if (FRAMEWORK_FIELDS.has(key)) {
       // 更新框架字段
       (this as any)[key] = value;
+      console.log(`✅ Updated system field ${key} to:`, value);
     } else {
-      // 更新动态属性
+      // 更新动态属性 - 使用不可变更新
       this.dynamicProps = {
         ...this.dynamicProps,
         [key]: value,
       };
+      console.log(`✅ Updated dynamic field ${key} to:`, value);
     }
   }
 
@@ -215,6 +232,10 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   update(data: IViewData): void {
+    console.log('📥 ViewNode.update called:', { 
+      currentId: this['#'], 
+      newData: data 
+    });
     // 更新核心字段
     if (data['#view'] !== undefined) this['#view'] = data['#view'];
     if (data['#content'] !== undefined) this['#content'] = data['#content'];
@@ -250,6 +271,12 @@ export default class ViewNode extends ObservableClass {
         .filter(child => child['#'] && !updatedChildIds.has(child['#']))
         .forEach(child => this.removeChild(child['#']));
     }
+    console.log('✅ ViewNode.update completed:', { 
+      id: this['#'], 
+      view: this['#view'],
+      content: this['#content'],
+      dynamicProps: this.dynamicProps
+    });
   }
 
   /**
@@ -257,7 +284,17 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   overwrite(data: IViewData): void {
+    console.log('📥 ViewNode.overwrite called:', { 
+      currentId: this['#'], 
+      newData: data 
+    });
     // 重置所有数据
     this.load(data);
+    console.log('✅ ViewNode.overwrite completed:', { 
+      id: this['#'], 
+      view: this['#view'],
+      content: this['#content'],
+      dynamicProps: this.dynamicProps
+    });
   }
 }

@@ -1,7 +1,6 @@
 import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import '@testing-library/jest-dom/vitest'
 import { signal } from '@eficy/reactive'
 import RenderNode from '../src/components/RenderNode'
 import ViewNode from '../src/models/ViewNode'
@@ -252,7 +251,7 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#': 'functional-conditional',
         '#view': 'div',
         '#content': 'Function Conditional',
-        '#if': () => showCondition.value
+        '#if': () => showCondition()
       }
 
       const viewNode = new ViewNode(viewData)
@@ -263,7 +262,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       expect(screen.getByText('Function Conditional')).toBeInTheDocument()
       
       // 通过 signal 改变条件
-      showCondition.value = false
+      showCondition(false)
       
       // 验证响应式隐藏
       await waitFor(() => {
@@ -271,7 +270,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       })
       
       // 重新显示
-      showCondition.value = true
+      showCondition(true)
       
       // 验证响应式显示
       await waitFor(() => {

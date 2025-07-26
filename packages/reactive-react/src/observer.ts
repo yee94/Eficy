@@ -1,48 +1,44 @@
-import React, { forwardRef, memo, Fragment } from 'react'
-import { useObserver } from './hooks/useObserver'
-import type { IObserverOptions, IObserverProps, ReactFC } from './types'
+import React, { forwardRef, memo, Fragment } from 'react';
+import { useObserver } from './hooks/useObserver';
+import type { IObserverOptions, IObserverProps, ReactFC } from './types';
 
 // 简化的 hoist 实现，只复制必要的静态属性
 function hoistStatics(target: unknown, source: unknown) {
-  const keys = ['displayName', 'propTypes', 'defaultProps'] as const
+  const keys = ['displayName', 'propTypes', 'defaultProps'] as const;
   for (const key of keys) {
     if (typeof source === 'object' && source !== null && key in source) {
-      ;(target as Record<string, unknown>)[key] = (source as Record<string, unknown>)[key]
+      (target as Record<string, unknown>)[key] = (source as Record<string, unknown>)[key];
     }
   }
-  return target
+  return target;
 }
 
-export function observer<P = any>(
-  component: ReactFC<P>,
-  options?: IObserverOptions
-): React.MemoExoticComponent<any> {
+export function observer<P = any>(component: ReactFC<P>, options?: IObserverOptions): React.MemoExoticComponent<any> {
   const realOptions = {
     forwardRef: false,
     ...options,
-  }
+  };
 
   const wrappedComponent = realOptions.forwardRef
     ? forwardRef((props: any, ref: any) => {
-        return useObserver(() => component({ ...props, ref }), realOptions)
+        return useObserver(() => component({ ...props, ref }));
       })
     : (props: any) => {
-        return useObserver(() => component(props), realOptions)
-      }
+        return useObserver(() => component(props));
+      };
 
-  const memoComponent = memo(wrappedComponent)
+  const memoComponent = memo(wrappedComponent);
 
-  hoistStatics(memoComponent, component)
+  hoistStatics(memoComponent, component);
 
   if (realOptions.displayName) {
-    memoComponent.displayName = realOptions.displayName
+    memoComponent.displayName = realOptions.displayName;
   }
 
-  return memoComponent
+  return memoComponent;
 }
 
 export const Observer = observer((props: IObserverProps) => {
-  const children =
-    typeof props.children === 'function' ? props.children() : props.children
-  return React.createElement(Fragment, {}, children)
-})
+  const children = typeof props.children === 'function' ? props.children() : props.children;
+  return React.createElement(Fragment, {}, children);
+});
