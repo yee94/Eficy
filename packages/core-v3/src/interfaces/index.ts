@@ -58,7 +58,7 @@ export interface IBuildViewNodeContext extends ILifecycleContext {
 
 // 组件Props接口
 export interface IRenderNodeProps {
-  viewNode: any
+  viewNode: import('../models/ViewNode').default
   componentMap?: Record<string, ComponentType<any> | string>
 }
 
@@ -89,4 +89,4 @@ export interface ILifecycleManager {
   register(phase: string, target: any, method: string): void
   execute(phase: string, context: ILifecycleContext): Promise<void>
   hasHooks(phase: string): boolean
-} 
+}

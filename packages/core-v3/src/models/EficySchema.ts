@@ -1,42 +1,44 @@
-import { action, computed, observable } from 'mobx';
-import { Field, Vmo } from '@vmojs/base';
-import ViewNode, { ExtendsViewNode } from './ViewNode';
-import { IEficySchema, IPlugin, IView } from '../interface';
-import { get, isArray } from '../utils';
-import { Hook, Plugin } from 'plugin-decorator';
-import loadComponentModels from '../utils/loadComponentModels';
+import { observable, computed, action, ObservableClass } from '@eficy/reactive';
+import ViewNode from './ViewNode';
+import type { IEficySchema, IPlugin } from '../interfaces';
+import { isArray } from '../utils';
 
-export default class EficySchema extends Plugin implements IEficySchema {
+export default class EficySchema extends ObservableClass implements IEficySchema {
   public plugins: IPlugin[];
 
   @observable
-  public views: ExtendsViewNode[];
-  private readonly componentLibrary: Record<string, any>;
+  public views: ViewNode[] = [];
 
   @computed
-  public get viewDataMap(): Record<string, ExtendsViewNode> {
-    return this.views.reduce((prev, next) => Object.assign(prev, next.viewDataMap), {});
+  public get viewDataMap(): Record<string, ViewNode> {
+    const result: Record<string, ViewNode> = {};
+    
+    // 合并所有顶级视图的 viewDataMap
+    this.views.forEach(view => {
+      Object.assign(result, view.viewDataMap);
+    });
+    
+    return result;
   }
 
   /**
    * get ViewModel by key , include children
    * eg. eficy.alert
    * @param key
-   * @returns {unknown}
+   * @returns {ViewNode | null}
    */
-  public getViewModel(key: string): ExtendsViewNode {
+  public getViewModel(key: string): ViewNode | null {
     const steps = `${key}`.split('.');
     const viewMap = this.viewDataMap;
-    return steps.reduce(
+    return steps.reduce<ViewNode | null>(
       (previousValue, currentValue) =>
-        previousValue ? get(previousValue, `models.${currentValue}`) : viewMap[currentValue],
+        previousValue ? previousValue.models[currentValue] : viewMap[currentValue],
       null,
     );
   }
 
-  constructor(data: IEficySchema, componentLibrary = {}) {
-    super({});
-    this.componentLibrary = componentLibrary;
+  constructor(data: IEficySchema) {
+    super();
     this.load(data);
   }
 
@@ -44,21 +46,18 @@ export default class EficySchema extends Plugin implements IEficySchema {
   public load(data: IEficySchema): this {
     this.plugins = data.plugins;
 
-    const componentModels = loadComponentModels(this.componentLibrary);
-
     this.views = [];
     if (isArray(data.views)) {
-      this.views = data.views.map((viewData) => new ViewNode(viewData, componentModels));
+      this.views = data.views.map((viewData) => new ViewNode(viewData));
     }
 
     return this;
   }
 
-  @Hook
-  public updateViews(data: IEficySchema, cb: (viewNode: ViewNode, viewData: IView) => void) {
+  public updateViews(data: IEficySchema, cb: (viewNode: ViewNode, viewData: any) => void) {
     if (isArray(data.views)) {
       data.views.forEach((viewData) => {
-        const viewModel = this.getViewModel(viewData['#']) as ViewNode;
+        const viewModel = this.getViewModel(viewData['#']);
         if (viewModel) {
           cb(viewModel, viewData);
         }

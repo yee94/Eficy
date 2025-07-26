@@ -1,47 +1,29 @@
 import React, { memo } from 'react'
-import type { ComponentType, ErrorInfo } from 'react'
+import type { ComponentType } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
+import { observer } from '@eficy/reactive-react'
 import type { IRenderNodeProps } from '../interfaces'
 import ViewNode from '../models/ViewNode'
 
-// 错误边界组件
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; onError?: (error: Error, errorInfo: ErrorInfo) => void },
-  { hasError: boolean; error: Error | null }
-> {
-  constructor(props: any) {
-    super(props)
-    this.state = { hasError: false, error: null }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('RenderNode Error:', error, errorInfo)
-    this.props.onError?.(error, errorInfo)
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ color: 'red', border: '1px solid red', padding: '8px', margin: '4px' }}>
-          <h4>Something went wrong</h4>
-          <details>
-            <summary>Error details</summary>
-            <pre>{this.state.error?.message}</pre>
-            <pre>{this.state.error?.stack}</pre>
-          </details>
-        </div>
-      )
-    }
-
-    return this.props.children
-  }
+// 自定义错误回退组件
+const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => {
+  return (
+    <div style={{ color: 'red', border: '1px solid red', padding: '8px', margin: '4px' }}>
+      <h4>Something went wrong</h4>
+      <details>
+        <summary>Error details</summary>
+        <pre>{error.message}</pre>
+        <pre>{error.stack}</pre>
+      </details>
+      <button onClick={resetErrorBoundary} style={{ marginTop: '8px' }}>
+        Try again
+      </button>
+    </div>
+  )
 }
 
-// 主渲染组件 - 暂时移除observer，后续补充响应式功能
-const RenderNodeInner: React.FC<IRenderNodeProps> = ({ viewNode, componentMap = {} }) => {
+// 主渲染组件 - 使用observer包装以支持响应式
+const RenderNodeInner: React.FC<IRenderNodeProps> = observer(({ viewNode, componentMap = {} }: IRenderNodeProps) => {
   // 检查是否应该渲染
   if (!viewNode.shouldRender) {
     return null
@@ -90,12 +72,18 @@ const RenderNodeInner: React.FC<IRenderNodeProps> = ({ viewNode, componentMap = 
 
   // 如果Component是React组件
   return React.createElement(Component, finalProps)
-}
+})
 
 // 使用memo优化的RenderNode
-const RenderNode = memo<IRenderNodeProps>((props) => {
+const RenderNode = memo((props: IRenderNodeProps) => {
+  // 使用react-error-boundary替代自定义ErrorBoundary
   return (
-    <ErrorBoundary>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error, info) => {
+        console.error('RenderNode Error:', error, info)
+      }}
+    >
       <RenderNodeInner {...props} />
     </ErrorBoundary>
   )
@@ -109,4 +97,4 @@ const RenderNode = memo<IRenderNodeProps>((props) => {
 
 RenderNode.displayName = 'RenderNode'
 
-export default RenderNode 
+export default RenderNode

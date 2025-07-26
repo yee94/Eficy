@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
+import { observable, computed, action, ObservableClass } from '@eficy/reactive';
 import { isFunction, omit } from 'lodash';
 import type { IViewData } from '../interfaces';
 import type { ReactElement } from 'react';
@@ -30,11 +30,15 @@ export default class ViewNode extends ObservableClass {
   // 动态属性存储
   @observable
   private dynamicProps: Record<string, any> = {};
+  
+  // 子模型映射
+  @observable
+  public models: Record<string, ViewNode> = {};
 
   constructor(data: IViewData) {
     super();
+    // ObservableClass 已经调用了 makeObservable
     this.load(data);
-    makeObservable(this);
   }
 
   /**
@@ -50,7 +54,16 @@ export default class ViewNode extends ObservableClass {
 
     // 处理子节点
     if (data['#children']) {
-      this['#children'] = data['#children'].map((childData) => new ViewNode(childData));
+      const children = data['#children'].map((childData) => new ViewNode(childData));
+      this['#children'] = children;
+      
+      // 更新模型映射
+      this.models = {};
+      children.forEach(child => {
+        if (child['#']) {
+          this.models[child['#']] = child;
+        }
+      });
     }
 
     // 设置其他属性
@@ -120,6 +133,11 @@ export default class ViewNode extends ObservableClass {
   @action
   addChild(child: ViewNode): void {
     this['#children'] = [...this['#children'], child];
+    
+    // 更新模型映射
+    if (child['#']) {
+      this.models = { ...this.models, [child['#']]: child };
+    }
   }
 
   /**
@@ -128,6 +146,13 @@ export default class ViewNode extends ObservableClass {
   @action
   removeChild(childId: string): void {
     this['#children'] = this['#children'].filter((child) => child['#'] !== childId);
+    
+    // 更新模型映射
+    if (childId && this.models[childId]) {
+      const newModels = { ...this.models };
+      delete newModels[childId];
+      this.models = newModels;
+    }
   }
 
   /**
@@ -137,6 +162,21 @@ export default class ViewNode extends ObservableClass {
     return this['#children'].find((child) => child['#'] === childId) || null;
   }
 
+  /**
+   * 获取视图数据映射
+   */
+  @computed
+  get viewDataMap(): Record<string, ViewNode> {
+    const result: Record<string, ViewNode> = { [this['#']]: this };
+    
+    // 递归合并子节点的 viewDataMap
+    this['#children'].forEach(child => {
+      Object.assign(result, child.viewDataMap);
+    });
+    
+    return result;
+  }
+  
   /**
    * 序列化为JSON
    */
@@ -167,5 +207,56 @@ export default class ViewNode extends ObservableClass {
    */
   static fromJSON(data: IViewData): ViewNode {
     return new ViewNode(data);
+  }
+
+  /**
+   * 更新节点数据
+   */
+  @action
+  update(data: IViewData): void {
+    // 更新核心字段
+    if (data['#view'] !== undefined) this['#view'] = data['#view'];
+    if (data['#content'] !== undefined) this['#content'] = data['#content'];
+    if (data['#if'] !== undefined) this['#if'] = data['#if'];
+
+    // 更新动态属性
+    const otherProps = omit(data, FRAMEWORK_FIELDS);
+    this.dynamicProps = { ...this.dynamicProps, ...otherProps };
+
+    // 更新子节点
+    if (data['#children']) {
+      // 查找并更新现有子节点，添加新子节点
+      data['#children'].forEach((childData) => {
+        const childId = childData['#'];
+        if (childId) {
+          const existingChild = this.findChild(childId);
+          if (existingChild) {
+            existingChild.update(childData);
+          } else {
+            this.addChild(new ViewNode(childData));
+          }
+        } else {
+          this.addChild(new ViewNode(childData));
+        }
+      });
+      
+      // 移除不再存在的子节点
+      const updatedChildIds = new Set(data['#children']
+        .map(childData => childData['#'])
+        .filter(Boolean));
+        
+      this['#children']
+        .filter(child => child['#'] && !updatedChildIds.has(child['#']))
+        .forEach(child => this.removeChild(child['#']));
+    }
+  }
+
+  /**
+   * 完全覆盖节点数据
+   */
+  @action
+  overwrite(data: IViewData): void {
+    // 重置所有数据
+    this.load(data);
   }
 }
