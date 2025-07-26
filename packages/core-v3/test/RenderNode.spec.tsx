@@ -31,6 +31,14 @@ const testComponentMap = {
   span: 'span'
 }
 
+// 创建 RenderNode 的辅助函数，使用 RenderNodeTree
+const createRenderNode = (eficyNode: EficyNode, componentMap: any) => {
+  const componentRegistry = container.resolve(ComponentRegistry)
+  componentRegistry.extend(componentMap)
+  const renderNodeTree = container.resolve(RenderNodeTree)
+  return renderNodeTree.createElement(eficyNode)
+}
+
 // 设置测试容器
 beforeEach(() => {
   container.clearInstances()
@@ -60,7 +68,8 @@ describe('RenderNode', () => {
         '#content': 'Hello World'
       })
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      render(renderNode!)
       
       expect(screen.getByText('Hello World')).toBeInTheDocument()
       expect(screen.getByText('Hello World')).toHaveClass('test-class')
@@ -74,7 +83,8 @@ describe('RenderNode', () => {
         '#content': 'Click Me'
       })
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      render(renderNode!)
       
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
@@ -90,7 +100,8 @@ describe('RenderNode', () => {
         '#content': 'Styled content'
       })
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      render(renderNode!)
       
       const element = screen.getByText('Styled content')
       expect(element).toHaveStyle({ color: 'rgb(255, 0, 0)', fontSize: '16px' })
@@ -120,8 +131,8 @@ describe('RenderNode', () => {
       })
 
       const parentNode = nodeTree.root!
-
-      render(<RenderNode eficyNode={parentNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(parentNode, testComponentMap)
+      render(renderNode!)
       
       expect(screen.getByText('Child 1')).toBeInTheDocument()
       expect(screen.getByText('Child 2')).toBeInTheDocument()
@@ -154,8 +165,8 @@ describe('RenderNode', () => {
       })
 
       const deepNode = nodeTree.root!
-
-      render(<RenderNode eficyNode={deepNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(deepNode, testComponentMap)
+      render(renderNode!)
       
       const deepElement = screen.getByText('Deep content')
       expect(deepElement).toBeInTheDocument()
@@ -173,7 +184,8 @@ describe('RenderNode', () => {
         '#content': 'Should not render'
       })
 
-      const { container: renderContainer } = render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const { container: renderContainer } = render(renderNode!)
       expect(renderContainer.firstChild).toBeNull()
     })
 
@@ -185,7 +197,8 @@ describe('RenderNode', () => {
         '#content': 'Should render'
       })
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      render(renderNode!)
       expect(screen.getByText('Should render')).toBeInTheDocument()
     })
 
@@ -196,7 +209,8 @@ describe('RenderNode', () => {
         '#content': 'Default render'
       })
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      render(renderNode!)
       expect(screen.getByText('Default render')).toBeInTheDocument()
     })
   })
@@ -212,7 +226,8 @@ describe('RenderNode', () => {
       // 捕获控制台错误
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      render(renderNode!)
       
       // 应该渲染错误信息或占位符
       expect(screen.getByText(/Component.*not found/i)).toBeInTheDocument()
@@ -237,7 +252,8 @@ describe('RenderNode', () => {
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      render(<RenderNode eficyNode={eficyNode} componentMap={errorComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, errorComponentMap)
+      render(renderNode!)
       
       // 应该显示错误边界信息
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument()
@@ -256,6 +272,7 @@ describe('RenderNode', () => {
       })
 
       const spyComponentMap = {
+        ...testComponentMap,
         SpyComponent
       }
 
@@ -265,12 +282,14 @@ describe('RenderNode', () => {
         '#content': 'Memo test'
       })
 
-      const { rerender } = render(<RenderNode eficyNode={eficyNode} componentMap={spyComponentMap} />)
+      const renderNode = createRenderNode(eficyNode, spyComponentMap)
+      const { rerender } = render(renderNode!)
       
       expect(renderSpy).toHaveBeenCalledTimes(1)
 
       // 重新渲染但 eficyNode 没有变化
-      rerender(<RenderNode eficyNode={eficyNode} componentMap={spyComponentMap} />)
+      const newRenderNode = createRenderNode(eficyNode, spyComponentMap)
+      rerender(newRenderNode!)
       
       // 由于 memo，不应该重新渲染
       expect(renderSpy).toHaveBeenCalledTimes(1)
@@ -304,12 +323,10 @@ describe('RenderNode', () => {
       expect(rootNode).toBeTruthy()
       
       // 构建 RenderNode 映射
-      renderNodeTree.createElement(rootNode!, RenderNode)
+      renderNodeTree.createElement(rootNode!)
 
       // 验证映射关系
       expect(renderNodeTree.stats.totalRenderNodes).toBe(3) // parent + 2 children
-      expect(renderNodeTree.stats.hasComponentMap).toBe(true)
-      expect(renderNodeTree.stats.hasRenderNodeComponent).toBe(true)
 
       // 验证能够通过 nodeId 找到对应的 RenderNode
       const parentRenderNode = renderNodeTree.findRenderNode('parent')
@@ -330,7 +347,7 @@ describe('RenderNode', () => {
       const renderNodeTree = container.resolve(RenderNodeTree)
       const rootNode = eficyNodeStore.root!
       
-      renderNodeTree.createElement(rootNode, RenderNode)
+      renderNodeTree.createElement(rootNode)
 
       const renderNode = renderNodeTree.findRenderNode('test')
       expect(renderNode).toBeTruthy()

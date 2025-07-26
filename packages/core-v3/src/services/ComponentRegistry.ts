@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe'
-import type { ComponentType } from 'react'
+import { Fragment, type ComponentType } from 'react'
 import type { IComponentRegistry } from '../interfaces'
 
 // 常用的HTML标签
@@ -22,6 +22,9 @@ export default class ComponentRegistry implements IComponentRegistry {
   constructor() {
     // 自动注册HTML标签
     this.registerHtmlTags()
+
+    this.register('Fragment', Fragment)
+    this.register('<>', Fragment)
   }
 
   private registerHtmlTags(): void {

@@ -32,7 +32,6 @@ import {
   Error,
   getLifecycleHooks,
   hasLifecycleHook,
-  HookType as ImportedHookType
 } from '../src/decorators/lifecycle'
 
 describe('Lifecycle Hooks System', () => {

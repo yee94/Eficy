@@ -3,10 +3,13 @@ import { observable, computed, action, ObservableClass, makeObservable } from '@
 import EficyNode from './EficyNode';
 import type { IViewData } from '../interfaces';
 
+/**
+ * Eficy Node 节点平铺 Store
+ */
 @injectable()
 export default class EficyNodeStore {
   @observable
-  private rootNode: EficyNode | null = null;
+  private rootNode: EficyNode;
 
   private nodeMap: Record<string, EficyNode> = {};
   private rootData: IViewData | null = null;
@@ -16,50 +19,15 @@ export default class EficyNodeStore {
    */
   @action
   build(views: IViewData | IViewData[]): void {
-    // 处理单个view或多个views的情况
-    if (Array.isArray(views)) {
-      // 如果是数组，创建一个根容器
-      this.rootData = {
-        '#': 'root',
-        '#view': 'div',
-        '#children': views,
-      };
-    } else {
-      this.rootData = views;
-    }
-
     // 清空现有数据
     this.nodeMap = {};
 
     // 由内向外递归构建EficyNode树
-    this.rootNode = this.buildNodeRecursively(this.rootData);
-  }
-
-  /**
-   * 递归构建EficyNode - 由内向外的方式
-   */
-  private buildNodeRecursively(viewData: IViewData): EficyNode {
-    // 首先创建当前节点（不包含子节点）
-    const { '#children': _, ...nodeData } = viewData; // 先移除子节点，稍后处理
-
-    const node = new EficyNode(nodeData);
-
-    // 将节点添加到映射表
-    if (node['#']) {
-      this.nodeMap[node['#']] = node;
-    }
-
-    // 处理子节点 - 递归构建
-    if (viewData['#children'] && Array.isArray(viewData['#children'])) {
-      const children = viewData['#children'].map((childData) => {
-        return this.buildNodeRecursively(childData);
-      });
-
-      // 设置子节点
-      node.setChildren(children);
-    }
-
-    return node;
+    this.rootNode = new EficyNode({
+      '#': '__eficy_root',
+      '#view': '<>',
+      '#children': Array.isArray(views) ? views : [views],
+    });
   }
 
   /**
@@ -106,7 +74,7 @@ export default class EficyNodeStore {
 
     // 处理子节点更新
     if (data['#children']) {
-      const newChildren = data['#children'].map((childData) => this.buildNodeRecursively(childData));
+      const newChildren = data['#children'].map((childData) => new EficyNode(childData));
       node.setChildren(newChildren);
     }
   }
@@ -122,7 +90,7 @@ export default class EficyNodeStore {
       return null;
     }
 
-    const child = this.buildNodeRecursively(childData);
+    const child = new EficyNode(childData);
     parent.addChild(child);
 
     return child;

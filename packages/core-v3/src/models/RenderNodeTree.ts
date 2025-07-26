@@ -4,7 +4,6 @@ import { inject, injectable } from 'tsyringe';
 import RenderNode from '../components/RenderNode';
 import ComponentRegistry from '../services/ComponentRegistry';
 import EficyNode from './EficyNode';
-import xorBy from 'lodash/xorBy';
 
 /**
  * RenderNode 树管理器
@@ -15,6 +14,8 @@ export default class RenderNodeTree {
   @observable
   private renderNodeCache: Map<string, ReactElement> = new Map();
   private previousChildren: Map<string, ReactElement[]> = new Map();
+
+  public rootRenderNode: ReactElement | null = null;
 
   constructor(@inject(ComponentRegistry) private componentRegistry: ComponentRegistry) {
     makeObservable(this);
@@ -71,7 +72,9 @@ export default class RenderNodeTree {
       return renderNode;
     };
 
-    return doBuild(eficyNode);
+    this.rootRenderNode = doBuild(eficyNode);
+
+    return this.rootRenderNode;
   }
 
   /**
@@ -87,16 +90,6 @@ export default class RenderNodeTree {
       componentMap,
       childrenMap: this.renderNodeCache,
     });
-  }
-
-  /**
-   * 获取根RenderNode
-   */
-  @computed
-  get rootRenderNode(): ReactElement | null {
-    // 根据缓存中的第一个节点作为根节点
-    const firstEntry = this.renderNodeCache.entries().next();
-    return firstEntry.done ? null : firstEntry.value[1];
   }
 
   /**

@@ -1,30 +1,32 @@
 import 'reflect-metadata';
-import { container } from 'tsyringe';
-import React, { type ReactElement } from 'react';
-import type { IEficyConfig, IExtendOptions, IEficySchema } from '../interfaces';
+import { type ReactElement } from 'react';
+import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
+import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces';
 import type EficyNode from '../models/EficyNode';
 import EficyNodeStore from '../models/EficyNodeStore';
 import RenderNodeTree from '../models/RenderNodeTree';
-import RenderNode from '../components/RenderNode';
-import ConfigService from '../services/ConfigService';
 import ComponentRegistry from '../services/ComponentRegistry';
+import ConfigService from '../services/ConfigService';
 
 export default class Eficy {
   private configService: ConfigService;
   private componentRegistry: ComponentRegistry;
   private eficyNodeStore: EficyNodeStore | null = null;
   private renderNodeTree: RenderNodeTree | null = null;
+  private container: DependencyContainer;
 
   constructor() {
     // 初始化依赖注入容器
     this.setupContainer();
 
     // 获取服务实例
-    this.configService = container.resolve(ConfigService);
-    this.componentRegistry = container.resolve(ComponentRegistry);
+    this.configService = this.container.resolve(ConfigService);
+    this.componentRegistry = this.container.resolve(ComponentRegistry);
   }
 
   private setupContainer(): void {
+    const container = tsyringeContainer.createChildContainer();
+    this.container = container;
     // 注册服务到容器
     if (!container.isRegistered(ConfigService)) {
       container.registerSingleton(ConfigService);
@@ -75,7 +77,7 @@ export default class Eficy {
     }
 
     // 使用 tsyringe 获取 EficyNodeStore 实例
-    const nodeTree = container.resolve(EficyNodeStore);
+    const nodeTree = this.container.resolve(EficyNodeStore);
     nodeTree.build(schema.views);
 
     return nodeTree;
@@ -86,7 +88,7 @@ export default class Eficy {
    */
   private buildRenderNodeTree(eficyNodeStore: EficyNodeStore): RenderNodeTree {
     // 使用 tsyringe 获取 RenderNodeTree 实例
-    const renderNodeTree = container.resolve(RenderNodeTree);
+    const renderNodeTree = this.container.resolve(RenderNodeTree);
     const rootNode = eficyNodeStore.root;
 
     if (rootNode) {

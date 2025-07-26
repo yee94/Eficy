@@ -173,7 +173,7 @@ export default class EficyNode {
     if (!(child instanceof EficyNode)) {
       throw new Error('Child must be an instance of EficyNode');
     }
-    this['#children'] = [...this['#children'], child];
+    this['#children'] = [...(this['#children'] ?? []), child];
   }
 
   /**
@@ -245,7 +245,7 @@ export default class EficyNode {
       result['#events'] = this['#events'];
     }
 
-    if (this['#children'].length > 0) {
+    if (!!this['#children']?.length) {
       result['#children'] = this['#children'].map((child) => child.toJSON());
     }
 

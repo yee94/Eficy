@@ -78,8 +78,8 @@ export interface IComponentMap {
  */
 export interface IRenderNodeProps {
   eficyNode: EficyNode;
+  childrenMap: Map<string, ReactElement>;
   componentMap?: IComponentMap;
-  childrenMap?: Map<string, ReactElement>;
 }
 
 /**

@@ -135,7 +135,7 @@ describe('EficyNode', () => {
       eficyNode.updateField('#content', 'Hello World')
       const props = eficyNode.props
       
-      expect(props.children).toBe('Hello World')
+      expect(eficyNode.children).toBe('Hello World')
       expect(props['#content']).toBeUndefined()
     })
   })
