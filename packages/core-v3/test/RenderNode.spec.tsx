@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { container } from 'tsyringe'
 import RenderNode from '../src/components/RenderNode'
 import EficyNode from '../src/models/EficyNode'
-import EficyNodeTree from '../src/models/EficyNodeTree'
+import EficyNodeStore from '../src/models/EficyNodeStore'
 import RenderNodeTree from '../src/models/RenderNodeTree'
 import Eficy from '../src/core/Eficy'
 import ComponentRegistry from '../src/services/ComponentRegistry'
@@ -38,8 +38,8 @@ beforeEach(() => {
   if (!container.isRegistered(ComponentRegistry)) {
     container.registerSingleton(ComponentRegistry)
   }
-  if (!container.isRegistered(EficyNodeTree)) {
-    container.registerSingleton(EficyNodeTree)
+  if (!container.isRegistered(EficyNodeStore)) {
+    container.registerSingleton(EficyNodeStore)
   }
   if (!container.isRegistered(RenderNodeTree)) {
     container.registerSingleton(RenderNodeTree)
@@ -99,8 +99,8 @@ describe('RenderNode', () => {
 
   describe('子节点渲染', () => {
     it('应该渲染嵌套子节点', () => {
-      // 使用 EficyNodeTree 来正确构建包含子节点的树
-      const nodeTree = container.resolve(EficyNodeTree)
+      // 使用 EficyNodeStore 来正确构建包含子节点的树
+      const nodeTree = container.resolve(EficyNodeStore)
       nodeTree.build({
         '#': 'parent',
         '#view': 'div',
@@ -131,8 +131,8 @@ describe('RenderNode', () => {
     })
 
     it('应该支持深层嵌套', () => {
-      // 使用 EficyNodeTree 来正确构建深层嵌套的树
-      const nodeTree = container.resolve(EficyNodeTree)
+      // 使用 EficyNodeStore 来正确构建深层嵌套的树
+      const nodeTree = container.resolve(EficyNodeStore)
       nodeTree.build({
         '#': 'root',
         '#view': 'div',
@@ -279,8 +279,8 @@ describe('RenderNode', () => {
 
   describe('RenderNodeTree 独立管理', () => {
     it('应该能够独立构建RenderNode映射', () => {
-      const eficyNodeTree = container.resolve(EficyNodeTree)
-      eficyNodeTree.build({
+      const eficyNodeStore = container.resolve(EficyNodeStore)
+      eficyNodeStore.build({
         '#': 'parent',
         '#view': 'div',
         className: 'parent',
@@ -299,12 +299,12 @@ describe('RenderNode', () => {
       })
 
       const renderNodeTree = container.resolve(RenderNodeTree)
-      const rootNode = eficyNodeTree.root
+      const rootNode = eficyNodeStore.root
       
       expect(rootNode).toBeTruthy()
       
       // 构建 RenderNode 映射
-      renderNodeTree.buildFromEficyNode(rootNode!, RenderNode)
+      renderNodeTree.createElement(rootNode!, RenderNode)
 
       // 验证映射关系
       expect(renderNodeTree.stats.totalRenderNodes).toBe(3) // parent + 2 children
@@ -320,17 +320,17 @@ describe('RenderNode', () => {
     })
 
     it('应该支持单独的RenderNode操作', () => {
-      const eficyNodeTree = container.resolve(EficyNodeTree)
-      eficyNodeTree.build({
+      const eficyNodeStore = container.resolve(EficyNodeStore)
+      eficyNodeStore.build({
         '#': 'test',
         '#view': 'div',
         '#content': 'Test content'
       })
 
       const renderNodeTree = container.resolve(RenderNodeTree)
-      const rootNode = eficyNodeTree.root!
+      const rootNode = eficyNodeStore.root!
       
-      renderNodeTree.buildFromEficyNode(rootNode, RenderNode)
+      renderNodeTree.createElement(rootNode, RenderNode)
 
       const renderNode = renderNodeTree.findRenderNode('test')
       expect(renderNode).toBeTruthy()

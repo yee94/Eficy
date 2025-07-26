@@ -1,13 +1,13 @@
 /**
  * EficyTree 构建工具
  * 
- * 负责将 EficyNodeTree 转换为 EficyNode 树结构
+ * 负责将 EficyNodeStore 转换为 EficyNode 树结构
  * 采用内向外递归的方式，确保所有子节点都是真正的 EficyNode 实例
  */
 
 import type { ComponentType } from 'react'
 import EficyNode from '../models/EficyNode'
-import type { IViewData, IEficyNodeTree } from '../interfaces'
+import type { IViewData, IEficyNodeStore } from '../interfaces'
 
 /**
  * 构建 EficyNode 树 - 内向外递归
@@ -38,10 +38,10 @@ export function buildEficyNode(
     eficyNode['#children'] = processedChildren
     
     // 更新模型映射
-    eficyNode.models = {}
+    eficyNode.nodeMap = {}
     processedChildren.forEach(child => {
       if (child['#']) {
-        eficyNode.models[child['#']] = child
+        eficyNode.nodeMap[child['#']] = child
       }
     })
   }

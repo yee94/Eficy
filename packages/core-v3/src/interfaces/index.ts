@@ -1,6 +1,6 @@
-import type { ReactElement, ComponentType } from 'react';
+import type { ReactElement, ComponentType, ReactNode } from 'react';
 import type EficyNode from '../models/EficyNode';
-import type EficyNodeTree from '../models/EficyNodeTree';
+import type EficyNodeStore from '../models/EficyNodeStore';
 
 /**
  * 视图数据接口 - 原始的JSON结构
@@ -79,12 +79,13 @@ export interface IComponentMap {
 export interface IRenderNodeProps {
   eficyNode: EficyNode;
   componentMap?: IComponentMap;
+  childrenMap?: Map<string, ReactElement>;
 }
 
 /**
- * EficyNodeTree接口 - 内部节点树管理器
+ * EficyNodeStore接口 - 内部节点树管理器
  */
-export interface IEficyNodeTree {
+export interface IEficyNodeStore {
   readonly root: EficyNode | null;
   readonly nodes: Record<string, EficyNode>;
   readonly stats: {
@@ -109,7 +110,7 @@ export interface IEficyNodeTree {
 export interface IEficyProps {
   views: IViewData | IViewData[];
   componentMap?: IComponentMap;
-  onNodeTreeChange?: (tree: EficyNodeTree) => void;
+  onNodeTreeChange?: (tree: EficyNodeStore) => void;
 }
 
 /**
@@ -140,3 +141,11 @@ export type EficyProps = IEficyProps;
 export type EficyConfig = IEficyConfig;
 export type ExtendOptions = IExtendOptions;
 export type EficySchema = IEficySchema;
+
+export interface IComponentRegistry {
+  register(name: string, component: ComponentType<any> | string): void;
+  unregister(name: string): void;
+  get(name: string): ComponentType<any> | string | null;
+  getAll(): Record<string, ComponentType<any> | string>;
+  extend(componentMap: Record<string, ComponentType<any> | string>): void;
+}

@@ -1,15 +1,15 @@
-import { injectable } from 'tsyringe'
-import { observable, computed, action, ObservableClass } from '@eficy/reactive'
-import EficyNode from './EficyNode'
-import type { IViewData } from '../interfaces'
+import { injectable } from 'tsyringe';
+import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
+import EficyNode from './EficyNode';
+import type { IViewData } from '../interfaces';
 
 @injectable()
-export default class EficyNodeTree extends ObservableClass {
+export default class EficyNodeStore {
   @observable
-  private rootNode: EficyNode | null = null
+  private rootNode: EficyNode | null = null;
 
-  private nodeMap: Record<string, EficyNode> = {}
-  private rootData: IViewData | null = null
+  private nodeMap: Record<string, EficyNode> = {};
+  private rootData: IViewData | null = null;
 
   /**
    * 构建完整的EficyNode树 - 由内向外递归构建
@@ -22,17 +22,17 @@ export default class EficyNodeTree extends ObservableClass {
       this.rootData = {
         '#': 'root',
         '#view': 'div',
-        '#children': views
-      }
+        '#children': views,
+      };
     } else {
-      this.rootData = views
+      this.rootData = views;
     }
 
     // 清空现有数据
-    this.nodeMap = {}
-    
+    this.nodeMap = {};
+
     // 由内向外递归构建EficyNode树
-    this.rootNode = this.buildNodeRecursively(this.rootData)
+    this.rootNode = this.buildNodeRecursively(this.rootData);
   }
 
   /**
@@ -40,26 +40,26 @@ export default class EficyNodeTree extends ObservableClass {
    */
   private buildNodeRecursively(viewData: IViewData): EficyNode {
     // 首先创建当前节点（不包含子节点）
-    const { '#children': _, ...nodeData } = viewData // 先移除子节点，稍后处理
-    
-    const node = new EficyNode(nodeData)
-    
+    const { '#children': _, ...nodeData } = viewData; // 先移除子节点，稍后处理
+
+    const node = new EficyNode(nodeData);
+
     // 将节点添加到映射表
     if (node['#']) {
-      this.nodeMap[node['#']] = node
+      this.nodeMap[node['#']] = node;
     }
-    
+
     // 处理子节点 - 递归构建
     if (viewData['#children'] && Array.isArray(viewData['#children'])) {
       const children = viewData['#children'].map((childData) => {
-        return this.buildNodeRecursively(childData)
-      })
-      
+        return this.buildNodeRecursively(childData);
+      });
+
       // 设置子节点
-      node.setChildren(children)
+      node.setChildren(children);
     }
-    
-    return node
+
+    return node;
   }
 
   /**
@@ -67,7 +67,7 @@ export default class EficyNodeTree extends ObservableClass {
    */
   @computed
   get root(): EficyNode | null {
-    return this.rootNode
+    return this.rootNode;
   }
 
   /**
@@ -75,14 +75,14 @@ export default class EficyNodeTree extends ObservableClass {
    */
   @computed
   get nodes(): Record<string, EficyNode> {
-    return this.nodeMap
+    return this.nodeMap;
   }
 
   /**
    * 根据ID查找节点
    */
   findNode(nodeId: string): EficyNode | null {
-    return this.nodeMap[nodeId] || null
+    return this.nodeMap[nodeId] || null;
   }
 
   /**
@@ -90,25 +90,24 @@ export default class EficyNodeTree extends ObservableClass {
    */
   @action
   updateNode(nodeId: string, data: Partial<IViewData>): void {
-    const node = this.findNode(nodeId)
+    const node = this.findNode(nodeId);
     if (!node) {
-      console.error('❌ Node not found:', nodeId)
-      return
+      console.error('❌ Node not found:', nodeId);
+      return;
     }
 
     // 更新节点数据
-    Object.keys(data).forEach(key => {
-      if (key !== '#children') { // 子节点更新需要特殊处理
-        node.updateField(key, data[key])
+    Object.keys(data).forEach((key) => {
+      if (key !== '#children') {
+        // 子节点更新需要特殊处理
+        node.updateField(key, data[key]);
       }
-    })
+    });
 
     // 处理子节点更新
     if (data['#children']) {
-      const newChildren = data['#children'].map(childData => 
-        this.buildNodeRecursively(childData)
-      )
-      node.setChildren(newChildren)
+      const newChildren = data['#children'].map((childData) => this.buildNodeRecursively(childData));
+      node.setChildren(newChildren);
     }
   }
 
@@ -117,16 +116,16 @@ export default class EficyNodeTree extends ObservableClass {
    */
   @action
   addChild(parentId: string, childData: IViewData): EficyNode | null {
-    const parent = this.findNode(parentId)
+    const parent = this.findNode(parentId);
     if (!parent) {
-      console.error('❌ Parent node not found:', parentId)
-      return null
+      console.error('❌ Parent node not found:', parentId);
+      return null;
     }
 
-    const child = this.buildNodeRecursively(childData)
-    parent.addChild(child)
-    
-    return child
+    const child = this.buildNodeRecursively(childData);
+    parent.addChild(child);
+
+    return child;
   }
 
   /**
@@ -134,17 +133,17 @@ export default class EficyNodeTree extends ObservableClass {
    */
   @action
   removeChild(parentId: string, childId: string): void {
-    const parent = this.findNode(parentId)
+    const parent = this.findNode(parentId);
     if (!parent) {
-      console.error('❌ Parent node not found:', parentId)
-      return
+      console.error('❌ Parent node not found:', parentId);
+      return;
     }
 
-    parent.removeChild(childId)
-    
+    parent.removeChild(childId);
+
     // 从节点映射中移除
     if (this.nodeMap[childId]) {
-      delete this.nodeMap[childId]
+      delete this.nodeMap[childId];
     }
   }
 
@@ -154,7 +153,7 @@ export default class EficyNodeTree extends ObservableClass {
   @action
   rebuild(): void {
     if (this.rootData) {
-      this.build(this.rootData)
+      this.build(this.rootData);
     }
   }
 
@@ -163,9 +162,9 @@ export default class EficyNodeTree extends ObservableClass {
    */
   @action
   clear(): void {
-    this.rootNode = null
-    this.nodeMap = {}
-    this.rootData = null
+    this.rootNode = null;
+    this.nodeMap = {};
+    this.rootData = null;
   }
 
   /**
@@ -176,23 +175,27 @@ export default class EficyNodeTree extends ObservableClass {
     return {
       totalNodes: Object.keys(this.nodeMap).length,
       rootNodeId: this.rootNode?.['#'] || null,
-      hasRoot: !!this.rootNode
-    }
+      hasRoot: !!this.rootNode,
+    };
   }
 
   /**
    * 序列化整个树为JSON
    */
   toJSON(): IViewData | null {
-    return this.rootNode?.toJSON() || null
+    return this.rootNode?.toJSON() || null;
   }
 
   /**
    * 从JSON构建树
    */
-  static fromJSON(data: IViewData | IViewData[]): EficyNodeTree {
-    const tree = new EficyNodeTree()
-    tree.build(data)
-    return tree
+  static fromJSON(data: IViewData | IViewData[]): EficyNodeStore {
+    const tree = new EficyNodeStore();
+    tree.build(data);
+    return tree;
+  }
+
+  constructor() {
+    makeObservable(this);
   }
 }

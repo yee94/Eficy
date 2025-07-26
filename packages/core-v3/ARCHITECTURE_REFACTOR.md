@@ -1,4 +1,4 @@
-# EficyNodeTree 和 RenderNodeTree 架构重构
+# EficyNodeStore 和 RenderNodeTree 架构重构
 
 ## 重构目标
 
@@ -10,11 +10,11 @@
 
 ## 新架构设计
 
-### 1. EficyNodeTree - 纯粹的节点树管理
+### 1. EficyNodeStore - 纯粹的节点树管理
 
 ```typescript
 @injectable()
-class EficyNodeTree extends ObservableClass {
+class EficyNodeStore extends ObservableClass {
   @observable private rootNode: EficyNode | null = null
   private nodeMap: Record<string, EficyNode> = {}      // 移除 @observable
   private rootData: IViewData | null = null            // 移除 @observable
@@ -60,35 +60,35 @@ class RenderNodeTree extends ObservableClass {
 **特点：**
 - 专门处理 React 元素的构建和映射
 - 通过依赖注入获取 ComponentRegistry，无需手动传递 componentMap
-- 与 EficyNodeTree 完全解耦，没有直接依赖
+- 与 EficyNodeStore 完全解耦，没有直接依赖
 - 使用 @injectable 和 @inject 装饰器
 
 ### 3. Eficy 主类 - 统一管理两个树
 
 ```typescript
 class Eficy {
-  private eficyNodeTree: EficyNodeTree | null = null
+  private eficyNodeStore: EficyNodeStore | null = null
   private renderNodeTree: RenderNodeTree | null = null
   
   private setupContainer(): void {
     // 注册所有服务到 tsyringe 容器
     container.registerSingleton(ConfigService)
     container.registerSingleton(ComponentRegistry)
-    container.registerSingleton(EficyNodeTree)
+    container.registerSingleton(EficyNodeStore)
     container.registerSingleton(RenderNodeTree)
   }
   
-  private schemaToNodeTree(schema: IEficySchema): EficyNodeTree {
+  private schemaToNodeTree(schema: IEficySchema): EficyNodeStore {
     // 使用 tsyringe 解析实例
-    const nodeTree = container.resolve(EficyNodeTree)
+    const nodeTree = container.resolve(EficyNodeStore)
     nodeTree.build(schema.views)
     return nodeTree
   }
   
-  private buildRenderNodeTree(eficyNodeTree: EficyNodeTree): RenderNodeTree {
+  private buildRenderNodeTree(eficyNodeStore: EficyNodeStore): RenderNodeTree {
     // 使用 tsyringe 解析实例，自动注入 ComponentRegistry
     const renderNodeTree = container.resolve(RenderNodeTree)
-    const rootNode = eficyNodeTree.root
+    const rootNode = eficyNodeStore.root
     
     if (rootNode) {
       // 不再需要传递 componentMap，由依赖注入自动提供
@@ -101,7 +101,7 @@ class Eficy {
 ```
 
 **特点：**
-- 同时管理 EficyNodeTree 和 RenderNodeTree
+- 同时管理 EficyNodeStore 和 RenderNodeTree
 - 使用 tsyringe 容器管理所有依赖
 - 简化的方法调用，无需手动传递依赖
 - 保持原有的外部 API 不变，向后兼容
@@ -140,7 +140,7 @@ createRenderNode(eficyNode: EficyNode): ReactElement {
 ```
 
 ### 3. **职责清晰**
-- **EficyNodeTree**: 纯粹的数据结构管理，专注于节点的增删改查
+- **EficyNodeStore**: 纯粹的数据结构管理，专注于节点的增删改查
 - **RenderNodeTree**: 专门的视图层管理，自动获取组件映射，处理 React 元素构建
 - **Eficy**: 业务逻辑协调，使用依赖注入统一管理所有服务
 - **tsyringe**: 依赖注入容器，统一管理所有服务的生命周期
@@ -151,7 +151,7 @@ createRenderNode(eficyNode: EficyNode): ReactElement {
 beforeEach(() => {
   container.clearInstances()
   container.registerSingleton(ComponentRegistry)
-  container.registerSingleton(EficyNodeTree)
+  container.registerSingleton(EficyNodeStore)
   container.registerSingleton(RenderNodeTree)
   
   // 配置测试用的组件映射
@@ -193,7 +193,7 @@ const element = eficy.createElement({
 ### 高级使用（依赖注入的好处）
 ```typescript
 // 直接从容器获取服务实例
-const nodeTree = container.resolve(EficyNodeTree)
+const nodeTree = container.resolve(EficyNodeStore)
 nodeTree.build(viewData)
 
 const renderTree = container.resolve(RenderNodeTree)

@@ -21,7 +21,9 @@ const FRAMEWORK_FIELDS = new Set([
 
 export default class EficyNode {
   // 唯一标识
-  public readonly id: string = nanoid();
+  public get id(): string {
+    return this['#'];
+  }
 
   // 核心字段
   @observable
@@ -56,8 +58,13 @@ export default class EficyNode {
   private dynamicProps: Record<string, any> = {};
 
   // 子模型映射
-  @observable
-  public models: Record<string, EficyNode> = {};
+  @computed
+  get nodeMap(): Record<string, EficyNode> {
+    return this['#children'].reduce((acc, child) => {
+      acc[child.id] = child;
+      return acc;
+    }, {} as Record<string, EficyNode>);
+  }
 
   constructor(data: IViewData) {
     this.load(data);
@@ -70,7 +77,7 @@ export default class EficyNode {
   @action
   private load(data: IViewData): void {
     // 设置核心字段
-    this['#'] = data['#'] || this.id;
+    this['#'] = data['#'] || nanoid();
     this['#view'] = data['#view'] || 'div';
     this['#content'] = data['#content'];
     this['#if'] = data['#if'] !== undefined ? data['#if'] : true;
@@ -78,12 +85,7 @@ export default class EficyNode {
     this['#style'] = data['#style'];
     this['#class'] = data['#class'];
     this['#events'] = data['#events'];
-
-    // 处理子节点 - 但不在这里构建，由外部EficyNodeTree负责
-    if (data['#children']) {
-      // 暂时存储原始数据，实际构建由外部负责
-      this['#children'] = [];
-    }
+    this['#children'] = data['#children']?.map((child: IViewData) => EficyNode.fromJSON(child));
 
     // 设置其他属性
     const otherProps = setOmit(data, FRAMEWORK_FIELDS);
@@ -96,16 +98,6 @@ export default class EficyNode {
   @computed
   get props(): Record<string, any> {
     const props: Record<string, any> = { ...this.dynamicProps };
-
-    // 处理 #content -> children
-    if (this['#content'] !== undefined) {
-      props.children = this['#content'];
-    }
-
-    // 如果有子节点，children 应该是子节点数组，由RenderNode处理渲染
-    if (this['#children'] && this['#children'].length > 0) {
-      props.children = this['#children'];
-    }
 
     // 添加样式
     if (this['#style']) {
@@ -166,19 +158,11 @@ export default class EficyNode {
   }
 
   /**
-   * 设置子节点（由外部EficyNodeTree调用）
+   * 设置子节点（由外部EficyNodeStore调用）
    */
   @action
   setChildren(children: EficyNode[]): void {
     this['#children'] = children;
-
-    // 更新模型映射
-    this.models = {};
-    children.forEach((child) => {
-      if (child['#']) {
-        this.models[child['#']] = child;
-      }
-    });
   }
 
   /**
@@ -186,12 +170,10 @@ export default class EficyNode {
    */
   @action
   addChild(child: EficyNode): void {
-    this['#children'] = [...this['#children'], child];
-
-    // 更新模型映射
-    if (child['#']) {
-      this.models = { ...this.models, [child['#']]: child };
+    if (!(child instanceof EficyNode)) {
+      throw new Error('Child must be an instance of EficyNode');
     }
+    this['#children'] = [...this['#children'], child];
   }
 
   /**
@@ -199,21 +181,14 @@ export default class EficyNode {
    */
   @action
   removeChild(childId: string): void {
-    this['#children'] = this['#children'].filter((child) => child['#'] !== childId);
-
-    // 更新模型映射
-    if (childId && this.models[childId]) {
-      const newModels = { ...this.models };
-      delete newModels[childId];
-      this.models = newModels;
-    }
+    this['#children'] = this['#children'].filter((child) => child.id !== childId);
   }
 
   /**
    * 查找子节点
    */
   findChild(childId: string): EficyNode | null {
-    return this['#children'].find((child) => child['#'] === childId) || null;
+    return this['#children'].find((child) => child.id === childId) || null;
   }
 
   /**
@@ -221,7 +196,7 @@ export default class EficyNode {
    */
   @computed
   get viewDataMap(): Record<string, EficyNode> {
-    const result: Record<string, EficyNode> = { [this['#']]: this };
+    const result: Record<string, EficyNode> = { [this.id]: this };
 
     // 递归合并子节点的 viewDataMap
     this['#children'].forEach((child) => {
@@ -231,12 +206,17 @@ export default class EficyNode {
     return result;
   }
 
+  @computed
+  get children(): EficyNode[] | string | ReactElement {
+    return this['#children'] ?? this['#content'] ?? null;
+  }
+
   /**
    * 序列化为JSON
    */
   toJSON(): IViewData {
     const result: IViewData = {
-      '#': this['#'],
+      '#': this.id,
       '#view': this['#view'],
       ...this.dynamicProps,
     };
@@ -296,8 +276,6 @@ export default class EficyNode {
     // 更新动态属性
     const otherProps = setOmit(data, FRAMEWORK_FIELDS);
     this.dynamicProps = { ...this.dynamicProps, ...otherProps };
-
-    // 子节点更新由外部EficyNodeTree负责
   }
 
   /**

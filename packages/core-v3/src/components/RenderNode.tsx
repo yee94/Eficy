@@ -22,11 +22,12 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 };
 
 // 主渲染组件 - 使用useObserver(view)模式来追踪响应式数据
-const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {} }: IRenderNodeProps) => {
+const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, childrenMap }: IRenderNodeProps) => {
+  if (!childrenMap || !eficyNode) {
+    throw new Error('childrenMap and eficyNode are required');
+  }
   // 正确地在组件顶层调用useObserver hook
   const renderResult = useObserver(() => {
-    // 在effect内部访问响应式属性
-    const nodeId = eficyNode['#'];
     const componentName = eficyNode['#view'];
     const shouldRender = eficyNode.shouldRender;
     const props = eficyNode.props;
@@ -47,9 +48,12 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {} }:
         </div>
       );
     }
-
-    // 处理子节点 - 现在所有子节点都应该是真正的 EficyNode 实例
-    const children = props.children;
+    const children = (() => {
+      if (Array.isArray(eficyNode.children)) {
+        return eficyNode.children.map((child) => childrenMap.get(child.id));
+      }
+      return eficyNode.children;
+    })();
 
     // 创建最终props
     const finalProps = {
