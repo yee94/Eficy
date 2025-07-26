@@ -1,39 +1,40 @@
-import { nanoid } from 'nanoid'
-import { observable, computed, action, ObservableClass } from '@eficy/reactive'
-import { isFunction, omit } from 'lodash'
-import type { IViewData } from '../interfaces'
-import type { ReactElement } from 'react'
+import { nanoid } from 'nanoid';
+import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
+import { isFunction, omit } from 'lodash';
+import type { IViewData } from '../interfaces';
+import type { ReactElement } from 'react';
 
 // 框架特殊字段，不会传递给组件
-const FRAMEWORK_FIELDS = ['#', '#view', '#children', '#content', '#if', '#staticProps']
+const FRAMEWORK_FIELDS = ['#', '#view', '#children', '#content', '#if', '#staticProps'];
 
 export default class ViewNode extends ObservableClass {
   // 唯一标识
-  public readonly id: string = nanoid()
+  public readonly id: string = nanoid();
 
   // 核心字段
   @observable
-  public '#' = ''
+  public '#' = '';
 
   @observable
-  public '#view' = 'div'
+  public '#view' = 'div';
 
   @observable
-  public '#children': ViewNode[] = []
+  public '#children': ViewNode[] = [];
 
   @observable
-  public '#content'?: string | ReactElement
+  public '#content'?: string | ReactElement;
 
   @observable
-  public '#if'?: boolean | (() => boolean) = true
+  public '#if'?: boolean | (() => boolean) = true;
 
   // 动态属性存储
   @observable
-  private dynamicProps: Record<string, any> = {}
+  private dynamicProps: Record<string, any> = {};
 
   constructor(data: IViewData) {
-    super()
-    this.load(data)
+    super();
+    this.load(data);
+    makeObservable(this);
   }
 
   /**
@@ -42,19 +43,19 @@ export default class ViewNode extends ObservableClass {
   @action
   private load(data: IViewData): void {
     // 设置核心字段
-    this['#'] = data['#'] || this.id
-    this['#view'] = data['#view'] || 'div'
-    this['#content'] = data['#content']
-    this['#if'] = data['#if'] !== undefined ? data['#if'] : true
+    this['#'] = data['#'] || this.id;
+    this['#view'] = data['#view'] || 'div';
+    this['#content'] = data['#content'];
+    this['#if'] = data['#if'] !== undefined ? data['#if'] : true;
 
     // 处理子节点
     if (data['#children']) {
-      this['#children'] = data['#children'].map(childData => new ViewNode(childData))
+      this['#children'] = data['#children'].map((childData) => new ViewNode(childData));
     }
 
     // 设置其他属性
-    const otherProps = omit(data, FRAMEWORK_FIELDS)
-    this.dynamicProps = { ...otherProps }
+    const otherProps = omit(data, FRAMEWORK_FIELDS);
+    this.dynamicProps = { ...otherProps };
   }
 
   /**
@@ -62,20 +63,20 @@ export default class ViewNode extends ObservableClass {
    */
   @computed
   get props(): Record<string, any> {
-    const props: Record<string, any> = { ...this.dynamicProps }
+    const props: Record<string, any> = { ...this.dynamicProps };
 
     // 处理 #content -> children
     if (this['#content'] !== undefined) {
-      props.children = this['#content']
+      props.children = this['#content'];
     }
 
     // 如果有子节点，children 应该是子节点的渲染结果
     if (this['#children'] && this['#children'].length > 0) {
       // 这里只返回子节点数组，实际渲染由 RenderNode 处理
-      props.children = this['#children']
+      props.children = this['#children'];
     }
 
-    return props
+    return props;
   }
 
   /**
@@ -83,17 +84,17 @@ export default class ViewNode extends ObservableClass {
    */
   @computed
   get shouldRender(): boolean {
-    const condition = this['#if']
-    
+    const condition = this['#if'];
+
     if (condition === undefined || condition === null) {
-      return true
+      return true;
     }
-    
+
     if (isFunction(condition)) {
-      return (condition as () => boolean)()
+      return (condition as () => boolean)();
     }
-    
-    return Boolean(condition)
+
+    return Boolean(condition);
   }
 
   /**
@@ -103,13 +104,13 @@ export default class ViewNode extends ObservableClass {
   updateField(key: string, value: any): void {
     if (FRAMEWORK_FIELDS.includes(key)) {
       // 更新框架字段
-      (this as any)[key] = value
+      (this as any)[key] = value;
     } else {
       // 更新动态属性
       this.dynamicProps = {
         ...this.dynamicProps,
-        [key]: value
-      }
+        [key]: value,
+      };
     }
   }
 
@@ -118,7 +119,7 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   addChild(child: ViewNode): void {
-    this['#children'] = [...this['#children'], child]
+    this['#children'] = [...this['#children'], child];
   }
 
   /**
@@ -126,14 +127,14 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   removeChild(childId: string): void {
-    this['#children'] = this['#children'].filter(child => child['#'] !== childId)
+    this['#children'] = this['#children'].filter((child) => child['#'] !== childId);
   }
 
   /**
    * 查找子节点
    */
   findChild(childId: string): ViewNode | null {
-    return this['#children'].find(child => child['#'] === childId) || null
+    return this['#children'].find((child) => child['#'] === childId) || null;
   }
 
   /**
@@ -143,28 +144,28 @@ export default class ViewNode extends ObservableClass {
     const result: IViewData = {
       '#': this['#'],
       '#view': this['#view'],
-      ...this.dynamicProps
-    }
+      ...this.dynamicProps,
+    };
 
     if (this['#content'] !== undefined) {
-      result['#content'] = this['#content']
+      result['#content'] = this['#content'];
     }
 
     if (this['#if'] !== true) {
-      result['#if'] = this['#if']
+      result['#if'] = this['#if'];
     }
 
     if (this['#children'].length > 0) {
-      result['#children'] = this['#children'].map(child => child.toJSON())
+      result['#children'] = this['#children'].map((child) => child.toJSON());
     }
 
-    return result
+    return result;
   }
 
   /**
    * 从JSON创建ViewNode
    */
   static fromJSON(data: IViewData): ViewNode {
-    return new ViewNode(data)
+    return new ViewNode(data);
   }
 }
