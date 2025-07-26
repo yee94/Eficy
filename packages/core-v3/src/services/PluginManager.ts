@@ -14,7 +14,7 @@ import {
 export class PluginManager {
   private plugins: Map<string, IEficyPlugin> = new Map()
   private hooks: Map<HookType, IHookRegistration[]> = new Map()
-  private hookExecutionOrder: Map<HookType, Function[]> = new Map()
+  private hookExecutionOrder: Map<HookType, ((...args: any[]) => Promise<any>)[]> = new Map()
 
   /**
    * 注册插件
@@ -38,7 +38,7 @@ export class PluginManager {
       this.registerLifecycleHooks(plugin as ILifecyclePlugin)
     }
 
-    console.log(`Plugin ${plugin.name} registered successfully`)
+    // Plugin registered successfully
   }
 
   /**
@@ -64,7 +64,7 @@ export class PluginManager {
     // 移除插件
     this.plugins.delete(pluginName)
     
-    console.log(`Plugin ${pluginName} unregistered successfully`)
+    // Plugin unregistered successfully
   }
 
   /**
@@ -136,21 +136,24 @@ export class PluginManager {
       const { hookType, methodName, priority } = hookInfo
       
       // 创建钩子注册信息
-      const registration: IHookRegistration = {
-        hookType,
-        plugin,
-        handler: plugin[methodName as keyof ILifecyclePlugin].bind(plugin),
-        priority: priority || 0
+      const method = plugin[methodName as keyof ILifecyclePlugin]
+      if (typeof method === 'function') {
+        const registration: IHookRegistration = {
+          hookType,
+          plugin,
+          handler: method.bind(plugin),
+          priority: priority || 0
+        }
+        
+        // 添加到钩子映射
+        if (!this.hooks.has(hookType)) {
+          this.hooks.set(hookType, [])
+        }
+        this.hooks.get(hookType)!.push(registration)
+        
+        // 重新构建执行顺序
+        this.rebuildHookExecutionOrder(hookType)
       }
-
-      // 添加到钩子映射
-      if (!this.hooks.has(hookType)) {
-        this.hooks.set(hookType, [])
-      }
-      this.hooks.get(hookType)!.push(registration)
-
-      // 重新构建执行顺序
-      this.rebuildHookExecutionOrder(hookType)
     })
   }
 

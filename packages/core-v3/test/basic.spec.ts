@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import ViewNode from '../src/models/ViewNode'
+import EficyNode from '../src/models/EficyNode'
 import ConfigService from '../src/services/ConfigService'
 import ComponentRegistry from '../src/services/ComponentRegistry'
 
 describe('基础功能测试', () => {
   it('ViewNode 应该能正确创建', () => {
-    const viewNode = new ViewNode({
+    const viewNode = new EficyNode({
       '#': 'test',
       '#view': 'div',
       className: 'test-class'

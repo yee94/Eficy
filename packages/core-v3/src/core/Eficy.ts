@@ -1,9 +1,9 @@
 import 'reflect-metadata'
 import { container } from 'tsyringe'
-import React from 'react'
-import type { ReactElement } from 'react'
-import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces'
-import ViewNode from '../models/ViewNode'
+import React, { type ReactElement } from 'react'
+import type { IEficyConfig, IExtendOptions, IEficySchema } from '../interfaces'
+import type EficyNode from '../models/EficyNode'
+import EficyNodeTree from '../models/EficyNodeTree'
 import RenderNode from '../components/RenderNode'
 import ConfigService from '../services/ConfigService'
 import ComponentRegistry from '../services/ComponentRegistry'
@@ -58,7 +58,21 @@ export default class Eficy {
   }
 
   /**
-   * 根据Schema创建React元素
+   * 将 IEficySchema 转换为 EficyNodeTree
+   */
+  private schemaToNodeTree(schema: IEficySchema): EficyNodeTree {
+    if (!schema || !schema.views) {
+      throw new Error('Schema must have views property')
+    }
+
+    // 使用新的 EficyNodeTree 来构建树结构
+    const nodeTree = new EficyNodeTree(schema.views)
+    
+    return nodeTree
+  }
+
+  /**
+   * 根据Schema创建React元素 (保持原有API)
    */
   createElement(schema: IEficySchema): ReactElement | null {
     if (!schema) {
@@ -73,29 +87,54 @@ export default class Eficy {
       return null
     }
 
+    // 将 Schema 转换为 NodeTree
+    const nodeTree = this.schemaToNodeTree(schema)
     const componentMap = this.componentRegistry.getAll()
 
-    // 如果只有一个根视图，直接渲染
-    if (schema.views.length === 1) {
-      const viewNode = new ViewNode(schema.views[0])
-      return React.createElement(RenderNode, { viewNode, componentMap })
+    // 获取根节点
+    const rootNode = nodeTree.root
+    if (!rootNode) {
+      return null
     }
 
-    // 多个根视图，使用Fragment包装
-    const children = schema.views.map((viewData, index) => {
-      const viewNode = new ViewNode(viewData)
+    // 如果根节点只有一个子节点且根节点是容器，直接渲染子节点
+    if (rootNode['#view'] === 'div' && rootNode['#'] === 'root' && rootNode['#children'].length === 1) {
+      const childNode = rootNode['#children'][0]
       return React.createElement(RenderNode, { 
-        key: viewNode['#'] || index, 
-        viewNode, 
+        key: childNode['#'] || childNode.id,
+        eficyNode: childNode, 
         componentMap 
       })
-    })
+    }
 
-    return React.createElement(React.Fragment, null, ...children)
+    // 如果根节点有多个子节点，渲染所有子节点
+    if (rootNode['#children'].length > 1) {
+      const children = rootNode['#children'].map((childNode, index) => {
+        return React.createElement(RenderNode, { 
+          key: childNode['#'] || childNode.id || index, 
+          eficyNode: childNode, 
+          componentMap 
+        })
+      })
+      return React.createElement(React.Fragment, null, ...children)
+    }
+
+    // 默认情况：渲染根节点本身
+    return React.createElement(RenderNode, { 
+      eficyNode: rootNode, 
+      componentMap 
+    })
   }
 
   /**
-   * 渲染Schema到DOM节点
+   * 兼容性方法：根据Schema创建React元素（保持原有方法名）
+   */
+  createElementFromSchema(schema: IEficySchema): ReactElement | null {
+    return this.createElement(schema)
+  }
+
+  /**
+   * 渲染Schema到DOM节点 (保持原有API)
    */
   render(schema: IEficySchema, container: string | HTMLElement): void {
     import('react-dom/client').then(({ createRoot }) => {
@@ -112,4 +151,26 @@ export default class Eficy {
       root.render(element)
     })
   }
-} 
+
+  /**
+   * 兼容性方法：渲染Schema到DOM节点（保持原有方法名）
+   */
+  renderSchema(schema: IEficySchema, container: string | HTMLElement): void {
+    this.render(schema, container)
+  }
+
+  /**
+   * 根据Schema获取内部的NodeTree (新增方法，用于高级用法)
+   */
+  getNodeTree(schema: IEficySchema): EficyNodeTree {
+    return this.schemaToNodeTree(schema)
+  }
+
+  /**
+   * 根据Schema获取特定节点 (新增方法，用于操作节点)
+   */
+  getNode(schema: IEficySchema, nodeId: string): EficyNode | null {
+    const nodeTree = this.schemaToNodeTree(schema)
+    return nodeTree.findNode(nodeId)
+  }
+}

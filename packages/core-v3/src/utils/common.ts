@@ -85,10 +85,7 @@ export function benchmarkSetOmit() {
   }
   const omitTime = performance.now() - omitStart;
 
-  console.log(`setOmit performance test (${iterations} iterations):`);
-  console.log(`  setOmit: ${setOmitTime.toFixed(2)}ms`);
-  console.log(`  lodash omit: ${omitTime.toFixed(2)}ms`);
-  console.log(`  Performance improvement: ${((omitTime - setOmitTime) / omitTime * 100).toFixed(2)}%`);
+  // Performance test results available in development mode
 }
 
 export function filterUndefined(obj: Record<string, any>) {

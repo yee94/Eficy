@@ -17,7 +17,7 @@ import type {
   HookType 
 } from '../src/interfaces/lifecycle'
 import type { IViewData } from '../src/interfaces'
-import ViewNode from '../src/models/ViewNode'
+import EficyNode from '../src/models/EficyNode'
 import { PluginManager } from '../src/services/PluginManager'
 import {
   Init,
@@ -73,7 +73,7 @@ describe('Lifecycle Hooks System', () => {
         async onBuildSchemaNode(
           viewData: IViewData,
           context: IBuildSchemaNodeContext,
-          next: () => Promise<ViewNode>
+          next: () => Promise<EficyNode>
         ) {
           return await next()
         }
@@ -95,7 +95,7 @@ describe('Lifecycle Hooks System', () => {
 
         @Render()
         async onRender(
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IRenderContext,
           next: () => Promise<ReactElement>
         ) {
@@ -120,7 +120,7 @@ describe('Lifecycle Hooks System', () => {
         @Mount()
         async onMount(
           element: Element,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IMountContext,
           next: () => Promise<void>
         ) {
@@ -145,7 +145,7 @@ describe('Lifecycle Hooks System', () => {
         @Unmount()
         async onUnmount(
           element: Element,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IUnmountContext,
           next: () => Promise<void>
         ) {
@@ -170,7 +170,7 @@ describe('Lifecycle Hooks System', () => {
         @ResolveComponent()
         async onResolveComponent(
           componentName: string,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IResolveComponentContext,
           next: () => Promise<ComponentType>
         ) {
@@ -195,7 +195,7 @@ describe('Lifecycle Hooks System', () => {
         @ProcessProps()
         async onProcessProps(
           props: Record<string, any>,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IProcessPropsContext,
           next: () => Promise<Record<string, any>>
         ) {
@@ -220,7 +220,7 @@ describe('Lifecycle Hooks System', () => {
         @HandleEvent()
         async onHandleEvent(
           event: Event,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IHandleEventContext,
           next: () => Promise<any>
         ) {
@@ -246,7 +246,7 @@ describe('Lifecycle Hooks System', () => {
         async onBindEvent(
           eventName: string,
           handler: Function,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IBindEventContext,
           next: () => Promise<void>
         ) {
@@ -271,7 +271,7 @@ describe('Lifecycle Hooks System', () => {
         @Error()
         async onError(
           error: Error,
-          viewNode: ViewNode | null,
+          viewNode: EficyNode | null,
           context: IErrorContext,
           next: () => Promise<ReactElement | void>
         ) {
@@ -300,7 +300,7 @@ describe('Lifecycle Hooks System', () => {
 
         @Render()
         async onRender(
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IRenderContext,
           next: () => Promise<ReactElement>
         ) {
@@ -310,7 +310,7 @@ describe('Lifecycle Hooks System', () => {
         @Mount()
         async onMount(
           element: Element,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IMountContext,
           next: () => Promise<void>
         ) {
@@ -419,7 +419,7 @@ describe('Lifecycle Hooks System', () => {
       ])
     })
 
-    it('should execute @BuildSchemaNode hooks with ViewNode creation', async () => {
+    it('should execute @BuildSchemaNode hooks with EficyNode creation', async () => {
       const processedNodes: string[] = []
 
       @injectable()
@@ -431,7 +431,7 @@ describe('Lifecycle Hooks System', () => {
         async onBuildSchemaNode(
           viewData: IViewData,
           context: IBuildSchemaNodeContext,
-          next: () => Promise<ViewNode>
+          next: () => Promise<EficyNode>
         ) {
           processedNodes.push(`before-${viewData['#']}`)
           const node = await next()
@@ -463,11 +463,11 @@ describe('Lifecycle Hooks System', () => {
       }
 
       const result = await pluginManager.executeHook('buildSchemaNode' as HookType, viewData, mockContext, async () => {
-        return new ViewNode(viewData)
+        return new EficyNode(viewData)
       })
 
       expect(processedNodes).toEqual(['before-test-node', 'after-test-node'])
-      expect(result).toBeInstanceOf(ViewNode)
+      expect(result).toBeInstanceOf(EficyNode)
       expect(result.props['data-processed']).toBe(true)
     })
 
@@ -482,7 +482,7 @@ describe('Lifecycle Hooks System', () => {
         @Mount()
         async onMount(
           element: Element,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IMountContext,
           next: () => Promise<void>
         ) {
@@ -501,7 +501,7 @@ describe('Lifecycle Hooks System', () => {
       pluginManager.register(plugin)
 
       const mockElement = document.createElement('div')
-      const viewNode = new ViewNode({
+      const viewNode = new EficyNode({
         '#': 'test-mount',
         '#view': 'div'
       })
@@ -531,7 +531,7 @@ describe('Lifecycle Hooks System', () => {
         @Error()
         async onError(
           error: Error,
-          viewNode: ViewNode | null,
+          viewNode: EficyNode | null,
           context: IErrorContext,
           next: () => Promise<ReactElement | void>
         ) {
@@ -551,7 +551,7 @@ describe('Lifecycle Hooks System', () => {
       pluginManager.register(plugin)
 
       const testError = new Error('Test error')
-      const viewNode = new ViewNode({ '#': 'error-node', '#view': 'div' })
+      const viewNode = new EficyNode({ '#': 'error-node', '#view': 'div' })
 
       const mockContext: IErrorContext = {
         timestamp: Date.now(),
@@ -662,7 +662,7 @@ describe('Lifecycle Hooks System', () => {
 
         @Render()
         async onRender(
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IRenderContext,
           next: () => Promise<ReactElement>
         ) {
@@ -672,7 +672,7 @@ describe('Lifecycle Hooks System', () => {
         @Mount()
         async onMount(
           element: Element,
-          viewNode: ViewNode,
+          viewNode: EficyNode,
           context: IMountContext,
           next: () => Promise<void>
         ) {

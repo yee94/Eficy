@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import RenderNode from '../src/components/RenderNode'
-import ViewNode from '../src/models/ViewNode'
+import EficyNode from '../src/models/EficyNode'
 
 // 测试用的组件
 const TestButton = ({ children, onClick, className }: any) => (
@@ -28,28 +28,28 @@ const testComponentMap = {
 describe('RenderNode', () => {
   describe('基础渲染', () => {
     it('应该渲染简单组件', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'test',
         '#view': 'div',
         className: 'test-class',
         '#content': 'Hello World'
       })
 
-      render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       
       expect(screen.getByText('Hello World')).toBeInTheDocument()
       expect(screen.getByText('Hello World')).toHaveClass('test-class')
     })
 
     it('应该渲染自定义组件', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'button',
         '#view': 'TestButton',
         className: 'test-button',
         '#content': 'Click Me'
       })
 
-      render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
@@ -58,14 +58,14 @@ describe('RenderNode', () => {
     })
 
     it('应该处理样式属性', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'styled',
         '#view': 'div',
         style: { color: 'red', fontSize: '16px' },
         '#content': 'Styled content'
       })
 
-      render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       
       const element = screen.getByText('Styled content')
       expect(element).toHaveStyle({ color: 'rgb(255, 0, 0)', fontSize: '16px' })
@@ -74,7 +74,7 @@ describe('RenderNode', () => {
 
   describe('子节点渲染', () => {
     it('应该渲染嵌套子节点', () => {
-      const parentNode = new ViewNode({
+      const parentNode = new EficyNode({
         '#': 'parent',
         '#view': 'div',
         className: 'parent',
@@ -92,7 +92,7 @@ describe('RenderNode', () => {
         ]
       })
 
-      render(<RenderNode viewNode={parentNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={parentNode} componentMap={testComponentMap} />)
       
       expect(screen.getByText('Child 1')).toBeInTheDocument()
       expect(screen.getByText('Child 2')).toBeInTheDocument()
@@ -102,7 +102,7 @@ describe('RenderNode', () => {
     })
 
     it('应该支持深层嵌套', () => {
-      const deepNode = new ViewNode({
+      const deepNode = new EficyNode({
         '#': 'root',
         '#view': 'div',
         '#children': [
@@ -122,7 +122,7 @@ describe('RenderNode', () => {
         ]
       })
 
-      render(<RenderNode viewNode={deepNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={deepNode} componentMap={testComponentMap} />)
       
       const deepElement = screen.getByText('Deep content')
       expect(deepElement).toBeInTheDocument()
@@ -133,44 +133,44 @@ describe('RenderNode', () => {
 
   describe('条件渲染', () => {
     it('当 #if 为 false 时不应该渲染', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'conditional',
         '#view': 'div',
         '#if': false,
         '#content': 'Should not render'
       })
 
-      const { container } = render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      const { container } = render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       expect(container.firstChild).toBeNull()
     })
 
     it('当 #if 为 true 时应该渲染', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'conditional',
         '#view': 'div', 
         '#if': true,
         '#content': 'Should render'
       })
 
-      render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       expect(screen.getByText('Should render')).toBeInTheDocument()
     })
 
     it('默认情况下应该渲染（没有 #if）', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'default',
         '#view': 'div',
         '#content': 'Default render'
       })
 
-      render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       expect(screen.getByText('Default render')).toBeInTheDocument()
     })
   })
 
   describe('组件错误处理', () => {
     it('组件不存在时应该显示错误信息', () => {
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'missing',
         '#view': 'NonExistentComponent',
         '#content': 'This should show error'
@@ -179,7 +179,7 @@ describe('RenderNode', () => {
       // 捕获控制台错误
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      render(<RenderNode viewNode={viewNode} componentMap={testComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={testComponentMap} />)
       
       // 应该渲染错误信息或占位符
       expect(screen.getByText(/Component.*not found/i)).toBeInTheDocument()
@@ -197,14 +197,14 @@ describe('RenderNode', () => {
         ErrorComponent
       }
 
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'error',
         '#view': 'ErrorComponent'
       })
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      render(<RenderNode viewNode={viewNode} componentMap={errorComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={errorComponentMap} />)
       
       // 应该显示错误边界信息
       expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument()
@@ -226,18 +226,18 @@ describe('RenderNode', () => {
         SpyComponent
       }
 
-      const viewNode = new ViewNode({
+      const eficyNode = new EficyNode({
         '#': 'memo-test',
         '#view': 'SpyComponent',
         '#content': 'Memo test'
       })
 
-      const { rerender } = render(<RenderNode viewNode={viewNode} componentMap={spyComponentMap} />)
+      const { rerender } = render(<RenderNode eficyNode={eficyNode} componentMap={spyComponentMap} />)
       
       expect(renderSpy).toHaveBeenCalledTimes(1)
 
-      // 重新渲染但 viewNode 没有变化
-      rerender(<RenderNode viewNode={viewNode} componentMap={spyComponentMap} />)
+      // 重新渲染但 eficyNode 没有变化
+      rerender(<RenderNode eficyNode={eficyNode} componentMap={spyComponentMap} />)
       
       // 由于 memo，不应该重新渲染
       expect(renderSpy).toHaveBeenCalledTimes(1)
