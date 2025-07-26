@@ -149,3 +149,14 @@ export interface IComponentRegistry {
   getAll(): Record<string, ComponentType<any> | string>;
   extend(componentMap: Record<string, ComponentType<any> | string>): void;
 }
+
+// 生命周期上下文接口
+export interface ILifecycleContext {
+  [key: string]: any
+}
+
+export interface ILifecycleManager {
+  register(phase: string, target: any, method: string): void
+  execute(phase: string, context: ILifecycleContext): Promise<void>
+  hasHooks(phase: string): boolean
+} 
