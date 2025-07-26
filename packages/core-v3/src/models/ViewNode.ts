@@ -1,220 +1,170 @@
-import { IView } from '../interface';
-import { Vmo } from '@vmojs/base';
-import { Field } from '@vmojs/base/bundle';
-import {
-  cloneDeep,
-  deleteObjectField,
-  forEachDeep,
-  generateUid,
-  isArray,
-  isEficyView,
-  isObject,
-  mapDeep,
-  MERGE_WAY,
-  mergeWith,
-} from '../utils';
-import { action, computed, observable } from 'mobx';
-import Config from '../constants/Config';
-import UnEnumerable from '../utils/decorators/UnEnumerable';
-import { CSSProperties } from 'react';
+import { nanoid } from 'nanoid'
+import { observable, computed, action, ObservableClass } from '@eficy/reactive'
+import { isFunction, omit } from 'lodash'
+import type { IViewData } from '../interfaces'
+import type { ReactElement } from 'react'
 
-type IComponentsModels = Record<string, new (...args: any) => ViewNode>;
-export type ExtendsViewNode = ViewNode & any;
+// 框架特殊字段，不会传递给组件
+const FRAMEWORK_FIELDS = ['#', '#view', '#children', '#content', '#if', '#staticProps']
 
-export default class ViewNode extends Vmo implements IView {
-  public static readonly solidField = ['#', '#view', '#restProps'];
-  public static isInstance(someObject: any): boolean {
-    return someObject.__proto__.constructor.name === ViewNode.name;
+export default class ViewNode extends ObservableClass {
+  // 唯一标识
+  public readonly id: string = nanoid()
+
+  // 核心字段
+  @observable
+  public '#' = ''
+
+  @observable
+  public '#view' = 'div'
+
+  @observable
+  public '#children': ViewNode[] = []
+
+  @observable
+  public '#content'?: string | ReactElement
+
+  @observable
+  public '#if'?: boolean | (() => boolean) = true
+
+  // 动态属性存储
+  @observable
+  private dynamicProps: Record<string, any> = {}
+
+  constructor(data: IViewData) {
+    super()
+    this.load(data)
   }
 
-  @UnEnumerable
-  private readonly componentModels: IComponentsModels;
-
-  constructor(data: IView, componentModels: IComponentsModels = {}) {
-    super();
-
-    this.componentModels = componentModels || {};
-    const foundModel = this.componentModels[data['#view']];
-
-    if (foundModel && ViewNode.isInstance(this)) {
-      // @ts-ignore
-      return new foundModel(data, componentModels);
-    } else {
-      this.load(data);
-    }
-  }
-
-  @Field
-  public '#view': string;
-  @Field
-  public '#': string;
-
-  @Field
-  @observable.ref
-  public '#children': ViewNode[];
-
-  @Field
-  public '#staticProps': Record<string, any> = {};
-
-  @Field
-  @observable
-  public '#if': boolean;
-
-  @Field
-  @observable
-  public '#content': string;
-
-  @observable
-  public '#restProps': Record<string, any>;
-
-  @Field
-  @observable
-  public className: string;
-
-  @Field
-  @observable
-  public style: CSSProperties;
-
+  /**
+   * 加载ViewData数据
+   */
   @action
-  protected load(data: IView): this {
-    if (!data) {
-      return this;
-    }
-    if (!data['#']) {
-      data['#'] = generateUid();
+  private load(data: IViewData): void {
+    // 设置核心字段
+    this['#'] = data['#'] || this.id
+    this['#view'] = data['#view'] || 'div'
+    this['#content'] = data['#content']
+    this['#if'] = data['#if'] !== undefined ? data['#if'] : true
+
+    // 处理子节点
+    if (data['#children']) {
+      this['#children'] = data['#children'].map(childData => new ViewNode(childData))
     }
 
-    if (!('#if' in data)) {
-      data['#if'] = true;
-    }
-
-    this.update(data, true);
-
-    return this;
+    // 设置其他属性
+    const otherProps = omit(data, FRAMEWORK_FIELDS)
+    this.dynamicProps = { ...otherProps }
   }
 
+  /**
+   * 计算最终传递给组件的props
+   */
   @computed
-  public get viewDataMap(): Record<string, ExtendsViewNode> {
-    const viewMaps = { [this['#']]: this };
-    const extendViewMap = (viewNode: ViewNode) => {
-      const childMap = viewNode.viewDataMap;
-      if (childMap) {
-        Object.assign(viewMaps, childMap);
-      }
-    };
-    (this['#children'] || []).forEach(extendViewMap);
+  get props(): Record<string, any> {
+    const props: Record<string, any> = { ...this.dynamicProps }
 
-    forEachDeep(this['#restProps'], (optionValue) => {
-      if (optionValue instanceof ViewNode) {
-        extendViewMap(optionValue);
-      }
-
-      return optionValue;
-    });
-
-    return viewMaps;
-  }
-
-  @action
-  private transformViewNode(data: IView) {
-    return mapDeep(
-      data,
-      (value: IView, path) => {
-        if (!path) {
-          return value;
-        }
-        if (isEficyView(value) && !(value instanceof ViewNode)) {
-          return new ViewNode(value, this.componentModels);
-        }
-        return value;
-      },
-      {
-        exceptFns: [...Config.loopExceptFns, (obj) => obj['#view'] === 'Eficy'],
-      },
-    );
-  }
-
-  @action
-  public overwrite(data: IView) {
-    [...Object.keys(this), ...Object.keys(this['#restProps'])].forEach((key) => {
-      if (ViewNode.solidField.includes(key)) {
-        return;
-      }
-      const originValue = ViewNode.prototype[key];
-      switch (typeof originValue) {
-        case 'function':
-        case 'object':
-          this[key] = cloneDeep(originValue);
-          break;
-        case 'undefined':
-          deleteObjectField(this, key);
-          break;
-        default:
-          this[key] = originValue;
-      }
-    });
-    // @ts-ignore
-    this['#restProps'] = undefined;
-    deleteObjectField(this, '#children');
-
-    this.load(data);
-
-    return this;
-  }
-
-  @action
-  public update(data: IView, isInit = false): this {
-    if (!this['#restProps']) {
-      this['#restProps'] = {};
-      Object.defineProperty(this, '#restProps', {
-        enumerable: false,
-      });
+    // 处理 #content -> children
+    if (this['#content'] !== undefined) {
+      props.children = this['#content']
     }
 
-    data = this.transformViewNode(data);
+    // 如果有子节点，children 应该是子节点的渲染结果
+    if (this['#children'] && this['#children'].length > 0) {
+      // 这里只返回子节点数组，实际渲染由 RenderNode 处理
+      props.children = this['#children']
+    }
 
-    Object.keys(data).forEach((key) => {
-      if (!isInit && ViewNode.solidField.includes(key)) {
-        return;
-      }
-
-      // @ts-ignore
-      if (this.__proto__.hasOwnProperty(key)) {
-        this[key] = data[key];
-      } else {
-        if (!this.hasOwnProperty(key)) {
-          this['#restProps'][key] = data[key];
-          Object.defineProperty(this, key, {
-            enumerable: true,
-            configurable: true,
-            get() {
-              return this['#restProps'][key];
-            },
-            set(val) {
-              this['#restProps'][key] = val;
-            },
-          });
-        } else {
-          if (isObject(data[key])) {
-            this[key] = mergeWith(this[key], data[key], MERGE_WAY.REPLACE);
-          } else {
-            this[key] = data[key];
-          }
-        }
-      }
-    });
-
-    return this;
+    return props
   }
 
-  public forEachChild(cb: (child: ViewNode) => void) {
-    if (isArray(this['#children'])) {
-      this['#children'].forEach((child) => {
-        cb(child);
-        if (isArray(child['#children'])) {
-          child.forEachChild(cb);
-        }
-      });
+  /**
+   * 判断是否应该渲染
+   */
+  @computed
+  get shouldRender(): boolean {
+    const condition = this['#if']
+    
+    if (condition === undefined || condition === null) {
+      return true
     }
+    
+    if (isFunction(condition)) {
+      return (condition as () => boolean)()
+    }
+    
+    return Boolean(condition)
+  }
+
+  /**
+   * 更新字段值
+   */
+  @action
+  updateField(key: string, value: any): void {
+    if (FRAMEWORK_FIELDS.includes(key)) {
+      // 更新框架字段
+      (this as any)[key] = value
+    } else {
+      // 更新动态属性
+      this.dynamicProps = {
+        ...this.dynamicProps,
+        [key]: value
+      }
+    }
+  }
+
+  /**
+   * 添加子节点
+   */
+  @action
+  addChild(child: ViewNode): void {
+    this['#children'] = [...this['#children'], child]
+  }
+
+  /**
+   * 移除子节点
+   */
+  @action
+  removeChild(childId: string): void {
+    this['#children'] = this['#children'].filter(child => child['#'] !== childId)
+  }
+
+  /**
+   * 查找子节点
+   */
+  findChild(childId: string): ViewNode | null {
+    return this['#children'].find(child => child['#'] === childId) || null
+  }
+
+  /**
+   * 序列化为JSON
+   */
+  toJSON(): IViewData {
+    const result: IViewData = {
+      '#': this['#'],
+      '#view': this['#view'],
+      ...this.dynamicProps
+    }
+
+    if (this['#content'] !== undefined) {
+      result['#content'] = this['#content']
+    }
+
+    if (this['#if'] !== true) {
+      result['#if'] = this['#if']
+    }
+
+    if (this['#children'].length > 0) {
+      result['#children'] = this['#children'].map(child => child.toJSON())
+    }
+
+    return result
+  }
+
+  /**
+   * 从JSON创建ViewNode
+   */
+  static fromJSON(data: IViewData): ViewNode {
+    return new ViewNode(data)
   }
 }

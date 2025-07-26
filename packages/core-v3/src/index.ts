@@ -1,33 +1,23 @@
-import * as Tools from './utils';
-import * as Models from './models';
-import * as Mobx from 'mobx';
-import { observer } from 'mobx-react';
-import Controller from './core/Controller';
-import EficyComponent from './components/EficyComponent';
+import 'reflect-metadata'
 
-import resolver from './core/resolver';
-import Config from './constants/Config';
-import Plugins from './plugins';
-import { install as installPlugin } from './plugins';
-import render from './utils/renderHelper';
-import ViewNode from './models/ViewNode';
-import createElement from './utils/createElement';
-import { installAction } from './constants/defaultActions';
+// Core
+export { default as Eficy } from './core/Eficy'
+export { default as ViewNode } from './models/ViewNode'
+export { default as RenderNode } from './components/RenderNode'
 
-export default Controller;
+// Services
+export { default as ConfigService } from './services/ConfigService'
+export { default as ComponentRegistry } from './services/ComponentRegistry'
+export { default as LifecycleManager } from './services/LifecycleManager'
 
-export {
-  resolver,
-  Config,
-  Plugins,
-  installPlugin,
-  installAction,
-  render,
-  ViewNode,
-  createElement,
-  EficyComponent,
-  Controller,
-  Tools,
-  Models,
-  Mobx,
-};
+// Decorators
+export * from './decorators/lifecycle'
+
+// Interfaces
+export * from './interfaces'
+
+// Utils
+export * from './utils'
+
+// Default export
+export { default } from './core/Eficy'

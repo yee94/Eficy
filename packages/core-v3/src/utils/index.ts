@@ -1,3 +1,7 @@
+// 基础工具函数
+export const isFunction = (value: any): value is Function => typeof value === 'function'
+export const isObject = (value: any): value is object => value !== null && typeof value === 'object'
+export const isArray = (value: any): value is any[] => Array.isArray(value)
 // export { default as renderHelper } from './renderHelper';
 export { default as generateUid } from './generateUid';
 export { default as mergeClassName } from './mergeClassName';
