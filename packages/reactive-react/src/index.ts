@@ -1,6 +1,15 @@
-export * from './observer'
-export * from './hooks'
-export * from './types'
+// 主要的 observer 功能
+export { observer } from './observer'
+
+// 所有 hooks
+export { 
+  useObserver, 
+  useForceUpdate,
+  useReactive
+} from './hooks'
+
+// 类型定义
+export type * from './types'
 
 // ==================== 装饰器支持（优先级最高）====================
 export {
