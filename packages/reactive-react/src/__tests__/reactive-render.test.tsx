@@ -56,9 +56,9 @@ class MockViewNode extends ObservableClass {
   @action
   updateField(key: string, value: any): void {
     if (key === '#content') {
-      this['#content'] = value
+      this[key] = value
     } else if (key === '#view') {
-      this['#view'] = value
+      this[key] = value
     } else {
       this.dynamicProps = {
         ...this.dynamicProps,

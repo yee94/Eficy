@@ -17,22 +17,9 @@
     "preact",
     "signals-core"
   ],
+  "type": "module",
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "unpkg": "./dist/index.iife.js",
-  "jsdelivr": "./dist/index.iife.js",
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.mts"
-    },
-    "./package.json": {
-      "import": "./package.json",
-      "require": "./package.json"
-    }
-  },
+  "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xiaobebe/eficy.git",
@@ -60,13 +47,6 @@
   "dependencies": {
     "@preact/signals-core": "^1.5.0",
     "reflect-metadata": "^0.1.13"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@vitest/coverage-v8": "^1.0.0",
-    "tsdown": "^0.13.0",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
   },
   "publishConfig": {
     "access": "public"

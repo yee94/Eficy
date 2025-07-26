@@ -18,7 +18,6 @@ const TestComponent: React.FC<{ observableInstance: TestObservableClass }> = ({ 
     return <div data-testid="test-component">{observableInstance.value}</div>
   })
   
-  console.log('🔴 TestComponent: useObserver returned:', result)
   return result
 }
 

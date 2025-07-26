@@ -14,11 +14,9 @@
     "typescript",
     "preact-signals"
   ],
+  "type": "module",
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "unpkg": "./dist/index.iife.js",
-  "jsdelivr": "./dist/index.iife.js",
+  "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xiaobebe/eficy.git",
@@ -59,6 +57,8 @@
   },
   "dependencies": {
     "@eficy/reactive": "workspace:*",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "@preact/signals-react": "^3.2.1"
   },
   "devDependencies": {
@@ -69,8 +69,6 @@
     "@types/react-dom": "^18.0.0",
     "@vitest/coverage-v8": "^1.0.0",
     "jsdom": "^23.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
     "tsdown": "^0.13.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"

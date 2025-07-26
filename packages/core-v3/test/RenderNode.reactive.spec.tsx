@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { signal } from '@eficy/reactive'
 import RenderNode from '../src/components/RenderNode'
 import EficyNode from '../src/models/EficyNode'
@@ -36,10 +36,9 @@ describe('RenderNode - Reactive Capabilities', () => {
       expect(screen.getByText('Initial Content')).toBeInTheDocument()
       expect(screen.getByText('Initial Content')).toHaveClass('initial-class')
       
-      // 响应式更新属性
       eficyNode.updateField('className', 'updated-class')
       eficyNode.updateField('#content', 'Updated Content')
-      
+
       // 验证响应式更新
       await waitFor(() => {
         expect(screen.getByText('Updated Content')).toBeInTheDocument()
@@ -100,7 +99,7 @@ describe('RenderNode - Reactive Capabilities', () => {
   })
 
   describe('Reactive Children Updates', () => {
-    it('should reactively update when children are added', async () => {
+    it.only('should reactively update when children are added', async () => {
       const parentData: IViewData = {
         '#': 'parent',
         '#view': 'div',

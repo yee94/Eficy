@@ -1,9 +1,8 @@
-import React, { memo } from 'react';
-import type { ComponentType, ReactElement } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 import { useObserver } from '@eficy/reactive-react';
+import type { ComponentType, FC } from 'react';
+import { createElement, memo } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import type { IRenderNodeProps } from '../interfaces';
-import EficyNode from '../models/EficyNode';
 
 // 自定义错误回退组件
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => {
@@ -23,7 +22,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 };
 
 // 主渲染组件 - 使用useObserver(view)模式来追踪响应式数据
-const RenderNodeInner: React.FC<IRenderNodeProps> = ({ eficyNode, componentMap = {} }: IRenderNodeProps) => {
+const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {} }: IRenderNodeProps) => {
   // 正确地在组件顶层调用useObserver hook
   const renderResult = useObserver(() => {
     // 在effect内部访问响应式属性
@@ -50,14 +49,7 @@ const RenderNodeInner: React.FC<IRenderNodeProps> = ({ eficyNode, componentMap =
     }
 
     // 处理子节点 - 现在所有子节点都应该是真正的 EficyNode 实例
-    let children = props.children;
-
-    // 如果children是EficyNode数组，递归渲染
-    if (Array.isArray(children) && children.length > 0 && children[0] instanceof EficyNode) {
-      children = children.map((child: EficyNode) => (
-        <RenderNode key={child['#'] || child.id} eficyNode={child} componentMap={componentMap} />
-      ));
-    }
+    const children = props.children;
 
     // 创建最终props
     const finalProps = {
@@ -67,11 +59,11 @@ const RenderNodeInner: React.FC<IRenderNodeProps> = ({ eficyNode, componentMap =
 
     // 如果Component是字符串（原生HTML标签）
     if (typeof Component === 'string') {
-      return React.createElement(Component, finalProps);
+      return createElement(Component, finalProps);
     }
 
     // 如果Component是React组件
-    return React.createElement(Component, finalProps);
+    return <Component {...finalProps} />;
   });
 
   // 返回useObserver的结果
