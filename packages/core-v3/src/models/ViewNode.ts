@@ -1,11 +1,12 @@
 import { nanoid } from 'nanoid';
 import { observable, computed, action, ObservableClass } from '@eficy/reactive';
-import { isFunction, omit } from 'lodash';
+import { isFunction } from 'lodash';
+import { setOmit } from '../utils/common';
 import type { IViewData } from '../interfaces';
 import type { ReactElement } from 'react';
 
 // 框架特殊字段，不会传递给组件
-const FRAMEWORK_FIELDS = ['#', '#view', '#children', '#content', '#if', '#staticProps'];
+const FRAMEWORK_FIELDS = new Set(['#', '#view', '#children', '#content', '#if', '#staticProps']);
 
 export default class ViewNode extends ObservableClass {
   // 唯一标识
@@ -67,7 +68,7 @@ export default class ViewNode extends ObservableClass {
     }
 
     // 设置其他属性
-    const otherProps = omit(data, FRAMEWORK_FIELDS);
+    const otherProps = setOmit(data, FRAMEWORK_FIELDS);
     this.dynamicProps = { ...otherProps };
   }
 
@@ -115,7 +116,7 @@ export default class ViewNode extends ObservableClass {
    */
   @action
   updateField(key: string, value: any): void {
-    if (FRAMEWORK_FIELDS.includes(key)) {
+    if (FRAMEWORK_FIELDS.has(key)) {
       // 更新框架字段
       (this as any)[key] = value;
     } else {
@@ -220,7 +221,7 @@ export default class ViewNode extends ObservableClass {
     if (data['#if'] !== undefined) this['#if'] = data['#if'];
 
     // 更新动态属性
-    const otherProps = omit(data, FRAMEWORK_FIELDS);
+    const otherProps = setOmit(data, FRAMEWORK_FIELDS);
     this.dynamicProps = { ...this.dynamicProps, ...otherProps };
 
     // 更新子节点

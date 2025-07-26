@@ -30,11 +30,12 @@ export default class EficySchema extends ObservableClass implements IEficySchema
   public getViewModel(key: string): ViewNode | null {
     const steps = `${key}`.split('.');
     const viewMap = this.viewDataMap;
-    return steps.reduce<ViewNode | null>(
+    const result = steps.reduce<ViewNode | null>(
       (previousValue, currentValue) =>
-        previousValue ? previousValue.models[currentValue] : viewMap[currentValue],
+        previousValue ? (previousValue.models[currentValue] || null) : (viewMap[currentValue] || null),
       null,
     );
+    return result || null;
   }
 
   constructor(data: IEficySchema) {
@@ -57,9 +58,12 @@ export default class EficySchema extends ObservableClass implements IEficySchema
   public updateViews(data: IEficySchema, cb: (viewNode: ViewNode, viewData: any) => void) {
     if (isArray(data.views)) {
       data.views.forEach((viewData) => {
-        const viewModel = this.getViewModel(viewData['#']);
-        if (viewModel) {
-          cb(viewModel, viewData);
+        const viewId = viewData['#'];
+        if (viewId) {
+          const viewModel = this.getViewModel(viewId);
+          if (viewModel) {
+            cb(viewModel, viewData);
+          }
         }
       });
     }
@@ -68,6 +72,17 @@ export default class EficySchema extends ObservableClass implements IEficySchema
   @action
   public update(data: IEficySchema) {
     this.updateViews(data, (viewModel, viewData) => viewModel.update(viewData));
+    
+    // 处理新增节点
+    if (isArray(data.views)) {
+      data.views.forEach((viewData) => {
+        const viewId = viewData['#'];
+        if (viewId && !this.getViewModel(viewId)) {
+          const newNode = new ViewNode(viewData);
+          this.views = [...this.views, newNode];
+        }
+      });
+    }
   }
 
   @action

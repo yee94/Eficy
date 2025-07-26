@@ -37,6 +37,8 @@
   "author": "xiaobe <wyy.xb@qq.com>",
   "license": "ISC",
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "axios-mock-adapter": "^1.22.0",
     "esbuild-decorators": "^1.0.0",
     "happy-dom": "^6.0.4",
