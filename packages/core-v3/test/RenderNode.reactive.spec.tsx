@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { signal } from '@eficy/reactive'
 import RenderNode from '../src/components/RenderNode'
-import ViewNode from '../src/models/ViewNode'
+import EficyNode from '../src/models/EficyNode'
 import type { IViewData } from '../src/interfaces'
 
 describe('RenderNode - Reactive Capabilities', () => {
@@ -20,7 +20,7 @@ describe('RenderNode - Reactive Capabilities', () => {
   }
 
   describe('Reactive Property Updates', () => {
-    it('should reactively update when ViewNode properties change', async () => {
+    it('should reactively update when EficyNode properties change', async () => {
       const viewData: IViewData = {
         '#': 'test-node',
         '#view': 'div',
@@ -28,17 +28,17 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#content': 'Initial Content'
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={mockComponentMap} />)
       
       // 验证初始渲染
       expect(screen.getByText('Initial Content')).toBeInTheDocument()
       expect(screen.getByText('Initial Content')).toHaveClass('initial-class')
       
       // 响应式更新属性
-      viewNode.updateField('className', 'updated-class')
-      viewNode.updateField('#content', 'Updated Content')
+      eficyNode.updateField('className', 'updated-class')
+      eficyNode.updateField('#content', 'Updated Content')
       
       // 验证响应式更新
       await waitFor(() => {
@@ -54,15 +54,15 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#content': 'Content'
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={mockComponentMap} />)
       
       // 验证初始为 div
       expect(screen.getByText('Content').tagName).toBe('DIV')
       
       // 更新组件类型
-      viewNode.updateField('#view', 'span')
+      eficyNode.updateField('#view', 'span')
       
       // 验证响应式更新为 span
       await waitFor(() => {
@@ -78,9 +78,9 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#content': 'Custom Content'
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={mockComponentMap} />)
       
       // 验证初始渲染
       const customComponent = screen.getByTestId('custom-component')
@@ -88,8 +88,8 @@ describe('RenderNode - Reactive Capabilities', () => {
       expect(customComponent).toHaveTextContent('Custom Content')
       
       // 响应式更新属性
-      viewNode.updateField('data-value', 'updated')
-      viewNode.updateField('#content', 'Updated Custom Content')
+      eficyNode.updateField('data-value', 'updated')
+      eficyNode.updateField('#content', 'Updated Custom Content')
       
       // 验证响应式更新
       await waitFor(() => {
@@ -113,16 +113,16 @@ describe('RenderNode - Reactive Capabilities', () => {
         ]
       }
 
-      const parentNode = new ViewNode(parentData)
+      const parentNode = new EficyNode(parentData)
       
-      render(<RenderNode viewNode={parentNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={parentNode} componentMap={mockComponentMap} />)
       
       // 验证初始子节点
       expect(screen.getByText('Child 1')).toBeInTheDocument()
       expect(screen.queryByText('Child 2')).not.toBeInTheDocument()
       
       // 添加新子节点
-      const newChild = new ViewNode({
+      const newChild = new EficyNode({
         '#': 'child2',
         '#view': 'span',
         '#content': 'Child 2'
@@ -154,9 +154,9 @@ describe('RenderNode - Reactive Capabilities', () => {
         ]
       }
 
-      const parentNode = new ViewNode(parentData)
+      const parentNode = new EficyNode(parentData)
       
-      render(<RenderNode viewNode={parentNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={parentNode} componentMap={mockComponentMap} />)
       
       // 验证初始子节点
       expect(screen.getByText('Child 1')).toBeInTheDocument()
@@ -191,9 +191,9 @@ describe('RenderNode - Reactive Capabilities', () => {
         ]
       }
 
-      const rootNode = new ViewNode(rootData)
+      const rootNode = new EficyNode(rootData)
       
-      render(<RenderNode viewNode={rootNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={rootNode} componentMap={mockComponentMap} />)
       
       // 验证深层内容
       expect(screen.getByText('Deep Content')).toBeInTheDocument()
@@ -220,15 +220,15 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#if': true
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={mockComponentMap} />)
       
       // 验证初始显示
       expect(screen.getByText('Conditional Content')).toBeInTheDocument()
       
       // 隐藏元素
-      viewNode.updateField('#if', false)
+      eficyNode.updateField('#if', false)
       
       // 验证响应式隐藏
       await waitFor(() => {
@@ -236,7 +236,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       })
       
       // 重新显示元素
-      viewNode.updateField('#if', true)
+      eficyNode.updateField('#if', true)
       
       // 验证响应式显示
       await waitFor(() => {
@@ -254,9 +254,9 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#if': () => showCondition()
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={mockComponentMap} />)
       
       // 验证初始显示
       expect(screen.getByText('Function Conditional')).toBeInTheDocument()
@@ -310,9 +310,9 @@ describe('RenderNode - Reactive Capabilities', () => {
         ]
       }
 
-      const parentNode = new ViewNode(parentData)
+      const parentNode = new EficyNode(parentData)
       
-      render(<RenderNode viewNode={parentNode} componentMap={componentMapWithSpy} />)
+      render(<RenderNode eficyNode={parentNode} componentMap={componentMapWithSpy} />)
       
       const initialRenderCount = renderSpy.mock.calls.length
       
@@ -335,9 +335,9 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#content': 'Initial'
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={mockComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={mockComponentMap} />)
       
       // 快速连续更新
       const updates = ['Update 1', 'Update 2', 'Update 3', 'Final Update']
@@ -346,7 +346,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       
       updates.forEach((update, index) => {
         setTimeout(() => {
-          viewNode.updateField('#content', update)
+          eficyNode.updateField('#content', update)
         }, index * 10)
       })
       
@@ -379,15 +379,15 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#content': 'Safe Content'
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={errorComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={errorComponentMap} />)
       
       // 验证正常渲染
       expect(screen.getByText('Safe Content')).toBeInTheDocument()
       
       // 更新为错误组件
-      viewNode.updateField('#view', 'ErrorComponent')
+      eficyNode.updateField('#view', 'ErrorComponent')
       
       // 验证错误边界处理
       await waitFor(() => {
@@ -414,16 +414,16 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#view': 'ErrorComponent'
       }
 
-      const viewNode = new ViewNode(viewData)
+      const eficyNode = new EficyNode(viewData)
       
-      render(<RenderNode viewNode={viewNode} componentMap={errorComponentMap} />)
+      render(<RenderNode eficyNode={eficyNode} componentMap={errorComponentMap} />)
       
       // 验证错误状态
       expect(screen.getByText('Something went wrong')).toBeInTheDocument()
       
       // 修复组件
-      viewNode.updateField('#view', 'div')
-      viewNode.updateField('#content', 'Recovered Content')
+      eficyNode.updateField('#view', 'div')
+      eficyNode.updateField('#content', 'Recovered Content')
       
       // 点击 Try again 按钮
       const tryAgainButton = screen.getByText('Try again')

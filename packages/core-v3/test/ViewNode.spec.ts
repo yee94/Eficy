@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { effect } from '@eficy/reactive'
-import ViewNode from '../src/models/ViewNode'
+import EficyNode from '../src/models/EficyNode'
 
-describe('ViewNode', () => {
-  let viewNode: ViewNode
+describe('EficyNode', () => {
+  let eficyNode: EficyNode
 
   beforeEach(() => {
-    viewNode = new ViewNode({
+    eficyNode = new EficyNode({
       '#': 'testNode',
       '#view': 'div',
       className: 'test-class',
@@ -16,20 +16,20 @@ describe('ViewNode', () => {
 
   describe('基础属性', () => {
     it('应该正确初始化基础属性', () => {
-      expect(viewNode['#']).toBe('testNode')
-      expect(viewNode['#view']).toBe('div')
-      expect(viewNode.id).toBeDefined()
-      expect(typeof viewNode.id).toBe('string')
+      expect(eficyNode['#']).toBe('testNode')
+      expect(eficyNode['#view']).toBe('div')
+      expect(eficyNode.id).toBeDefined()
+      expect(typeof eficyNode.id).toBe('string')
     })
 
     it('应该支持更新字段', () => {
-      viewNode.updateField('className', 'new-class')
-      expect(viewNode.props.className).toBe('new-class')
+      eficyNode.updateField('className', 'new-class')
+      expect(eficyNode.props.className).toBe('new-class')
     })
 
     it('应该支持更新样式', () => {
-      viewNode.updateField('style', { color: 'blue', fontSize: '14px' })
-      expect(viewNode.props.style).toEqual({ color: 'blue', fontSize: '14px' })
+      eficyNode.updateField('style', { color: 'blue', fontSize: '14px' })
+      expect(eficyNode.props.style).toEqual({ color: 'blue', fontSize: '14px' })
     })
   })
 
@@ -41,13 +41,13 @@ describe('ViewNode', () => {
       // 模拟观察者
       const dispose = effect(() => {
         renderCount++
-        lastProps = viewNode.props
+        lastProps = eficyNode.props
       })
 
       expect(renderCount).toBe(1)
 
       // 更新属性
-      viewNode.updateField('className', 'updated-class')
+      eficyNode.updateField('className', 'updated-class')
       expect(renderCount).toBe(2)
       expect(lastProps.className).toBe('updated-class')
 
@@ -55,71 +55,71 @@ describe('ViewNode', () => {
     })
 
     it('计算属性应该正确响应依赖变化', () => {
-      const props = viewNode.props
+      const props = eficyNode.props
       expect(props.className).toBe('test-class')
       expect(props.style).toEqual({ color: 'red' })
 
-      viewNode.updateField('className', 'new-class')
-      const newProps = viewNode.props
+      eficyNode.updateField('className', 'new-class')
+      const newProps = eficyNode.props
       expect(newProps.className).toBe('new-class')
     })
   })
 
   describe('子节点管理', () => {
     it('应该支持添加子节点', () => {
-      const childNode = new ViewNode({
+      const childNode = new EficyNode({
         '#': 'child',
         '#view': 'span',
         '#content': 'child content'
       })
 
-      viewNode.addChild(childNode)
-      expect(viewNode['#children']).toHaveLength(1)
-      expect(viewNode['#children'][0]).toBe(childNode)
+      eficyNode.addChild(childNode)
+      expect(eficyNode['#children']).toHaveLength(1)
+      expect(eficyNode['#children'][0]).toBe(childNode)
     })
 
     it('应该支持移除子节点', () => {
-      const childNode = new ViewNode({
+      const childNode = new EficyNode({
         '#': 'child',
         '#view': 'span'
       })
 
-      viewNode.addChild(childNode)
-      expect(viewNode['#children']).toHaveLength(1)
+      eficyNode.addChild(childNode)
+      expect(eficyNode['#children']).toHaveLength(1)
 
-      viewNode.removeChild('child')
-      expect(viewNode['#children']).toHaveLength(0)
+      eficyNode.removeChild('child')
+      expect(eficyNode['#children']).toHaveLength(0)
     })
 
     it('应该支持通过ID查找子节点', () => {
-      const childNode = new ViewNode({
+      const childNode = new EficyNode({
         '#': 'child',
         '#view': 'span'
       })
 
-      viewNode.addChild(childNode)
-      const foundChild = viewNode.findChild('child')
+      eficyNode.addChild(childNode)
+      const foundChild = eficyNode.findChild('child')
       expect(foundChild).toBe(childNode)
     })
   })
 
   describe('条件渲染', () => {
     it('应该支持 #if 条件渲染', () => {
-      viewNode.updateField('#if', false)
-      expect(viewNode.shouldRender).toBe(false)
+      eficyNode.updateField('#if', false)
+      expect(eficyNode.shouldRender).toBe(false)
 
-      viewNode.updateField('#if', true)
-      expect(viewNode.shouldRender).toBe(true)
+      eficyNode.updateField('#if', true)
+      expect(eficyNode.shouldRender).toBe(true)
     })
 
     it('默认情况下应该渲染', () => {
-      expect(viewNode.shouldRender).toBe(true)
+      expect(eficyNode.shouldRender).toBe(true)
     })
   })
 
   describe('Props 计算', () => {
     it('应该正确计算传递给组件的props', () => {
-      const props = viewNode.props
+      const props = eficyNode.props
       
       // 不应该包含框架特殊字段
       expect(props['#']).toBeUndefined()
@@ -132,8 +132,8 @@ describe('ViewNode', () => {
     })
 
     it('应该处理 #content 特殊字段', () => {
-      viewNode.updateField('#content', 'Hello World')
-      const props = viewNode.props
+      eficyNode.updateField('#content', 'Hello World')
+      const props = eficyNode.props
       
       expect(props.children).toBe('Hello World')
       expect(props['#content']).toBeUndefined()
@@ -142,7 +142,7 @@ describe('ViewNode', () => {
 
   describe('序列化', () => {
     it('应该支持序列化为JSON', () => {
-      const json = viewNode.toJSON()
+      const json = eficyNode.toJSON()
       expect(json['#']).toBe('testNode')
       expect(json['#view']).toBe('div')
       expect(json.className).toBe('test-class')
@@ -155,7 +155,7 @@ describe('ViewNode', () => {
         title: 'test title'
       }
 
-      const newNode = ViewNode.fromJSON(json)
+      const newNode = EficyNode.fromJSON(json)
       expect(newNode['#']).toBe('newNode')
       expect(newNode['#view']).toBe('span')
       expect(newNode.props.title).toBe('test title')
