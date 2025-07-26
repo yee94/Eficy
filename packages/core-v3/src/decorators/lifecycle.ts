@@ -39,9 +39,6 @@ export const HandleEvent = createLifecycleDecorator(HookType.HANDLE_EVENT)
 export const BindEvent = createLifecycleDecorator(HookType.BIND_EVENT)
 export const Error = createLifecycleDecorator(HookType.ERROR)
 
-// 保持向后兼容的旧装饰器
-export const BuildViewNode = BuildSchemaNode
-export const BeforeRender = Render
 
 // 获取类的生命周期钩子
 export function getLifecycleHooks(target: any) {
