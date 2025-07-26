@@ -1,4 +1,4 @@
-import { Properties } from 'csstype';
+import type { CSSProperties } from "react";
 
 export type IEficySchema = {
   views: IView[];
@@ -8,7 +8,7 @@ export type IEficySchema = {
 export type IView = {
   '#view': string; // component name
   '#'?: string; // id
-  '#style'?: Properties;
+  '#style'?: CSSProperties;
   '#children'?: IView[];
   '#className'?: string;
 } & any;
@@ -20,4 +20,3 @@ export interface IActionProps {
   data?: any;
 }
 
-export type { ExtendsViewNode } from '../models/ViewNode';

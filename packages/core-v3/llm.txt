@@ -1,0 +1,591 @@
+# Eficy Core V3 - LLM Documentation
+
+## 项目概述
+
+Eficy Core V3 是一个现代化的声明式 UI 框架，基于 React 构建，采用 Schema 驱动的方式生成用户界面。
+
+### 核心特性
+- 🔄 基于 @eficy/reactive 的现代化响应式系统
+- 💉 使用 tsyringe 依赖注入容器
+- ⚡ React.memo 优化的独立节点渲染
+- 🎯 支持任意 React 组件库
+- 🔧 可扩展的插件系统
+- 📦 TypeScript 原生支持
+
+### 技术栈
+- React 18+
+- TypeScript
+- @eficy/reactive (基于 @preact/signals-core)
+- tsyringe (依赖注入)
+- ahooks (React Hooks)
+- lodash (工具库)
+- nanoid (ID 生成)
+
+## 核心架构
+
+### 1. 主要类和服务
+
+#### Eficy (核心类)
+```typescript
+class Eficy {
+  config(options: IEficyConfig): this
+  extend(options: IExtendOptions): this
+  createElement(schema: IEficySchema): ReactElement | null
+  render(schema: IEficySchema, container: string | HTMLElement): void
+}
+```
+
+#### ViewNode (数据模型)
+```typescript
+class ViewNode extends ObservableClass {
+  public readonly id: string
+  @observable public '#': string
+  @observable public '#view': string
+  @observable public '#children': ViewNode[]
+  @observable public '#content'?: string | ReactElement
+  @observable public '#if'?: boolean | (() => boolean)
+  
+  @computed get props(): Record<string, any>
+  @computed get shouldRender(): boolean
+  
+  @action updateField(key: string, value: any): void
+  @action addChild(child: ViewNode): void
+  @action removeChild(childId: string): void
+}
+```
+
+#### RenderNode (渲染组件)
+```typescript
+const RenderNode = memo<IRenderNodeProps>((props) => {
+  return (
+    <ErrorBoundary>
+      <RenderNodeInner {...props} />
+    </ErrorBoundary>
+  )
+})
+```
+
+### 2. 服务层
+
+#### ConfigService
+```typescript
+@injectable()
+class ConfigService implements IConfigService {
+  get<T = any>(key: string): T
+  set(key: string, value: any): void
+  extend(options: IExtendOptions): void
+  getConfig(): IEficyConfig
+}
+```
+
+#### ComponentRegistry
+```typescript
+@injectable()
+class ComponentRegistry implements IComponentRegistry {
+  register(name: string, component: ComponentType<any> | string): void
+  unregister(name: string): void
+  get(name: string): ComponentType<any> | string | null
+  extend(componentMap: Record<string, ComponentType<any> | string>): void
+}
+```
+
+#### LifecycleManager
+```typescript
+@injectable()
+class LifecycleManager implements ILifecycleManager {
+  register(phase: string, target: any, method: string): void
+  async execute(phase: string, context: ILifecycleContext): Promise<void>
+  hasHooks(phase: string): boolean
+}
+```
+
+## Schema 格式
+
+### 基础 Schema 结构
+```typescript
+interface IViewData {
+  '#'?: string                    // 节点ID
+  '#view': string                 // 组件名称
+  '#children'?: IViewData[]       // 子节点
+  '#content'?: string | ReactElement // 文本内容
+  '#if'?: boolean | (() => boolean)   // 条件渲染
+  [key: string]: any              // 其他属性
+}
+
+interface IEficySchema {
+  views: IViewData[]
+}
+```
+
+### Schema 示例
+
+#### 基础示例
+```typescript
+const schema = {
+  views: [
+    {
+      '#': 'welcome',
+      '#view': 'div',
+      className: 'welcome-container',
+      '#children': [
+        {
+          '#': 'title',
+          '#view': 'h1',
+          '#content': 'Hello Eficy V3!',
+          style: { color: 'blue' }
+        },
+        {
+          '#': 'button',
+          '#view': 'button',
+          '#content': 'Click Me',
+          onClick: () => console.log('Clicked!')
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### 条件渲染示例
+```typescript
+const conditionalSchema = {
+  views: [
+    {
+      '#': 'greeting',
+      '#view': 'div',
+      '#if': () => new Date().getHours() < 12,
+      '#content': '早上好！'
+    },
+    {
+      '#': 'afternoon-greeting',
+      '#view': 'div',
+      '#if': () => new Date().getHours() >= 12,
+      '#content': '下午好！'
+    }
+  ]
+}
+```
+
+#### 表单示例
+```typescript
+const formSchema = {
+  views: [
+    {
+      '#': 'user-form',
+      '#view': 'Form',
+      layout: 'vertical',
+      '#children': [
+        {
+          '#': 'name-field',
+          '#view': 'Form.Item',
+          label: '姓名',
+          '#children': [
+            {
+              '#': 'name-input',
+              '#view': 'Input',
+              placeholder: '请输入姓名'
+            }
+          ]
+        },
+        {
+          '#': 'submit-field',
+          '#view': 'Form.Item',
+          '#children': [
+            {
+              '#': 'submit-btn',
+              '#view': 'Button',
+              type: 'primary',
+              htmlType: 'submit',
+              '#content': '提交'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## API 使用指南
+
+### 1. 创建实例
+```typescript
+import { Eficy } from '@eficy/core-v3'
+
+const eficy = new Eficy()
+```
+
+### 2. 配置组件库
+```typescript
+import { Button, Input, Form } from 'antd'
+
+eficy.config({
+  componentMap: {
+    Button,
+    Input,
+    Form,
+    'Form.Item': Form.Item
+  }
+})
+```
+
+### 3. 扩展配置
+```typescript
+// 基础配置
+eficy.config({
+  componentMap: { Button, Input }
+})
+
+// 扩展配置（递归合并）
+eficy.extend({
+  componentMap: { Form, Select }
+})
+```
+
+### 4. 渲染组件
+```typescript
+// 创建 React 元素
+const element = eficy.createElement(schema)
+
+// 直接渲染到 DOM
+eficy.render(schema, '#root')
+// 或
+eficy.render(schema, document.getElementById('root'))
+```
+
+## 响应式数据
+
+### 使用 ViewNode 构建响应式数据
+```typescript
+import { ViewNode } from '@eficy/core-v3'
+
+// 创建响应式视图节点
+const viewNode = new ViewNode({
+  '#': 'counter',
+  '#view': 'div',
+  count: 0
+})
+
+// 响应式更新
+viewNode.updateField('count', 10)
+
+// 添加子节点
+const child = new ViewNode({
+  '#': 'display',
+  '#view': 'span',
+  '#content': 'Count: 10'
+})
+viewNode.addChild(child)
+```
+
+### 计算属性和动作
+```typescript
+import { observable, computed, action, ObservableClass } from '@eficy/reactive'
+
+class CounterStore extends ObservableClass {
+  @observable count = 0
+  
+  @computed get isEven() {
+    return this.count % 2 === 0
+  }
+  
+  @action increment() {
+    this.count++
+  }
+  
+  @action reset() {
+    this.count = 0
+  }
+}
+```
+
+## 组件注册
+
+### 自动注册的 HTML 标签
+```typescript
+// 以下标签自动注册，无需手动配置
+const htmlTags = [
+  'div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'button', 'input', 'textarea', 'select', 'option',
+  'form', 'label', 'fieldset', 'legend',
+  'table', 'thead', 'tbody', 'tr', 'td', 'th',
+  'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+  'img', 'a', 'br', 'hr', 'strong', 'em', 'code', 'pre'
+]
+```
+
+### 注册自定义组件
+```typescript
+import { MyCustomComponent } from './components'
+
+// 单个注册
+eficy.config({
+  componentMap: {
+    'MyCustom': MyCustomComponent
+  }
+})
+
+// 批量注册
+const componentMap = {
+  'Header': HeaderComponent,
+  'Footer': FooterComponent,
+  'Navigation': NavigationComponent
+}
+eficy.extend({ componentMap })
+```
+
+## 插件系统
+
+### 生命周期装饰器
+```typescript
+class MyPlugin {
+  @Init
+  async initialize(context: IInitContext, next: () => Promise<void>) {
+    console.log('Plugin initializing...')
+    await next()
+    console.log('Plugin initialized')
+  }
+  
+  @BuildViewNode
+  async processViewNode(context: IBuildViewNodeContext, next: () => Promise<void>) {
+    // 修改或验证 ViewNode
+    await next()
+  }
+}
+```
+
+### 注册插件
+```typescript
+import { container } from 'tsyringe'
+import { LifecycleManager } from '@eficy/core-v3'
+
+const lifecycleManager = container.resolve(LifecycleManager)
+const plugin = new MyPlugin()
+
+lifecycleManager.register('init', plugin, 'initialize')
+lifecycleManager.register('buildViewNode', plugin, 'processViewNode')
+```
+
+## 性能优化
+
+### 1. React.memo 优化
+- 每个 ViewNode 渲染为独立的 RenderNode
+- 使用 React.memo 防止不必要的重渲染
+- 比较策略基于 ViewNode 实例引用
+
+### 2. 响应式更新
+- 细粒度的响应式更新
+- 只有依赖的 ViewNode 变更时才重新渲染
+- 批处理多个更新操作
+
+### 3. 组件隔离
+- ErrorBoundary 包装确保错误隔离
+- 独立的组件生命周期管理
+
+## 测试
+
+### 单元测试示例
+```typescript
+import { describe, it, expect } from 'vitest'
+import { ViewNode, Eficy } from '@eficy/core-v3'
+
+describe('ViewNode', () => {
+  it('should create reactive view node', () => {
+    const viewNode = new ViewNode({
+      '#': 'test',
+      '#view': 'div',
+      className: 'test-class'
+    })
+    
+    expect(viewNode['#']).toBe('test')
+    expect(viewNode['#view']).toBe('div')
+    expect(viewNode.props.className).toBe('test-class')
+  })
+  
+  it('should update field reactively', () => {
+    const viewNode = new ViewNode({
+      '#': 'test',
+      '#view': 'div'
+    })
+    
+    viewNode.updateField('title', 'New Title')
+    expect(viewNode.props.title).toBe('New Title')
+  })
+})
+```
+
+### 集成测试示例
+```typescript
+import { render, screen } from '@testing-library/react'
+import { Eficy } from '@eficy/core-v3'
+
+describe('Eficy Integration', () => {
+  it('should render schema correctly', () => {
+    const eficy = new Eficy()
+    const schema = {
+      views: [
+        {
+          '#': 'greeting',
+          '#view': 'h1',
+          '#content': 'Hello World'
+        }
+      ]
+    }
+    
+    const element = eficy.createElement(schema)
+    render(element)
+    
+    expect(screen.getByRole('heading')).toHaveTextContent('Hello World')
+  })
+})
+```
+
+## 错误处理
+
+### ErrorBoundary
+- 每个 RenderNode 都包含 ErrorBoundary
+- 捕获组件渲染错误，防止整个应用崩溃
+- 提供错误信息和恢复机制
+
+### 常见错误和解决方案
+
+#### 1. 组件未找到
+```typescript
+// 错误：Component "MyButton" not found in componentMap
+// 解决：注册组件
+eficy.config({
+  componentMap: {
+    'MyButton': MyButtonComponent
+  }
+})
+```
+
+#### 2. 模块导入错误
+```typescript
+// 错误：Cannot find module '@eficy/core-v3'
+// 解决：确保正确安装依赖
+npm install @eficy/core-v3
+```
+
+#### 3. 类型错误
+```typescript
+// 错误：Type 'string' is not assignable to type 'ReactElement'
+// 解决：检查 Schema 中的 '#content' 类型
+{
+  '#content': 'Text content' // ✅ 正确
+  // '#content': <Component /> // ✅ 也正确
+}
+```
+
+## 迁移指南
+
+### 从 V2 迁移到 V3
+
+#### 1. 依赖更新
+```json
+// package.json
+{
+  "dependencies": {
+    "@eficy/core-v3": "^3.0.0",
+    "@eficy/reactive": "^1.0.0",
+    "@eficy/reactive-react": "^1.0.0",
+    "tsyringe": "^4.8.0",
+    "reflect-metadata": "^0.2.2"
+  }
+}
+```
+
+#### 2. 导入更新
+```typescript
+// V2
+import { Controller } from '@eficy/core-v2'
+
+// V3
+import { Eficy } from '@eficy/core-v3'
+```
+
+#### 3. 实例化更新
+```typescript
+// V2
+const controller = new Controller(schema)
+
+// V3
+const eficy = new Eficy()
+const element = eficy.createElement(schema)
+```
+
+#### 4. 响应式数据更新
+```typescript
+// V2 (MobX)
+import { observable, computed, action } from 'mobx'
+
+// V3 (@eficy/reactive)
+import { observable, computed, action, ObservableClass } from '@eficy/reactive'
+
+class Store extends ObservableClass {
+  @observable data = []
+  
+  @action updateData(newData) {
+    // V2: 直接修改
+    this.data.push(newData)
+    
+    // V3: 不可变更新
+    this.data = [...this.data, newData]
+  }
+}
+```
+
+## 最佳实践
+
+### 1. Schema 设计
+- 使用有意义的节点 ID (`'#'` 字段)
+- 保持 Schema 结构清晰和层次化
+- 合理使用条件渲染避免复杂嵌套
+
+### 2. 组件注册
+- 统一的组件命名约定
+- 按功能模块组织组件
+- 使用 TypeScript 类型定义
+
+### 3. 性能优化
+- 避免在 `'#if'` 中进行复杂计算
+- 使用计算属性缓存昂贵操作
+- 合理拆分大型 Schema
+
+### 4. 错误处理
+- 总是提供 fallback 组件
+- 使用 TypeScript 严格模式
+- 添加适当的错误边界
+
+## 开发工具
+
+### 调试
+- React DevTools 查看组件树
+- 浏览器控制台查看 ViewNode 状态
+- 使用 `effect` 跟踪响应式变化
+
+### 性能分析
+- React Profiler 分析渲染性能
+- 观察 ViewNode 更新频率
+- 检查不必要的重新渲染
+
+## 示例项目
+
+### Playground
+```bash
+cd playground
+npm run dev:v3
+# 访问 http://localhost:9899
+```
+
+### 完整应用示例
+参考 `playground/src/main-v3.tsx` 查看完整的应用示例，包含：
+- 基础组件使用
+- 响应式数据演示
+- 表单处理
+- 条件渲染
+- 组件库集成
+
+---
+
+此文档为 Eficy Core V3 的完整 LLM 参考文档，涵盖了架构、API、使用方法、最佳实践等所有重要信息。 

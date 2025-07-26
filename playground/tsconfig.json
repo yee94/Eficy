@@ -6,7 +6,8 @@
     "module": "ESNext",
     "types": ["vite/client"],
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["src/*"],
+      "@eficy/core-v3": ["../packages/core-v3/src/index.ts"]
     }
   },
   "exclude": ["**/dist/**"]

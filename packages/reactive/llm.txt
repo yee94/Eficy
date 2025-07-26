@@ -1,0 +1,1146 @@
+# @eficy/reactive - LLM Documentation
+
+## 项目概述
+
+@eficy/reactive 是一个现代化的响应式状态管理库，基于 @preact/signals-core 构建，提供了装饰器风格和函数式风格的响应式编程支持。
+
+### 核心特性
+- 🔄 基于 signals 的细粒度响应式更新
+- 🎯 支持装饰器 (@observable, @computed, @action) 
+- 📦 函数式 API (signal, effect, batch)
+- ⚡ 高性能的响应式系统
+- 🔧 不可变更新模式
+- 📊 响应式集合支持 (ref, watch, observe)
+- 🛠️ 丰富的工具函数
+- 📱 TypeScript 原生支持
+
+### 技术架构
+- 基于 @preact/signals-core
+- TypeScript 编写
+- reflect-metadata 支持装饰器
+- 模块化设计
+- 零依赖（除 signals-core）
+
+## 核心概念
+
+### 1. 响应式范式
+
+#### 传统 MobX 风格 (已移除)
+```typescript
+// ❌ 旧方式 - 直接修改
+this.todos.push(newTodo)
+this.todos[0].completed = true
+```
+
+#### 新的不可变更新范式
+```typescript
+// ✅ 新方式 - 不可变更新
+this.todos = [...this.todos, newTodo]
+this.todos = this.todos.map(todo => 
+  todo.id === id ? { ...todo, completed: !todo.completed } : todo
+)
+```
+
+### 2. 双重 API 设计
+
+#### 装饰器风格 (推荐)
+```typescript
+class UserStore extends ObservableClass {
+  @observable name = ''
+  @observable age = 0
+  
+  @computed get isAdult() {
+    return this.age >= 18
+  }
+  
+  @action updateProfile(name: string, age: number) {
+    this.name = name
+    this.age = age
+  }
+}
+```
+
+#### 函数式风格
+```typescript
+import { signal, createComputed, createAction } from '@eficy/reactive'
+
+const name = signal('')
+const age = signal(0)
+const isAdult = createComputed(() => age.value >= 18)
+const updateProfile = createAction((newName: string, newAge: number) => {
+  name.value = newName
+  age.value = newAge
+})
+```
+
+## API 参考
+
+### 装饰器 API (优先级最高)
+
+#### @observable 装饰器
+```typescript
+class Store extends ObservableClass {
+  // 基础用法
+  @observable name = 'John'
+  
+  // 带初始值
+  @observable(0) count!: number
+  
+  // 复杂类型
+  @observable users: User[] = []
+  @observable config: Config = { theme: 'light' }
+}
+```
+
+#### @computed 装饰器
+```typescript
+class Store extends ObservableClass {
+  @observable firstName = ''
+  @observable lastName = ''
+  
+  @computed get fullName() {
+    return `${this.firstName} ${this.lastName}`
+  }
+  
+  @computed get stats() {
+    return {
+      userCount: this.users.length,
+      activeUsers: this.users.filter(u => u.active).length
+    }
+  }
+}
+```
+
+#### @action 装饰器
+```typescript
+class Store extends ObservableClass {
+  @observable items: Item[] = []
+  
+  @action addItem(item: Item) {
+    // 不可变更新
+    this.items = [...this.items, item]
+  }
+  
+  @action('remove item by id') // 带名称
+  removeItem(id: string) {
+    this.items = this.items.filter(item => item.id !== id)
+  }
+  
+  @action bulkUpdate(updates: Partial<Store>) {
+    // 批量更新会自动批处理
+    Object.assign(this, updates)
+  }
+}
+```
+
+#### makeObservable 函数
+```typescript
+class UserStore {
+  name = ''
+  age = 0
+  
+  constructor() {
+    makeObservable(this) // 自动处理装饰器
+  }
+  
+  get isAdult() {
+    return this.age >= 18
+  }
+  
+  updateAge(age: number) {
+    this.age = age
+  }
+}
+```
+
+#### ObservableClass 基类
+```typescript
+// 继承 ObservableClass 自动调用 makeObservable
+class Store extends ObservableClass {
+  @observable data = []
+  
+  @computed get count() {
+    return this.data.length
+  }
+  
+  @action clear() {
+    this.data = []
+  }
+}
+
+const store = new Store() // 自动响应式
+```
+
+### 核心 Signals API
+
+#### signal - 创建响应式值
+```typescript
+import { signal } from '@eficy/reactive'
+
+// 基础信号
+const count = signal(0)
+const name = signal('John')
+const user = signal({ id: 1, name: 'Alice' })
+
+// 读取值
+console.log(count.value) // 0
+console.log(name.value) // 'John'
+
+// 更新值
+count.value = 10
+name.value = 'Jane'
+
+// 不可变更新复杂对象
+user.value = { ...user.value, name: 'Bob' }
+```
+
+#### effect - 响应副作用
+```typescript
+import { signal, effect } from '@eficy/reactive'
+
+const count = signal(0)
+const name = signal('')
+
+// 基础 effect
+const dispose = effect(() => {
+  console.log(`Count is ${count.value}`)
+})
+
+// 多依赖 effect
+effect(() => {
+  console.log(`User: ${name.value}, Count: ${count.value}`)
+})
+
+// 清理 effect
+dispose()
+
+// 条件 effect
+effect(() => {
+  if (count.value > 10) {
+    console.log('Count is high!')
+  }
+})
+```
+
+#### createComputed - 计算值
+```typescript
+import { signal, createComputed } from '@eficy/reactive'
+
+const firstName = signal('John')
+const lastName = signal('Doe')
+
+const fullName = createComputed(() => {
+  return `${firstName.value} ${lastName.value}`
+})
+
+console.log(fullName.value) // 'John Doe'
+
+firstName.value = 'Jane'
+console.log(fullName.value) // 'Jane Doe'
+
+// 复杂计算
+const users = signal([
+  { name: 'Alice', active: true },
+  { name: 'Bob', active: false }
+])
+
+const activeUsers = createComputed(() => {
+  return users.value.filter(user => user.active)
+})
+
+const userStats = createComputed(() => {
+  const all = users.value
+  const active = activeUsers.value
+  return {
+    total: all.length,
+    active: active.length,
+    inactive: all.length - active.length
+  }
+})
+```
+
+#### batch - 批处理更新
+```typescript
+import { signal, batch } from '@eficy/reactive'
+
+const firstName = signal('John')
+const lastName = signal('Doe')
+const age = signal(25)
+
+// 批处理多个更新
+batch(() => {
+  firstName.value = 'Jane'
+  lastName.value = 'Smith'
+  age.value = 30
+})
+
+// effect 只会触发一次
+effect(() => {
+  console.log(`${firstName.value} ${lastName.value}, age ${age.value}`)
+})
+```
+
+#### createAction - 创建动作
+```typescript
+import { signal, createAction } from '@eficy/reactive'
+
+const todos = signal<Todo[]>([])
+const filter = signal<'all' | 'active' | 'completed'>('all')
+
+// 自动批处理的动作
+const addTodo = createAction((text: string) => {
+  const newTodo = {
+    id: Date.now(),
+    text,
+    completed: false
+  }
+  todos.value = [...todos.value, newTodo]
+})
+
+const toggleTodo = createAction((id: number) => {
+  todos.value = todos.value.map(todo =>
+    todo.id === id ? { ...todo, completed: !todo.completed } : todo
+  )
+})
+
+const setFilter = createAction((newFilter: typeof filter.value) => {
+  filter.value = newFilter
+})
+
+// 复杂动作
+const bulkToggle = createAction((ids: number[]) => {
+  todos.value = todos.value.map(todo =>
+    ids.includes(todo.id) ? { ...todo, completed: !todo.completed } : todo
+  )
+})
+```
+
+### Watch API
+
+#### watch - 观察变化
+```typescript
+import { signal, watch } from '@eficy/reactive'
+
+const count = signal(0)
+const user = signal({ name: 'John' })
+
+// 基础 watch
+const stopWatching = watch(count, (newValue, oldValue) => {
+  console.log(`Count changed from ${oldValue} to ${newValue}`)
+})
+
+// 立即触发
+watch(count, (value) => {
+  console.log(`Current count: ${value}`)
+}, { immediate: true })
+
+// 深度 watch
+watch(user, (newUser, oldUser) => {
+  console.log('User changed:', newUser)
+}, { deep: true })
+
+// 停止观察
+stopWatching()
+```
+
+#### watchMultiple - 观察多个值
+```typescript
+import { signal, watchMultiple } from '@eficy/reactive'
+
+const firstName = signal('John')
+const lastName = signal('Doe')
+const age = signal(25)
+
+watchMultiple([firstName, lastName, age], ([first, last, userAge]) => {
+  console.log(`User: ${first} ${last}, Age: ${userAge}`)
+})
+```
+
+#### watchOnce - 单次观察
+```typescript
+import { signal, watchOnce } from '@eficy/reactive'
+
+const isReady = signal(false)
+
+watchOnce(isReady, (ready) => {
+  if (ready) {
+    console.log('System is ready!')
+    // 只会触发一次
+  }
+})
+```
+
+#### watchDebounced - 防抖观察
+```typescript
+import { signal, watchDebounced } from '@eficy/reactive'
+
+const searchTerm = signal('')
+
+watchDebounced(searchTerm, (term) => {
+  // 搜索 API 调用
+  console.log(`Searching for: ${term}`)
+}, { wait: 300 })
+```
+
+### Ref API
+
+#### ref - 响应式引用
+```typescript
+import { ref, isRef, unref } from '@eficy/reactive'
+
+// 创建引用
+const count = ref(0)
+const user = ref({ name: 'John' })
+
+// 访问值
+console.log(count.value) // 0
+console.log(user.value.name) // 'John'
+
+// 更新值
+count.value++
+user.value = { ...user.value, name: 'Jane' }
+
+// 类型检查
+if (isRef(count)) {
+  console.log('count is a ref')
+}
+
+// 获取原始值
+const rawValue = unref(count) // 如果是 ref 返回 .value，否则返回原值
+```
+
+#### toRef 和 toRefs
+```typescript
+import { signal, toRef, toRefs } from '@eficy/reactive'
+
+const user = signal({
+  name: 'John',
+  age: 25,
+  email: 'john@example.com'
+})
+
+// 创建单个属性的 ref
+const name = toRef(user, 'name')
+console.log(name.value) // 'John'
+
+// 创建所有属性的 refs
+const { age, email } = toRefs(user.value)
+console.log(age.value) // 25
+console.log(email.value) // 'john@example.com'
+```
+
+### Observe API
+
+#### observe - 深度观察
+```typescript
+import { signal, observe } from '@eficy/reactive'
+
+const state = signal({
+  user: { name: 'John', preferences: { theme: 'dark' } },
+  settings: { notifications: true }
+})
+
+// 观察整个对象的变化
+observe(state, (change) => {
+  console.log('State changed:', change)
+})
+
+// 观察特定路径
+observeProperty(state, 'user.name', (newName) => {
+  console.log(`User name changed to: ${newName}`)
+})
+```
+
+#### observeArray - 数组观察
+```typescript
+import { signal, observeArray } from '@eficy/reactive'
+
+const items = signal<string[]>([])
+
+observeArray(items, (changes) => {
+  changes.forEach(change => {
+    switch (change.type) {
+      case 'add':
+        console.log('Added:', change.item, 'at', change.index)
+        break
+      case 'remove':
+        console.log('Removed:', change.item, 'from', change.index)
+        break
+      case 'update':
+        console.log('Updated:', change.oldValue, 'to', change.newValue)
+        break
+    }
+  })
+})
+```
+
+### 工具函数
+
+#### 类型检查
+```typescript
+import { 
+  isSignal, isRef, isAction, isReactive,
+  isFunction, isObject, isArray, isPrimitive 
+} from '@eficy/reactive'
+
+const count = signal(0)
+const action = createAction(() => {})
+
+console.log(isSignal(count)) // true
+console.log(isAction(action)) // true
+console.log(isObject({})) // true
+console.log(isArray([])) // true
+```
+
+#### 原始值转换
+```typescript
+import { toRaw, toJS, markRaw } from '@eficy/reactive'
+
+const user = signal({ name: 'John', nested: { value: 1 } })
+
+// 获取原始值（浅层）
+const raw = toRaw(user.value)
+
+// 深度转换为普通 JS 对象
+const plain = toJS(user.value)
+
+// 标记为原始值，不会被响应式化
+const rawObj = markRaw({ data: 'static' })
+```
+
+#### 调试工具
+```typescript
+import { createDebugger, createTimer } from '@eficy/reactive'
+
+// 创建调试器
+const debug = createDebugger('UserStore')
+debug.log('User updated:', user)
+
+// 性能计时
+const timer = createTimer()
+timer.start('computation')
+// ... 一些计算
+timer.end('computation')
+timer.report() // 输出计时结果
+```
+
+## 实际使用示例
+
+### 1. TodoMVC 示例
+
+```typescript
+import { signal, createComputed, createAction, ObservableClass } from '@eficy/reactive'
+
+interface Todo {
+  id: number
+  text: string
+  completed: boolean
+}
+
+class TodoStore extends ObservableClass {
+  @observable todos: Todo[] = []
+  @observable filter: 'all' | 'active' | 'completed' = 'all'
+
+  @computed get filteredTodos() {
+    switch (this.filter) {
+      case 'active':
+        return this.todos.filter(todo => !todo.completed)
+      case 'completed':
+        return this.todos.filter(todo => todo.completed)
+      default:
+        return this.todos
+    }
+  }
+
+  @computed get activeCount() {
+    return this.todos.filter(todo => !todo.completed).length
+  }
+
+  @computed get completedCount() {
+    return this.todos.filter(todo => todo.completed).length
+  }
+
+  @action addTodo(text: string) {
+    const newTodo: Todo = {
+      id: Date.now() + Math.random(),
+      text,
+      completed: false
+    }
+    this.todos = [...this.todos, newTodo]
+  }
+
+  @action toggleTodo(id: number) {
+    this.todos = this.todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    )
+  }
+
+  @action removeTodo(id: number) {
+    this.todos = this.todos.filter(todo => todo.id !== id)
+  }
+
+  @action setFilter(filter: typeof this.filter) {
+    this.filter = filter
+  }
+
+  @action clearCompleted() {
+    this.todos = this.todos.filter(todo => !todo.completed)
+  }
+
+  @action toggleAll() {
+    const shouldCheck = this.activeCount > 0
+    this.todos = this.todos.map(todo => ({
+      ...todo,
+      completed: shouldCheck
+    }))
+  }
+}
+```
+
+### 2. 用户管理示例
+
+```typescript
+class UserManager extends ObservableClass {
+  @observable users: User[] = []
+  @observable currentUserId: string | null = null
+  @observable isLoading = false
+  @observable error: string | null = null
+
+  @computed get currentUser() {
+    return this.users.find(user => user.id === this.currentUserId) || null
+  }
+
+  @computed get activeUsers() {
+    return this.users.filter(user => user.status === 'active')
+  }
+
+  @computed get usersByRole() {
+    return this.users.reduce((acc, user) => {
+      const role = user.role
+      if (!acc[role]) acc[role] = []
+      acc[role].push(user)
+      return acc
+    }, {} as Record<string, User[]>)
+  }
+
+  @action async loadUsers() {
+    this.isLoading = true
+    this.error = null
+    
+    try {
+      const users = await api.getUsers()
+      this.users = users
+    } catch (error) {
+      this.error = error.message
+    } finally {
+      this.isLoading = false
+    }
+  }
+
+  @action addUser(userData: CreateUserData) {
+    const newUser: User = {
+      id: nanoid(),
+      ...userData,
+      createdAt: new Date(),
+      status: 'active'
+    }
+    this.users = [...this.users, newUser]
+  }
+
+  @action updateUser(id: string, updates: Partial<User>) {
+    this.users = this.users.map(user =>
+      user.id === id ? { ...user, ...updates } : user
+    )
+  }
+
+  @action deleteUser(id: string) {
+    this.users = this.users.filter(user => user.id !== id)
+    if (this.currentUserId === id) {
+      this.currentUserId = null
+    }
+  }
+
+  @action setCurrentUser(id: string) {
+    this.currentUserId = id
+  }
+}
+```
+
+### 3. 表单状态管理
+
+```typescript
+interface FormField<T = any> {
+  value: T
+  error: string | null
+  touched: boolean
+  dirty: boolean
+}
+
+class FormStore<T extends Record<string, any>> extends ObservableClass {
+  @observable fields: Record<keyof T, FormField> = {} as any
+  @observable isSubmitting = false
+  @observable submitError: string | null = null
+
+  constructor(initialValues: T) {
+    super()
+    this.initializeFields(initialValues)
+  }
+
+  @action private initializeFields(values: T) {
+    const fields = {} as Record<keyof T, FormField>
+    Object.keys(values).forEach(key => {
+      fields[key as keyof T] = {
+        value: values[key as keyof T],
+        error: null,
+        touched: false,
+        dirty: false
+      }
+    })
+    this.fields = fields
+  }
+
+  @computed get values(): T {
+    const values = {} as T
+    Object.keys(this.fields).forEach(key => {
+      values[key as keyof T] = this.fields[key].value
+    })
+    return values
+  }
+
+  @computed get errors() {
+    const errors: Partial<Record<keyof T, string>> = {}
+    Object.keys(this.fields).forEach(key => {
+      const field = this.fields[key as keyof T]
+      if (field.error) {
+        errors[key as keyof T] = field.error
+      }
+    })
+    return errors
+  }
+
+  @computed get isValid() {
+    return Object.values(this.fields).every(field => !field.error)
+  }
+
+  @computed get isDirty() {
+    return Object.values(this.fields).some(field => field.dirty)
+  }
+
+  @action setFieldValue<K extends keyof T>(name: K, value: T[K]) {
+    const field = this.fields[name]
+    this.fields = {
+      ...this.fields,
+      [name]: {
+        ...field,
+        value,
+        dirty: true
+      }
+    }
+  }
+
+  @action setFieldError<K extends keyof T>(name: K, error: string | null) {
+    const field = this.fields[name]
+    this.fields = {
+      ...this.fields,
+      [name]: {
+        ...field,
+        error
+      }
+    }
+  }
+
+  @action touchField<K extends keyof T>(name: K) {
+    const field = this.fields[name]
+    this.fields = {
+      ...this.fields,
+      [name]: {
+        ...field,
+        touched: true
+      }
+    }
+  }
+
+  @action async submit(onSubmit: (values: T) => Promise<void>) {
+    if (!this.isValid) return
+
+    this.isSubmitting = true
+    this.submitError = null
+
+    try {
+      await onSubmit(this.values)
+    } catch (error) {
+      this.submitError = error.message
+    } finally {
+      this.isSubmitting = false
+    }
+  }
+
+  @action reset(values?: Partial<T>) {
+    if (values) {
+      this.initializeFields({ ...this.values, ...values })
+    } else {
+      Object.keys(this.fields).forEach(key => {
+        const field = this.fields[key as keyof T]
+        this.fields = {
+          ...this.fields,
+          [key]: {
+            ...field,
+            error: null,
+            touched: false,
+            dirty: false
+          }
+        }
+      })
+    }
+    this.isSubmitting = false
+    this.submitError = null
+  }
+}
+
+// 使用示例
+interface LoginForm {
+  email: string
+  password: string
+}
+
+const loginForm = new FormStore<LoginForm>({
+  email: '',
+  password: ''
+})
+
+// 字段更新
+loginForm.setFieldValue('email', 'user@example.com')
+loginForm.setFieldValue('password', 'password123')
+
+// 表单提交
+loginForm.submit(async (values) => {
+  await api.login(values)
+})
+```
+
+## 性能优化
+
+### 1. 批处理更新
+```typescript
+// 自动批处理 (推荐)
+@action updateMultiple() {
+  this.name = 'New Name'
+  this.age = 30
+  this.email = 'new@example.com'
+  // 这些更新会自动批处理
+}
+
+// 手动批处理
+batch(() => {
+  name.value = 'New Name'
+  age.value = 30
+  email.value = 'new@example.com'
+})
+```
+
+### 2. 计算值缓存
+```typescript
+class DataStore extends ObservableClass {
+  @observable rawData: Item[] = []
+
+  // 计算值会自动缓存
+  @computed get expensiveCalculation() {
+    console.log('Computing...') // 只有依赖变化时才会执行
+    return this.rawData
+      .filter(item => item.active)
+      .map(item => processItem(item))
+      .sort((a, b) => a.priority - b.priority)
+  }
+}
+```
+
+### 3. 条件响应
+```typescript
+class ConditionalStore extends ObservableClass {
+  @observable isEnabled = false
+  @observable data: string[] = []
+
+  constructor() {
+    super()
+    
+    // 只有在启用时才响应数据变化
+    effect(() => {
+      if (this.isEnabled) {
+        console.log('Data updated:', this.data)
+      }
+    })
+  }
+}
+```
+
+## 测试
+
+### 单元测试示例
+```typescript
+import { describe, it, expect, vi } from 'vitest'
+import { signal, effect, createAction, ObservableClass } from '@eficy/reactive'
+
+describe('Reactive System', () => {
+  it('should trigger effects when signal changes', () => {
+    const count = signal(0)
+    const spy = vi.fn()
+
+    effect(() => {
+      spy(count.value)
+    })
+
+    expect(spy).toHaveBeenCalledWith(0)
+
+    count.value = 5
+    expect(spy).toHaveBeenCalledWith(5)
+    expect(spy).toHaveBeenCalledTimes(2)
+  })
+
+  it('should batch action updates', () => {
+    class TestStore extends ObservableClass {
+      @observable a = 0
+      @observable b = 0
+
+      @action updateBoth(a: number, b: number) {
+        this.a = a
+        this.b = b
+      }
+    }
+
+    const store = new TestStore()
+    const spy = vi.fn()
+
+    effect(() => {
+      spy(store.a + store.b)
+    })
+
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    store.updateBoth(5, 10)
+    expect(spy).toHaveBeenCalledTimes(2) // 只触发一次
+    expect(spy).toHaveBeenLastCalledWith(15)
+  })
+
+  it('should cache computed values', () => {
+    const a = signal(1)
+    const b = signal(2)
+    const spy = vi.fn()
+
+    const sum = computed(() => {
+      spy()
+      return a.value + b.value
+    })
+
+    // 第一次访问
+    expect(sum.value).toBe(3)
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    // 重复访问不会重新计算
+    expect(sum.value).toBe(3)
+    expect(spy).toHaveBeenCalledTimes(1)
+
+    // 依赖变化后重新计算
+    a.value = 5
+    expect(sum.value).toBe(7)
+    expect(spy).toHaveBeenCalledTimes(2)
+  })
+})
+```
+
+## 最佳实践
+
+### 1. 不可变更新
+```typescript
+// ✅ 正确 - 不可变更新
+@action addItem(item: Item) {
+  this.items = [...this.items, item]
+}
+
+@action updateItem(id: string, updates: Partial<Item>) {
+  this.items = this.items.map(item =>
+    item.id === id ? { ...item, ...updates } : item
+  )
+}
+
+@action removeItem(id: string) {
+  this.items = this.items.filter(item => item.id !== id)
+}
+
+// ❌ 错误 - 直接修改
+@action addItem(item: Item) {
+  this.items.push(item) // 不会触发更新
+}
+```
+
+### 2. 合理使用计算值
+```typescript
+class UserStore extends ObservableClass {
+  @observable users: User[] = []
+  @observable filter: string = ''
+
+  // ✅ 好的计算值 - 纯函数
+  @computed get filteredUsers() {
+    return this.users.filter(user => 
+      user.name.toLowerCase().includes(this.filter.toLowerCase())
+    )
+  }
+
+  // ❌ 避免副作用
+  @computed get filteredUsersWithSideEffect() {
+    const filtered = this.users.filter(user => 
+      user.name.includes(this.filter)
+    )
+    // ❌ 不要在计算值中产生副作用
+    console.log('Filtered users:', filtered)
+    return filtered
+  }
+}
+```
+
+### 3. 正确的错误处理
+```typescript
+class DataStore extends ObservableClass {
+  @observable data: Item[] = []
+  @observable isLoading = false
+  @observable error: string | null = null
+
+  @action async loadData() {
+    this.isLoading = true
+    this.error = null
+
+    try {
+      const data = await api.getData()
+      this.data = data
+    } catch (error) {
+      this.error = error instanceof Error ? error.message : 'Unknown error'
+    } finally {
+      this.isLoading = false
+    }
+  }
+}
+```
+
+### 4. 组件解耦
+```typescript
+// ✅ 好的设计 - 单一职责
+class UserListStore extends ObservableClass {
+  @observable users: User[] = []
+  @observable isLoading = false
+
+  @action loadUsers() { /* ... */ }
+  @action addUser(user: User) { /* ... */ }
+}
+
+class UserFilterStore extends ObservableClass {
+  @observable filter = ''
+  @observable sortBy: 'name' | 'date' = 'name'
+
+  @action setFilter(filter: string) { /* ... */ }
+  @action setSortBy(sortBy: typeof this.sortBy) { /* ... */ }
+}
+
+// ❌ 避免的设计 - 职责过多
+class MonolithicUserStore extends ObservableClass {
+  // 用户数据
+  @observable users: User[] = []
+  @observable isLoading = false
+  
+  // 过滤逻辑
+  @observable filter = ''
+  @observable sortBy = 'name'
+  
+  // UI 状态
+  @observable selectedUser: User | null = null
+  @observable showModal = false
+  
+  // 过多的职责...
+}
+```
+
+## 迁移指南
+
+### 从 MobX 迁移
+
+#### 1. 导入更新
+```typescript
+// MobX
+import { observable, computed, action, makeObservable } from 'mobx'
+
+// @eficy/reactive
+import { observable, computed, action, makeObservable, ObservableClass } from '@eficy/reactive'
+```
+
+#### 2. 数组操作更新
+```typescript
+// MobX 风格
+@action addItem(item: Item) {
+  this.items.push(item) // 直接修改
+}
+
+// @eficy/reactive 风格
+@action addItem(item: Item) {
+  this.items = [...this.items, item] // 不可变更新
+}
+```
+
+#### 3. 类定义更新
+```typescript
+// MobX
+class Store {
+  items = []
+  
+  constructor() {
+    makeObservable(this, {
+      items: observable,
+      count: computed,
+      addItem: action
+    })
+  }
+  
+  get count() { return this.items.length }
+  addItem(item) { this.items.push(item) }
+}
+
+// @eficy/reactive
+class Store extends ObservableClass {
+  @observable items = []
+  
+  @computed get count() { return this.items.length }
+  
+  @action addItem(item) {
+    this.items = [...this.items, item]
+  }
+}
+```
+
+## 常见问题
+
+### Q: 为什么要使用不可变更新？
+A: 不可变更新确保：
+1. 更可靠的响应式触发
+2. 更好的性能优化机会  
+3. 更容易的调试和时间旅行
+4. 与 React 等框架的更好集成
+
+### Q: 什么时候使用装饰器 vs 函数式 API？
+A: 
+- **装饰器风格**：适合面向对象的代码，类结构清晰
+- **函数式风格**：适合函数式编程风格，更灵活的组合
+
+### Q: 如何调试响应式更新？
+A: 
+1. 使用 `createDebugger` 工具
+2. 在 effect 中添加 console.log
+3. 使用浏览器的 React DevTools
+4. 检查 signal.value 的变化
+
+### Q: 性能优化建议？
+A: 
+1. 使用 @action 批处理更新
+2. 避免在 @computed 中产生副作用
+3. 合理拆分大型 store
+4. 使用条件 effect 避免不必要的计算
+
+---
+
+此文档为 @eficy/reactive 的完整 LLM 参考文档，涵盖了响应式系统的所有核心概念、API 使用、最佳实践和迁移指南。 
