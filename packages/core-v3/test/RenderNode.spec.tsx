@@ -3,6 +3,9 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import RenderNode from '../src/components/RenderNode'
 import EficyNode from '../src/models/EficyNode'
+import EficyNodeTree from '../src/models/EficyNodeTree'
+import RenderNodeTree from '../src/models/RenderNodeTree'
+import Eficy from '../src/core/Eficy'
 
 // 测试用的组件
 const TestButton = ({ children, onClick, className }: any) => (
@@ -74,7 +77,8 @@ describe('RenderNode', () => {
 
   describe('子节点渲染', () => {
     it('应该渲染嵌套子节点', () => {
-      const parentNode = new EficyNode({
+      // 使用 EficyNodeTree 来正确构建包含子节点的树
+      const nodeTree = new EficyNodeTree({
         '#': 'parent',
         '#view': 'div',
         className: 'parent',
@@ -92,6 +96,8 @@ describe('RenderNode', () => {
         ]
       })
 
+      const parentNode = nodeTree.root!
+
       render(<RenderNode eficyNode={parentNode} componentMap={testComponentMap} />)
       
       expect(screen.getByText('Child 1')).toBeInTheDocument()
@@ -102,7 +108,8 @@ describe('RenderNode', () => {
     })
 
     it('应该支持深层嵌套', () => {
-      const deepNode = new EficyNode({
+      // 使用 EficyNodeTree 来正确构建深层嵌套的树
+      const nodeTree = new EficyNodeTree({
         '#': 'root',
         '#view': 'div',
         '#children': [
@@ -121,6 +128,8 @@ describe('RenderNode', () => {
           }
         ]
       })
+
+      const deepNode = nodeTree.root!
 
       render(<RenderNode eficyNode={deepNode} componentMap={testComponentMap} />)
       
@@ -241,6 +250,151 @@ describe('RenderNode', () => {
       
       // 由于 memo，不应该重新渲染
       expect(renderSpy).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('RenderNodeTree 独立管理', () => {
+    it('应该能够独立构建RenderNode映射', () => {
+      const eficyNodeTree = new EficyNodeTree({
+        '#': 'parent',
+        '#view': 'div',
+        className: 'parent',
+        '#children': [
+          {
+            '#': 'child1',
+            '#view': 'span',
+            '#content': 'Child 1'
+          },
+          {
+            '#': 'child2', 
+            '#view': 'span',
+            '#content': 'Child 2'
+          }
+        ]
+      })
+
+      const renderNodeTree = new RenderNodeTree()
+      const rootNode = eficyNodeTree.root
+      
+      expect(rootNode).toBeTruthy()
+      
+      // 构建 RenderNode 映射
+      renderNodeTree.buildFromEficyNode(rootNode!, testComponentMap, RenderNode)
+
+      // 验证映射关系
+      expect(renderNodeTree.stats.totalRenderNodes).toBe(3) // parent + 2 children
+      expect(renderNodeTree.stats.hasComponentMap).toBe(true)
+      expect(renderNodeTree.stats.hasRenderNodeComponent).toBe(true)
+
+      // 验证能够通过 nodeId 找到对应的 RenderNode
+      const parentRenderNode = renderNodeTree.findRenderNode('parent')
+      expect(parentRenderNode).toBeTruthy()
+
+      const child1RenderNode = renderNodeTree.findRenderNode('child1')
+      expect(child1RenderNode).toBeTruthy()
+    })
+
+    it('应该支持单独的RenderNode操作', () => {
+      const eficyNodeTree = new EficyNodeTree({
+        '#': 'test',
+        '#view': 'div',
+        '#content': 'Test content'
+      })
+
+      const renderNodeTree = new RenderNodeTree()
+      const rootNode = eficyNodeTree.root!
+      
+      renderNodeTree.buildFromEficyNode(rootNode, testComponentMap, RenderNode)
+
+      const renderNode = renderNodeTree.findRenderNode('test')
+      expect(renderNode).toBeTruthy()
+
+      // 测试清空功能
+      renderNodeTree.clear()
+      expect(renderNodeTree.stats.totalRenderNodes).toBe(0)
+    })
+  })
+
+  describe('Eficy 主类集成管理', () => {
+    it('应该能够通过Eficy主类管理两个树', () => {
+      const eficy = new Eficy()
+      eficy.config({ componentMap: testComponentMap })
+
+      const schema = {
+        views: [
+          {
+            '#': 'main',
+            '#view': 'div',
+            className: 'main',
+            '#children': [
+              {
+                '#': 'title',
+                '#view': 'span',
+                '#content': 'Title'
+              }
+            ]
+          }
+        ]
+      }
+
+      // 创建元素会自动构建两个树
+      const element = eficy.createElement(schema)
+      expect(element).toBeTruthy()
+
+      // 验证两个树都已创建
+      expect(eficy.nodeTree).toBeTruthy()
+      expect(eficy.renderTree).toBeTruthy()
+
+      // 验证可以通过Eficy查找节点
+      const mainNode = eficy.findNode('main')
+      expect(mainNode).toBeTruthy()
+      expect(mainNode?.['#']).toBe('main')
+
+      const titleRenderNode = eficy.findRenderNode('title')
+      expect(titleRenderNode).toBeTruthy()
+
+             // 验证统计信息 (包含自动创建的root容器，所以是3个节点)
+       const stats = eficy.stats
+       expect(stats.nodeTree?.totalNodes).toBe(3) // root + main + title
+       expect(stats.renderTree?.totalRenderNodes).toBe(3)
+    })
+
+    it('应该支持通过Eficy同步更新两个树', () => {
+      const eficy = new Eficy()
+      eficy.config({ componentMap: testComponentMap })
+
+      const schema = {
+        views: [
+          {
+            '#': 'container',
+            '#view': 'div',
+            '#children': []
+          }
+        ]
+      }
+
+      eficy.createElement(schema)
+
+      // 添加子节点
+      const newChild = eficy.addChild('container', {
+        '#': 'newChild',
+        '#view': 'span',
+        '#content': 'New child'
+      })
+
+      expect(newChild).toBeTruthy()
+      expect(newChild?.['#']).toBe('newChild')
+
+      // 验证两个树都已更新
+      expect(eficy.findNode('newChild')).toBeTruthy()
+      expect(eficy.findRenderNode('newChild')).toBeTruthy()
+
+      // 移除子节点
+      eficy.removeChild('container', 'newChild')
+
+      // 验证两个树都已清理
+      expect(eficy.findNode('newChild')).toBeNull()
+      expect(eficy.findRenderNode('newChild')).toBeNull()
     })
   })
 }) 

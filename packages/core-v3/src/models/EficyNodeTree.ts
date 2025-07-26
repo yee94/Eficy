@@ -1,25 +1,15 @@
+import { injectable } from 'tsyringe'
 import { observable, computed, action, ObservableClass } from '@eficy/reactive'
 import EficyNode from './EficyNode'
 import type { IViewData } from '../interfaces'
 
+@injectable()
 export default class EficyNodeTree extends ObservableClass {
   @observable
   private rootNode: EficyNode | null = null
 
-  @observable
   private nodeMap: Record<string, EficyNode> = {}
-
-  @observable
   private rootData: IViewData | null = null
-
-  constructor(views?: IViewData | IViewData[]) {
-    super()
-    // 移除 makeObservable 调用，因为已经使用了装饰器
-    
-    if (views) {
-      this.build(views)
-    }
-  }
 
   /**
    * 构建完整的EficyNode树 - 由内向外递归构建
@@ -201,6 +191,8 @@ export default class EficyNodeTree extends ObservableClass {
    * 从JSON构建树
    */
   static fromJSON(data: IViewData | IViewData[]): EficyNodeTree {
-    return new EficyNodeTree(data)
+    const tree = new EficyNodeTree()
+    tree.build(data)
+    return tree
   }
 }

@@ -4,6 +4,7 @@ import React, { type ReactElement } from 'react'
 import type { IEficyConfig, IExtendOptions, IEficySchema } from '../interfaces'
 import type EficyNode from '../models/EficyNode'
 import EficyNodeTree from '../models/EficyNodeTree'
+import RenderNodeTree from '../models/RenderNodeTree'
 import RenderNode from '../components/RenderNode'
 import ConfigService from '../services/ConfigService'
 import ComponentRegistry from '../services/ComponentRegistry'
@@ -11,6 +12,8 @@ import ComponentRegistry from '../services/ComponentRegistry'
 export default class Eficy {
   private configService: ConfigService
   private componentRegistry: ComponentRegistry
+  private eficyNodeTree: EficyNodeTree | null = null
+  private renderNodeTree: RenderNodeTree | null = null
 
   constructor() {
     // 初始化依赖注入容器
@@ -28,6 +31,12 @@ export default class Eficy {
     }
     if (!container.isRegistered(ComponentRegistry)) {
       container.registerSingleton(ComponentRegistry)
+    }
+    if (!container.isRegistered(EficyNodeTree)) {
+      container.registerSingleton(EficyNodeTree)
+    }
+    if (!container.isRegistered(RenderNodeTree)) {
+      container.registerSingleton(RenderNodeTree)
     }
   }
 
@@ -65,10 +74,26 @@ export default class Eficy {
       throw new Error('Schema must have views property')
     }
 
-    // 使用新的 EficyNodeTree 来构建树结构
-    const nodeTree = new EficyNodeTree(schema.views)
+    // 使用 tsyringe 获取 EficyNodeTree 实例
+    const nodeTree = container.resolve(EficyNodeTree)
+    nodeTree.build(schema.views)
     
     return nodeTree
+  }
+
+  /**
+   * 构建 RenderNodeTree
+   */
+  private buildRenderNodeTree(eficyNodeTree: EficyNodeTree): RenderNodeTree {
+    // 使用 tsyringe 获取 RenderNodeTree 实例
+    const renderNodeTree = container.resolve(RenderNodeTree)
+    const rootNode = eficyNodeTree.root
+    
+    if (rootNode) {
+      renderNodeTree.buildFromEficyNode(rootNode, RenderNode)
+    }
+    
+    return renderNodeTree
   }
 
   /**
@@ -88,11 +113,13 @@ export default class Eficy {
     }
 
     // 将 Schema 转换为 NodeTree
-    const nodeTree = this.schemaToNodeTree(schema)
+    this.eficyNodeTree = this.schemaToNodeTree(schema)
+    this.renderNodeTree = this.buildRenderNodeTree(this.eficyNodeTree)
+    
     const componentMap = this.componentRegistry.getAll()
 
     // 获取根节点
-    const rootNode = nodeTree.root
+    const rootNode = this.eficyNodeTree.root
     if (!rootNode) {
       return null
     }
@@ -163,7 +190,23 @@ export default class Eficy {
    * 根据Schema获取内部的NodeTree (新增方法，用于高级用法)
    */
   getNodeTree(schema: IEficySchema): EficyNodeTree {
-    return this.schemaToNodeTree(schema)
+    const nodeTree = this.schemaToNodeTree(schema)
+    this.eficyNodeTree = nodeTree
+    return nodeTree
+  }
+
+  /**
+   * 获取当前的 EficyNodeTree
+   */
+  get nodeTree(): EficyNodeTree | null {
+    return this.eficyNodeTree
+  }
+
+  /**
+   * 获取当前的 RenderNodeTree
+   */
+  get renderTree(): RenderNodeTree | null {
+    return this.renderNodeTree
   }
 
   /**
@@ -172,5 +215,98 @@ export default class Eficy {
   getNode(schema: IEficySchema, nodeId: string): EficyNode | null {
     const nodeTree = this.schemaToNodeTree(schema)
     return nodeTree.findNode(nodeId)
+  }
+
+  /**
+   * 从当前树中查找节点
+   */
+  findNode(nodeId: string): EficyNode | null {
+    if (!this.eficyNodeTree) {
+      return null
+    }
+    return this.eficyNodeTree.findNode(nodeId)
+  }
+
+  /**
+   * 从当前 RenderNodeTree 中查找 RenderNode
+   */
+  findRenderNode(nodeId: string): ReactElement | null {
+    if (!this.renderNodeTree) {
+      return null
+    }
+    return this.renderNodeTree.findRenderNode(nodeId)
+  }
+
+  /**
+   * 更新节点并同步更新 RenderNode
+   */
+  updateNode(nodeId: string, data: any): void {
+    if (this.eficyNodeTree) {
+      this.eficyNodeTree.updateNode(nodeId, data)
+      
+      // 同步更新 RenderNode
+      if (this.renderNodeTree) {
+        const updatedNode = this.eficyNodeTree.findNode(nodeId)
+        if (updatedNode) {
+          this.renderNodeTree.updateRenderNode(nodeId, updatedNode)
+        }
+      }
+    }
+  }
+
+  /**
+   * 添加子节点并同步更新 RenderNode
+   */
+  addChild(parentId: string, childData: any): EficyNode | null {
+    if (!this.eficyNodeTree) {
+      return null
+    }
+    
+    const newNode = this.eficyNodeTree.addChild(parentId, childData)
+    
+    // 同步添加 RenderNode
+    if (newNode && this.renderNodeTree) {
+      this.renderNodeTree.addRenderNode(newNode)
+    }
+    
+    return newNode
+  }
+
+  /**
+   * 移除子节点并同步清理 RenderNode
+   */
+  removeChild(parentId: string, childId: string): void {
+    if (this.eficyNodeTree) {
+      this.eficyNodeTree.removeChild(parentId, childId)
+      
+      // 同步移除 RenderNode
+      if (this.renderNodeTree) {
+        this.renderNodeTree.removeRenderNode(childId)
+      }
+    }
+  }
+
+  /**
+   * 清空所有树
+   */
+  clear(): void {
+    if (this.eficyNodeTree) {
+      this.eficyNodeTree.clear()
+    }
+    if (this.renderNodeTree) {
+      this.renderNodeTree.clear()
+    }
+    this.eficyNodeTree = null
+    this.renderNodeTree = null
+  }
+
+  /**
+   * 获取统计信息
+   */
+  get stats() {
+    return {
+      nodeTree: this.eficyNodeTree?.stats || null,
+      renderTree: this.renderNodeTree?.stats || null
+    }
   }
 }
