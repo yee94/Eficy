@@ -274,7 +274,6 @@ describe('Schema 渲染', () => {
 
       const element = eficy.createElement(schema);
       const { getByText } = render(element);
-      console.log(screen.debug())
 
       expect(getByText('Base component')).toBeInTheDocument();
       expect(getByText('Extended component')).toBeInTheDocument();

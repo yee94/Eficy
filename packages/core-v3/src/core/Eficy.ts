@@ -1,3 +1,4 @@
+import { computed, makeObservable } from '@eficy/reactive';
 import 'reflect-metadata';
 import { type ReactElement } from 'react';
 import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
@@ -22,6 +23,7 @@ export default class Eficy {
     // 获取服务实例
     this.configService = this.container.resolve(ConfigService);
     this.componentRegistry = this.container.resolve(ComponentRegistry);
+    makeObservable(this);
   }
 
   private setupContainer(): void {
@@ -270,6 +272,7 @@ export default class Eficy {
   /**
    * 获取统计信息
    */
+  @computed
   get stats() {
     return {
       nodeTree: this.eficyNodeStore?.stats || null,

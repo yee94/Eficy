@@ -11,7 +11,17 @@ export default class EficyNodeStore {
   @observable
   private rootNode: EficyNode;
 
-  private nodeMap: Record<string, EficyNode> = {};
+  @computed
+  get nodeMap(): Record<string, EficyNode> {
+    const nodeMap = {
+      [this.rootNode.id]: this.rootNode,
+    };
+    this.rootNode.each((node) => {
+      nodeMap[node.id] = node;
+    });
+    return nodeMap;
+  }
+
   private rootData: IViewData | null = null;
 
   /**
@@ -19,9 +29,6 @@ export default class EficyNodeStore {
    */
   @action
   build(views: IViewData | IViewData[]): void {
-    // 清空现有数据
-    this.nodeMap = {};
-
     // 由内向外递归构建EficyNode树
     this.rootNode = new EficyNode({
       '#': '__eficy_root',
@@ -131,7 +138,6 @@ export default class EficyNodeStore {
   @action
   clear(): void {
     this.rootNode = null;
-    this.nodeMap = {};
     this.rootData = null;
   }
 
@@ -142,8 +148,7 @@ export default class EficyNodeStore {
   get stats() {
     return {
       totalNodes: Object.keys(this.nodeMap).length,
-      rootNodeId: this.rootNode?.['#'] || null,
-      hasRoot: !!this.rootNode,
+      rootNodeId: this.rootNode?.id || null,
     };
   }
 

@@ -66,6 +66,15 @@ export default class EficyNode {
     }, {} as Record<string, EficyNode>);
   }
 
+  each(callback: (node: EficyNode) => void): void {
+    this['#children']?.forEach((child) => {
+      callback(child);
+      if (child instanceof EficyNode) {
+        child.each(callback);
+      }
+    });
+  }
+
   constructor(data: IViewData) {
     this.load(data);
     makeObservable(this);

@@ -23,7 +23,6 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 
 // 主渲染组件 - 使用useObserver(view)模式来追踪响应式数据
 const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, childrenMap }: IRenderNodeProps) => {
-  console.log("🚀 #### ~ RenderNodeInner ~ componentMap:", eficyNode.id);
   if (!childrenMap || !eficyNode) {
     throw new Error('childrenMap and eficyNode are required');
   }
@@ -49,7 +48,6 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
         </div>
       );
     }
-    console.log("🚀 #### ~ RenderNodeInner ~ componentMap:", eficyNode.id);
     const children = (() => {
       if (Array.isArray(eficyNode.children)) {
         return eficyNode.children.map((child) => childrenMap.get(child.id));

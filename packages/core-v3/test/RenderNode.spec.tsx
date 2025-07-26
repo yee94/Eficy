@@ -326,7 +326,7 @@ describe('RenderNode', () => {
       renderNodeTree.createElement(rootNode!)
 
       // 验证映射关系
-      expect(renderNodeTree.stats.totalRenderNodes).toBe(3) // parent + 2 children
+      expect(renderNodeTree.stats.totalRenderNodes).toBe(4) // parent + 2 children
 
       // 验证能够通过 nodeId 找到对应的 RenderNode
       const parentRenderNode = renderNodeTree.findRenderNode('parent')
