@@ -23,9 +23,9 @@
     "directory": "packages/reactive-react"
   },
   "bugs": {
-    "url": "https://github.com/xiaobebe/eficy/issues"
+    "url": "https://github.com/yee94/eficy/issues"
   },
-  "homepage": "https://github.com/xiaobebe/eficy#readme",
+  "homepage": "https://github.com/yee94/eficy#readme",
   "engines": {
     "npm": ">=3.0.0"
   },

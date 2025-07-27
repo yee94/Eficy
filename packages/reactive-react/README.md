@@ -270,7 +270,7 @@ const age: number = userStore.get('age');
 
 ## 📖 更多信息
 
-- [GitHub Repository](https://github.com/xiaobebe/eficy)
+- [GitHub Repository](https://github.com/yee94/eficy)
 - [@eficy/reactive 文档](../reactive/README.md)
 
 ## 📄 License
