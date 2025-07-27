@@ -22,7 +22,7 @@
   "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaobebe/eficy.git",
+    "url": "git+https://github.com/yee94/Eficy.git",
     "directory": "packages/reactive"
   },
   "bugs": {

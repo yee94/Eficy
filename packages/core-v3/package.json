@@ -20,7 +20,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiaobebe/eficy.git"
+    "url": "https://github.com/yee94/Eficy.git",
+    "directory": "packages/core-v3"
   },
   "pre-commit": [
     "test",
@@ -29,12 +30,11 @@
   "files": [
     "dist"
   ],
-  "author": "xiaobe <wyy.xb@qq.com>",
+  "author": "yee94 <wyy.xb@qq.com>",
   "license": "ISC",
   "dependencies": {
     "@eficy/reactive": "workspace:~",
     "@eficy/reactive-react": "workspace:~",
-    "@eficy/plugin-unocss": "workspace:~",
     "ahooks": "^3.7.11",
     "axios": "^0.27.2",
     "eventemitter3": "^5.0.1",

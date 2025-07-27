@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiaobebe/eficy.git"
+    "url": "https://github.com/yee94/Eficy.git"
   },
   "pre-commit": [
     "test",
@@ -29,7 +29,7 @@
   "files": [
     "dist"
   ],
-  "author": "xiaobe <wyy.xb@qq.com>",
+  "author": "yee94 <wyy.xb@qq.com>",
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.28.2",
