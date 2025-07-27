@@ -80,6 +80,7 @@ export interface IRenderNodeProps {
   eficyNode: EficyNode;
   childrenMap: Map<string, ReactElement>;
   componentMap?: IComponentMap;
+  as?: ComponentType<any> | string;
 }
 
 /**

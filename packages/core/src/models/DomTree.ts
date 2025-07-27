@@ -4,7 +4,7 @@ import { inject, injectable } from 'tsyringe';
 import RenderNode from '../components/RenderNode';
 import ComponentRegistry from '../services/ComponentRegistry';
 import EficyNode from './EficyNode';
-import type { IRenderContext } from '../interfaces/lifecycle';
+import type { IRenderContext, IResolveComponentContext } from '../interfaces/lifecycle';
 import { HookType } from '../interfaces/lifecycle';
 import { PluginManager } from '../services/PluginManager';
 
@@ -100,11 +100,27 @@ export default class DomTree {
     };
 
     return await this.pluginManager.executeHook(HookType.RENDER, eficyNode, renderContext, async () => {
+      const as = await (async () => {
+        const fallbackComponent = componentMap[eficyNode['#view']];
+        const result = await this.pluginManager.executeHook(
+          HookType.RESOLVE_COMPONENT,
+          eficyNode,
+          {
+            componentMap,
+            fallbackComponent,
+          } as IResolveComponentContext,
+          async () => componentMap[eficyNode['#view']],
+        );
+        if (result === fallbackComponent) return undefined;
+        return result;
+      })();
+
       return createElement(RenderNode, {
         key: eficyNode.id,
         eficyNode,
         componentMap,
         childrenMap: this.renderNodeCache,
+        as,
       });
     });
   }

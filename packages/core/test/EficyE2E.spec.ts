@@ -77,7 +77,6 @@ describe('Eficy E2E Hook Integration', () => {
         @ResolveComponent(1)
         async onResolveComponent(
           componentName: string,
-          EficyNode: EficyNode,
           context: IResolveComponentContext,
           next: () => Promise<any>
         ) {
@@ -90,10 +89,10 @@ describe('Eficy E2E Hook Integration', () => {
         @ProcessProps(1)
         async onProcessProps(
           props: Record<string, any>,
-          EficyNode: EficyNode,
           context: IProcessPropsContext,
           next: () => Promise<Record<string, any>>
         ) {
+          console.log('🚀 #### ~ CompleteLifecyclePlugin ~ onProcessProps ~ props:', arguments);
           executionLog.push(`process-props-start`);
           const processedProps = await next();
           executionLog.push(`process-props-end`);

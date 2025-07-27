@@ -41,13 +41,14 @@ export interface IUnmountContext extends IBaseContext {
 
 // 组件解析上下文
 export interface IResolveComponentContext extends IBaseContext {
+  eficyNode: EficyNode;
   componentMap: Record<string, ComponentType | string>;
   fallbackComponent?: ComponentType;
 }
 
 // 属性处理上下文
 export interface IProcessPropsContext extends IBaseContext {
-  component: ComponentType;
+  eficyNode: EficyNode;
   originalProps: Record<string, any>;
 }
 
@@ -115,7 +116,6 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 组件解析钩子
   onResolveComponent?(
     componentName: string,
-    EficyNode: EficyNode,
     context: IResolveComponentContext,
     next: () => Promise<ComponentType>,
   ): Promise<ComponentType>;
@@ -123,7 +123,6 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 属性处理钩子
   onProcessProps?(
     props: Record<string, any>,
-    EficyNode: EficyNode,
     context: IProcessPropsContext,
     next: () => Promise<Record<string, any>>,
   ): Promise<Record<string, any>>;

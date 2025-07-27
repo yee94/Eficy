@@ -1,7 +1,7 @@
 import { action, computed, makeObservable, observable } from '@eficy/reactive';
 import { inject, injectable } from 'tsyringe';
 import type { IViewData } from '../interfaces';
-import type { IBuildSchemaNodeContext } from '../interfaces/lifecycle';
+import type { IBuildSchemaNodeContext, IProcessPropsContext } from '../interfaces/lifecycle';
 import { HookType } from '../interfaces/lifecycle';
 import { PluginManager } from '../services/PluginManager';
 import EficyNode from './EficyNode';
@@ -65,6 +65,16 @@ export default class EficyModelTree {
     return await this.pluginManager.executeHook(HookType.BUILD_SCHEMA_NODE, viewData, context, async () => {
       const { '#children': children, ...rest } = viewData;
       const node = new EficyNode(rest);
+
+      await this.pluginManager.executeHook(
+        HookType.PROCESS_PROPS,
+        node.props,
+        {
+          eficyNode: node,
+          originalProps: { ...node.props },
+        } as IProcessPropsContext,
+        async () => node.props,
+      );
 
       // 递归构建子节点
       if (children && Array.isArray(children)) {

@@ -26,7 +26,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 };
 
 // 主渲染组件 - 使用useObserver(view)模式来追踪响应式数据
-const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, childrenMap }: IRenderNodeProps) => {
+const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, childrenMap, as }: IRenderNodeProps) => {
   if (!childrenMap || !eficyNode) {
     throw new Error('childrenMap and eficyNode are required');
   }
@@ -34,7 +34,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
   // 获取 Eficy Context（可选）
   const eficyContext = useOptionalEficyContext();
   const [isMounted, setIsMounted] = useState(false);
-  
+
   // 异步流程钩子状态管理
   const [asyncState, setAsyncState] = useState({
     isInitializing: false,
@@ -42,7 +42,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
     isResolvingComponent: false,
     isProcessingProps: false,
     isRendering: false,
-    error: null as Error | null
+    error: null as Error | null,
   });
 
   // 处理 Mount/Unmount 生命周期钩子
@@ -51,7 +51,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
       // 发射 Mount 事件
       const mountContext: IMountContext = {
         container: undefined,
-        parentElement: undefined
+        parentElement: undefined,
       };
 
       // 发射同步副作用钩子，捕获错误以防止组件渲染中断
@@ -64,7 +64,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
           component: eficyNode['#view'],
           stack: (error as Error).stack || '',
           severity: 'medium',
-          recoverable: true
+          recoverable: true,
         });
       }
       setIsMounted(true);
@@ -73,7 +73,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
       return () => {
         const unmountContext: IUnmountContext = {
           container: undefined,
-          parentElement: undefined
+          parentElement: undefined,
         };
 
         // 发射同步副作用钩子，捕获错误
@@ -86,7 +86,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
             component: eficyNode['#view'],
             stack: (error as Error).stack || '',
             severity: 'medium',
-            recoverable: true
+            recoverable: true,
           });
         }
         setIsMounted(false);
@@ -118,26 +118,26 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
             componentMap: eficyContext.componentRegistry?.getAll() || componentMap,
             isSSR: typeof window === 'undefined',
           };
-          
+
           // 发射渲染异步流程钩子（后台执行）
           const customElement = await eficyContext.lifecycleEventEmitter.emitAsyncRender(eficyNode, renderContext);
-          
+
           // 如果有自定义渲染结果，可以在这里处理
           if (customElement) {
             console.log('Custom render result:', customElement);
           }
         } catch (error) {
           console.error('Async render hook error:', error);
-          setAsyncState(prev => ({ ...prev, error: error as Error }));
+          setAsyncState((prev) => ({ ...prev, error: error as Error }));
         }
       };
-      
+
       // 在后台执行异步钩子，不阻塞渲染
       executeAsyncHooksInBackground();
     }
 
     // 获取组件 - 保持同步处理
-    const Component = componentMap[componentName] as ComponentType<any>;
+    const Component = as ?? (componentMap[componentName] as ComponentType<any>);
 
     // 组件不存在的错误处理
     if (!Component) {
@@ -150,12 +150,8 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
     }
 
     // 处理事件处理函数，添加 HandleEvent 和 BindEvent 钩子支持
-    props = processEventHandlers(
-      props, 
-      eficyNode, 
-      eficyContext?.lifecycleEventEmitter
-    );
-    
+    props = processEventHandlers(props, eficyNode, eficyContext?.lifecycleEventEmitter);
+
     // 如果有异步错误，显示错误信息
     if (asyncState.error) {
       return (
@@ -175,12 +171,12 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
         // 如果是普通数组，直接返回
         return eficyNode.children;
       }
-      
+
       // 如果是文本内容
       if (eficyNode['#content']) {
         return eficyNode['#content'];
       }
-      
+
       return null;
     })();
 
