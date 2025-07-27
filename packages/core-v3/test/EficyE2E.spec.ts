@@ -1,13 +1,13 @@
-import 'reflect-metadata';
-import { describe, it, expect, beforeEach } from 'vitest';
-import { injectable } from 'tsyringe';
-import type { ILifecyclePlugin, IInitContext, IBuildSchemaNodeContext, IRenderContext, IMountContext, IUnmountContext, IResolveComponentContext, IProcessPropsContext, IHandleEventContext, IBindEventContext, IErrorContext } from '../src/interfaces/lifecycle';
-import { Init, BuildSchemaNode, Render, Mount, Unmount, ResolveComponent, ProcessProps, HandleEvent, BindEvent, Error } from '../src/decorators/lifecycle';
-import Eficy from '../src/core/Eficy';
-import type { IViewData } from '../src/interfaces';
-import type EficyNode from '../src/models/EficyNode';
 import type { ReactElement } from 'react';
 import React from 'react';
+import 'reflect-metadata';
+import { injectable } from 'tsyringe';
+import { beforeEach, describe, expect, it } from 'vitest';
+import Eficy from '../src/core/Eficy';
+import { OnBindEvent, BuildSchemaNode, OnError, Init, OnHandleEvent, OnMount, OnUnmount, ProcessProps, Render, ResolveComponent } from '../src/decorators/lifecycle';
+import type { IViewData } from '../src/interfaces';
+import type { IBindEventContext, IBuildSchemaNodeContext, IErrorContext, IHandleEventContext, IInitContext, ILifecyclePlugin, IMountContext, IProcessPropsContext, IRenderContext, IResolveComponentContext, IUnmountContext } from '../src/interfaces/lifecycle';
+import type EficyNode from '../src/models/EficyNode';
 
 /**
  * Eficy 实例的各个 Hook 的 E2E 测试
@@ -60,15 +60,15 @@ describe('Eficy E2E Hook Integration', () => {
           return element;
         }
 
-        @Mount(1)
-        async onMount(context: IMountContext, next: () => Promise<void>) {
+        @OnMount(1)
+        async onMount(element: Element, EficyNode: EficyNode, context: IMountContext, next: () => Promise<void>) {
           executionLog.push('mount-start');
           await next();
           executionLog.push('mount-end');
         }
 
-        @Unmount(1)
-        async onUnmount(context: IUnmountContext, next: () => Promise<void>) {
+        @OnUnmount(1)
+        async onUnmount(element: Element, EficyNode: EficyNode, context: IUnmountContext, next: () => Promise<void>) {
           executionLog.push('unmount-start');
           await next();
           executionLog.push('unmount-end');
@@ -77,6 +77,7 @@ describe('Eficy E2E Hook Integration', () => {
         @ResolveComponent(1)
         async onResolveComponent(
           componentName: string,
+          EficyNode: EficyNode,
           context: IResolveComponentContext,
           next: () => Promise<any>
         ) {
@@ -89,6 +90,7 @@ describe('Eficy E2E Hook Integration', () => {
         @ProcessProps(1)
         async onProcessProps(
           props: Record<string, any>,
+          EficyNode: EficyNode,
           context: IProcessPropsContext,
           next: () => Promise<Record<string, any>>
         ) {
@@ -98,10 +100,10 @@ describe('Eficy E2E Hook Integration', () => {
           return processedProps;
         }
 
-        @HandleEvent(1)
+        @OnHandleEvent(1)
         async onHandleEvent(
-          handler: Function,
-          viewNode: EficyNode,
+          event: Event,
+          EficyNode: EficyNode,
           context: IHandleEventContext,
           next: () => Promise<Function>
         ) {
@@ -111,9 +113,11 @@ describe('Eficy E2E Hook Integration', () => {
           return wrappedHandler;
         }
 
-        @BindEvent(1)
+        @OnBindEvent(1)
         async onBindEvent(
-          viewNode: EficyNode,
+          eventName: string,
+          handler: Function,
+          EficyNode: EficyNode,
           context: IBindEventContext,
           next: () => Promise<void>
         ) {
@@ -122,9 +126,10 @@ describe('Eficy E2E Hook Integration', () => {
           executionLog.push(`bind-event-end`);
         }
 
-        @Error(1)
+        @OnError(1)
         async onError(
           error: Error,
+          EficyNode: EficyNode | null,
           context: IErrorContext,
           next: () => Promise<void>
         ) {

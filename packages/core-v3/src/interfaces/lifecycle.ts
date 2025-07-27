@@ -1,6 +1,6 @@
 import type { ComponentType, ReactElement } from 'react'
 import type { DependencyContainer } from 'tsyringe'
-import type ViewNode from '../models/ViewNode'
+import type EficyNode from '../models/EficyNode'
 import type { IViewData, IEficySchema } from './index'
 
 // 基础上下文接口
@@ -19,7 +19,7 @@ export interface IInitContext extends IBaseContext {
 
 // Schema 节点构建上下文
 export interface IBuildSchemaNodeContext extends IBaseContext {
-  parent?: ViewNode
+  parent?: EficyNode
   schema: IEficySchema
   index: number
   path: string[]
@@ -100,12 +100,12 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   onBuildSchemaNode?(
     viewData: IViewData,
     context: IBuildSchemaNodeContext,
-    next: () => Promise<ViewNode>
-  ): Promise<ViewNode>
+    next: () => Promise<EficyNode>
+  ): Promise<EficyNode>
   
   // 渲染钩子
   onRender?(
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IRenderContext,
     next: () => Promise<ReactElement>
   ): Promise<ReactElement>
@@ -113,7 +113,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 挂载钩子
   onMount?(
     element: Element,
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IMountContext,
     next: () => Promise<void>
   ): Promise<void>
@@ -121,7 +121,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 卸载钩子
   onUnmount?(
     element: Element,
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IUnmountContext,
     next: () => Promise<void>
   ): Promise<void>
@@ -129,7 +129,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 组件解析钩子
   onResolveComponent?(
     componentName: string,
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IResolveComponentContext,
     next: () => Promise<ComponentType>
   ): Promise<ComponentType>
@@ -137,7 +137,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 属性处理钩子
   onProcessProps?(
     props: Record<string, any>,
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IProcessPropsContext,
     next: () => Promise<Record<string, any>>
   ): Promise<Record<string, any>>
@@ -145,7 +145,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 事件处理钩子
   onHandleEvent?(
     event: Event,
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IHandleEventContext,
     next: () => Promise<any>
   ): Promise<any>
@@ -154,7 +154,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   onBindEvent?(
     eventName: string,
     handler: Function,
-    viewNode: ViewNode,
+    EficyNode: EficyNode,
     context: IBindEventContext,
     next: () => Promise<void>
   ): Promise<void>
@@ -162,7 +162,7 @@ export interface ILifecyclePlugin extends IEficyPlugin {
   // 错误处理钩子
   onError?(
     error: Error,
-    viewNode: ViewNode | null,
+    EficyNode: EficyNode | null,
     context: IErrorContext,
     next: () => Promise<ReactElement | void>
   ): Promise<ReactElement | void>
@@ -200,19 +200,7 @@ export enum HookType {
   ON_UNMOUNT = 'onUnmount',
   ON_HANDLE_EVENT = 'onHandleEvent',
   ON_BIND_EVENT = 'onBindEvent',
-  ON_ERROR = 'onError',
-  
-  // 已弃用的旧命名（向后兼容）
-  /** @deprecated 使用 ON_MOUNT */
-  MOUNT = 'mount',
-  /** @deprecated 使用 ON_UNMOUNT */
-  UNMOUNT = 'unmount',
-  /** @deprecated 使用 ON_HANDLE_EVENT */
-  HANDLE_EVENT = 'handleEvent',
-  /** @deprecated 使用 ON_BIND_EVENT */
-  BIND_EVENT = 'bindEvent',
-  /** @deprecated 使用 ON_ERROR */
-  ERROR = 'error'
+  ON_ERROR = 'onError'
 }
 
 // 钩子注册信息

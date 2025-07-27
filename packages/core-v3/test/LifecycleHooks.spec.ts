@@ -24,13 +24,13 @@ import {
   Init,
   BuildSchemaNode,
   Render,
-  Mount,
-  Unmount,
+  OnMount,
+  OnUnmount,
   ResolveComponent,
   ProcessProps,
-  HandleEvent,
-  BindEvent,
-  Error,
+  OnHandleEvent,
+  OnBindEvent,
+  OnError,
   getLifecycleHooks,
   hasLifecycleHook,
 } from '../src/decorators/lifecycle'
@@ -111,13 +111,13 @@ describe('Lifecycle Hooks System', () => {
       expect(hooks[0].methodName).toBe('onRender')
     })
 
-    it('should register @Mount hook correctly', () => {
+    it('should register @OnMount hook correctly', () => {
       @injectable()
       class TestPlugin implements ILifecyclePlugin {
         name = 'test-plugin'
         version = '1.0.0'
 
-        @Mount()
+        @OnMount()
         async onMount(
           element: Element,
           viewNode: EficyNode,
@@ -132,17 +132,17 @@ describe('Lifecycle Hooks System', () => {
       const hooks = getLifecycleHooks(Object.getPrototypeOf(plugin))
       
       expect(hooks).toHaveLength(1)
-      expect(hooks[0].hookType).toBe('mount')
+      expect(hooks[0].hookType).toBe('onMount')
       expect(hooks[0].methodName).toBe('onMount')
     })
 
-    it('should register @Unmount hook correctly', () => {
+    it('should register @OnUnmount hook correctly', () => {
       @injectable()
       class TestPlugin implements ILifecyclePlugin {
         name = 'test-plugin'
         version = '1.0.0'
 
-        @Unmount()
+        @OnUnmount()
         async onUnmount(
           element: Element,
           viewNode: EficyNode,
@@ -157,7 +157,7 @@ describe('Lifecycle Hooks System', () => {
       const hooks = getLifecycleHooks(Object.getPrototypeOf(plugin))
       
       expect(hooks).toHaveLength(1)
-      expect(hooks[0].hookType).toBe('unmount')
+      expect(hooks[0].hookType).toBe('onUnmount')
       expect(hooks[0].methodName).toBe('onUnmount')
     })
 
@@ -211,13 +211,13 @@ describe('Lifecycle Hooks System', () => {
       expect(hooks[0].methodName).toBe('onProcessProps')
     })
 
-    it('should register @HandleEvent hook correctly', () => {
+    it('should register @OnHandleEvent hook correctly', () => {
       @injectable()
       class TestPlugin implements ILifecyclePlugin {
         name = 'test-plugin'
         version = '1.0.0'
 
-        @HandleEvent()
+        @OnHandleEvent()
         async onHandleEvent(
           event: Event,
           viewNode: EficyNode,
@@ -232,17 +232,17 @@ describe('Lifecycle Hooks System', () => {
       const hooks = getLifecycleHooks(Object.getPrototypeOf(plugin))
       
       expect(hooks).toHaveLength(1)
-      expect(hooks[0].hookType).toBe('handleEvent')
+      expect(hooks[0].hookType).toBe('onHandleEvent')
       expect(hooks[0].methodName).toBe('onHandleEvent')
     })
 
-    it('should register @BindEvent hook correctly', () => {
+    it('should register @OnBindEvent hook correctly', () => {
       @injectable()
       class TestPlugin implements ILifecyclePlugin {
         name = 'test-plugin'
         version = '1.0.0'
 
-        @BindEvent()
+        @OnBindEvent()
         async onBindEvent(
           eventName: string,
           handler: Function,
@@ -258,17 +258,17 @@ describe('Lifecycle Hooks System', () => {
       const hooks = getLifecycleHooks(Object.getPrototypeOf(plugin))
       
       expect(hooks).toHaveLength(1)
-      expect(hooks[0].hookType).toBe('bindEvent')
+      expect(hooks[0].hookType).toBe('onBindEvent')
       expect(hooks[0].methodName).toBe('onBindEvent')
     })
 
-    it('should register @Error hook correctly', () => {
+    it('should register @OnError hook correctly', () => {
       @injectable()
       class TestPlugin implements ILifecyclePlugin {
         name = 'test-plugin'
         version = '1.0.0'
 
-        @Error()
+        @OnError()
         async onError(
           error: Error,
           viewNode: EficyNode | null,
@@ -283,7 +283,7 @@ describe('Lifecycle Hooks System', () => {
       const hooks = getLifecycleHooks(Object.getPrototypeOf(plugin))
       
       expect(hooks).toHaveLength(1)
-      expect(hooks[0].hookType).toBe('error')
+      expect(hooks[0].hookType).toBe('onError')
       expect(hooks[0].methodName).toBe('onError')
     })
 
@@ -307,7 +307,7 @@ describe('Lifecycle Hooks System', () => {
           return await next()
         }
 
-        @Mount()
+        @OnMount()
         async onMount(
           element: Element,
           viewNode: EficyNode,
@@ -326,7 +326,7 @@ describe('Lifecycle Hooks System', () => {
       const hookTypes = hooks.map(h => h.hookType)
       expect(hookTypes).toContain('init')
       expect(hookTypes).toContain('render')
-      expect(hookTypes).toContain('mount')
+              expect(hookTypes).toContain('onMount')
     })
 
     it('should support hook priorities', () => {
@@ -549,7 +549,7 @@ describe('Lifecycle Hooks System', () => {
         name = 'mount-plugin'
         version = '1.0.0'
 
-        @Mount()
+        @OnMount()
         async onMount(
           element: Element,
           viewNode: EficyNode,
@@ -582,7 +582,7 @@ describe('Lifecycle Hooks System', () => {
         container: mockElement
       }
 
-      await pluginManager.executeHook('mount' as HookType, mockElement, viewNode, mockContext, async () => {
+      await pluginManager.executeHook('onMount' as HookType, mockElement, viewNode, mockContext, async () => {
         // Mock core mount logic
       })
 
@@ -598,7 +598,7 @@ describe('Lifecycle Hooks System', () => {
         name = 'unmount-plugin'
         version = '1.0.0'
 
-        @Unmount()
+        @OnUnmount()
         async onUnmount(
           element: Element,
           viewNode: EficyNode,
@@ -632,7 +632,7 @@ describe('Lifecycle Hooks System', () => {
         container: mockElement
       }
 
-      await pluginManager.executeHook('unmount' as HookType, mockElement, viewNode, mockContext, async () => {
+      await pluginManager.executeHook('onUnmount' as HookType, mockElement, viewNode, mockContext, async () => {
         // Mock core unmount logic
       })
 
@@ -754,7 +754,7 @@ describe('Lifecycle Hooks System', () => {
         name = 'handle-event-plugin'
         version = '1.0.0'
 
-        @HandleEvent()
+        @OnHandleEvent()
         async onHandleEvent(
           event: Event,
           viewNode: EficyNode,
@@ -791,7 +791,7 @@ describe('Lifecycle Hooks System', () => {
         originalEvent: mockEvent
       }
 
-      const result = await pluginManager.executeHook('handleEvent' as HookType, mockEvent, viewNode, mockContext, async () => {
+      const result = await pluginManager.executeHook('onHandleEvent' as HookType, mockEvent, viewNode, mockContext, async () => {
         return 'event-handled'
       })
 
@@ -807,7 +807,7 @@ describe('Lifecycle Hooks System', () => {
         name = 'bind-event-plugin'
         version = '1.0.0'
 
-        @BindEvent()
+        @OnBindEvent()
         async onBindEvent(
           eventName: string,
           handler: Function,
@@ -844,7 +844,7 @@ describe('Lifecycle Hooks System', () => {
         eventType: 'click'
       }
 
-      await pluginManager.executeHook('bindEvent' as HookType, 'click', mockHandler, viewNode, mockContext, async () => {
+      await pluginManager.executeHook('onBindEvent' as HookType, 'click', mockHandler, viewNode, mockContext, async () => {
         // Mock core binding
       })
 
@@ -859,7 +859,7 @@ describe('Lifecycle Hooks System', () => {
         name = 'error-plugin'
         version = '1.0.0'
 
-        @Error()
+        @OnError()
         async onError(
           error: Error,
           viewNode: EficyNode | null,
@@ -892,11 +892,11 @@ describe('Lifecycle Hooks System', () => {
         recoverable: true
       }
 
-      const result = await pluginManager.executeHook('error' as HookType, testError, viewNode, mockContext, async () => {
+      const result = await pluginManager.executeHook('onError' as HookType, testError, viewNode, mockContext, async () => {
         throw new Error('Core error handling failed')
       })
 
-      expect(errorLogs).toEqual(['error-caught: undefined', 'error-handled-by-plugin'])
+      expect(errorLogs).toEqual(['error-caught: Test error', 'error-handled-by-plugin'])
       expect(result).toBeDefined()
       expect(result.props.children).toBe('Error handled')
     })
@@ -1000,7 +1000,7 @@ describe('Lifecycle Hooks System', () => {
           return await next()
         }
 
-        @Mount()
+        @OnMount()
         async onMount(
           element: Element,
           viewNode: EficyNode,
@@ -1016,7 +1016,7 @@ describe('Lifecycle Hooks System', () => {
       const stats = pluginManager.getHookStats()
       expect(stats['init']).toBe(1)
       expect(stats['render']).toBe(1)
-      expect(stats['mount']).toBe(1)
+      expect(stats['onMount']).toBe(1)
     })
   })
 })
