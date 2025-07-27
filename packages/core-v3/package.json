@@ -34,6 +34,7 @@
   "dependencies": {
     "@eficy/reactive": "workspace:~",
     "@eficy/reactive-react": "workspace:~",
+    "@eficy/plugin-unocss": "workspace:~",
     "ahooks": "^3.7.11",
     "axios": "^0.27.2",
     "eventemitter3": "^5.0.1",
