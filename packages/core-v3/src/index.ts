@@ -3,9 +3,9 @@ import 'reflect-metadata'
 // Core
 export { default as Eficy } from './core/Eficy'
 // export { default as EficyNode } from './models/EficyNode'
-// export { default as EficyNodeStore } from './models/EficyNodeStore'
+// export { default as EficyModelTree } from './models/EficyModelTree'
 // export { default as RenderNode } from './components/RenderNode'
-// export { default as RenderNodeTree } from './models/RenderNodeTree'
+// export { default as DomTree } from './models/DomTree'
 
 // Services
 export { default as ConfigService } from './services/ConfigService'

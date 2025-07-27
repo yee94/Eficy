@@ -1,7 +1,7 @@
 /**
  * EficyTree 构建工具
  * 
- * 负责将 EficyNodeStore 转换为 EficyNode 树结构
+ * 负责将 EficyModelTree 转换为 EficyNode 树结构
  * 采用内向外递归的方式，确保所有子节点都是真正的 EficyNode 实例
  */
 

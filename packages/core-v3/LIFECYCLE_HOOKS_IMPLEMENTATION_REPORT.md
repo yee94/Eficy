@@ -11,8 +11,8 @@
 | 钩子装饰器 | 钩子类型 | 实现位置 | 调用时机 | 测试用例 |
 |-----------|----------|----------|----------|----------|
 | `@Init` | `HookType.INIT` | `src/core/Eficy.ts:135` | Eficy 实例创建元素时 | ✅ 完整测试 |
-| `@BuildSchemaNode` | `HookType.BUILD_SCHEMA_NODE` | `src/models/EficyNodeStore.ts:59` | 构建每个 EficyNode 时 | ✅ 完整测试 |
-| `@Render` | `HookType.RENDER` | `src/models/RenderNodeTree.ts:101` | 创建每个 RenderNode 时 | ✅ 完整测试 |
+| `@BuildSchemaNode` | `HookType.BUILD_SCHEMA_NODE` | `src/models/EficyModelTree.ts:59` | 构建每个 EficyNode 时 | ✅ 完整测试 |
+| `@Render` | `HookType.RENDER` | `src/models/DomTree.ts:101` | 创建每个 RenderNode 时 | ✅ 完整测试 |
 | `@Mount` | `HookType.MOUNT` | `src/components/RenderNode.tsx:48` | 组件挂载到 DOM 时 | ✅ 完整测试 |
 | `@Unmount` | `HookType.UNMOUNT` | `src/components/RenderNode.tsx:66` | 组件从 DOM 卸载时 | ✅ 完整测试 |
 | `@ResolveComponent` | `HookType.RESOLVE_COMPONENT` | `src/components/RenderNode.tsx:95` | 解析组件名称时 | ✅ 完整测试 |
@@ -44,8 +44,8 @@
 #### 3.1 应用程序级别钩子
 
 - **@Init**: 在 `Eficy.createElement()` 开始时执行
-- **@BuildSchemaNode**: 在 `EficyNodeStore.buildNodeWithHooks()` 中为每个节点执行
-- **@Render**: 在 `RenderNodeTree.createRenderNode()` 中为每个渲染节点执行
+- **@BuildSchemaNode**: 在 `EficyModelTree.buildNodeWithHooks()` 中为每个节点执行
+- **@Render**: 在 `DomTree.createRenderNode()` 中为每个渲染节点执行
 
 #### 3.2 组件级别钩子
 

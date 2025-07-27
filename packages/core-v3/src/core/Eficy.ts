@@ -5,8 +5,8 @@ import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
 import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces';
 import type { ILifecyclePlugin } from '../interfaces/lifecycle';
 import type EficyNode from '../models/EficyNode';
-import EficyNodeStore from '../models/EficyNodeStore';
-import RenderNodeTree from '../models/RenderNodeTree';
+import EficyModelTree from '../models/EficyModelTree';
+import DomTree from '../models/DomTree';
 import ComponentRegistry from '../services/ComponentRegistry';
 import ConfigService from '../services/ConfigService';
 import { PluginManager } from '../services/PluginManager';
@@ -17,8 +17,8 @@ import type { IEficyContextValue } from '../contexts/EficyContext';
 export default class Eficy {
   private configService: ConfigService;
   private componentRegistry: ComponentRegistry;
-  private eficyNodeStore: EficyNodeStore | null = null;
-  private renderNodeTree: RenderNodeTree | null = null;
+  private models: EficyModelTree | null = null;
+  private doms: DomTree | null = null;
   private container: DependencyContainer;
   private pluginManager: PluginManager;
   private lifecycleEventEmitter: LifecycleEventEmitter;
@@ -46,11 +46,11 @@ export default class Eficy {
     if (!container.isRegistered(ComponentRegistry)) {
       container.registerSingleton(ComponentRegistry);
     }
-    if (!container.isRegistered(EficyNodeStore)) {
-      container.registerSingleton(EficyNodeStore);
+    if (!container.isRegistered(EficyModelTree)) {
+      container.registerSingleton(EficyModelTree);
     }
-    if (!container.isRegistered(RenderNodeTree)) {
-      container.registerSingleton(RenderNodeTree);
+    if (!container.isRegistered(DomTree)) {
+      container.registerSingleton(DomTree);
     }
     if (!container.isRegistered(PluginManager)) {
       container.registerSingleton(PluginManager);
@@ -87,33 +87,33 @@ export default class Eficy {
   }
 
   /**
-   * 将 IEficySchema 转换为 EficyNodeStore
+   * 将 IEficySchema 转换为 EficyModelTree
    */
-  private schemaToNodeTree(schema: IEficySchema): EficyNodeStore {
+  private schemaToNodeTree(schema: IEficySchema): EficyModelTree {
     if (!schema || !schema.views) {
       throw new Error('Schema must have views property');
     }
 
-    // 使用 tsyringe 获取 EficyNodeStore 实例
-    const nodeTree = this.container.resolve(EficyNodeStore);
+    // 使用 tsyringe 获取 EficyModelTree 实例
+    const nodeTree = this.container.resolve(EficyModelTree);
     nodeTree.build(schema.views);
 
     return nodeTree;
   }
 
   /**
-   * 构建 RenderNodeTree
+   * 构建 DomTree
    */
-  private async buildRenderNodeTree(eficyNodeStore: EficyNodeStore): Promise<RenderNodeTree> {
-    // 使用 tsyringe 获取 RenderNodeTree 实例
-    const renderNodeTree = this.container.resolve(RenderNodeTree);
-    const rootNode = eficyNodeStore.root;
+  private async buildRenderNodeTree(eficyModelTree: EficyModelTree): Promise<DomTree> {
+    // 使用 tsyringe 获取 DomTree 实例
+    const domTree = this.container.resolve(DomTree);
+    const rootNode = eficyModelTree.root;
 
     if (rootNode) {
-      await renderNodeTree.createElement(rootNode);
+      await domTree.createElement(rootNode);
     }
 
-    return renderNodeTree;
+    return domTree;
   }
 
   /**
@@ -133,9 +133,9 @@ export default class Eficy {
     }
 
     // 将 Schema 转换为 NodeTree
-    this.eficyNodeStore = this.schemaToNodeTree(schema);
+    this.models = this.schemaToNodeTree(schema);
 
-    this.renderNodeTree = await this.buildRenderNodeTree(this.eficyNodeStore);
+    this.doms = await this.buildRenderNodeTree(this.models);
 
     // 包装在 EficyProvider 中
     const contextValue: IEficyContextValue = {
@@ -144,7 +144,7 @@ export default class Eficy {
       componentRegistry: this.componentRegistry
     };
 
-    return React.createElement(EficyProvider, { value: contextValue }, this.renderNodeTree.rootRenderNode);
+    return React.createElement(EficyProvider, { value: contextValue }, this.doms.rootRenderNode);
   }
 
   /**
@@ -180,24 +180,24 @@ export default class Eficy {
   /**
    * 根据Schema获取内部的NodeTree (新增方法，用于高级用法)
    */
-  getNodeTree(schema: IEficySchema): EficyNodeStore {
+  getNodeTree(schema: IEficySchema): EficyModelTree {
     const nodeTree = this.schemaToNodeTree(schema);
-    this.eficyNodeStore = nodeTree;
+    this.models = nodeTree;
     return nodeTree;
   }
 
   /**
-   * 获取当前的 EficyNodeStore
+   * 获取当前的 EficyModelTree
    */
-  get nodeTree(): EficyNodeStore | null {
-    return this.eficyNodeStore;
+  get nodeTree(): EficyModelTree | null {
+    return this.models;
   }
 
   /**
-   * 获取当前的 RenderNodeTree
+   * 获取当前的 DomTree
    */
-  get renderTree(): RenderNodeTree | null {
-    return this.renderNodeTree;
+  get renderTree(): DomTree | null {
+    return this.doms;
   }
 
   /**
@@ -212,34 +212,34 @@ export default class Eficy {
    * 从当前树中查找节点
    */
   findNode(nodeId: string): EficyNode | null {
-    if (!this.eficyNodeStore) {
+    if (!this.models) {
       return null;
     }
-    return this.eficyNodeStore.findNode(nodeId);
+    return this.models.findNode(nodeId);
   }
 
   /**
-   * 从当前 RenderNodeTree 中查找 RenderNode
+   * 从当前 DomTree 中查找 RenderNode
    */
   findRenderNode(nodeId: string): ReactElement | null {
-    if (!this.renderNodeTree) {
+    if (!this.doms) {
       return null;
     }
-    return this.renderNodeTree.findRenderNode(nodeId);
+    return this.doms.findRenderNode(nodeId);
   }
 
   /**
    * 更新节点并同步更新 RenderNode
    */
   updateNode(nodeId: string, data: any): void {
-    if (this.eficyNodeStore) {
-      this.eficyNodeStore.updateNode(nodeId, data);
+    if (this.models) {
+      this.models.updateNode(nodeId, data);
 
       // 同步更新 RenderNode
-      if (this.renderNodeTree) {
-        const updatedNode = this.eficyNodeStore.findNode(nodeId);
+      if (this.doms) {
+        const updatedNode = this.models.findNode(nodeId);
         if (updatedNode) {
-          this.renderNodeTree.updateRenderNode(nodeId, updatedNode);
+          this.doms.updateRenderNode(nodeId, updatedNode);
         }
       }
     }
@@ -249,15 +249,15 @@ export default class Eficy {
    * 添加子节点并同步更新 RenderNode
    */
   addChild(parentId: string, childData: any): EficyNode | null {
-    if (!this.eficyNodeStore) {
+    if (!this.models) {
       return null;
     }
 
-    const newNode = this.eficyNodeStore.addChild(parentId, childData);
+    const newNode = this.models.addChild(parentId, childData);
 
     // 同步添加 RenderNode
-    if (newNode && this.renderNodeTree) {
-      this.renderNodeTree.addRenderNode(newNode);
+    if (newNode && this.doms) {
+      this.doms.addRenderNode(newNode);
     }
 
     return newNode;
@@ -267,12 +267,12 @@ export default class Eficy {
    * 移除子节点并同步清理 RenderNode
    */
   removeChild(parentId: string, childId: string): void {
-    if (this.eficyNodeStore) {
-      this.eficyNodeStore.removeChild(parentId, childId);
+    if (this.models) {
+      this.models.removeChild(parentId, childId);
 
       // 同步移除 RenderNode
-      if (this.renderNodeTree) {
-        this.renderNodeTree.removeRenderNode(childId);
+      if (this.doms) {
+        this.doms.removeRenderNode(childId);
       }
     }
   }
@@ -281,14 +281,14 @@ export default class Eficy {
    * 清空所有树
    */
   clear(): void {
-    if (this.eficyNodeStore) {
-      this.eficyNodeStore.clear();
+    if (this.models) {
+      this.models.clear();
     }
-    if (this.renderNodeTree) {
-      this.renderNodeTree.clear();
+    if (this.doms) {
+      this.doms.clear();
     }
-    this.eficyNodeStore = null;
-    this.renderNodeTree = null;
+    this.models = null;
+    this.doms = null;
   }
 
   /**
@@ -346,8 +346,8 @@ export default class Eficy {
   @computed
   get stats() {
     return {
-      nodeTree: this.eficyNodeStore?.stats || null,
-      renderTree: this.renderNodeTree?.stats || null,
+      nodeTree: this.models?.stats || null,
+      renderTree: this.doms?.stats || null,
       plugins: this.pluginManager.getHookStats(),
       lifecycleEvents: this.lifecycleEventEmitter.getStatistics(),
       lifecycleHooksEnabled: this.enableLifecycleHooks,

@@ -24,7 +24,7 @@ const EficyContext = createContext<IEficyContextValue | null>(null);
  * Eficy Context Provider 属性
  */
 export interface IEficyProviderProps {
-  children: ReactNode;
+  children?: ReactNode;
   value: IEficyContextValue;
 }
 

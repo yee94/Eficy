@@ -1,19 +1,19 @@
-import { injectable, inject } from 'tsyringe';
-import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
-import EficyNode from './EficyNode';
+import { action, computed, makeObservable, observable } from '@eficy/reactive';
+import { inject, injectable } from 'tsyringe';
 import type { IViewData } from '../interfaces';
 import type { IBuildSchemaNodeContext } from '../interfaces/lifecycle';
 import { HookType } from '../interfaces/lifecycle';
 import { PluginManager } from '../services/PluginManager';
+import EficyNode from './EficyNode';
 
 /**
  * Eficy Node 节点平铺 Store
  */
 @injectable()
-export default class EficyNodeStore {
+export default class EficyModelTree {
   @observable
   private rootNode: EficyNode;
-  
+
   private pluginManager: PluginManager;
 
   @computed
@@ -36,7 +36,7 @@ export default class EficyNodeStore {
   build(views: IViewData | IViewData[]): void {
     // 由内向外递归构建EficyNode树，使用生命周期钩子
     const viewsArray = Array.isArray(views) ? views : [views];
-    
+
     this.rootNode = new EficyNode({
       '#': '__eficy_root',
       '#view': '<>',
@@ -53,27 +53,22 @@ export default class EficyNodeStore {
       requestId: `req-${Date.now()}`,
       schema: { views: [] },
       index: 0,
-      path: []
+      path: [],
     };
 
-    return await this.pluginManager.executeHook(
-      HookType.BUILD_SCHEMA_NODE,
-      viewData,
-      context,
-      async () => {
-        const node = new EficyNode(viewData);
-        
-        // 递归构建子节点
-        if (viewData['#children'] && Array.isArray(viewData['#children'])) {
-          const childNodes = await Promise.all(
-            viewData['#children'].map(childData => this.buildNodeWithHooks(childData))
-          );
-          node.setChildren(childNodes);
-        }
-        
-        return node;
+    return await this.pluginManager.executeHook(HookType.BUILD_SCHEMA_NODE, viewData, context, async () => {
+      const node = new EficyNode(viewData);
+
+      // 递归构建子节点
+      if (viewData['#children'] && Array.isArray(viewData['#children'])) {
+        const childNodes = await Promise.all(
+          viewData['#children'].map((childData) => this.buildNodeWithHooks(childData)),
+        );
+        node.setChildren(childNodes);
       }
-    );
+
+      return node;
+    });
   }
 
   /**
@@ -201,8 +196,8 @@ export default class EficyNodeStore {
   /**
    * 从JSON构建树
    */
-  static fromJSON(data: IViewData | IViewData[], pluginManager: PluginManager): EficyNodeStore {
-    const tree = new EficyNodeStore(pluginManager);
+  static fromJSON(data: IViewData | IViewData[], pluginManager: PluginManager): EficyModelTree {
+    const tree = new EficyModelTree(pluginManager);
     tree.build(data);
     return tree;
   }

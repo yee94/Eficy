@@ -1,6 +1,6 @@
 import type { ReactElement, ComponentType, ReactNode } from 'react';
 import type EficyNode from '../models/EficyNode';
-import type EficyNodeStore from '../models/EficyNodeStore';
+import type EficyModelTree from '../models/EficyModelTree';
 
 /**
  * 视图数据接口 - 原始的JSON结构
@@ -110,7 +110,7 @@ export interface IEficyNodeStore {
 export interface IEficyProps {
   views: IViewData | IViewData[];
   componentMap?: IComponentMap;
-  onNodeTreeChange?: (tree: EficyNodeStore) => void;
+  onNodeTreeChange?: (tree: EficyModelTree) => void;
 }
 
 /**

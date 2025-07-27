@@ -10,10 +10,10 @@ import { PluginManager } from '../services/PluginManager';
 
 /**
  * RenderNode 树管理器
- * 专门处理 React 元素的构建和映射，与 EficyNodeStore 解耦
+ * 专门处理 React 元素的构建和映射，与 EficyModelTree 解耦
  */
 @injectable()
-export default class RenderNodeTree {
+export default class DomTree {
   @observable
   private renderNodeCache: Map<string, ReactElement> = new Map();
   private previousChildren: Map<string, ReactElement[]> = new Map();
@@ -29,7 +29,7 @@ export default class RenderNodeTree {
 
   /**
    * 从内向外构建所有RenderNode的映射关系
-   * 基于现有的 EficyNodeStore 构建 RenderNode 映射
+   * 基于现有的 EficyModelTree 构建 RenderNode 映射
    */
   @action
   public async createElement(eficyNode: EficyNode): Promise<ReactElement | null> {

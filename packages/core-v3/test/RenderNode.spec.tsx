@@ -5,8 +5,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { container } from 'tsyringe'
 import RenderNode from '../src/components/RenderNode'
 import EficyNode from '../src/models/EficyNode'
-import EficyNodeStore from '../src/models/EficyNodeStore'
-import RenderNodeTree from '../src/models/RenderNodeTree'
+import EficyModelTree from '../src/models/EficyModelTree'
+import DomTree from '../src/models/DomTree'
 import Eficy from '../src/core/Eficy'
 import ComponentRegistry from '../src/services/ComponentRegistry'
 
@@ -31,12 +31,12 @@ const testComponentMap = {
   span: 'span'
 }
 
-// 创建 RenderNode 的辅助函数，使用 RenderNodeTree
+// 创建 RenderNode 的辅助函数，使用 DomTree
 const createRenderNode = async (eficyNode: EficyNode, componentMap: any) => {
   const componentRegistry = container.resolve(ComponentRegistry)
   componentRegistry.extend(componentMap)
-  const renderNodeTree = container.resolve(RenderNodeTree)
-  return await renderNodeTree.createElement(eficyNode)
+  const domTree = container.resolve(DomTree)
+  return await domTree.createElement(eficyNode)
 }
 
 // 设置测试容器
@@ -46,11 +46,11 @@ beforeEach(() => {
   if (!container.isRegistered(ComponentRegistry)) {
     container.registerSingleton(ComponentRegistry)
   }
-  if (!container.isRegistered(EficyNodeStore)) {
-    container.registerSingleton(EficyNodeStore)
+  if (!container.isRegistered(EficyModelTree)) {
+    container.registerSingleton(EficyModelTree)
   }
-  if (!container.isRegistered(RenderNodeTree)) {
-    container.registerSingleton(RenderNodeTree)
+  if (!container.isRegistered(DomTree)) {
+    container.registerSingleton(DomTree)
   }
   
   // 配置组件映射
@@ -110,8 +110,8 @@ describe('RenderNode', () => {
 
   describe('子节点渲染', () => {
     it('应该渲染嵌套子节点', async () => {
-      // 使用 EficyNodeStore 来正确构建包含子节点的树
-      const nodeTree = container.resolve(EficyNodeStore)
+      // 使用 EficyModelTree 来正确构建包含子节点的树
+      const nodeTree = container.resolve(EficyModelTree)
       nodeTree.build({
         '#': 'parent',
         '#view': 'div',
@@ -142,8 +142,8 @@ describe('RenderNode', () => {
     })
 
     it('应该支持深层嵌套', async () => {
-      // 使用 EficyNodeStore 来正确构建深层嵌套的树
-      const nodeTree = container.resolve(EficyNodeStore)
+      // 使用 EficyModelTree 来正确构建深层嵌套的树
+      const nodeTree = container.resolve(EficyModelTree)
       nodeTree.build({
         '#': 'root',
         '#view': 'div',
@@ -297,10 +297,10 @@ describe('RenderNode', () => {
     })
   })
 
-  describe('RenderNodeTree 独立管理', () => {
+  describe('DomTree 独立管理', () => {
     it('应该能够独立构建RenderNode映射', async () => {
-      const eficyNodeStore = container.resolve(EficyNodeStore)
-      eficyNodeStore.build({
+      const eficyModelTree = container.resolve(EficyModelTree)
+      eficyModelTree.build({
         '#': 'parent',
         '#view': 'div',
         className: 'parent',
@@ -318,44 +318,44 @@ describe('RenderNode', () => {
         ]
       })
 
-      const renderNodeTree = container.resolve(RenderNodeTree)
-      const rootNode = eficyNodeStore.root
+      const domTree = container.resolve(DomTree)
+      const rootNode = eficyModelTree.root
       
       expect(rootNode).toBeTruthy()
       
       // 构建 RenderNode 映射
-      await renderNodeTree.createElement(rootNode!)
+      await domTree.createElement(rootNode!)
 
       // 验证映射关系
-      expect(renderNodeTree.stats.totalRenderNodes).toBe(4) // parent + 2 children
+      expect(domTree.stats.totalRenderNodes).toBe(4) // parent + 2 children
 
       // 验证能够通过 nodeId 找到对应的 RenderNode
-      const parentRenderNode = renderNodeTree.findRenderNode('parent')
+      const parentRenderNode = domTree.findRenderNode('parent')
       expect(parentRenderNode).toBeTruthy()
 
-      const child1RenderNode = renderNodeTree.findRenderNode('child1')
+      const child1RenderNode = domTree.findRenderNode('child1')
       expect(child1RenderNode).toBeTruthy()
     })
 
     it('应该支持单独的RenderNode操作', async () => {
-      const eficyNodeStore = container.resolve(EficyNodeStore)
-      eficyNodeStore.build({
+      const eficyModelTree = container.resolve(EficyModelTree)
+      eficyModelTree.build({
         '#': 'test',
         '#view': 'div',
         '#content': 'Test content'
       })
 
-      const renderNodeTree = container.resolve(RenderNodeTree)
-      const rootNode = eficyNodeStore.root!
+      const domTree = container.resolve(DomTree)
+      const rootNode = eficyModelTree.root!
       
-      await renderNodeTree.createElement(rootNode)
+      await domTree.createElement(rootNode)
 
-      const renderNode = renderNodeTree.findRenderNode('test')
+      const renderNode = domTree.findRenderNode('test')
       expect(renderNode).toBeTruthy()
 
       // 测试清空功能
-      renderNodeTree.clear()
-      expect(renderNodeTree.stats.totalRenderNodes).toBe(0)
+      domTree.clear()
+      expect(domTree.stats.totalRenderNodes).toBe(0)
     })
   })
 
