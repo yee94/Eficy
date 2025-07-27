@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import React, { type ReactElement } from 'react';
 import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
 import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces';
-import type { ILifecyclePlugin } from '../interfaces/lifecycle';
+import { HookType, type ILifecyclePlugin } from '../interfaces/lifecycle';
 import type EficyNode from '../models/EficyNode';
 import EficyModelTree from '../models/EficyModelTree';
 import DomTree from '../models/DomTree';
@@ -324,7 +324,7 @@ export default class Eficy {
 
   @once()
   async init(): Promise<void> {
-    await this.lifecycleEventEmitter.emitAsyncInit({
+    await this.pluginManager.executeHook(HookType.INIT, this, {
       config: this.configService.get('config'),
       componentMap: this.componentRegistry.getAll(),
       eficy: this,

@@ -5,6 +5,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@eficy/core": ["../core/src/index.ts"]
+    }
   }
 }

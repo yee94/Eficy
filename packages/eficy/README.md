@@ -1,278 +1,486 @@
-# @eficy/reactive-react
+# Eficy
 
-React bindings for @eficy/reactive - MobX-compatible reactive state management with React integration.
+[![Using TypeScript](https://img.shields.io/badge/%3C/%3E-TypeScript-0072C4.svg)](https://www.typescriptlang.org/)
+[![MIT License](https://img.shields.io/npm/l/eficy.svg)](#License)
+[![](https://flat.badgen.net/npm/v/eficy?icon=npm)](https://www.npmjs.com/package/eficy)
+[![NPM downloads](http://img.shields.io/npm/dm/eficy.svg?style=flat-square)](http://npmjs.com/eficy)
 
-## 🚀 Quick Start
+**Eficy** 是一个现代化的前端编排框架，通过 JSON 配置驱动任意 React 组件库，快速构建完整的页面应用。这是整个 Eficy 生态系统的完整入口包，集成了核心框架和常用插件。
 
-### Installation
+[English](./README-en.md) | 简体中文
+
+## ✨ 核心特性
+
+- 🎯 **JSON 驱动** - 通过 JSON 配置编排任意 React 组件库
+- 🔄 **现代响应式** - 基于 `@preact/signals-react` 的高性能响应式系统
+- 💉 **依赖注入** - 使用 `tsyringe` 容器实现模块化架构
+- ⚡ **性能优化** - 独立节点渲染，React.memo 自动优化
+- 🔌 **插件生态** - 丰富的插件系统，开箱即用
+- 🎨 **样式集成** - 内置 UnoCSS 支持，原子化 CSS
+- 📱 **TypeScript** - 完整的类型支持和智能提示
+- 🌐 **组件库兼容** - 完美支持 Ant Design、Material-UI 等
+
+## 🚀 快速开始
+
+### 安装
 
 ```bash
-npm install @eficy/reactive-react
-# or
-yarn add @eficy/reactive-react
-# or 
-pnpm add @eficy/reactive-react
+npm install eficy
+# 或
+yarn add eficy
+# 或
+pnpm add eficy
 ```
 
-### Basic Usage
+### 基础使用
 
-```tsx
-import React from 'react';
-import { observable, action, observer } from '@eficy/reactive-react';
+```typescript
+import { create } from 'eficy'
+import * as antd from 'antd'
+import 'reflect-metadata'
 
-// 使用 observable 创建响应式状态 (MobX 兼容语法)
-const store = observable({
-  count: 0,
-  name: 'Hello'
-});
+// 创建 Eficy 实例（已预装插件）
+const eficy = create()
 
-// 创建 actions
-const increment = action(() => {
-  store.set('count', store.get('count') + 1);
-});
+// 配置组件库
+eficy.config({
+  componentMap: antd
+})
 
-const updateName = action((newName: string) => {
-  store.set('name', newName);
-});
-
-// 使用 observer 让组件响应式
-const Counter = observer(() => (
-  <div>
-    <h1>{store.get('name')}: {store.get('count')}</h1>
-    <button onClick={increment}>+1</button>
-    <button onClick={() => updateName('Updated!')}>Update Name</button>
-  </div>
-));
-
-export default Counter;
+// 渲染页面
+await eficy.render({
+  views: [
+    {
+      '#': 'welcome-page',
+      '#view': 'div',
+      '#style': { padding: 20, background: '#f5f5f5' },
+      '#children': [
+        {
+          '#': 'title',
+          '#view': 'h1',
+          '#content': '欢迎使用 Eficy！',
+          '#style': { color: '#1890ff', textAlign: 'center' }
+        },
+        {
+          '#': 'alert',
+          '#view': 'Alert',
+          message: '这是一个通过 JSON 配置生成的页面',
+          type: 'success',
+          showIcon: true,
+          className: 'mb-4'
+        },
+        {
+          '#': 'button-group',
+          '#view': 'div',
+          className: 'flex gap-2 justify-center',
+          '#children': [
+            {
+              '#': 'primary-btn',
+              '#view': 'Button',
+              type: 'primary',
+              '#content': '主要按钮',
+              onClick: () => console.log('点击了主要按钮')
+            },
+            {
+              '#': 'default-btn',
+              '#view': 'Button',
+              '#content': '默认按钮',
+              onClick: () => console.log('点击了默认按钮')
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}, '#root')
 ```
 
-## 📚 Core API
+## 📦 包含的组件
 
-### observable
+Eficy 完整包包含以下核心模块：
 
-主要的入口点，类似 MobX 的 `observable` 方法：
+### 核心框架
+- **@eficy/core** - 核心编排引擎
+- **@eficy/reactive** - 现代响应式状态管理（基于 @preact/signals-core）
+- **@eficy/reactive-react** - React 响应式绑定（基于 @preact/signals-react）
 
-```tsx
-import { observable } from '@eficy/reactive-react';
+### 内置插件
+- **@eficy/plugin-unocss** - UnoCSS 原子化 CSS 支持
 
-// 自动检测类型并创建对应的可观察对象
-const store = observable({
-  count: 0,
-  items: ['a', 'b', 'c']
-});
+## 🎨 样式系统
 
-const arr = observable([1, 2, 3]);
-const map = observable(new Map());
-const set = observable(new Set());
-const primitive = observable(42);
-```
+内置 UnoCSS 插件，支持原子化 CSS：
 
-### 显式方法
-
-```tsx
-// 创建可观察对象
-const store = observable.object({ count: 0 });
-
-// 创建可观察数组  
-const items = observable.array(['apple', 'banana']);
-
-// 创建可观察的基本类型 (Box)
-const count = observable.box(0);
-
-// 创建可观察 Map
-const userMap = observable.map();
-
-// 创建可观察 Set
-const tagSet = observable.set();
-```
-
-### observer
-
-将 React 组件转换为响应式组件：
-
-```tsx
-import { observer } from '@eficy/reactive-react';
-
-const MyComponent = observer(() => {
-  return <div>Count: {store.get('count')}</div>;
-});
-
-// 带 forwardRef 的用法
-const MyInput = observer(React.forwardRef((props, ref) => {
-  return <input ref={ref} value={store.get('value')} />;
-}), { forwardRef: true });
-```
-
-### useObserver Hook
-
-在函数组件中直接使用响应式逻辑：
-
-```tsx
-import { useObserver } from '@eficy/reactive-react';
-
-function MyComponent() {
-  return useObserver(() => (
-    <div>Count: {store.get('count')}</div>
-  ));
+```typescript
+{
+  '#view': 'div',
+  className: 'flex items-center justify-center p-4 bg-blue-500 text-white rounded-lg shadow-md',
+  '#children': [
+    {
+      '#view': 'span',
+      '#content': '原子化样式示例',
+      className: 'text-lg font-bold'
+    }
+  ]
 }
 ```
 
-### action
+## 🔄 响应式数据
 
-批处理状态更新，确保只触发一次重新渲染：
+基于 `@eficy/reactive` 的现代响应式系统：
 
-```tsx
-import { action } from '@eficy/reactive-react';
+```typescript
+import { observable, computed, action, ObservableClass } from '@eficy/reactive'
 
-const updateMultiple = action(() => {
-  store.set('count', 10);
-  store.set('name', 'Updated');
-  // 只会触发一次重新渲染
-});
-```
-
-## 🎯 高级用法
-
-### 计算值
-
-```tsx
-import { computed } from '@eficy/reactive-react';
-
-const store = observable({
-  firstName: 'John',
-  lastName: 'Doe'
-});
-
-const fullName = computed(() => 
-  `${store.get('firstName')} ${store.get('lastName')}`
-);
-
-const MyComponent = observer(() => (
-  <div>Full name: {fullName()}</div>
-));
-```
-
-### 数组操作
-
-```tsx
-const items = observable(['apple', 'banana']);
-
-const ItemList = observer(() => (
-  <ul>
-    {items.toArray().map((item, index) => (
-      <li key={index}>{item}</li>
-    ))}
-  </ul>
-));
-
-// 添加项目
-const addItem = action(() => {
-  items.push('orange');
-});
-```
-
-### Map 和 Set
-
-```tsx
-const userMap = observable.map<string, User>();
-const tagSet = observable.set<string>();
-
-const UserList = observer(() => {
-  // 确保通过访问 size 建立依赖关系
-  const mapSize = userMap.size;
-  const users = Array.from(userMap.entries());
+class UserStore extends ObservableClass {
+  @observable users = []
+  @observable filter = ''
   
-  return (
-    <div>
-      <h3>Users ({mapSize}):</h3>
-      {users.map(([id, user]) => (
-        <div key={id}>{user.name}</div>
-      ))}
-    </div>
-  );
-});
-```
-
-## 🔄 从 MobX 迁移
-
-@eficy/reactive-react 提供了与 MobX 兼容的 API，迁移通常很简单：
-
-```tsx
-// MobX
-import { observable, action, computed } from 'mobx';
-import { observer } from 'mobx-react';
-
-// @eficy/reactive-react
-import { observable, action, computed, observer } from '@eficy/reactive-react';
-
-// API 基本相同！
-const store = observable({
-  count: 0
-});
-
-const increment = action(() => {
-  store.set('count', store.get('count') + 1);
-});
-```
-
-## ⚡ 性能特性
-
-- **精细化更新**: 只有依赖变化的组件会重新渲染
-- **自动批处理**: `action` 内的多个更新会被批处理  
-- **高效依赖追踪**: 基于 `@preact/signals-core` 的高性能实现
-- **懒计算**: 计算值只在被访问时计算
-
-## 🧪 测试
-
-```tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { observable, action, observer } from '@eficy/reactive-react';
-
-it('should update component when observable changes', () => {
-  const store = observable({ count: 0 });
-  const increment = action(() => store.set('count', store.get('count') + 1));
+  @computed get filteredUsers() {
+    return this.users.filter(user => 
+      user.name.toLowerCase().includes(this.filter.toLowerCase())
+    )
+  }
   
-  const Counter = observer(() => (
-    <div>
-      <span data-testid="count">{store.get('count')}</span>
-      <button data-testid="increment" onClick={increment}>+</button>
-    </div>
-  ));
+  @action addUser(user) {
+    this.users = [...this.users, user]
+  }
   
-  render(<Counter />);
-  expect(screen.getByTestId('count')).toHaveTextContent('0');
-  
-  fireEvent.click(screen.getByTestId('increment'));
-  expect(screen.getByTestId('count')).toHaveTextContent('1');
-});
-```
-
-## 📝 TypeScript
-
-完全支持 TypeScript，提供类型安全的 API：
-
-```tsx
-interface UserStore {
-  name: string;
-  age: number;
+  @action setFilter(filter) {
+    this.filter = filter
+  }
 }
 
-const userStore = observable<UserStore>({
-  name: 'John',
-  age: 25
-});
+const userStore = new UserStore()
 
-// 类型安全的访问
-const name: string = userStore.get('name');
-const age: number = userStore.get('age');
+// 在 Schema 中使用
+{
+  '#view': 'Input',
+  placeholder: '搜索用户',
+  value: '${userStore.filter}',
+  onChange: (e) => userStore.setFilter(e.target.value)
+}
 ```
 
-## 📖 更多信息
+## 🔌 插件系统
 
-- [GitHub Repository](https://github.com/yee94/eficy)
-- [@eficy/reactive 文档](../reactive/README.md)
+### 使用内置插件
 
-## 📄 License
+```typescript
+import { create } from 'eficy'
 
-MIT
+// create() 函数已自动注册常用插件
+const eficy = create()
+```
+
+### 自定义插件
+
+```typescript
+import { Eficy } from '@eficy/core'
+import { UnocssPlugin } from '@eficy/plugin-unocss'
+
+class MyPlugin implements ILifecyclePlugin {
+  name = 'my-plugin'
+  version = '1.0.0'
+  
+  async onInit(context, next) {
+    console.log('插件初始化')
+    await next()
+  }
+}
+
+const eficy = new Eficy()
+eficy.registerPlugin(new MyPlugin())
+eficy.registerPlugin(new UnocssPlugin())
+```
+
+## 📊 Schema 配置
+
+### 基础节点结构
+
+```typescript
+interface IViewData {
+  '#'?: string                           // 节点唯一标识
+  '#view'?: string                       // 组件名称
+  '#children'?: IViewData[]              // 子节点数组
+  '#content'?: string | ReactElement     // 节点内容
+  '#if'?: boolean | (() => boolean)      // 条件渲染
+  '#style'?: Record<string, any>         // 内联样式
+  '#class'?: string | string[]           // CSS 类名
+  className?: string                     // CSS 类名（别名）
+  [key: string]: any                     // 组件属性
+}
+```
+
+### 条件渲染
+
+```typescript
+{
+  '#view': 'div',
+  '#if': () => userStore.isLoggedIn,
+  '#children': [
+    {
+      '#view': 'h2',
+      '#content': '欢迎回来！'
+    }
+  ]
+}
+```
+
+### 列表渲染
+
+```typescript
+{
+  '#view': 'div',
+  '#children': userStore.users.map(user => ({
+    '#': `user-${user.id}`,
+    '#view': 'Card',
+    title: user.name,
+    '#children': [
+      {
+        '#view': 'p',
+        '#content': user.email
+      }
+    ]
+  }))
+}
+```
+
+## 🎯 实际应用示例
+
+### 用户管理页面
+
+```typescript
+const userManagementSchema = {
+  views: [
+    {
+      '#': 'user-management',
+      '#view': 'div',
+      className: 'p-6',
+      '#children': [
+        // 页面标题
+        {
+          '#': 'page-header',
+          '#view': 'div',
+          className: 'mb-6',
+          '#children': [
+            {
+              '#view': 'h1',
+              '#content': '用户管理',
+              className: 'text-2xl font-bold mb-2'
+            },
+            {
+              '#view': 'p',
+              '#content': '管理系统用户信息',
+              className: 'text-gray-600'
+            }
+          ]
+        },
+        
+        // 搜索栏
+        {
+          '#': 'search-bar',
+          '#view': 'div',
+          className: 'mb-4 flex gap-4',
+          '#children': [
+            {
+              '#': 'search-input',
+              '#view': 'Input',
+              placeholder: '搜索用户名或邮箱',
+              className: 'flex-1',
+              value: '${userStore.searchTerm}',
+              onChange: (e) => userStore.setSearchTerm(e.target.value)
+            },
+            {
+              '#': 'add-user-btn',
+              '#view': 'Button',
+              type: 'primary',
+              '#content': '添加用户',
+              onClick: () => userStore.showAddModal()
+            }
+          ]
+        },
+        
+        // 用户表格
+        {
+          '#': 'user-table',
+          '#view': 'Table',
+          dataSource: '${userStore.filteredUsers}',
+          columns: [
+            {
+              title: '姓名',
+              dataIndex: 'name',
+              key: 'name'
+            },
+            {
+              title: '邮箱',
+              dataIndex: 'email',
+              key: 'email'
+            },
+            {
+              title: '状态',
+              dataIndex: 'status',
+              key: 'status',
+              render: (status) => ({
+                '#view': 'Tag',
+                color: status === 'active' ? 'green' : 'red',
+                '#content': status === 'active' ? '活跃' : '禁用'
+              })
+            },
+            {
+              title: '操作',
+              key: 'actions',
+              render: (_, record) => ({
+                '#view': 'div',
+                className: 'flex gap-2',
+                '#children': [
+                  {
+                    '#view': 'Button',
+                    size: 'small',
+                    '#content': '编辑',
+                    onClick: () => userStore.editUser(record.id)
+                  },
+                  {
+                    '#view': 'Button',
+                    size: 'small',
+                    danger: true,
+                    '#content': '删除',
+                    onClick: () => userStore.deleteUser(record.id)
+                  }
+                ]
+              })
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## 🔧 高级配置
+
+### 自定义组件映射
+
+```typescript
+import { create } from 'eficy'
+import * as antd from 'antd'
+import { MyCustomComponent } from './components'
+
+const eficy = create()
+
+eficy.config({
+  componentMap: {
+    ...antd,
+    MyCustomComponent,
+    // 组件别名
+    'CustomButton': antd.Button,
+    'MyInput': antd.Input
+  }
+})
+```
+
+### 全局配置
+
+```typescript
+eficy.config({
+  // 组件库映射
+  componentMap: antd,
+  
+  // 默认样式
+  defaultStyle: {
+    fontFamily: 'Inter, sans-serif'
+  },
+  
+  // 错误处理
+  onError: (error, context) => {
+    console.error('Eficy 渲染错误:', error)
+  },
+  
+  // 性能监控
+  onPerformance: (metrics) => {
+    console.log('渲染性能:', metrics)
+  }
+})
+```
+
+## 🚀 性能优化
+
+### 自动优化
+- **React.memo** - 自动包装组件避免不必要的重渲染
+- **细粒度更新** - 基于 signals 的精确更新
+- **懒加载** - 按需加载组件和插件
+
+### 手动优化
+
+```typescript
+// 使用 computed 缓存计算结果
+class DataStore extends ObservableClass {
+  @observable rawData = []
+  
+  @computed get processedData() {
+    // 复杂计算会被缓存
+    return this.rawData.map(item => ({
+      ...item,
+      processed: true
+    }))
+  }
+}
+
+// 使用 action 批量更新
+@action updateMultiple() {
+  this.field1 = 'value1'
+  this.field2 = 'value2'
+  this.field3 = 'value3'
+  // 只会触发一次重渲染
+}
+```
+
+## 🌐 浏览器支持
+
+- 现代浏览器和 Internet Explorer 11+
+- 服务端渲染 (SSR)
+- Electron 应用
+
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Safari |
+|---|---|---|---|
+| IE11, Edge | last 2 versions | last 2 versions | last 2 versions |
+
+## 📚 相关文档
+
+- [核心框架文档](../core/README.md)
+- [响应式系统文档](../reactive/README.md)
+- [React 绑定文档](../reactive-react/README.md)
+- [UnoCSS 插件文档](../plugin-unocss/README.md)
+- [完整示例](../../playground/README.md)
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开 Pull Request
+
+## 📄 许可证
+
+MIT License - 查看 [LICENSE](../../LICENSE) 文件了解详情
+
+## 🙏 致谢
+
+感谢以下开源项目的启发和支持：
+
+- [React](https://reactjs.org/) - 用户界面库
+- [Preact Signals](https://preactjs.com/guide/v10/signals/) - 响应式系统基础
+- [@preact/signals-react](https://github.com/preactjs/signals) - React 响应式集成
+- [UnoCSS](https://unocss.dev/) - 原子化 CSS 引擎
+- [TSyringe](https://github.com/microsoft/tsyringe) - 依赖注入容器
+- [Ant Design](https://ant.design/) - 企业级 UI 设计语言
+
+---
+
+<div align="center">
+  <strong>用 ❤️ 构建，为了更好的前端开发体验</strong>
+</div>

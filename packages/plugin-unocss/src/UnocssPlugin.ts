@@ -1,5 +1,13 @@
-import type { ILifecyclePlugin, EficyNode, IInitContext, IProcessPropsContext, IRenderContext } from '@eficy/core';
-import { Init, ProcessProps, Render } from '@eficy/core';
+import type {
+  ILifecyclePlugin,
+  EficyNode,
+  IInitContext,
+  IProcessPropsContext,
+  IRenderContext,
+  IViewData,
+  IBuildSchemaNodeContext,
+} from '@eficy/core';
+import { BuildSchemaNode, Init, ProcessProps, Render } from '@eficy/core';
 import type { UnoGenerator, UserConfig } from '@unocss/core';
 import type { ReactElement } from 'react';
 
@@ -38,16 +46,15 @@ export class UnocssPlugin implements ILifecyclePlugin {
   /**
    * 属性处理钩子 - 收集 className
    */
-  @ProcessProps(10)
-  async onProcessProps(
-    props: Record<string, any>,
-    eficyNode: EficyNode,
-    context: IProcessPropsContext,
-    next: () => Promise<Record<string, any>>,
-  ): Promise<Record<string, any>> {
+  @BuildSchemaNode(10)
+  async onBuildSchemaNode(
+    viewData: IViewData,
+    context: IBuildSchemaNodeContext,
+    next: () => Promise<EficyNode>,
+  ): Promise<EficyNode> {
     // 收集 className 中的样式类
-    if (props.className) {
-      this.collectClassNames(props.className);
+    if (viewData.className) {
+      this.collectClassNames(viewData.className);
     }
 
     // 继续处理属性
@@ -66,9 +73,7 @@ export class UnocssPlugin implements ILifecyclePlugin {
     const element = await next();
 
     // 判断是否是根节点：检查节点ID或key是否包含root标识
-    const isRootNode = eficyNode.id === '__eficy_root' || 
-                       eficyNode['#'] === 'root' ||
-                       (element.key && element.key.toString().includes('__eficy_root'));
+    const isRootNode = eficyNode.id === '__eficy_root';
 
     // 如果是根节点渲染，生成样式并包装在 Fragment 中一起返回
     if (isRootNode && this.collectedClasses.size > 0 && !this.styleInjected) {
@@ -114,19 +119,11 @@ export class UnocssPlugin implements ILifecyclePlugin {
    * 收集类名
    */
   private collectClassNames(classNames: string | string[] | null | undefined): void {
-    if (!this.generator || !classNames) return;
+    if (!classNames) return;
 
     const classes = Array.isArray(classNames) ? classNames : [classNames];
-
     classes.forEach((className) => {
-      if (className && typeof className === 'string') {
-        className.split(/\s+/).forEach((cls) => {
-          const trimmedCls = cls.trim();
-          if (trimmedCls) {
-            this.collectedClasses.add(trimmedCls);
-          }
-        });
-      }
+      this.collectedClasses.add(className);
     });
   }
 

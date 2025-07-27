@@ -1,11 +1,16 @@
 {
-  "name": "@eficy/plugin-unocss",
+  "name": "eficy",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "UnoCSS plugin for @eficy/core",
+  "description": "The complete Eficy ecosystem - A modern front-end orchestration framework with built-in plugins",
   "keywords": [
-    "unocss",
-    "eficy"
+    "eficy",
+    "react",
+    "framework",
+    "orchestration",
+    "json-driven",
+    "reactive",
+    "unocss"
   ],
   "type": "module",
   "main": "./dist/index.js",
@@ -13,7 +18,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yee94/Eficy.git",
-    "directory": "packages/plugin-unocss"
+    "directory": "packages/eficy"
   },
   "files": [
     "dist",
@@ -29,7 +34,9 @@
   },
   "dependencies": {
     "@eficy/core": "workspace:*",
-    "@eficy/plugin-unocss": "workspace:*"
+    "@eficy/plugin-unocss": "workspace:*",
+    "@eficy/reactive": "workspace:*",
+    "@eficy/reactive-react": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",
