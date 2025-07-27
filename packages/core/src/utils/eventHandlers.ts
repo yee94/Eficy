@@ -9,16 +9,15 @@ export function wrapEventHandler(
   originalHandler: Function,
   eventName: string,
   viewNode: EficyNode,
-  lifecycleEventEmitter?: LifecycleEventEmitter
+  lifecycleEventEmitter?: LifecycleEventEmitter,
 ): Function {
   return function wrappedHandler(event: Event) {
     if (lifecycleEventEmitter) {
       // 创建 HandleEvent 上下文
       const handleEventContext: IHandleEventContext = {
-        timestamp: Date.now(),
-        requestId: `handle-event-${viewNode.id}-${Date.now()}`,
-        eventType: event.type,
-        target: event.target as Element
+        originalEvent: event,
+        target: event.target as Element,
+        currentTarget: event.currentTarget as Element,
       };
 
       // 发射同步副作用钩子 - fire and forget
@@ -26,6 +25,7 @@ export function wrapEventHandler(
     }
     
     // 执行原始处理函数
+    // @ts-ignore
     return originalHandler.call(this, event);
   };
 }
@@ -35,14 +35,12 @@ export function wrapEventHandler(
  */
 export function bindEventHandler(
   viewNode: EficyNode,
-  lifecycleEventEmitter: LifecycleEventEmitter
+  lifecycleEventEmitter: LifecycleEventEmitter,
 ): void {
   // 创建 BindEvent 上下文
   const bindEventContext: IBindEventContext = {
-    timestamp: Date.now(),
-    requestId: `bind-event-${viewNode.id}-${Date.now()}`,
     eventType: 'bind',
-    element: undefined as any // 在绑定阶段没有具体的element
+    element: undefined as any, // 在绑定阶段没有具体的element
   };
 
   // 发射同步副作用钩子 - fire and forget
@@ -55,7 +53,7 @@ export function bindEventHandler(
 export function processEventHandlers(
   props: Record<string, any>,
   viewNode: EficyNode,
-  lifecycleEventEmitter?: LifecycleEventEmitter
+  lifecycleEventEmitter?: LifecycleEventEmitter,
 ): Record<string, any> {
   const processedProps = { ...props };
   

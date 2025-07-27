@@ -50,8 +50,6 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
     if (eficyContext?.lifecycleEventEmitter) {
       // 发射 Mount 事件
       const mountContext: IMountContext = {
-        timestamp: Date.now(),
-        requestId: `mount-${eficyNode.id}-${Date.now()}`,
         container: undefined,
         parentElement: undefined
       };
@@ -63,8 +61,6 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
         console.error('Mount lifecycle hook error:', error);
         // 发射错误钩子
         eficyContext.lifecycleEventEmitter.emitSyncError(error as Error, {
-          timestamp: Date.now(),
-          requestId: `mount-error-${eficyNode.id}-${Date.now()}`,
           component: eficyNode['#view'],
           stack: (error as Error).stack || '',
           severity: 'medium',
@@ -76,8 +72,6 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
       // 清理函数 - 发射 Unmount 事件
       return () => {
         const unmountContext: IUnmountContext = {
-          timestamp: Date.now(),
-          requestId: `unmount-${eficyNode.id}-${Date.now()}`,
           container: undefined,
           parentElement: undefined
         };
@@ -89,8 +83,6 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
           console.error('Unmount lifecycle hook error:', error);
           // 发射错误钩子
           eficyContext.lifecycleEventEmitter.emitSyncError(error as Error, {
-            timestamp: Date.now(),
-            requestId: `unmount-error-${eficyNode.id}-${Date.now()}`,
             component: eficyNode['#view'],
             stack: (error as Error).stack || '',
             severity: 'medium',
@@ -123,11 +115,8 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
         try {
           // 创建 Render 上下文
           const renderContext: IRenderContext = {
-            timestamp: Date.now(),
-            requestId: `render-${eficyNode.id}-${Date.now()}`,
             componentMap: eficyContext.componentRegistry?.getAll() || componentMap,
             isSSR: typeof window === 'undefined',
-            theme: undefined
           };
           
           // 发射渲染异步流程钩子（后台执行）

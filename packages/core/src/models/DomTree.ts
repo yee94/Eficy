@@ -95,8 +95,6 @@ export default class DomTree {
 
     // 执行渲染钩子
     const renderContext: IRenderContext = {
-      timestamp: Date.now(),
-      requestId: `req-${Date.now()}`,
       componentMap,
       isSSR: false,
     };

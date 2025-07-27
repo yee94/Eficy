@@ -33,36 +33,43 @@ export default class EficyModelTree {
    * 构建完整的EficyNode树 - 由内向外递归构建
    */
   @action
-  build(views: IViewData | IViewData[]): void {
+  async build(views: IViewData | IViewData[]): Promise<void> {
     // 由内向外递归构建EficyNode树，使用生命周期钩子
     const viewsArray = Array.isArray(views) ? views : [views];
 
-    this.rootNode = new EficyNode({
-      '#': '__eficy_root',
-      '#view': '<>',
-      '#children': viewsArray,
-    });
+    this.rootNode = await this.buildNodeWithHooks(
+      {
+        '#': '__eficy_root',
+        '#view': '<>',
+        '#children': viewsArray,
+      },
+      {
+        parent: null,
+        path: [],
+      },
+    );
   }
 
   /**
    * 使用钩子构建单个节点
    */
-  private async buildNodeWithHooks(viewData: IViewData): Promise<EficyNode> {
+  private async buildNodeWithHooks(
+    viewData: IViewData,
+    { parent, path }: { parent?: EficyNode; path?: string[] },
+  ): Promise<EficyNode> {
     const context: IBuildSchemaNodeContext = {
-      timestamp: Date.now(),
-      requestId: `req-${Date.now()}`,
-      schema: { views: [] },
-      index: 0,
-      path: [],
+      parent,
+      path: path || [],
     };
 
     return await this.pluginManager.executeHook(HookType.BUILD_SCHEMA_NODE, viewData, context, async () => {
-      const node = new EficyNode(viewData);
+      const { '#children': children, ...rest } = viewData;
+      const node = new EficyNode(rest);
 
       // 递归构建子节点
-      if (viewData['#children'] && Array.isArray(viewData['#children'])) {
+      if (children && Array.isArray(children)) {
         const childNodes = await Promise.all(
-          viewData['#children'].map((childData) => this.buildNodeWithHooks(childData)),
+          children.map((childData) => this.buildNodeWithHooks(childData, { parent: node, path: [...path, node.id] })),
         );
         node.setChildren(childNodes);
       }

@@ -13,6 +13,8 @@ import { PluginManager } from '../services/PluginManager';
 import { LifecycleEventEmitter } from '../services/LifecycleEventEmitter';
 import { EficyProvider } from '../contexts/EficyContext';
 import type { IEficyContextValue } from '../contexts/EficyContext';
+import { generateUid } from '../utils';
+import once from '../utils/decorators/once';
 
 export default class Eficy {
   private configService: ConfigService;
@@ -88,14 +90,14 @@ export default class Eficy {
   /**
    * 将 IEficySchema 转换为 EficyModelTree
    */
-  private schemaToNodeTree(schema: IEficySchema): EficyModelTree {
+  private async schemaToNodeTree(schema: IEficySchema): Promise<EficyModelTree> {
     if (!schema || !schema.views) {
       throw new Error('Schema must have views property');
     }
 
     // 使用 tsyringe 获取 EficyModelTree 实例
     const nodeTree = this.container.resolve(EficyModelTree);
-    nodeTree.build(schema.views);
+    await nodeTree.build(schema.views);
 
     return nodeTree;
   }
@@ -119,6 +121,8 @@ export default class Eficy {
    * 根据Schema创建React元素 (保持原有API)
    */
   async createElement(schema: IEficySchema): Promise<ReactElement | null> {
+    await this.init();
+
     if (!schema) {
       throw new Error('Schema cannot be null or undefined');
     }
@@ -132,7 +136,7 @@ export default class Eficy {
     }
 
     // 将 Schema 转换为 NodeTree
-    this.models = this.schemaToNodeTree(schema);
+    this.models = await this.schemaToNodeTree(schema);
 
     this.doms = await this.buildRenderNodeTree(this.models);
 
@@ -179,8 +183,8 @@ export default class Eficy {
   /**
    * 根据Schema获取内部的NodeTree (新增方法，用于高级用法)
    */
-  getNodeTree(schema: IEficySchema): EficyModelTree {
-    const nodeTree = this.schemaToNodeTree(schema);
+  async getNodeTree(schema: IEficySchema): Promise<EficyModelTree> {
+    const nodeTree = await this.schemaToNodeTree(schema);
     this.models = nodeTree;
     return nodeTree;
   }
@@ -202,8 +206,8 @@ export default class Eficy {
   /**
    * 根据Schema获取特定节点 (新增方法，用于操作节点)
    */
-  getNode(schema: IEficySchema, nodeId: string): EficyNode | null {
-    const nodeTree = this.schemaToNodeTree(schema);
+  async getNode(schema: IEficySchema, nodeId: string): Promise<EficyNode | null> {
+    const nodeTree = await this.schemaToNodeTree(schema);
     return nodeTree.findNode(nodeId);
   }
 
@@ -316,6 +320,15 @@ export default class Eficy {
    */
   getLifecycleEventEmitter(): LifecycleEventEmitter {
     return this.lifecycleEventEmitter;
+  }
+
+  @once()
+  async init(): Promise<void> {
+    await this.lifecycleEventEmitter.emitAsyncInit({
+      config: this.configService.get('config'),
+      componentMap: this.componentRegistry.getAll(),
+      eficy: this,
+    });
   }
 
   /**
