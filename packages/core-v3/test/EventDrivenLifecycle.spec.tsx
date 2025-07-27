@@ -20,7 +20,7 @@ import type {
   IHandleEventContext,
   IBindEventContext,
 } from '../src/interfaces/lifecycle';
-import { Render, Mount, Unmount, HandleEvent, BindEvent } from '../src/decorators/lifecycle';
+import { Render, OnMount, OnUnmount, OnHandleEvent, OnBindEvent } from '../src/decorators/lifecycle';
 
 /**
  * 基于 Context 和 EventEmitter 的异步生命周期钩子测试
@@ -197,19 +197,19 @@ describe('Event-Driven Lifecycle Hooks', () => {
           return await next();
         }
 
-        @Mount(1)
+        @OnMount(1)
         async onMount(context: IMountContext, next: () => Promise<void>) {
           executionLog.push('plugin-mount');
           await next();
         }
 
-        @Unmount(1)
+        @OnUnmount(1)
         async onUnmount(context: IUnmountContext, next: () => Promise<void>) {
           executionLog.push('plugin-unmount');
           await next();
         }
 
-        @HandleEvent(1)
+        @OnHandleEvent(1)
         async onHandleEvent(
           handler: Function,
           viewNode: any,
@@ -220,7 +220,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
           return await next();
         }
 
-        @BindEvent(1)
+        @OnBindEvent(1)
         async onBindEvent(viewNode: any, context: IBindEventContext, next: () => Promise<void>) {
           executionLog.push(`plugin-bind-event-${viewNode['#']}`);
           await next();
