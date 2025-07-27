@@ -18,6 +18,9 @@ export * from './decorators/lifecycle'
 // Interfaces
 export * from './interfaces'
 
+// Plugins
+export * from './plugins'
+
 // Utils
 export * from './utils'
 

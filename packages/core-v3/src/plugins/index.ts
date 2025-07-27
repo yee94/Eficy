@@ -1,16 +1,46 @@
-// This directory will contain the new plugin system implementation
-// Based on tsyringe dependency injection
+// Plugin system implementation
+// Based on tsyringe dependency injection with lifecycle decorators
 
-// Future plugins will be implemented as:
-// - @eficy/plugin package with core plugin interfaces
-// - Individual plugin packages that implement the interfaces
-// - Lifecycle decorators: @Init, @BuildViewNode, @BeforeRender
+// Export builtin plugins
+export { UnocssRuntimePlugin, createUnocssRuntimePlugin } from './builtin/UnocssRuntimePlugin'
+export type { IUnocssRuntimeConfig } from './builtin/UnocssRuntimePlugin'
 
-// Legacy plugin system has been removed
-// New plugin system will be implemented in separate packages
+// Export plugin interfaces
+export type {
+  IEficyPlugin,
+  ILifecyclePlugin,
+  IHookRegistration,
+  IPluginWeight,
+  HookType,
+  PluginEnforce,
+  // Context interfaces
+  IBaseContext,
+  IInitContext,
+  IBuildSchemaNodeContext,
+  IRenderContext,
+  IMountContext,
+  IUnmountContext,
+  IResolveComponentContext,
+  IProcessPropsContext,
+  IHandleEventContext,
+  IBindEventContext,
+  IErrorContext
+} from '../interfaces/lifecycle'
 
-export interface IPluginPlaceholder {
-  // Placeholder for future plugin interfaces
-}
-
-export const pluginPlaceholder = {} as IPluginPlaceholder
+// Export lifecycle decorators
+export {
+  Init,
+  BuildSchemaNode,
+  Render,
+  OnMount,
+  OnUnmount,
+  ResolveComponent,
+  ProcessProps,
+  OnHandleEvent,
+  OnBindEvent,
+  OnError,
+  getLifecycleHooks,
+  hasLifecycleHook,
+  getLifecycleHooksByType,
+  sortHooksByPriority
+} from '../decorators/lifecycle'
