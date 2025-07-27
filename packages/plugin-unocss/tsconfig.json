@@ -1,15 +1,9 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "include": ["./src/**/*.ts"],
   "exclude": ["./src/__tests__/*", "./dist/*", "./node_modules/*"],
   "compilerOptions": {
-    "lib": ["ESNext", "DOM"],
-    "jsx": "react-jsx",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
+    "baseUrl": ".",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   }

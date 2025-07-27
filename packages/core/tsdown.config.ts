@@ -4,14 +4,14 @@ export default defineConfig([
   // ESM 格式
   {
     entry: ['src/index.ts'],
-    format: ['esm', 'cjs'],
+    format: ['esm'],
     dts: true,
     outDir: 'dist',
     clean: true,
     sourcemap: false,
     minify: false,
     target: 'es2018',
-    external: ['react', 'react-dom', 'antd', 'mobx', 'mobx-react', 'axios', 'lodash', 'nanoid', '@babel/runtime'],
+    external: ['react', 'react-dom', 'antd', 'axios', 'lodash', 'nanoid', '@babel/runtime'],
     platform: 'browser',
   },
   // IIFE 格式 (UMD) - 压缩版本用于生产环境

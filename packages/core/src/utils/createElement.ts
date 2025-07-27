@@ -1,4 +1,4 @@
-import { IEficySchema, IView } from '../interface';
+import { IEficySchema, IView } from '../interfaces/schema.type';
 import React from 'react';
 import EficyComponent from '../components/EficyComponent';
 

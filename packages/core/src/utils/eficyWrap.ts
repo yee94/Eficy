@@ -1,5 +1,5 @@
 import isEficyView from './isEficyView';
-import { IView } from '../interface';
+import { IView } from '../interfaces/schema.type';
 import { ReactElement } from 'react';
 import * as React from 'react';
 import { isEqual } from './common';

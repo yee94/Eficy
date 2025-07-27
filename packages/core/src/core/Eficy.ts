@@ -22,7 +22,6 @@ export default class Eficy {
   private container: DependencyContainer;
   private pluginManager: PluginManager;
   private lifecycleEventEmitter: LifecycleEventEmitter;
-  private enableLifecycleHooks: boolean = false;
 
   constructor() {
     // 初始化依赖注入容器
@@ -141,7 +140,7 @@ export default class Eficy {
     const contextValue: IEficyContextValue = {
       lifecycleEventEmitter: this.lifecycleEventEmitter,
       pluginManager: this.pluginManager,
-      componentRegistry: this.componentRegistry
+      componentRegistry: this.componentRegistry,
     };
 
     return React.createElement(EficyProvider, { value: contextValue }, this.doms.rootRenderNode);
@@ -320,27 +319,6 @@ export default class Eficy {
   }
 
   /**
-   * 启用生命周期钩子
-   */
-  enableLifecycleHooksFeature(): void {
-    this.enableLifecycleHooks = true;
-  }
-
-  /**
-   * 禁用生命周期钩子
-   */
-  disableLifecycleHooksFeature(): void {
-    this.enableLifecycleHooks = false;
-  }
-
-  /**
-   * 检查生命周期钩子是否启用
-   */
-  isLifecycleHooksEnabled(): boolean {
-    return this.enableLifecycleHooks;
-  }
-
-  /**
    * 获取统计信息
    */
   @computed
@@ -350,7 +328,6 @@ export default class Eficy {
       renderTree: this.doms?.stats || null,
       plugins: this.pluginManager.getHookStats(),
       lifecycleEvents: this.lifecycleEventEmitter.getStatistics(),
-      lifecycleHooksEnabled: this.enableLifecycleHooks,
     };
   }
 }

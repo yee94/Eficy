@@ -63,7 +63,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
       });
 
       // 启用生命周期钩子
-      eficy.enableLifecycleHooksFeature();
+
 
       const schema = {
         views: [
@@ -99,8 +99,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
 
       eficy.config({ componentMap: { MockComponent: mockComponent } });
 
-      // 不启用生命周期钩子
-      expect(eficy.isLifecycleHooksEnabled()).toBe(false);
 
       const schema = {
         views: [
@@ -149,7 +147,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
       });
 
       // 启用生命周期钩子
-      eficy.enableLifecycleHooksFeature();
+
 
       const schema = {
         views: [
@@ -239,7 +237,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
       eficy.config({ componentMap: { PluginButton: mockComponent } });
 
       // 启用生命周期钩子
-      eficy.enableLifecycleHooksFeature();
+
 
       const schema = {
         views: [
@@ -279,7 +277,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
       eficy.config({ componentMap: { ContextComponent: mockComponent } });
 
       // 启用生命周期钩子
-      eficy.enableLifecycleHooksFeature();
+
 
       const schema = {
         views: [
@@ -313,7 +311,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
       eficy.config({ componentMap: { StatsComponent: mockComponent } });
 
       // 启用生命周期钩子
-      eficy.enableLifecycleHooksFeature();
+
 
       // 触发一些同步副作用钩子
       lifecycleEventEmitter.emitSyncMount({
@@ -338,7 +336,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
       // 检查 Eficy 统计信息
       const eficyStats = eficy.stats;
       expect(eficyStats.lifecycleEvents).toEqual(stats);
-      expect(eficyStats.lifecycleHooksEnabled).toBe(true);
 
       // 重置统计信息
       lifecycleEventEmitter.resetStatistics();
@@ -364,7 +361,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
       });
 
       // 启用生命周期钩子
-      eficy.enableLifecycleHooksFeature();
+
 
       const schema = {
         views: [
