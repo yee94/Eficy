@@ -12,7 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.0.0",
     "@eficy/core": "workspace:*",
-    "@eficy/core-v3": "workspace:*",
+    "@eficy/core": "workspace:*",
     "@eficy/reactive": "workspace:*",
     "@eficy/reactive-react": "workspace:*",
     "antd": "^5.0.0",

@@ -24,11 +24,69 @@ export const isEmpty = _isEmpty;
 export const merge = _merge;
 export const mergeWith = _mergeWith;
 export const isEqual = _isEqual;
-export const isObject = (arg: object) => _isObject(arg) && !isArray(arg);
+export const isObject = _isObject;
 
-export const MERGE_WAY = {
-  REPLACE: (old, newData) => newData,
-};
+/**
+ * 从对象中排除 Set 中指定的字段
+ * 性能优化版本，避免每次将 Set 转换为数组
+ */
+export function setOmit<T extends Record<string, any>>(
+  obj: T,
+  excludeFields: Set<string>
+): Partial<T> {
+  const result: Partial<T> = {};
+  
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key) && !excludeFields.has(key)) {
+      result[key as keyof T] = obj[key];
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * 性能测试函数：比较 setOmit 和 lodash omit 的性能
+ * 仅在开发环境下使用
+ */
+export function benchmarkSetOmit() {
+  if (process.env.NODE_ENV !== 'development') {
+    return;
+  }
+
+  const { omit } = require('lodash');
+  const testObj = {
+    '#': 'test',
+    '#view': 'div',
+    '#children': [],
+    '#content': 'content',
+    '#if': true,
+    '#staticProps': {},
+    name: 'test',
+    age: 25,
+    email: 'test@example.com',
+    address: 'test address'
+  };
+  
+  const frameworkFields = new Set(['#', '#view', '#children', '#content', '#if', '#staticProps']);
+  const iterations = 100000;
+
+  // 测试 setOmit
+  const setOmitStart = performance.now();
+  for (let i = 0; i < iterations; i++) {
+    setOmit(testObj, frameworkFields);
+  }
+  const setOmitTime = performance.now() - setOmitStart;
+
+  // 测试 lodash omit
+  const omitStart = performance.now();
+  for (let i = 0; i < iterations; i++) {
+    omit(testObj, Array.from(frameworkFields));
+  }
+  const omitTime = performance.now() - omitStart;
+
+  // Performance test results available in development mode
+}
 
 export function filterUndefined(obj: Record<string, any>) {
   return pickBy(obj, val => val !== undefined);

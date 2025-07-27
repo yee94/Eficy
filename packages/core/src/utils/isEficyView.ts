@@ -1,6 +1,6 @@
 import { get } from './common';
-import { ViewNode } from '../models';
+import EficyNode from '../models/EficyNode';
 
 export default function isEficyView(schema: any) {
-  return schema instanceof ViewNode || !!get(schema, '#view', false);
+  return schema instanceof EficyNode || !!get(schema, '#view', false);
 }

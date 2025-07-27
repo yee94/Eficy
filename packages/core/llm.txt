@@ -290,7 +290,7 @@ const formSchema = {
 
 ### 1. 创建实例
 ```typescript
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 
 const eficy = new Eficy()
 ```
@@ -346,7 +346,7 @@ eficy.removeChild('parentId', 'childId')
 
 ### 使用 EficyNode 构建响应式数据
 ```typescript
-import { EficyNode } from '@eficy/core-v3'
+import { EficyNode } from '@eficy/core'
 
 // 创建响应式视图节点
 const eficyNode = new EficyNode({
@@ -543,7 +543,7 @@ console.log(pluginManager.getHookStats())
 ### 单元测试示例
 ```typescript
 import { describe, it, expect } from 'vitest'
-import { EficyNode, Eficy } from '@eficy/core-v3'
+import { EficyNode, Eficy } from '@eficy/core'
 
 describe('EficyNode', () => {
   it('should create reactive eficy node', () => {
@@ -603,7 +603,7 @@ describe('EficyNode', () => {
 ### 集成测试示例
 ```typescript
 import { render, screen } from '@testing-library/react'
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 
 describe('Eficy Integration', () => {
   it('should render schema correctly', async () => {
@@ -669,9 +669,9 @@ eficy.config({
 
 #### 2. 模块导入错误
 ```typescript
-// 错误：Cannot find module '@eficy/core-v3'
+// 错误：Cannot find module '@eficy/core'
 // 解决：确保正确安装依赖
-npm install @eficy/core-v3 @eficy/reactive @eficy/reactive-react
+npm install @eficy/core @eficy/reactive @eficy/reactive-react
 ```
 
 #### 3. 类型错误
@@ -709,7 +709,7 @@ import 'reflect-metadata'
 // package.json
 {
   "dependencies": {
-    "@eficy/core-v3": "^3.0.0",
+    "@eficy/core": "^3.0.0",
     "@eficy/reactive": "^1.0.0",
     "@eficy/reactive-react": "^1.0.0",
     "tsyringe": "^4.8.0",
@@ -724,7 +724,7 @@ import 'reflect-metadata'
 import { Controller } from '@eficy/core-v2'
 
 // V3
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 ```
 
 #### 3. 实例化更新
@@ -775,7 +775,7 @@ const element = await eficy.createElement(schema) // 异步
 import { ViewNode } from '@eficy/core-v2'
 
 // V3: EficyNode
-import { EficyNode } from '@eficy/core-v3'
+import { EficyNode } from '@eficy/core'
 
 // V2
 const viewNode = new ViewNode(data)

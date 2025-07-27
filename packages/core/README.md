@@ -1,216 +1,130 @@
-# Eficy
+# Eficy Core V3
 
 [![Using TypeScript](https://img.shields.io/badge/%3C/%3E-TypeScript-0072C4.svg)](https://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/npm/l/generator-bxd-oss.svg)](#License)
 [![](https://flat.badgen.net/npm/v/@eficy/core?icon=npm)](https://www.npmjs.com/package/@eficy/core)
 [![NPM downloads](http://img.shields.io/npm/dm/@eficy/core.svg?style=flat-square)](http://npmjs.com/@eficy/core)
 
-Eficy, a front-end orchestration framework.Can orchestrate any React components library through JSON configuration, simple configuration can generate complete page.
+Eficy Core V3 是一个现代化的前端编排框架，采用全新的技术栈和架构设计，实现高性能、可扩展的 JSON 驱动组件渲染。
 
-Recommended for use with component libraries: [AntD](https://ant.design/)
+## ✨ 核心特性
 
-## ✨ Features
+- 🔄 基于 `@eficy/reactive` 的现代化响应式系统
+- 💉 使用 `tsyringe` 依赖注入容器
+- ⚡ 独立节点渲染，使用 `React.memo` 优化性能
+- 🎯 支持任意 React 组件库
+- 🔌 基于生命周期钩子的插件系统
+- 📦 TypeScript 原生支持
 
-- Use JSON to orchestrate any React component library to quickly form a usable page
-- Built-in Mobx Store, no need to care about store changes for page development
-- Built-in request mechanism, simple configuration can complete data request
-- Built-in two-way binding for easy configuration page synchronization in real time
-- Refine the scope of component changes, and view component rendering performance in real time
-- Support Plugin customization, can uniformly configure HOC, easily achieve front-end OOP
-- suitable for large multi-page applications
-- Works seamlessly with AntD 4.0+
-
-## 🖥 Environment Support
-
-- Modern browsers and Internet Explorer 11+ (with [polyfills](https://ant.design/docs/react/getting-started#Compatibility))
-- Server-side Rendering
-- [Electron](https://www.electronjs.org/)
-
-| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Electron |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IE11, Edge                                                                                                                                                                                                     | last 2 versions                                                                                                                                                                                                  | last 2 versions                                                                                                                                                                                              | last 2 versions                                                                                                                                                                                              | last 2 versions                                                                                                                                                                                                      |
-
-## 📦 Install
+## 📦 安装
 
 ```bash
-npm install @eficy/core --save
+npm install @eficy/core @eficy/reactive @eficy/reactive-react tsyringe reflect-metadata
 ```
 
-```bash
-yarn add -S @eficy/core
-```
+## 🔨 基础使用
 
-Import from Script:
+```typescript
+import { Eficy } from '@eficy/core'
+import * as antd from 'antd'
+import 'reflect-metadata'
 
-```html
-<script src="https://unpkg.com/@eficy/core"></script>
-```
+const eficy = new Eficy()
 
-## 🔨 Usage
+// 配置组件库
+eficy.config({
+  componentMap: antd
+})
 
-Render to DOM：
-
-```jsx
-import * as Eficy from '@eficy/core';
-import antd from 'antd';
-
-// config global default componentMap
-Eficy.Config.defaultComponentMap = Object.assign({}, antd);
-
-Eficy.render(
-  {
-    '#view': 'div',
-    style: {
-      padding: 10,
-      background: '#CCC',
-    },
-    '#children': [
-      {
-        '#view': 'Alert',
-        message: 'Hello this is a Alert',
-        type: 'info',
-        showIcon: true,
-      },
-    ],
-  },
-  '#root',
-);
-```
-
-Render as ReactElement：
-
-```jsx
-import * as Eficy from '@eficy/core';
-import antd from 'antd';
-
-// config global default componentMap
-Eficy.Config.defaultComponentMap = Object.assign({}, antd);
-
-const App = () => {
-  return Eficy.createElement({
-    '#view': 'div',
-    style: {
-      padding: 10,
-      background: '#CCC',
-    },
-    '#children': [
-      {
-        '#view': 'Alert',
-        message: 'Hello this is a Alert',
-        type: 'info',
-        showIcon: true,
-      },
-    ],
-  });
-};
-```
-
-In Browser use:
-
-```html
-<link rel="stylesheet" href="https://unpkg.com/antd@4.0.3/dist/antd.min.css" />
-<script src="https://unpkg.com/antd@4.0.3/dist/antd.min.js"></script>
-<script src="https://unpkg.com/@ant-design/icons@4.0.2/dist/index.umd.js"></script>
-
-<div id="root"></div>
-
-<script>
-  Eficy.Config.successAlert = ({ msg }) => antd.message.success(msg);
-  Eficy.Config.failAlert = ({ msg }) => antd.message.error(msg);
-  Eficy.Config.defaultComponentMap = Object.assign({}, antd, { Icons: icons });
-
-  Eficy.render(
-    {
-      '#view': 'div',
-      style: {
-        padding: 10,
-        background: '#CCC',
-      },
-      '#children': [
-        {
-          '#view': 'Alert',
-          message: 'Hello this is a Alert',
-          type: 'info',
-          showIcon: true,
-        },
-      ],
-    },
-    '#root',
-  );
-</script>
-```
-
-#### Live Update
-
-<div align="center">
-
-![](http://md.xiaobe.top/117c9790-1c62-5b41-a223-82947bdc180c.png)
-
-</div>
-
-```jsx harmony
-export default [
-  {
-    '#view': 'Alert',
-    message: 'quick bind ${models.input.value}', // => will be output as "quick bind value"
-    type: 'success',
-    showIcon: true,
-  },
-  {
-    '#': 'input',
-    '#view': 'Input',
-    value: 'value', // => value change will be sync to Alert message
-  },
-];
-```
-
-#### Async request rendering
-
-Update view based on async results：
-
-```jsx harmony
-export default {
-  views: [],
-  requests: {
-    immediately: true,
-    url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/reload',
-  },
-};
-```
-
-Fill the data according to the async return result：
-
-<div align="center">
-
-![](http://md.xiaobe.top/0c1012d6-8631-63bc-a37c-56586ad88040.png)
-
-</div>
-
-```jsx harmony
-export default {
+// 渲染 Schema
+await eficy.render({
   views: [
     {
-      '#view': 'Table',
-      '#request': {
-        '#': 'getTableData',
-        url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/table/getlist',
-        format: res => ({
-          action: 'update',
-          data: [
-            {
-              '#': 'table',
-              dataSource: res.data,
-            },
-          ],
-        }),
-      },
-      pagination: {
-        total: 50,
-      },
-      columns: [
-        ...
-      ],
-    },
-  ],
-};
+      '#': 'welcome',
+      '#view': 'div',
+      '#style': { padding: 20 },
+      '#children': [
+        {
+          '#': 'title',
+          '#view': 'h1',
+          '#content': 'Welcome to Eficy V3!'
+        },
+        {
+          '#': 'button',
+          '#view': 'Button',
+          type: 'primary',
+          '#content': 'Click Me',
+          onClick: () => console.log('Clicked!')
+        }
+      ]
+    }
+  ]
+}, '#root')
 ```
+
+## 🚀 Schema 格式
+
+```typescript
+interface IViewData {
+  '#'?: string                           // 节点ID
+  '#view'?: string                       // 组件名称
+  '#children'?: IViewData[]              // 子节点
+  '#content'?: string | ReactElement     // 内容
+  '#if'?: boolean | (() => boolean)      // 条件渲染
+  '#style'?: Record<string, any>         // 样式
+  '#class'?: string | string[]           // CSS类名
+  [key: string]: any                     // 其他属性
+}
+```
+
+## 🔧 主要 API
+
+```typescript
+const eficy = new Eficy()
+
+// 配置
+eficy.config({ componentMap: { Button: MyButton } })
+
+// 创建元素
+const element = await eficy.createElement(schema)
+
+// 渲染到 DOM
+await eficy.render(schema, '#root')
+
+// 节点操作
+eficy.updateNode('nodeId', { text: 'Updated' })
+eficy.addChild('parentId', { '#view': 'span', '#content': 'New' })
+```
+
+## 🔌 插件系统
+
+```typescript
+class MyPlugin implements ILifecyclePlugin {
+  name = 'MyPlugin'
+  version = '1.0.0'
+  
+  async onInit(context, next) {
+    console.log('插件初始化')
+    await next()
+  }
+}
+
+eficy.registerPlugin(new MyPlugin())
+```
+
+## 📊 与 V2 对比
+
+| 特性 | V2 | V3 |
+|------|----|----|
+| 响应式 | MobX | @eficy/reactive |
+| 依赖注入 | 无 | tsyringe |
+| 渲染 | 同步 | 异步 |
+| 性能 | 基础 | React.memo 优化 |
+
+## 📄 许可证
+
+ISC
+
+---
+
+Made with ❤️ by the Eficy team

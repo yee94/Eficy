@@ -4,20 +4,30 @@ export default defineConfig([
   // ESM 格式
   {
     entry: ['src/index.ts'],
-    format: ['esm', 'cjs'],
+    format: ['esm'],
     dts: true,
     outDir: 'dist',
     clean: true,
     sourcemap: false,
     minify: false,
     target: 'es2018',
-    external: ['react', 'react-dom', 'antd', 'mobx', 'mobx-react', 'axios', 'lodash', 'nanoid', '@babel/runtime'],
-    platform: 'browser',
+    external: [
+      'react',
+      'react-dom',
+      'antd',
+      'mobx',
+      'mobx-react',
+      'axios',
+      'lodash',
+      'nanoid',
+      '@babel/runtime'
+    ],
+    platform: 'browser'
   },
   // IIFE 格式 (UMD) - 压缩版本用于生产环境
   {
     entry: {
-      'index.global': 'src/index.ts',
+      'index.global': 'src/index.ts'
     },
     format: ['iife'],
     outDir: 'dist',
@@ -32,6 +42,6 @@ export default defineConfig([
       // 不将任何模块标记为 noExternal，除了 React
       return id !== 'react' && id !== 'react-dom';
     },
-    platform: 'browser',
-  },
-]);
+    platform: 'browser'
+  }
+]); 

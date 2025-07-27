@@ -293,7 +293,7 @@ const formSchema = {
 #### 创建和配置实例
 
 ```typescript
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 import { Button, Input, Form } from 'antd'
 
 // 创建实例
@@ -605,7 +605,7 @@ npm run dev:v3
 ```json
 {
   "dependencies": {
-    "@eficy/core-v3": "^3.0.0",
+    "@eficy/core": "^3.0.0",
     "@eficy/reactive": "^1.0.0",
     "@eficy/reactive-react": "^1.0.0",
     "tsyringe": "^4.8.0",
@@ -620,7 +620,7 @@ npm run dev:v3
 import { Controller } from '@eficy/core-v2'
 
 // V3
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 ```
 
 #### 响应式数据更新

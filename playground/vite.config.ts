@@ -5,7 +5,7 @@ import path from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@eficy/core-v3': path.resolve(__dirname, '../packages/core-v3/src/index.ts'),
+      '@eficy/core': path.resolve(__dirname, '../packages/core/src/index.ts'),
     },
   },
   plugins: [

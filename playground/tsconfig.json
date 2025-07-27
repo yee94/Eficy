@@ -7,7 +7,7 @@
     "types": ["vite/client"],
     "paths": {
       "~/*": ["src/*"],
-      "@eficy/core-v3": ["../packages/core-v3/src/index.ts"]
+      "@eficy/core": ["../packages/core/src/index.ts"]
     }
   },
   "exclude": ["**/dist/**"]

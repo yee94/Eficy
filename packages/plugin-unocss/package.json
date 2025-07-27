@@ -2,11 +2,10 @@
   "name": "@eficy/plugin-unocss",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "UnoCSS plugin for @eficy/core-v3",
+  "description": "UnoCSS plugin for @eficy/core",
   "keywords": [
     "unocss",
-    "eficy",
-    "core-v3"
+    "eficy"
   ],
   "type": "module",
   "main": "./dist/index.js",
@@ -29,7 +28,7 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "dependencies": {
-    "@eficy/core-v3": "workspace:*",
+    "@eficy/core": "workspace:*",
     "@unocss/core": "^66.0.0",
     "@unocss/preset-attributify": "^66.0.0",
     "@unocss/preset-uno": "^66.0.0"

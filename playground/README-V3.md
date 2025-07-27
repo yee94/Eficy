@@ -78,7 +78,7 @@ npm run dev
 ### 基础使用
 
 ```typescript
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 
 // 创建实例
 const eficy = new Eficy()
@@ -182,7 +182,7 @@ Vite 开发服务器支持热重载，修改代码后会自动刷新。
 如果遇到问题，请查看：
 - 浏览器控制台错误信息
 - 终端错误日志
-- [项目文档](../packages/core-v3/README.md)
+- [项目文档](../packages/core/README.md)
 
 ---
 

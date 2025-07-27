@@ -1,7 +1,7 @@
 import 'reflect-metadata'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { Eficy } from '@eficy/core-v3'
+import { Eficy } from '@eficy/core'
 import { 
   Button, 
   Input, 
