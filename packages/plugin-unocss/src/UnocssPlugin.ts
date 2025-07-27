@@ -55,7 +55,7 @@ export class UnocssPlugin implements ILifecyclePlugin {
   }
 
   /**
-   * 渲染钩子 - 在根节点渲染时注入样式
+   * 渲染钩子 - 在根节点渲染时将样式与根节点一起返回
    */
   @Render(5)
   async onRender(
@@ -65,10 +65,24 @@ export class UnocssPlugin implements ILifecyclePlugin {
   ): Promise<ReactElement> {
     const element = await next();
 
-    // 如果是根节点渲染，生成并注入样式
-    // if (context.isRoot) {
-    await this.generateAndInjectStyles();
-    // }
+    // 判断是否是根节点：检查节点ID或key是否包含root标识
+    const isRootNode = eficyNode.id === '__eficy_root' || 
+                       eficyNode['#'] === 'root' ||
+                       (element.key && element.key.toString().includes('__eficy_root'));
+
+    // 如果是根节点渲染，生成样式并包装在 Fragment 中一起返回
+    if (isRootNode && this.collectedClasses.size > 0 && !this.styleInjected) {
+      const css = await this.generateCSS();
+      if (css) {
+        const React = await import('react');
+        this.styleInjected = true;
+
+        return React.createElement(React.Fragment, null, [
+          React.createElement('style', { key: 'unocss-style', dangerouslySetInnerHTML: { __html: css } }),
+          element,
+        ]);
+      }
+    }
 
     return element;
   }
@@ -117,45 +131,21 @@ export class UnocssPlugin implements ILifecyclePlugin {
   }
 
   /**
-   * 生成并注入样式
+   * 生成 CSS 字符串
    */
-  private async generateAndInjectStyles(): Promise<void> {
-    if (!this.generator || this.collectedClasses.size === 0 || this.styleInjected) {
-      return;
+  private async generateCSS(): Promise<string | null> {
+    if (!this.generator || this.collectedClasses.size === 0) {
+      return null;
     }
 
     try {
       const classArray = Array.from(this.collectedClasses);
       const result = await this.generator.generate(classArray.join(' '));
-
-      if (result.css) {
-        this.injectCSS(result.css);
-        this.styleInjected = true;
-      }
+      return result.css || null;
     } catch (error) {
       console.error('[UnocssPlugin] Failed to generate styles:', error);
+      return null;
     }
-  }
-
-  /**
-   * 注入 CSS 到页面
-   */
-  private injectCSS(css: string): void {
-    if (typeof document === 'undefined') return;
-
-    const styleId = 'unocss-runtime';
-
-    // 移除已存在的样式
-    const existingStyle = document.getElementById(styleId);
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-
-    // 创建新的样式标签
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = css;
-    document.head.appendChild(style);
   }
 
   /**
@@ -172,14 +162,6 @@ export class UnocssPlugin implements ILifecyclePlugin {
     this.collectedClasses.clear();
     this.styleInjected = false;
     this.generator = null;
-
-    // 移除注入的样式
-    if (typeof document !== 'undefined') {
-      const style = document.getElementById('unocss-runtime');
-      if (style) {
-        style.remove();
-      }
-    }
   }
 }
 

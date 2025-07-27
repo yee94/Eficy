@@ -173,6 +173,31 @@ importers:
         specifier: ^26.1.0
         version: 26.1.0
 
+  packages/eficy:
+    dependencies:
+      '@eficy/core':
+        specifier: workspace:*
+        version: link:../core
+      '@eficy/plugin-unocss':
+        specifier: workspace:*
+        version: 'link:'
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.0(@testing-library/dom@9.3.4)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.23
+      '@types/react-dom':
+        specifier: ^18.3.1
+        version: 18.3.7(@types/react@18.3.23)
+      jsdom:
+        specifier: ^26.0.0
+        version: 26.1.0
+
   packages/plugin-unocss:
     dependencies:
       '@eficy/core':
@@ -188,12 +213,21 @@ importers:
         specifier: ^66.0.0
         version: 66.3.3
     devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.0(@testing-library/dom@9.3.4)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.23
       '@types/react-dom':
         specifier: ^18.3.1
         version: 18.3.7(@types/react@18.3.23)
+      jsdom:
+        specifier: ^26.0.0
+        version: 26.1.0
 
   packages/reactive:
     dependencies:

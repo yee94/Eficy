@@ -1,3 +1,4 @@
+import { computed, observable } from '@eficy/reactive';
 import { injectable } from 'tsyringe'
 import { Fragment, type ComponentType } from 'react'
 import type { IComponentRegistry } from '../interfaces'
@@ -17,6 +18,7 @@ const HTML_TAGS = [
 
 @injectable()
 export default class ComponentRegistry implements IComponentRegistry {
+  @observable
   private components: Record<string, ComponentType<any> | string> = {}
 
   constructor() {
@@ -45,6 +47,7 @@ export default class ComponentRegistry implements IComponentRegistry {
     return this.components[name] || null
   }
 
+  @computed
   getAll(): Record<string, ComponentType<any> | string> {
     return { ...this.components }
   }

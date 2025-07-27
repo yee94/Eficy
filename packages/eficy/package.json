@@ -1,9 +1,10 @@
 {
-  "name": "eficy",
+  "name": "@eficy/plugin-unocss",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "The Entire Eficy Ecosystem",
+  "description": "UnoCSS plugin for @eficy/core",
   "keywords": [
+    "unocss",
     "eficy"
   ],
   "type": "module",
@@ -12,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yee94/Eficy.git",
-    "directory": "packages/eficy"
+    "directory": "packages/plugin-unocss"
   },
   "files": [
     "dist",
@@ -28,9 +29,7 @@
   },
   "dependencies": {
     "@eficy/core": "workspace:*",
-    "@unocss/core": "^66.0.0",
-    "@unocss/preset-attributify": "^66.0.0",
-    "@unocss/preset-uno": "^66.0.0"
+    "@eficy/plugin-unocss": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",

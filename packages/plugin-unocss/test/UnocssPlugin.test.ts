@@ -189,48 +189,48 @@ describe('UnocssPlugin', () => {
 
     it('应该在根节点渲染时注入样式', async () => {
       const mockElement = { type: 'div', props: {} };
-      mockRenderContext.isRoot = true;
+      const mockRootNode = { id: '__eficy_root' } as any;
       
       const next = vi.fn().mockResolvedValue(mockElement);
       
-      const result = await plugin.onRender(mockNode, mockRenderContext, next);
+      const result = await plugin.onRender(mockRootNode, mockRenderContext, next);
       
-      expect(result).toBe(mockElement);
+      // Should return a Fragment with style and element
+      expect(result).not.toBe(mockElement);
+      expect(result.type.toString()).toBe('Symbol(react.fragment)');
       expect(next).toHaveBeenCalled();
-      
-      // Verify CSS injection was attempted
-      expect(document.createElement).toHaveBeenCalledWith('style');
     });
 
     it('应该在非根节点渲染时不注入样式', async () => {
       const mockElement = { type: 'div', props: {} };
-      mockRenderContext.isRoot = false;
+      const mockNonRootNode = { id: 'regular-node' } as any;
       
       const next = vi.fn().mockResolvedValue(mockElement);
       
-      const result = await plugin.onRender(mockNode, mockRenderContext, next);
+      const result = await plugin.onRender(mockNonRootNode, mockRenderContext, next);
       
       expect(result).toBe(mockElement);
       expect(next).toHaveBeenCalled();
-      
-      // Verify CSS injection was not attempted
-      expect(document.createElement).not.toHaveBeenCalled();
     });
 
     it('应该只注入一次样式', async () => {
       const mockElement = { type: 'div', props: {} };
-      mockRenderContext.isRoot = true;
+      const mockRootNode = { id: '__eficy_root' } as any;
       
       const next = vi.fn().mockResolvedValue(mockElement);
       
       // First render
-      await plugin.onRender(mockNode, mockRenderContext, next);
+      const result1 = await plugin.onRender(mockRootNode, mockRenderContext, next);
       
       // Second render
-      await plugin.onRender(mockNode, mockRenderContext, next);
+      const result2 = await plugin.onRender(mockRootNode, mockRenderContext, next);
       
-      // Should only create style element once
-      expect(document.createElement).toHaveBeenCalledTimes(1);
+      // First should return Fragment with style
+      expect(result1).not.toBe(mockElement);
+      expect(result1.type.toString()).toBe('Symbol(react.fragment)');
+      
+      // Second should return original element (no style injection)
+      expect(result2).toBe(mockElement);
     });
 
     it('应该处理样式生成错误', async () => {
@@ -243,11 +243,11 @@ describe('UnocssPlugin', () => {
       plugin['generator'] = mockGenerator;
       
       const mockElement = { type: 'div', props: {} };
-      mockRenderContext.isRoot = true;
+      const mockRootNode = { id: '__eficy_root' } as any;
       
       const next = vi.fn().mockResolvedValue(mockElement);
       
-      const result = await plugin.onRender(mockNode, mockRenderContext, next);
+      const result = await plugin.onRender(mockRootNode, mockRenderContext, next);
       
       expect(result).toBe(mockElement);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -271,19 +271,6 @@ describe('UnocssPlugin', () => {
       expect(plugin['styleInjected']).toBe(false);
       expect(plugin['generator']).toBe(null);
     });
-
-    it('应该移除注入的样式元素', () => {
-      const mockStyle = {
-        remove: vi.fn()
-      };
-      
-      (document.getElementById as any).mockReturnValue(mockStyle);
-      
-      plugin.destroy();
-      
-      expect(document.getElementById).toHaveBeenCalledWith('unocss-runtime');
-      expect(mockStyle.remove).toHaveBeenCalled();
-    });
   });
 
   describe('Edge Cases', () => {
@@ -297,29 +284,20 @@ describe('UnocssPlugin', () => {
       expect(plugin['collectedClasses'].size).toBe(0);
     });
 
-    it('应该处理服务端渲染环境', () => {
-      // Remove document
-      delete (global as any).document;
-      
-      expect(() => {
-        plugin['injectCSS']('test css');
-      }).not.toThrow();
-    });
-
     it('应该处理空的收集类名', async () => {
       // Initialize plugin but don't collect any classes
       const next = vi.fn().mockResolvedValue(undefined);
       await plugin.onInit({} as any, next);
       
       const mockElement = { type: 'div', props: {} };
-      mockRenderContext.isRoot = true;
+      const mockRootNode = { id: '__eficy_root' } as any;
       
       const renderNext = vi.fn().mockResolvedValue(mockElement);
       
-      await plugin.onRender(mockNode, mockRenderContext, renderNext);
+      const result = await plugin.onRender(mockRootNode, mockRenderContext, renderNext);
       
-      // Should not inject styles if no classes collected
-      expect(document.createElement).not.toHaveBeenCalled();
+      // Should return original element if no classes collected
+      expect(result).toBe(mockElement);
     });
   });
 });
