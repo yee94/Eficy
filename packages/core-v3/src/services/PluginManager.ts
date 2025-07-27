@@ -3,7 +3,9 @@ import type {
   IEficyPlugin, 
   ILifecyclePlugin, 
   IHookRegistration,
-  HookType 
+  IPluginWeight,
+  HookType,
+  PluginEnforce 
 } from '../interfaces/lifecycle'
 import { 
   getLifecycleHooks, 
@@ -15,6 +17,7 @@ export class PluginManager {
   private plugins: Map<string, IEficyPlugin> = new Map()
   private hooks: Map<HookType, IHookRegistration[]> = new Map()
   private hookExecutionOrder: Map<HookType, ((...args: any[]) => Promise<any>)[]> = new Map()
+  private pluginWeights: Map<string, number> = new Map() // 插件权重缓存
 
   /**
    * 注册插件
@@ -36,6 +39,8 @@ export class PluginManager {
     // 如果是生命周期插件，注册其钩子
     if (this.isLifecyclePlugin(plugin)) {
       this.registerLifecycleHooks(plugin as ILifecyclePlugin)
+      // 重新排序所有钩子以应用enforce配置
+      this.reorderAllHooks()
     }
 
     // Plugin registered successfully
@@ -129,10 +134,24 @@ export class PluginManager {
    * 注册生命周期钩子
    */
   private registerLifecycleHooks(plugin: ILifecyclePlugin): void {
-    const proto = Object.getPrototypeOf(plugin)
-    const hooks = getLifecycleHooks(proto)
+    // 收集所有钩子信息，避免重复
+    const allHooks = new Map<string, any>()
+    
+    // 从原型链收集钩子，最终子类的方法会覆盖父类的方法
+    let currentProto = Object.getPrototypeOf(plugin)
+    while (currentProto && currentProto !== Object.prototype) {
+      const hooks = getLifecycleHooks(currentProto)
+      hooks.forEach((hookInfo: any) => {
+        const key = `${hookInfo.hookType}-${hookInfo.methodName}`
+        if (!allHooks.has(key)) {
+          allHooks.set(key, hookInfo)
+        }
+      })
+      currentProto = Object.getPrototypeOf(currentProto)
+    }
 
-    hooks.forEach((hookInfo: any) => {
+    // 注册所有唯一的钩子
+    allHooks.forEach((hookInfo: any) => {
       const { hookType, methodName, priority } = hookInfo
       
       // 创建钩子注册信息
@@ -142,7 +161,8 @@ export class PluginManager {
           hookType,
           plugin,
           handler: method.bind(plugin),
-          priority: priority || 0
+          priority: priority || 0,
+          enforce: plugin.enforce // 继承插件的enforce配置
         }
         
         // 添加到钩子映射
@@ -150,9 +170,6 @@ export class PluginManager {
           this.hooks.set(hookType, [])
         }
         this.hooks.get(hookType)!.push(registration)
-        
-        // 重新构建执行顺序
-        this.rebuildHookExecutionOrder(hookType)
       }
     })
   }
@@ -170,13 +187,49 @@ export class PluginManager {
   }
 
   /**
-   * 重新构建钩子执行顺序
+   * 重新构建钩子执行顺序 - 支持enforce配置
    */
   private rebuildHookExecutionOrder(hookType: HookType): void {
     const registrations = this.hooks.get(hookType) || []
-    const sorted = sortHooksByPriority(registrations)
+    const sorted = this.sortHooksByEnforceAndPriority(registrations)
     const executors = sorted.map(reg => reg.handler)
     this.hookExecutionOrder.set(hookType, executors)
+  }
+
+  /**
+   * 重新排序所有钩子
+   */
+  private reorderAllHooks(): void {
+    for (const hookType of this.hooks.keys()) {
+      this.rebuildHookExecutionOrder(hookType)
+    }
+  }
+
+  /**
+   * 按照enforce配置和优先级排序钩子
+   */
+  private sortHooksByEnforceAndPriority(registrations: IHookRegistration[]): IHookRegistration[] {
+    return registrations.sort((a, b) => {
+      // 1. 首先按enforce排序：pre < undefined < post
+      const enforceOrder = { 'pre': 0, undefined: 1, 'post': 2 }
+      const aEnforce = enforceOrder[a.enforce || undefined]
+      const bEnforce = enforceOrder[b.enforce || undefined]
+      
+      if (aEnforce !== bEnforce) {
+        return aEnforce - bEnforce
+      }
+      
+      // 2. 相同enforce级别内按priority排序（小的优先）
+      const aPriority = a.priority || 0
+      const bPriority = b.priority || 0
+      
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority
+      }
+      
+      // 3. 如果priority也相同，按插件名称排序保证稳定性
+      return a.plugin.name.localeCompare(b.plugin.name)
+    })
   }
 
   /**
@@ -190,6 +243,20 @@ export class PluginManager {
     }
     
     return stats
+  }
+
+  /**
+   * 获取插件执行顺序信息
+   */
+  getPluginExecutionOrder(hookType: HookType): Array<{name: string, enforce?: PluginEnforce, priority: number}> {
+    const registrations = this.hooks.get(hookType) || []
+    const sorted = this.sortHooksByEnforceAndPriority(registrations)
+    
+    return sorted.map(reg => ({
+      name: reg.plugin.name,
+      enforce: reg.enforce,
+      priority: reg.priority || 0
+    }))
   }
 
   /**

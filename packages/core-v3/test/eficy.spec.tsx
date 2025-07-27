@@ -30,7 +30,7 @@ describe('Eficy 核心功能', () => {
     expect(true).toBe(true);
   });
 
-  it('应该能创建React元素', () => {
+  it('应该能创建React元素', async () => {
     const eficy = new Eficy();
 
     const schema = {
@@ -43,35 +43,35 @@ describe('Eficy 核心功能', () => {
       ],
     };
 
-    const element = eficy.createElement(schema);
+    const element = await eficy.createElement(schema);
     expect(element).toBeDefined();
     expect(React.isValidElement(element)).toBe(true);
   });
 
-  it('空schema应该返回null', () => {
+  it('空schema应该返回null', async () => {
     const eficy = new Eficy();
 
     const schema = {
       views: [],
     };
 
-    const element = eficy.createElement(schema);
+    const element = await eficy.createElement(schema);
     expect(element).toBe(null);
   });
 
-  it('无效schema应该抛出错误', () => {
+  it('无效schema应该抛出错误', async () => {
     const eficy = new Eficy();
 
-    expect(() => {
-      eficy.createElement(null as any);
-    }).toThrow('Schema cannot be null or undefined');
+    await expect(async () => {
+      await eficy.createElement(null as any);
+    }).rejects.toThrow('Schema cannot be null or undefined');
 
-    expect(() => {
-      eficy.createElement({} as any);
-    }).toThrow('Schema must have views property');
+    await expect(async () => {
+      await eficy.createElement({} as any);
+    }).rejects.toThrow('Schema must have views property');
   });
 
-  it('多视图应该返回Fragment', () => {
+  it('多视图应该返回Fragment', async () => {
     const eficy = new Eficy();
 
     const schema = {
@@ -89,7 +89,7 @@ describe('Eficy 核心功能', () => {
       ],
     };
 
-    const element = eficy.createElement(schema);
+    const element = await eficy.createElement(schema);
     expect(element).toBeDefined();
     expect(React.isValidElement(element)).toBe(true);
   });

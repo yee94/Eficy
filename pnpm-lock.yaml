@@ -14,6 +14,12 @@ importers:
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.0(@testing-library/dom@9.3.4)(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.9
+      '@vitest/coverage-v8':
+        specifier: ^1.0.0
+        version: 1.6.1(vitest@3.2.4(@types/debug@4.1.12)(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0))
       axios-mock-adapter:
         specifier: ^1.22.0
         version: 1.22.0(axios@1.11.0)
@@ -41,9 +47,12 @@ importers:
       turbo:
         specifier: ^2.5.5
         version: 2.5.5
+      typescript:
+        specifier: ^5.0.0
+        version: 5.4.2
       vitest:
         specifier: ^3.2.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
 
   packages/core:
     dependencies:
@@ -157,6 +166,9 @@ importers:
       axios:
         specifier: ^0.27.2
         version: 0.27.2
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -209,22 +221,6 @@ importers:
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.9
-      '@vitest/coverage-v8':
-        specifier: ^1.0.0
-        version: 1.6.1(vitest@1.6.1(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1))
-      tsdown:
-        specifier: ^0.13.0
-        version: 0.13.0(typescript@5.4.2)
-      typescript:
-        specifier: ^5.0.0
-        version: 5.4.2
-      vitest:
-        specifier: ^1.0.0
-        version: 1.6.1(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)
 
   packages/reactive-react:
     dependencies:
@@ -234,6 +230,12 @@ importers:
       '@preact/signals-react':
         specifier: ^3.2.1
         version: 3.2.1(react@18.3.1)
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.0.0
@@ -256,12 +258,6 @@ importers:
       jsdom:
         specifier: ^23.0.0
         version: 23.2.0
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0.0
-        version: 18.3.1(react@18.3.1)
       tsdown:
         specifier: ^0.13.0
         version: 0.13.0(typescript@5.4.2)
@@ -1669,6 +1665,9 @@ packages:
 
   estree-walker@3.0.3:
     resolution: {integrity: sha512-7RUKfXgSMMkzt6ZuXmqapOurLGPPfgj6l9uRZ7lRGolvk0y2yocc35LdcxKC5PQZdn2DMqioAQ2NoWcrTKmm6g==}
+
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
   execa@4.1.0:
     resolution: {integrity: sha512-j5W0//W7f8UxAn8hXVnwG8tLwdiUy4FJLcSupCg6maBYZDpyBvTApK7KyuI4bKj8KOh1r2YH+6ucuYtJv1bTZA==}
@@ -4360,7 +4359,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.6.1(vitest@1.6.1(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1))':
+  '@vitest/coverage-v8@1.6.1(vitest@3.2.4(@types/debug@4.1.12)(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -4375,7 +4374,7 @@ snapshots:
       std-env: 3.9.0
       strip-literal: 2.1.1
       test-exclude: 6.0.0
-      vitest: 1.6.1(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -4393,13 +4392,13 @@ snapshots:
       chai: 5.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@7.0.6(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0))':
+  '@vitest/mocker@3.2.4(vite@7.0.6(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: 7.0.6(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
+      vite: 7.0.6(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -5003,6 +5002,8 @@ snapshots:
   estree-walker@3.0.3:
     dependencies:
       '@types/estree': 1.0.8
+
+  eventemitter3@5.0.1: {}
 
   execa@4.1.0:
     dependencies:
@@ -6893,13 +6894,13 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@3.2.4(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
+  vite-node@3.2.4(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
     dependencies:
       cac: 6.7.14
       debug: 4.4.1
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 6.3.5(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
+      vite: 6.3.5(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -6954,6 +6955,22 @@ snapshots:
       less: 4.4.0
       terser: 5.43.1
 
+  vite@6.3.5(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
+    dependencies:
+      esbuild: 0.25.8
+      fdir: 6.4.6(picomatch@4.0.3)
+      picomatch: 4.0.3
+      postcss: 8.5.6
+      rollup: 4.45.1
+      tinyglobby: 0.2.14
+    optionalDependencies:
+      '@types/node': 20.19.9
+      fsevents: 2.3.3
+      jiti: 2.5.0
+      less: 4.4.0
+      terser: 5.43.1
+      yaml: 2.8.0
+
   vite@6.3.5(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
     dependencies:
       esbuild: 0.25.8
@@ -6970,7 +6987,7 @@ snapshots:
       terser: 5.43.1
       yaml: 2.8.0
 
-  vite@7.0.6(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
+  vite@7.0.6(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
     dependencies:
       esbuild: 0.25.8
       fdir: 6.4.6(picomatch@4.0.3)
@@ -6979,7 +6996,7 @@ snapshots:
       rollup: 4.45.1
       tinyglobby: 0.2.14
     optionalDependencies:
-      '@types/node': 24.1.0
+      '@types/node': 20.19.9
       fsevents: 2.3.3
       jiti: 2.5.0
       less: 4.4.0
@@ -7012,42 +7029,6 @@ snapshots:
       '@types/node': 20.19.9
       happy-dom: 6.0.4(encoding@0.1.13)
       jsdom: 23.2.0
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vitest@1.6.1(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1):
-    dependencies:
-      '@vitest/expect': 1.6.1
-      '@vitest/runner': 1.6.1
-      '@vitest/snapshot': 1.6.1
-      '@vitest/spy': 1.6.1
-      '@vitest/utils': 1.6.1
-      acorn-walk: 8.3.4
-      chai: 4.5.0
-      debug: 4.4.1
-      execa: 8.0.1
-      local-pkg: 0.5.1
-      magic-string: 0.30.17
-      pathe: 1.1.2
-      picocolors: 1.1.1
-      std-env: 3.9.0
-      strip-literal: 2.1.1
-      tinybench: 2.9.0
-      tinypool: 0.8.4
-      vite: 5.4.19(@types/node@20.19.9)(less@4.4.0)(terser@5.43.1)
-      vite-node: 1.6.1(@types/node@20.19.9)(less@4.4.0)(terser@5.43.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 20.19.9
-      happy-dom: 6.0.4(encoding@0.1.13)
-      jsdom: 26.1.0
     transitivePeerDependencies:
       - less
       - lightningcss
@@ -7094,11 +7075,11 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.1.0)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jiti@2.5.0)(jsdom@26.1.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.0.6(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0))
+      '@vitest/mocker': 3.2.4(vite@7.0.6(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -7116,12 +7097,12 @@ snapshots:
       tinyglobby: 0.2.14
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.0.6(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
-      vite-node: 3.2.4(@types/node@24.1.0)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
+      vite: 7.0.6(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
+      vite-node: 3.2.4(@types/node@20.19.9)(jiti@2.5.0)(less@4.4.0)(terser@5.43.1)(yaml@2.8.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/debug': 4.1.12
-      '@types/node': 24.1.0
+      '@types/node': 20.19.9
       happy-dom: 6.0.4(encoding@0.1.13)
       jsdom: 26.1.0
     transitivePeerDependencies:

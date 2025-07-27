@@ -36,6 +36,7 @@
     "@eficy/reactive-react": "workspace:~",
     "ahooks": "^3.7.11",
     "axios": "^0.27.2",
+    "eventemitter3": "^5.0.1",
     "lodash": "^4.17.21",
     "nanoid": "^4.0.2",
     "react": "^18.3.1",

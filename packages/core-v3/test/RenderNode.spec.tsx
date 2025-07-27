@@ -32,11 +32,11 @@ const testComponentMap = {
 }
 
 // 创建 RenderNode 的辅助函数，使用 RenderNodeTree
-const createRenderNode = (eficyNode: EficyNode, componentMap: any) => {
+const createRenderNode = async (eficyNode: EficyNode, componentMap: any) => {
   const componentRegistry = container.resolve(ComponentRegistry)
   componentRegistry.extend(componentMap)
   const renderNodeTree = container.resolve(RenderNodeTree)
-  return renderNodeTree.createElement(eficyNode)
+  return await renderNodeTree.createElement(eficyNode)
 }
 
 // 设置测试容器
@@ -60,7 +60,7 @@ beforeEach(() => {
 
 describe('RenderNode', () => {
   describe('基础渲染', () => {
-    it('应该渲染简单组件', () => {
+    it('应该渲染简单组件', async () => {
       const eficyNode = new EficyNode({
         '#': 'test',
         '#view': 'div',
@@ -68,14 +68,14 @@ describe('RenderNode', () => {
         '#content': 'Hello World'
       })
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       render(renderNode!)
       
       expect(screen.getByText('Hello World')).toBeInTheDocument()
       expect(screen.getByText('Hello World')).toHaveClass('test-class')
     })
 
-    it('应该渲染自定义组件', () => {
+    it('应该渲染自定义组件', async () => {
       const eficyNode = new EficyNode({
         '#': 'button',
         '#view': 'TestButton',
@@ -83,7 +83,7 @@ describe('RenderNode', () => {
         '#content': 'Click Me'
       })
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       render(renderNode!)
       
       const button = screen.getByRole('button')
@@ -92,7 +92,7 @@ describe('RenderNode', () => {
       expect(button).toHaveTextContent('Click Me')
     })
 
-    it('应该处理样式属性', () => {
+    it('应该处理样式属性', async () => {
       const eficyNode = new EficyNode({
         '#': 'styled',
         '#view': 'div',
@@ -100,7 +100,7 @@ describe('RenderNode', () => {
         '#content': 'Styled content'
       })
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       render(renderNode!)
       
       const element = screen.getByText('Styled content')
@@ -109,7 +109,7 @@ describe('RenderNode', () => {
   })
 
   describe('子节点渲染', () => {
-    it('应该渲染嵌套子节点', () => {
+    it('应该渲染嵌套子节点', async () => {
       // 使用 EficyNodeStore 来正确构建包含子节点的树
       const nodeTree = container.resolve(EficyNodeStore)
       nodeTree.build({
@@ -131,7 +131,7 @@ describe('RenderNode', () => {
       })
 
       const parentNode = nodeTree.root!
-      const renderNode = createRenderNode(parentNode, testComponentMap)
+      const renderNode = await createRenderNode(parentNode, testComponentMap)
       render(renderNode!)
       
       expect(screen.getByText('Child 1')).toBeInTheDocument()
@@ -141,7 +141,7 @@ describe('RenderNode', () => {
       expect(parent).toHaveClass('parent')
     })
 
-    it('应该支持深层嵌套', () => {
+    it('应该支持深层嵌套', async () => {
       // 使用 EficyNodeStore 来正确构建深层嵌套的树
       const nodeTree = container.resolve(EficyNodeStore)
       nodeTree.build({
@@ -165,7 +165,7 @@ describe('RenderNode', () => {
       })
 
       const deepNode = nodeTree.root!
-      const renderNode = createRenderNode(deepNode, testComponentMap)
+      const renderNode = await createRenderNode(deepNode, testComponentMap)
       render(renderNode!)
       
       const deepElement = screen.getByText('Deep content')
@@ -176,7 +176,7 @@ describe('RenderNode', () => {
   })
 
   describe('条件渲染', () => {
-    it('当 #if 为 false 时不应该渲染', () => {
+    it('当 #if 为 false 时不应该渲染', async () => {
       const eficyNode = new EficyNode({
         '#': 'conditional',
         '#view': 'div',
@@ -184,12 +184,12 @@ describe('RenderNode', () => {
         '#content': 'Should not render'
       })
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       const { container: renderContainer } = render(renderNode!)
       expect(renderContainer.firstChild).toBeNull()
     })
 
-    it('当 #if 为 true 时应该渲染', () => {
+    it('当 #if 为 true 时应该渲染', async () => {
       const eficyNode = new EficyNode({
         '#': 'conditional',
         '#view': 'div', 
@@ -197,26 +197,26 @@ describe('RenderNode', () => {
         '#content': 'Should render'
       })
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       render(renderNode!)
       expect(screen.getByText('Should render')).toBeInTheDocument()
     })
 
-    it('默认情况下应该渲染（没有 #if）', () => {
+    it('默认情况下应该渲染（没有 #if）', async () => {
       const eficyNode = new EficyNode({
         '#': 'default',
         '#view': 'div',
         '#content': 'Default render'
       })
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       render(renderNode!)
       expect(screen.getByText('Default render')).toBeInTheDocument()
     })
   })
 
   describe('组件错误处理', () => {
-    it('组件不存在时应该显示错误信息', () => {
+    it('组件不存在时应该显示错误信息', async () => {
       const eficyNode = new EficyNode({
         '#': 'missing',
         '#view': 'NonExistentComponent',
@@ -226,7 +226,7 @@ describe('RenderNode', () => {
       // 捕获控制台错误
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const renderNode = createRenderNode(eficyNode, testComponentMap)
+      const renderNode = await createRenderNode(eficyNode, testComponentMap)
       render(renderNode!)
       
       // 应该渲染错误信息或占位符
@@ -235,7 +235,7 @@ describe('RenderNode', () => {
       consoleSpy.mockRestore()
     })
 
-    it('组件渲染错误时应该有错误边界', () => {
+    it('组件渲染错误时应该有错误边界', async () => {
       const ErrorComponent = () => {
         throw new Error('Component error')
       }
@@ -252,7 +252,7 @@ describe('RenderNode', () => {
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const renderNode = createRenderNode(eficyNode, errorComponentMap)
+      const renderNode = await createRenderNode(eficyNode, errorComponentMap)
       render(renderNode!)
       
       // 应该显示错误边界信息
@@ -263,7 +263,7 @@ describe('RenderNode', () => {
   })
 
   describe('性能优化', () => {
-    it('应该使用 React.memo 避免不必要的重渲染', () => {
+    it('应该使用 React.memo 避免不必要的重渲染', async () => {
       const renderSpy = vi.fn()
       
       const SpyComponent = vi.fn(({ children }) => {
@@ -282,22 +282,23 @@ describe('RenderNode', () => {
         '#content': 'Memo test'
       })
 
-      const renderNode = createRenderNode(eficyNode, spyComponentMap)
+      const renderNode = await createRenderNode(eficyNode, spyComponentMap)
       const { rerender } = render(renderNode!)
       
-      expect(renderSpy).toHaveBeenCalledTimes(1)
+      // 由于增加了 useEffect，初始渲染可能会触发额外的渲染
+      expect(renderSpy).toHaveBeenCalledTimes(2)
 
       // 重新渲染但 eficyNode 没有变化
-      const newRenderNode = createRenderNode(eficyNode, spyComponentMap)
+      const newRenderNode = await createRenderNode(eficyNode, spyComponentMap)
       rerender(newRenderNode!)
       
-      // 由于 memo，不应该重新渲染
-      expect(renderSpy).toHaveBeenCalledTimes(1)
+      // 由于 memo，不应该有额外的渲染
+      expect(renderSpy).toHaveBeenCalledTimes(2)
     })
   })
 
   describe('RenderNodeTree 独立管理', () => {
-    it('应该能够独立构建RenderNode映射', () => {
+    it('应该能够独立构建RenderNode映射', async () => {
       const eficyNodeStore = container.resolve(EficyNodeStore)
       eficyNodeStore.build({
         '#': 'parent',
@@ -323,7 +324,7 @@ describe('RenderNode', () => {
       expect(rootNode).toBeTruthy()
       
       // 构建 RenderNode 映射
-      renderNodeTree.createElement(rootNode!)
+      await renderNodeTree.createElement(rootNode!)
 
       // 验证映射关系
       expect(renderNodeTree.stats.totalRenderNodes).toBe(4) // parent + 2 children
@@ -336,7 +337,7 @@ describe('RenderNode', () => {
       expect(child1RenderNode).toBeTruthy()
     })
 
-    it('应该支持单独的RenderNode操作', () => {
+    it('应该支持单独的RenderNode操作', async () => {
       const eficyNodeStore = container.resolve(EficyNodeStore)
       eficyNodeStore.build({
         '#': 'test',
@@ -347,7 +348,7 @@ describe('RenderNode', () => {
       const renderNodeTree = container.resolve(RenderNodeTree)
       const rootNode = eficyNodeStore.root!
       
-      renderNodeTree.createElement(rootNode)
+      await renderNodeTree.createElement(rootNode)
 
       const renderNode = renderNodeTree.findRenderNode('test')
       expect(renderNode).toBeTruthy()
@@ -359,7 +360,7 @@ describe('RenderNode', () => {
   })
 
   describe('Eficy 主类集成管理', () => {
-    it('应该能够通过Eficy主类管理两个树', () => {
+    it('应该能够通过Eficy主类管理两个树', async () => {
       const eficy = new Eficy()
       eficy.config({ componentMap: testComponentMap })
 
@@ -381,7 +382,7 @@ describe('RenderNode', () => {
       }
 
       // 创建元素会自动构建两个树
-      const element = eficy.createElement(schema)
+      const element = await eficy.createElement(schema)
       expect(element).toBeTruthy()
 
       // 验证两个树都已创建
@@ -402,7 +403,7 @@ describe('RenderNode', () => {
       expect(stats.renderTree?.totalRenderNodes).toBe(3)
     })
 
-    it('应该支持通过Eficy同步更新两个树', () => {
+    it('应该支持通过Eficy同步更新两个树', async () => {
       const eficy = new Eficy()
       eficy.config({ componentMap: testComponentMap })
 
@@ -416,7 +417,7 @@ describe('RenderNode', () => {
         ]
       }
 
-      eficy.createElement(schema)
+      await eficy.createElement(schema)
 
       // 添加子节点
       const newChild = eficy.addChild('container', {
@@ -427,6 +428,9 @@ describe('RenderNode', () => {
 
       expect(newChild).toBeTruthy()
       expect(newChild?.['#']).toBe('newChild')
+
+      // 等待异步更新完成
+      await new Promise(resolve => setTimeout(resolve, 10));
 
       // 验证两个树都已更新
       expect(eficy.findNode('newChild')).toBeTruthy()

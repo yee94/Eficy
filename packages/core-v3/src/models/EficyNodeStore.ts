@@ -1,7 +1,10 @@
-import { injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
 import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
 import EficyNode from './EficyNode';
 import type { IViewData } from '../interfaces';
+import type { IBuildSchemaNodeContext } from '../interfaces/lifecycle';
+import { HookType } from '../interfaces/lifecycle';
+import { PluginManager } from '../services/PluginManager';
 
 /**
  * Eficy Node 节点平铺 Store
@@ -10,6 +13,8 @@ import type { IViewData } from '../interfaces';
 export default class EficyNodeStore {
   @observable
   private rootNode: EficyNode;
+  
+  private pluginManager: PluginManager;
 
   @computed
   get nodeMap(): Record<string, EficyNode> {
@@ -29,12 +34,46 @@ export default class EficyNodeStore {
    */
   @action
   build(views: IViewData | IViewData[]): void {
-    // 由内向外递归构建EficyNode树
+    // 由内向外递归构建EficyNode树，使用生命周期钩子
+    const viewsArray = Array.isArray(views) ? views : [views];
+    
     this.rootNode = new EficyNode({
       '#': '__eficy_root',
       '#view': '<>',
-      '#children': Array.isArray(views) ? views : [views],
+      '#children': viewsArray,
     });
+  }
+
+  /**
+   * 使用钩子构建单个节点
+   */
+  private async buildNodeWithHooks(viewData: IViewData): Promise<EficyNode> {
+    const context: IBuildSchemaNodeContext = {
+      timestamp: Date.now(),
+      requestId: `req-${Date.now()}`,
+      schema: { views: [] },
+      index: 0,
+      path: []
+    };
+
+    return await this.pluginManager.executeHook(
+      HookType.BUILD_SCHEMA_NODE,
+      viewData,
+      context,
+      async () => {
+        const node = new EficyNode(viewData);
+        
+        // 递归构建子节点
+        if (viewData['#children'] && Array.isArray(viewData['#children'])) {
+          const childNodes = await Promise.all(
+            viewData['#children'].map(childData => this.buildNodeWithHooks(childData))
+          );
+          node.setChildren(childNodes);
+        }
+        
+        return node;
+      }
+    );
   }
 
   /**
@@ -162,13 +201,14 @@ export default class EficyNodeStore {
   /**
    * 从JSON构建树
    */
-  static fromJSON(data: IViewData | IViewData[]): EficyNodeStore {
-    const tree = new EficyNodeStore();
+  static fromJSON(data: IViewData | IViewData[], pluginManager: PluginManager): EficyNodeStore {
+    const tree = new EficyNodeStore(pluginManager);
     tree.build(data);
     return tree;
   }
 
-  constructor() {
+  constructor(@inject(PluginManager) pluginManager: PluginManager) {
+    this.pluginManager = pluginManager;
     makeObservable(this);
   }
 }

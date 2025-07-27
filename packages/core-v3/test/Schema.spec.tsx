@@ -26,7 +26,7 @@ afterEach(async () => {
 });
 describe('Schema 渲染', () => {
   describe('基础渲染', () => {
-    test('应该渲染简单的组件', async() => {
+    test('应该渲染简单的组件', async () => {
       const schema = {
         views: [
           {
@@ -41,14 +41,14 @@ describe('Schema 渲染', () => {
       const eficy = new Eficy();
       eficy.config({ componentMap: testComponents });
 
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       expect(getByText('Hello World')).toBeInTheDocument();
       expect(getByText('Hello World')).toHaveClass('test-class');
     });
 
-    it('应该支持原生HTML标签', () => {
+    it('应该支持原生HTML标签', async () => {
       const schema = {
         views: [
           {
@@ -61,14 +61,14 @@ describe('Schema 渲染', () => {
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       render(element);
 
       expect(screen.getByText('Native HTML')).toBeInTheDocument();
       expect(screen.getByText('Native HTML')).toHaveClass('native-div');
     });
 
-    it('应该处理样式属性', () => {
+    it('应该处理样式属性', async () => {
       const schema = {
         views: [
           {
@@ -81,7 +81,7 @@ describe('Schema 渲染', () => {
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       const styledElement = getByText('Styled content');
@@ -90,7 +90,7 @@ describe('Schema 渲染', () => {
   });
 
   describe('嵌套渲染', () => {
-    it('应该渲染嵌套的子组件', () => {
+    it('应该渲染嵌套的子组件', async () => {
       const schema = {
         views: [
           {
@@ -116,7 +116,7 @@ describe('Schema 渲染', () => {
       const eficy = new Eficy();
       eficy.config({ componentMap: testComponents });
 
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       expect(getByText('Child 1')).toBeInTheDocument();
@@ -126,7 +126,7 @@ describe('Schema 渲染', () => {
       expect(parent).toHaveClass('parent');
     });
 
-    it('应该支持深度嵌套', () => {
+    it('应该支持深度嵌套', async () => {
       const schema = {
         views: [
           {
@@ -154,7 +154,7 @@ describe('Schema 渲染', () => {
       const eficy = new Eficy();
       eficy.config({ componentMap: testComponents });
 
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       const deepElement = getByText('Deep nested');
@@ -165,7 +165,7 @@ describe('Schema 渲染', () => {
   });
 
   describe('条件渲染', () => {
-    it('应该支持 #if 条件渲染', () => {
+    it('应该支持 #if 条件渲染', async () => {
       const schema = {
         views: [
           {
@@ -184,14 +184,14 @@ describe('Schema 渲染', () => {
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText, queryByText } = render(element);
 
       expect(getByText('Visible content')).toBeInTheDocument();
       expect(queryByText('Hidden content')).not.toBeInTheDocument();
     });
 
-    it('应该支持函数式条件渲染', () => {
+    it('应该支持函数式条件渲染', async () => {
       const schema = {
         views: [
           {
@@ -204,7 +204,7 @@ describe('Schema 渲染', () => {
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       expect(getByText('Function condition')).toBeInTheDocument();
@@ -212,7 +212,7 @@ describe('Schema 渲染', () => {
   });
 
   describe('多视图渲染', () => {
-    it('应该渲染多个顶级视图', () => {
+    it('应该渲染多个顶级视图', async () => {
       const schema = {
         views: [
           {
@@ -234,7 +234,7 @@ describe('Schema 渲染', () => {
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       expect(getByText('First view')).toBeInTheDocument();
@@ -244,7 +244,7 @@ describe('Schema 渲染', () => {
   });
 
   describe('配置扩展', () => {
-    it('应该支持扩展组件库', () => {
+    it('应该支持扩展组件库', async () => {
       const baseComponents = {
         TestDiv: ({ children }: any) => <div className="base">{children}</div>,
       };
@@ -272,7 +272,7 @@ describe('Schema 渲染', () => {
         ],
       };
 
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       expect(getByText('Base component')).toBeInTheDocument();
@@ -281,7 +281,7 @@ describe('Schema 渲染', () => {
       expect(getByText('Extended component')).toHaveClass('extended');
     });
 
-    it('应该支持配置覆盖', () => {
+    it('应该支持配置覆盖', async () => {
       const originalComponents = {
         TestDiv: ({ children }: any) => <div className="original">{children}</div>,
       };
@@ -304,7 +304,7 @@ describe('Schema 渲染', () => {
         ],
       };
 
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       const testElement = getByText('Test content');
@@ -314,7 +314,7 @@ describe('Schema 渲染', () => {
   });
 
   describe('错误处理', () => {
-    it('组件不存在时应该显示错误信息', () => {
+    it('组件不存在时应该显示错误信息', async () => {
       const schema = {
         views: [
           {
@@ -326,34 +326,34 @@ describe('Schema 渲染', () => {
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
       const { getByText } = render(element);
 
       // 应该显示错误信息而不是崩溃
       expect(getByText(/Component.*not found/i)).toBeInTheDocument();
     });
 
-    it('空schema应该返回空内容', () => {
+    it('空schema应该返回空内容', async () => {
       const schema = {
         views: [],
       };
 
       const eficy = new Eficy();
-      const element = eficy.createElement(schema);
+      const element = await eficy.createElement(schema);
 
       expect(element).toBe(null);
     });
 
-    it('无效schema应该抛出错误', () => {
+    it('无效schema应该抛出错误', async () => {
       const eficy = new Eficy();
 
-      expect(() => {
-        eficy.createElement(null as any);
-      }).toThrow();
+      await expect(async () => {
+        await eficy.createElement(null as any);
+      }).rejects.toThrow();
 
-      expect(() => {
-        eficy.createElement({} as any);
-      }).toThrow();
+      await expect(async () => {
+        await eficy.createElement({} as any);
+      }).rejects.toThrow();
     });
   });
 });

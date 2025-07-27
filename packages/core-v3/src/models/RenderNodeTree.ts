@@ -4,6 +4,9 @@ import { inject, injectable } from 'tsyringe';
 import RenderNode from '../components/RenderNode';
 import ComponentRegistry from '../services/ComponentRegistry';
 import EficyNode from './EficyNode';
+import type { IRenderContext } from '../interfaces/lifecycle';
+import { HookType } from '../interfaces/lifecycle';
+import { PluginManager } from '../services/PluginManager';
 
 /**
  * RenderNode 树管理器
@@ -17,7 +20,10 @@ export default class RenderNodeTree {
 
   public rootRenderNode: ReactElement | null = null;
 
-  constructor(@inject(ComponentRegistry) private componentRegistry: ComponentRegistry) {
+  constructor(
+    @inject(ComponentRegistry) private componentRegistry: ComponentRegistry,
+    @inject(PluginManager) private pluginManager: PluginManager,
+  ) {
     makeObservable(this);
   }
 
@@ -26,13 +32,13 @@ export default class RenderNodeTree {
    * 基于现有的 EficyNodeStore 构建 RenderNode 映射
    */
   @action
-  public createElement(eficyNode: EficyNode): ReactElement | null {
+  public async createElement(eficyNode: EficyNode): Promise<ReactElement | null> {
     if (!eficyNode) {
       return null;
     }
 
     // 从内向外递归构建RenderNode映射
-    const doBuild = (eficyNode: EficyNode) => {
+    const doBuild = async (eficyNode: EficyNode) => {
       const nodeId = eficyNode['#'];
 
       // 如果已经有缓存，直接返回
@@ -41,6 +47,7 @@ export default class RenderNodeTree {
       }
 
       effect(() => {
+        // 处理子节点
         if (!eficyNode.children) {
           return;
         }
@@ -48,23 +55,25 @@ export default class RenderNodeTree {
           return eficyNode.children;
         }
 
-        batch(() => {
-          const currentChildren = this.previousChildren.get(nodeId) ?? [];
-          const nextNodes = eficyNode.children as EficyNode[];
-          const nextKeys = new Set(nextNodes.map((child) => child.id));
+        const nextNodes = eficyNode.children as EficyNode[];
+        const currentChildren = this.previousChildren.get(nodeId) ?? [];
+        const nextKeys = new Set(nextNodes.map((child) => child.id));
 
-          // 移除已经不存在的子节点
-          const removedChildren = currentChildren.filter((child) => !nextKeys.has(child.key));
+        // 移除已经不存在的子节点
+        const removedChildren = currentChildren.filter((child) => !nextKeys.has(child.key));
+        batch(() => {
           removedChildren.forEach((child) => {
             this.renderNodeCache.delete(child.key as string);
           });
+        });
 
-          const nextChildren = nextNodes.map((child: EficyNode) => doBuild(child)) as ReactElement[];
+        const promise = Promise.all(nextNodes.map((child: EficyNode) => doBuild(child))) as Promise<ReactElement[]>;
+        promise.then((nextChildren) => {
           this.previousChildren.set(nodeId, nextChildren);
         });
       });
 
-      const renderNode = this.createRenderNode(eficyNode);
+      const renderNode = await this.createRenderNode(eficyNode);
       if (nodeId) {
         this.renderNodeCache.set(nodeId, renderNode);
       }
@@ -72,7 +81,7 @@ export default class RenderNodeTree {
       return renderNode;
     };
 
-    this.rootRenderNode = doBuild(eficyNode);
+    this.rootRenderNode = await doBuild(eficyNode);
 
     return this.rootRenderNode;
   }
@@ -80,15 +89,25 @@ export default class RenderNodeTree {
   /**
    * 为单个EficyNode创建RenderNode的工厂方法
    */
-  private createRenderNode(eficyNode: EficyNode): ReactElement {
+  private async createRenderNode(eficyNode: EficyNode): Promise<ReactElement> {
     // 从注入的 ComponentRegistry 获取组件映射
     const componentMap = this.componentRegistry.getAll();
 
-    return createElement(RenderNode, {
-      key: eficyNode.id,
-      eficyNode,
+    // 执行渲染钩子
+    const renderContext: IRenderContext = {
+      timestamp: Date.now(),
+      requestId: `req-${Date.now()}`,
       componentMap,
-      childrenMap: this.renderNodeCache,
+      isSSR: false,
+    };
+
+    return await this.pluginManager.executeHook(HookType.RENDER, eficyNode, renderContext, async () => {
+      return createElement(RenderNode, {
+        key: eficyNode.id,
+        eficyNode,
+        componentMap,
+        childrenMap: this.renderNodeCache,
+      });
     });
   }
 
@@ -115,19 +134,19 @@ export default class RenderNodeTree {
    * 更新特定节点的RenderNode
    */
   @action
-  updateRenderNode(nodeId: string, eficyNode: EficyNode): void {
+  async updateRenderNode(nodeId: string, eficyNode: EficyNode): Promise<void> {
     // 移除旧的缓存
     this.renderNodeCache.delete(nodeId);
     // 重新构建RenderNode
-    this.createElement(eficyNode);
+    await this.createElement(eficyNode);
   }
 
   /**
    * 添加新的RenderNode
    */
   @action
-  addRenderNode(eficyNode: EficyNode): ReactElement | null {
-    return this.createElement(eficyNode);
+  async addRenderNode(eficyNode: EficyNode): Promise<ReactElement | null> {
+    return await this.createElement(eficyNode);
   }
 
   /**

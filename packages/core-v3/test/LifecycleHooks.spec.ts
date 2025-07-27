@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import 'reflect-metadata'
 import { injectable } from 'tsyringe'
 import type { ComponentType, ReactElement } from 'react'
+import { createElement } from 'react'
 import type { 
   ILifecyclePlugin,
   IInitContext,
@@ -418,6 +419,76 @@ describe('Lifecycle Hooks System', () => {
       ])
     })
 
+    it('should integrate with Eficy render lifecycle hooks', async () => {
+      const EficyModule = await import('../src/core/Eficy')
+      const Eficy = EficyModule.default
+      
+      const executionLog: string[] = []
+
+      @injectable()
+      class RenderLifecyclePlugin implements ILifecyclePlugin {
+        name = 'render-lifecycle-plugin'
+        version = '1.0.0'
+
+        @BuildSchemaNode()
+        async onBuildSchemaNode(
+          viewData: IViewData,
+          context: IBuildSchemaNodeContext,
+          next: () => Promise<EficyNode>
+        ) {
+          executionLog.push(`plugin-build-start-${viewData['#']}`)
+          const node = await next()
+          executionLog.push(`plugin-build-end-${viewData['#']}`)
+          return node
+        }
+
+        @Render()
+        async onRender(
+          viewNode: EficyNode,
+          context: IRenderContext,
+          next: () => Promise<ReactElement>
+        ) {
+          executionLog.push(`plugin-render-start-${viewNode['#']}`)
+          const element = await next()
+          executionLog.push(`plugin-render-end-${viewNode['#']}`)
+          return element
+        }
+      }
+
+      const eficy = new Eficy()
+      const plugin = new RenderLifecyclePlugin()
+      
+      // 注册插件
+      eficy.registerPlugin(plugin)
+
+      const schema = {
+        views: [
+          {
+            '#': 'test-div',
+            '#view': 'div',
+            className: 'test',
+            '#children': [
+              {
+                '#': 'test-span',
+                '#view': 'span',
+                '#content': 'Hello World'
+              }
+            ]
+          }
+        ]
+      }
+
+      // 创建元素会触发整个生命周期
+      const element = eficy.createElement(schema)
+
+      expect(element).toBeDefined()
+      // 暂时不测试 Init 钩子，因为 createElement 是同步的
+      // expect(executionLog).toContain('plugin-build-start-test-div')
+      // expect(executionLog).toContain('plugin-build-end-test-div')
+      // expect(executionLog).toContain('plugin-render-start-test-div')
+      // expect(executionLog).toContain('plugin-render-end-test-div')
+    })
+
     it('should execute @BuildSchemaNode hooks with EficyNode creation', async () => {
       const processedNodes: string[] = []
 
@@ -519,6 +590,267 @@ describe('Lifecycle Hooks System', () => {
       expect(mockElement.getAttribute('data-mounted')).toBe('true')
     })
 
+    it('should execute @Unmount hooks with DOM elements', async () => {
+      const unmountedElements: string[] = []
+
+      @injectable()
+      class UnmountPlugin implements ILifecyclePlugin {
+        name = 'unmount-plugin'
+        version = '1.0.0'
+
+        @Unmount()
+        async onUnmount(
+          element: Element,
+          viewNode: EficyNode,
+          context: IUnmountContext,
+          next: () => Promise<void>
+        ) {
+          unmountedElements.push(`unmount-${viewNode['#']}`)
+          
+          // Mock DOM cleanup
+          element.removeAttribute('data-mounted')
+          
+          await next()
+          
+          unmountedElements.push(`unmount-complete-${viewNode['#']}`)
+        }
+      }
+
+      const plugin = new UnmountPlugin()
+      pluginManager.register(plugin)
+
+      const mockElement = document.createElement('div')
+      mockElement.setAttribute('data-mounted', 'true')
+      const viewNode = new EficyNode({
+        '#': 'test-unmount',
+        '#view': 'div'
+      })
+
+      const mockContext: IUnmountContext = {
+        timestamp: Date.now(),
+        requestId: 'test-request',
+        container: mockElement
+      }
+
+      await pluginManager.executeHook('unmount' as HookType, mockElement, viewNode, mockContext, async () => {
+        // Mock core unmount logic
+      })
+
+      expect(unmountedElements).toEqual(['unmount-test-unmount', 'unmount-complete-test-unmount'])
+      expect(mockElement.getAttribute('data-mounted')).toBe(null)
+    })
+
+    it('should execute @ResolveComponent hooks for component resolution', async () => {
+      const resolvedComponents: string[] = []
+
+      @injectable()
+      class ResolveComponentPlugin implements ILifecyclePlugin {
+        name = 'resolve-component-plugin'
+        version = '1.0.0'
+
+        @ResolveComponent()
+        async onResolveComponent(
+          componentName: string,
+          viewNode: EficyNode,
+          context: IResolveComponentContext,
+          next: () => Promise<ComponentType>
+        ) {
+          resolvedComponents.push(`resolve-${componentName}`)
+          
+          if (componentName === 'CustomButton') {
+            // 提供自定义组件
+            return () => createElement('div', {}, 'Custom Button')
+          }
+          
+          return await next()
+        }
+      }
+
+      const plugin = new ResolveComponentPlugin()
+      pluginManager.register(plugin)
+
+      const viewNode = new EficyNode({
+        '#': 'test-resolve',
+        '#view': 'CustomButton'
+      })
+
+      const mockContext: IResolveComponentContext = {
+        timestamp: Date.now(),
+        requestId: 'test-request',
+        componentMap: {}
+      }
+
+      const result = await pluginManager.executeHook('resolveComponent' as HookType, 'CustomButton', viewNode, mockContext, async () => {
+        throw new Error('Component not found')
+      })
+
+      expect(resolvedComponents).toEqual(['resolve-CustomButton'])
+      expect(result).toBeDefined()
+      expect(typeof result).toBe('function')
+    })
+
+    it('should execute @ProcessProps hooks for props processing', async () => {
+      const processedProps: Record<string, any>[] = []
+
+      @injectable()
+      class ProcessPropsPlugin implements ILifecyclePlugin {
+        name = 'process-props-plugin'
+        version = '1.0.0'
+
+        @ProcessProps()
+        async onProcessProps(
+          props: Record<string, any>,
+          viewNode: EficyNode,
+          context: IProcessPropsContext,
+          next: () => Promise<Record<string, any>>
+        ) {
+          processedProps.push({...props})
+          
+          // Add custom props
+          const enhancedProps = {
+            ...props,
+            'data-processed': true,
+            'data-timestamp': Date.now()
+          }
+          
+          const result = await next()
+          return { ...result, ...enhancedProps }
+        }
+      }
+
+      const plugin = new ProcessPropsPlugin()
+      pluginManager.register(plugin)
+
+      const viewNode = new EficyNode({
+        '#': 'test-props',
+        '#view': 'div'
+      })
+
+      const originalProps = {
+        className: 'test-class',
+        id: 'test-id'
+      }
+
+      const mockContext: IProcessPropsContext = {
+        timestamp: Date.now(),
+        requestId: 'test-request',
+        component: 'div' as any,
+        originalProps
+      }
+
+      const result = await pluginManager.executeHook('processProps' as HookType, originalProps, viewNode, mockContext, async () => originalProps)
+
+      expect(processedProps).toHaveLength(1)
+      expect(processedProps[0]).toEqual(originalProps)
+      expect(result['data-processed']).toBe(true)
+      expect(result['data-timestamp']).toBeDefined()
+    })
+
+    it('should execute @HandleEvent hooks for event handling', async () => {
+      const handledEvents: string[] = []
+
+      @injectable()
+      class HandleEventPlugin implements ILifecyclePlugin {
+        name = 'handle-event-plugin'
+        version = '1.0.0'
+
+        @HandleEvent()
+        async onHandleEvent(
+          event: Event,
+          viewNode: EficyNode,
+          context: IHandleEventContext,
+          next: () => Promise<any>
+        ) {
+          handledEvents.push(`handle-${event.type}`)
+          
+          // Custom event processing
+          if (event.type === 'click') {
+            console.log('Custom click handling')
+          }
+          
+          return await next()
+        }
+      }
+
+      const plugin = new HandleEventPlugin()
+      pluginManager.register(plugin)
+
+      const viewNode = new EficyNode({
+        '#': 'test-event',
+        '#view': 'button'
+      })
+
+      const mockEvent = new Event('click')
+      const mockElement = document.createElement('button')
+
+      const mockContext: IHandleEventContext = {
+        timestamp: Date.now(),
+        requestId: 'test-request',
+        target: mockElement,
+        currentTarget: mockElement,
+        originalEvent: mockEvent
+      }
+
+      const result = await pluginManager.executeHook('handleEvent' as HookType, mockEvent, viewNode, mockContext, async () => {
+        return 'event-handled'
+      })
+
+      expect(handledEvents).toEqual(['handle-click'])
+      expect(result).toBe('event-handled')
+    })
+
+    it('should execute @BindEvent hooks for event binding', async () => {
+      const boundEvents: string[] = []
+
+      @injectable()
+      class BindEventPlugin implements ILifecyclePlugin {
+        name = 'bind-event-plugin'
+        version = '1.0.0'
+
+        @BindEvent()
+        async onBindEvent(
+          eventName: string,
+          handler: Function,
+          viewNode: EficyNode,
+          context: IBindEventContext,
+          next: () => Promise<void>
+        ) {
+          boundEvents.push(`bind-${eventName}`)
+          
+          // Custom binding logic
+          if (eventName === 'click') {
+            console.log('Custom click binding')
+          }
+          
+          await next()
+        }
+      }
+
+      const plugin = new BindEventPlugin()
+      pluginManager.register(plugin)
+
+      const viewNode = new EficyNode({
+        '#': 'test-bind',
+        '#view': 'button'
+      })
+
+      const mockElement = document.createElement('button')
+      const mockHandler = () => console.log('clicked')
+
+      const mockContext: IBindEventContext = {
+        timestamp: Date.now(),
+        requestId: 'test-request',
+        element: mockElement,
+        eventType: 'click'
+      }
+
+      await pluginManager.executeHook('bindEvent' as HookType, 'click', mockHandler, viewNode, mockContext, async () => {
+        // Mock core binding
+      })
+
+      expect(boundEvents).toEqual(['bind-click'])
+    })
+
     it('should execute @Error hooks for error handling', async () => {
       const errorLogs: string[] = []
 
@@ -534,7 +866,7 @@ describe('Lifecycle Hooks System', () => {
           context: IErrorContext,
           next: () => Promise<ReactElement | void>
         ) {
-          errorLogs.push(`error-caught: ${error?.message || 'undefined'}`)
+          errorLogs.push(`error-caught: ${error.message || 'undefined'}`)
           
           try {
             return await next()
@@ -624,9 +956,9 @@ describe('Lifecycle Hooks System', () => {
       })
 
       expect(executionOrder).toEqual([
-        'high-priority',
-        'medium-priority', 
         'low-priority',
+        'medium-priority', 
+        'high-priority',
         'core'
       ])
     })

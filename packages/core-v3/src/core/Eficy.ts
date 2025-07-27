@@ -1,13 +1,18 @@
 import { computed, makeObservable } from '@eficy/reactive';
 import 'reflect-metadata';
-import { type ReactElement } from 'react';
+import React, { type ReactElement } from 'react';
 import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
 import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces';
+import type { ILifecyclePlugin } from '../interfaces/lifecycle';
 import type EficyNode from '../models/EficyNode';
 import EficyNodeStore from '../models/EficyNodeStore';
 import RenderNodeTree from '../models/RenderNodeTree';
 import ComponentRegistry from '../services/ComponentRegistry';
 import ConfigService from '../services/ConfigService';
+import { PluginManager } from '../services/PluginManager';
+import { LifecycleEventEmitter } from '../services/LifecycleEventEmitter';
+import { EficyProvider } from '../contexts/EficyContext';
+import type { IEficyContextValue } from '../contexts/EficyContext';
 
 export default class Eficy {
   private configService: ConfigService;
@@ -15,6 +20,9 @@ export default class Eficy {
   private eficyNodeStore: EficyNodeStore | null = null;
   private renderNodeTree: RenderNodeTree | null = null;
   private container: DependencyContainer;
+  private pluginManager: PluginManager;
+  private lifecycleEventEmitter: LifecycleEventEmitter;
+  private enableLifecycleHooks: boolean = false;
 
   constructor() {
     // 初始化依赖注入容器
@@ -23,6 +31,8 @@ export default class Eficy {
     // 获取服务实例
     this.configService = this.container.resolve(ConfigService);
     this.componentRegistry = this.container.resolve(ComponentRegistry);
+    this.pluginManager = this.container.resolve(PluginManager);
+    this.lifecycleEventEmitter = this.container.resolve(LifecycleEventEmitter);
     makeObservable(this);
   }
 
@@ -41,6 +51,12 @@ export default class Eficy {
     }
     if (!container.isRegistered(RenderNodeTree)) {
       container.registerSingleton(RenderNodeTree);
+    }
+    if (!container.isRegistered(PluginManager)) {
+      container.registerSingleton(PluginManager);
+    }
+    if (!container.isRegistered(LifecycleEventEmitter)) {
+      container.registerSingleton(LifecycleEventEmitter);
     }
   }
 
@@ -88,13 +104,13 @@ export default class Eficy {
   /**
    * 构建 RenderNodeTree
    */
-  private buildRenderNodeTree(eficyNodeStore: EficyNodeStore): RenderNodeTree {
+  private async buildRenderNodeTree(eficyNodeStore: EficyNodeStore): Promise<RenderNodeTree> {
     // 使用 tsyringe 获取 RenderNodeTree 实例
     const renderNodeTree = this.container.resolve(RenderNodeTree);
     const rootNode = eficyNodeStore.root;
 
     if (rootNode) {
-      renderNodeTree.createElement(rootNode);
+      await renderNodeTree.createElement(rootNode);
     }
 
     return renderNodeTree;
@@ -103,7 +119,7 @@ export default class Eficy {
   /**
    * 根据Schema创建React元素 (保持原有API)
    */
-  createElement(schema: IEficySchema): ReactElement | null {
+  async createElement(schema: IEficySchema): Promise<ReactElement | null> {
     if (!schema) {
       throw new Error('Schema cannot be null or undefined');
     }
@@ -119,40 +135,46 @@ export default class Eficy {
     // 将 Schema 转换为 NodeTree
     this.eficyNodeStore = this.schemaToNodeTree(schema);
 
-    this.renderNodeTree = this.buildRenderNodeTree(this.eficyNodeStore);
+    this.renderNodeTree = await this.buildRenderNodeTree(this.eficyNodeStore);
 
-    return this.renderNodeTree.rootRenderNode;
+    // 包装在 EficyProvider 中
+    const contextValue: IEficyContextValue = {
+      lifecycleEventEmitter: this.lifecycleEventEmitter,
+      pluginManager: this.pluginManager,
+      componentRegistry: this.componentRegistry
+    };
+
+    return React.createElement(EficyProvider, { value: contextValue }, this.renderNodeTree.rootRenderNode);
   }
 
   /**
    * 兼容性方法：根据Schema创建React元素（保持原有方法名）
    */
-  createElementFromSchema(schema: IEficySchema): ReactElement | null {
-    return this.createElement(schema);
+  async createElementFromSchema(schema: IEficySchema): Promise<ReactElement | null> {
+    return await this.createElement(schema);
   }
 
   /**
    * 渲染Schema到DOM节点 (保持原有API)
    */
-  render(schema: IEficySchema, container: string | HTMLElement): void {
-    import('react-dom/client').then(({ createRoot }) => {
-      const element = this.createElement(schema);
-      const containerElement = typeof container === 'string' ? document.querySelector(container) : container;
+  async render(schema: IEficySchema, container: string | HTMLElement): Promise<void> {
+    const { createRoot } = await import('react-dom/client');
+    const element = await this.createElement(schema);
+    const containerElement = typeof container === 'string' ? document.querySelector(container) : container;
 
-      if (!containerElement) {
-        throw new Error(`Container element not found: ${container}`);
-      }
+    if (!containerElement) {
+      throw new Error(`Container element not found: ${container}`);
+    }
 
-      const root = createRoot(containerElement);
-      root.render(element);
-    });
+    const root = createRoot(containerElement);
+    root.render(element);
   }
 
   /**
    * 兼容性方法：渲染Schema到DOM节点（保持原有方法名）
    */
-  renderSchema(schema: IEficySchema, container: string | HTMLElement): void {
-    this.render(schema, container);
+  async renderSchema(schema: IEficySchema, container: string | HTMLElement): Promise<void> {
+    await this.render(schema, container);
   }
 
   /**
@@ -270,6 +292,55 @@ export default class Eficy {
   }
 
   /**
+   * 注册插件
+   */
+  registerPlugin(plugin: ILifecyclePlugin): void {
+    this.pluginManager.register(plugin);
+  }
+
+  /**
+   * 卸载插件
+   */
+  unregisterPlugin(pluginName: string): void {
+    this.pluginManager.unregister(pluginName);
+  }
+
+  /**
+   * 获取插件管理器
+   */
+  getPluginManager(): PluginManager {
+    return this.pluginManager;
+  }
+
+  /**
+   * 获取生命周期事件发射器
+   */
+  getLifecycleEventEmitter(): LifecycleEventEmitter {
+    return this.lifecycleEventEmitter;
+  }
+
+  /**
+   * 启用生命周期钩子
+   */
+  enableLifecycleHooksFeature(): void {
+    this.enableLifecycleHooks = true;
+  }
+
+  /**
+   * 禁用生命周期钩子
+   */
+  disableLifecycleHooksFeature(): void {
+    this.enableLifecycleHooks = false;
+  }
+
+  /**
+   * 检查生命周期钩子是否启用
+   */
+  isLifecycleHooksEnabled(): boolean {
+    return this.enableLifecycleHooks;
+  }
+
+  /**
    * 获取统计信息
    */
   @computed
@@ -277,6 +348,9 @@ export default class Eficy {
     return {
       nodeTree: this.eficyNodeStore?.stats || null,
       renderTree: this.renderNodeTree?.stats || null,
+      plugins: this.pluginManager.getHookStats(),
+      lifecycleEvents: this.lifecycleEventEmitter.getStatistics(),
+      lifecycleHooksEnabled: this.enableLifecycleHooks,
     };
   }
 }

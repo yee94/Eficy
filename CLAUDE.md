@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-Eficy 是一个现代化的前端编排框架，通过 JSON 配置即可编排任何 React 组件库，快速生成完整页面。项目采用 monorepo 架构，包含多个核心包。
+Eficy 是一个现代化的前端编排框架，通过 JSON 配置即可编排任何 React 组件库，快速生成完整页面。项目采用 monorepo 架构，pnpm workspace 包含多个核心包。
 
 ### 核心特性
 
