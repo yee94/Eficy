@@ -4,7 +4,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { signal } from '@eficy/reactive';
 import EficyNode from '../src/models/EficyNode';
 import type { IComponentMap, IViewData } from '../src/interfaces';
-import RenderNodeTree from '../src/models/RenderNodeTree';
+import DomTree from '../src/models/DomTree';
 import ComponentRegistry from '../src/services/ComponentRegistry';
 import { PluginManager } from '../src/services/PluginManager';
 
@@ -16,10 +16,10 @@ const mockRenderNode = async (eficyNode: EficyNode, componentMap: IComponentMap)
   const componentRegistry = new ComponentRegistry();
   componentRegistry.extend(componentMap);
   const pluginManager = new PluginManager();
-  const renderNodeTree = new RenderNodeTree(componentRegistry, pluginManager);
-  const renderNode = await renderNodeTree.createElement(eficyNode);
-  expect(renderNodeTree.stats).toMatchSnapshot();
-  return { el: render(renderNode), renderNodeTree };
+  const domTree = new DomTree(componentRegistry, pluginManager);
+  const renderNode = await domTree.createElement(eficyNode);
+  expect(domTree.stats).toMatchSnapshot();
+  return { el: render(renderNode), domTree };
 };
 
 describe('RenderNode - Reactive Capabilities', () => {
@@ -178,7 +178,7 @@ describe('RenderNode - Reactive Capabilities', () => {
 
       const parentNode = new EficyNode(parentData);
 
-      const { renderNodeTree } = await mockRenderNode(parentNode, mockComponentMap);
+      const { domTree } = await mockRenderNode(parentNode, mockComponentMap);
 
       // 验证初始子节点
       expect(screen.getByText('Child 1')).toBeInTheDocument();
@@ -189,7 +189,7 @@ describe('RenderNode - Reactive Capabilities', () => {
 
       // 验证响应式移除
       await waitFor(() => {
-        expect('child11' in renderNodeTree.renderNodes).toBe(false);
+        expect('child11' in domTree.renderNodes).toBe(false);
         expect(screen.queryByText('Child 1')).not.toBeInTheDocument();
         expect(screen.getByText('Child 2')).toBeInTheDocument();
       });

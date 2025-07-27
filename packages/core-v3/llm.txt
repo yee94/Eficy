@@ -40,7 +40,7 @@ class Eficy {
   async render(schema: IEficySchema, container: string | HTMLElement): Promise<void>
   
   // 节点操作方法
-  getNodeTree(schema: IEficySchema): EficyNodeStore
+  getNodeTree(schema: IEficySchema): EficyModelTree
   findNode(nodeId: string): EficyNode | null
   updateNode(nodeId: string, data: any): void
   addChild(parentId: string, childData: any): EficyNode | null
@@ -88,10 +88,10 @@ class EficyNode extends ObservableClass {
 }
 ```
 
-#### EficyNodeStore (节点存储)
+#### EficyModelTree (节点存储)
 ```typescript
 @injectable()
-class EficyNodeStore {
+class EficyModelTree {
   @observable private rootNode: EficyNode
   
   @computed get nodeMap(): Record<string, EficyNode>
@@ -107,14 +107,14 @@ class EficyNodeStore {
   @action clear(): void
   
   toJSON(): IViewData | null
-  static fromJSON(data: IViewData | IViewData[], pluginManager: PluginManager): EficyNodeStore
+  static fromJSON(data: IViewData | IViewData[], pluginManager: PluginManager): EficyModelTree
 }
 ```
 
-#### RenderNodeTree (渲染树)
+#### DomTree (渲染树)
 ```typescript
 @injectable()
-class RenderNodeTree {
+class DomTree {
   async createElement(eficyNode: EficyNode): Promise<void>
   findRenderNode(nodeId: string): ReactElement | null
   updateRenderNode(nodeId: string, eficyNode: EficyNode): void
