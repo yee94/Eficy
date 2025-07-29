@@ -24,6 +24,8 @@ export class UnocssPlugin implements ILifecyclePlugin {
   private collectedClasses = new Set<string>();
   private styleInjected = false;
   private config: UnocssPluginConfig;
+  private cssCache = new Map<string, string>();
+  private lastClassHash = '';
 
   constructor(config: UnocssPluginConfig = {}) {
     this.config = config;
@@ -52,7 +54,7 @@ export class UnocssPlugin implements ILifecyclePlugin {
     context: IBuildSchemaNodeContext,
     next: () => Promise<EficyNode>,
   ): Promise<EficyNode> {
-    // 收集 className 中的样式类
+    // 收集 className 中的样式类（增量收集）
     if (viewData.className) {
       this.collectClassNames(viewData.className);
     }
@@ -128,17 +130,33 @@ export class UnocssPlugin implements ILifecyclePlugin {
   }
 
   /**
-   * 生成 CSS 字符串
+   * 生成 CSS 字符串 - 使用缓存避免重复计算
    */
   private async generateCSS(): Promise<string | null> {
     if (!this.generator || this.collectedClasses.size === 0) {
       return null;
     }
 
+    // 计算当前类名的哈希值用于缓存键
+    const classArray = Array.from(this.collectedClasses).sort();
+    const currentClassHash = classArray.join('|');
+
+    // 如果类名没有变化，直接返回缓存的CSS
+    if (currentClassHash === this.lastClassHash && this.cssCache.has(currentClassHash)) {
+      return this.cssCache.get(currentClassHash) || null;
+    }
+
     try {
-      const classArray = Array.from(this.collectedClasses);
       const result = await this.generator.generate(classArray.join(' '));
-      return result.css || null;
+      const css = result.css || null;
+
+      // 更新缓存
+      if (css) {
+        this.cssCache.set(currentClassHash, css);
+        this.lastClassHash = currentClassHash;
+      }
+
+      return css;
     } catch (error) {
       console.error('[UnocssPlugin] Failed to generate styles:', error);
       return null;
@@ -159,6 +177,8 @@ export class UnocssPlugin implements ILifecyclePlugin {
     this.collectedClasses.clear();
     this.styleInjected = false;
     this.generator = null;
+    this.cssCache.clear();
+    this.lastClassHash = '';
   }
 }
 

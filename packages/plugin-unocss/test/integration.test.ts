@@ -1,8 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, waitFor, screen } from '@testing-library/react';
 import { UnocssPlugin } from '../src/UnocssPlugin';
 import { Eficy } from '@eficy/core';
 import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+// 简单的渲染函数替代 @testing-library/react
+async function render(element: React.ReactElement) {
+  const container = document.createElement('div');
+  const root = createRoot(container);
+  root.render(element);
+  
+  // 等待 React 渲染完成
+  await new Promise(resolve => setTimeout(resolve, 0));
+  
+  return { container, root };
+}
+
+// 简单的 waitFor 替代
+async function waitFor(callback: () => void) {
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      callback();
+      resolve();
+    }, 0);
+  });
+}
 
 describe('UnocssPlugin Integration', () => {
   let eficy: Eficy;
@@ -45,7 +67,7 @@ describe('UnocssPlugin Integration', () => {
 
       // 渲染 Schema
       const element = await eficy.createElement(schema);
-      const { container } = render(element);
+      const { container } = await render(element);
 
       // 验证原始内容存在
       expect(container.textContent).toContain('Hello UnoCSS');
@@ -101,7 +123,7 @@ describe('UnocssPlugin Integration', () => {
       });
 
       const element = await eficy.createElement(schema);
-      const { container } = render(element);
+      const { container } = await render(element);
 
       // 验证嵌套元素和 className 存在
       expect(container.textContent).toContain('Title');
@@ -132,7 +154,7 @@ describe('UnocssPlugin Integration', () => {
       });
 
       const element = await eficy.createElement(schema);
-      const { container } = render(element);
+      const { container } = await render(element);
 
       // 验证内容渲染
       expect(container.textContent).toContain('Array className test');
@@ -175,7 +197,7 @@ describe('UnocssPlugin Integration', () => {
       });
 
       const element = await eficy.createElement(schema);
-      const { container } = render(element);
+      const { container } = await render(element);
 
       // 验证内容正确渲染
       expect(container.textContent).toContain('Empty');
@@ -205,8 +227,8 @@ describe('UnocssPlugin Integration', () => {
       const element1 = await eficy.createElement(schema);
       const element2 = await eficy.createElement(schema);
 
-      const { container: container1 } = render(element1);
-      const { container: container2 } = render(element2);
+      const { container: container1 } = await render(element1);
+      const { container: container2 } = await render(element2);
 
       await waitFor(() => {
         // 每次都应该有样式标签（因为是不同的渲染结果）
@@ -235,7 +257,7 @@ describe('UnocssPlugin Integration', () => {
 
       // Should not throw even with unknown classes
       const element = await eficy.createElement(schema);
-      const { container } = render(element);
+      const { container } = await render(element);
 
       expect(element).toBeTruthy();
       expect(container.textContent).toContain('Error test');
