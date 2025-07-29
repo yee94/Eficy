@@ -55,7 +55,7 @@ export default class EficyNode {
 
   // 动态属性存储
   @observable
-  private dynamicProps: Record<string, any> = {};
+  public dynamicProps: Record<string, any> = {};
 
   // 子模型映射
   @computed

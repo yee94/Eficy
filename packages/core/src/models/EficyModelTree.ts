@@ -66,7 +66,7 @@ export default class EficyModelTree {
       const { '#children': children, ...rest } = viewData;
       const node = new EficyNode(rest);
 
-      await this.pluginManager.executeHook(
+      const processedProps = await this.pluginManager.executeHook(
         HookType.PROCESS_PROPS,
         node.props,
         {
@@ -75,6 +75,9 @@ export default class EficyModelTree {
         } as IProcessPropsContext,
         async () => node.props,
       );
+      
+      // 更新动态属性，确保插件对 props 的修改生效
+      node.dynamicProps = { ...processedProps };
 
       // 递归构建子节点
       if (children && Array.isArray(children)) {
