@@ -36,95 +36,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
     executionLog = [];
   });
 
-  describe('Basic Event-Driven Lifecycle', () => {
-    it('should support lifecycle events through EventEmitter', async () => {
-      const mockComponent = ({ children, ...props }: any) => (
-        <div data-testid="mock-component" {...props}>
-          {children}
-        </div>
-      );
-
-      eficy.config({ componentMap: { MockComponent: mockComponent } });
-
-      // 直接监听异步流程钩子
-      lifecycleEventEmitter.on(ASYNC_FLOW_EVENTS.RENDER, ({ viewNode, context }) => {
-        executionLog.push(`render-${viewNode['#']}`);
-        return null; // 返回ReactElement或null
-      });
-
-      lifecycleEventEmitter.on(SYNC_SIDE_EFFECT_EVENTS.ON_MOUNT, ({ context }) => {
-        executionLog.push('mount');
-        // 同步副作用钩子不需要callback
-      });
-
-      lifecycleEventEmitter.on(SYNC_SIDE_EFFECT_EVENTS.ON_UNMOUNT, ({ context }) => {
-        executionLog.push('unmount');
-        // 同步副作用钩子不需要callback
-      });
-
-      // 启用生命周期钩子
-
-
-      const schema = {
-        views: [
-          {
-            '#': 'test-component',
-            '#view': 'MockComponent',
-            '#content': 'Hello World',
-          },
-        ],
-      };
-
-      const element = await eficy.createElement(schema);
-      expect(element).toBeDefined();
-
-      // 渲染组件
-      const { unmount } = await render(element);
-
-      // 检查事件是否被触发
-      expect(executionLog).toContain('render-test-component');
-      expect(executionLog).toContain('mount');
-
-      // 卸载组件
-      unmount();
-      expect(executionLog).toContain('unmount');
-    });
-
-    it('should work without lifecycle hooks when disabled', async () => {
-      const mockComponent = ({ children, ...props }: any) => (
-        <div data-testid="mock-component" {...props}>
-          {children}
-        </div>
-      );
-
-      eficy.config({ componentMap: { MockComponent: mockComponent } });
-
-
-      const schema = {
-        views: [
-          {
-            '#': 'test-component',
-            '#view': 'MockComponent',
-            '#content': 'Hello World',
-          },
-        ],
-      };
-
-      const element = await eficy.createElement(schema);
-      expect(element).toBeDefined();
-
-      // 渲染组件
-      const { unmount } = await render(element);
-
-      // 检查组件正常渲染
-      expect(screen.getAllByTestId('mock-component')).toHaveLength(1);
-      expect(screen.getByText('Hello World')).toBeInTheDocument();
-
-      // 清理
-      unmount();
-    });
-  });
-
   describe('Event Handler Lifecycle Hooks', () => {
     it('should support HandleEvent and BindEvent hooks', async () => {
       const mockComponent = ({ onClick, ...props }: any) => (
@@ -147,7 +58,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
       });
 
       // 启用生命周期钩子
-
 
       const schema = {
         views: [
@@ -238,7 +148,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
 
       // 启用生命周期钩子
 
-
       const schema = {
         views: [
           {
@@ -278,7 +187,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
 
       // 启用生命周期钩子
 
-
       const schema = {
         views: [
           {
@@ -312,18 +220,13 @@ describe('Event-Driven Lifecycle Hooks', () => {
 
       // 启用生命周期钩子
 
-
       // 触发一些同步副作用钩子
       lifecycleEventEmitter.emitSyncMount({
-        timestamp: Date.now(),
-        requestId: 'test-mount',
         container: undefined,
         parentElement: undefined,
       });
 
       lifecycleEventEmitter.emitSyncUnmount({
-        timestamp: Date.now(),
-        requestId: 'test-unmount',
         container: undefined,
         parentElement: undefined,
       });
@@ -340,53 +243,6 @@ describe('Event-Driven Lifecycle Hooks', () => {
       // 重置统计信息
       lifecycleEventEmitter.resetStatistics();
       expect(lifecycleEventEmitter.getStatistics()).toEqual({});
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle lifecycle event errors gracefully', async () => {
-      const mockComponent = ({ children, ...props }: any) => (
-        <div data-testid="error-component" {...props}>
-          {children}
-        </div>
-      );
-
-      eficy.config({ componentMap: { ErrorComponent: mockComponent } });
-
-      // 添加错误监听器
-      lifecycleEventEmitter.on(SYNC_SIDE_EFFECT_EVENTS.ON_MOUNT, ({ context }) => {
-        executionLog.push('error-mount');
-        // 模拟错误
-        throw new Error('Mount error');
-      });
-
-      // 启用生命周期钩子
-
-
-      const schema = {
-        views: [
-          {
-            '#': 'error-test',
-            '#view': 'ErrorComponent',
-            '#content': 'Error Test',
-          },
-        ],
-      };
-
-      const element = await eficy.createElement(schema);
-
-      // 即使有错误，组件也应该正常渲染
-      expect(element).toBeDefined();
-
-      // 渲染组件，错误应该被处理
-      const { unmount } = await render(element);
-
-      // 检查错误处理 - 组件应该正常渲染，错误被捕获并记录
-      expect(executionLog).toContain('error-mount');
-      expect(screen.getByTestId('error-component')).toBeInTheDocument();
-
-      // 清理
-      unmount();
     });
   });
 

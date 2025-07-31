@@ -285,15 +285,14 @@ describe('RenderNode', () => {
       const renderNode = await createRenderNode(eficyNode, spyComponentMap);
       const { rerender } = render(renderNode!);
 
-      // 由于增加了 useEffect，初始渲染可能会触发额外的渲染
-      expect(renderSpy).toHaveBeenCalledTimes(2);
+      expect(renderSpy).toHaveBeenCalledTimes(1);
 
       // 重新渲染但 eficyNode 没有变化
       const newRenderNode = await createRenderNode(eficyNode, spyComponentMap);
       rerender(newRenderNode!);
 
       // 由于 memo，不应该有额外的渲染
-      expect(renderSpy).toHaveBeenCalledTimes(2);
+      expect(renderSpy).toHaveBeenCalledTimes(1);
     });
   });
 

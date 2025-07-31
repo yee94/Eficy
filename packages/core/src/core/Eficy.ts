@@ -343,4 +343,5 @@ export default class Eficy {
       lifecycleEvents: this.lifecycleEventEmitter.getStatistics(),
     };
   }
+
 }

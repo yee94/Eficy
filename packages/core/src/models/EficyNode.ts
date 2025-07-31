@@ -1,9 +1,9 @@
+import { action, computed, makeObservable, observable } from '@eficy/reactive';
 import { nanoid } from 'nanoid';
-import { observable, computed, action, ObservableClass, makeObservable } from '@eficy/reactive';
-import { isFunction } from 'lodash';
-import { setOmit } from '../utils/common';
-import type { IViewData } from '../interfaces';
 import type { ReactElement } from 'react';
+import type { IViewData } from '../interfaces';
+import { setOmit } from '../utils/common';
+import { processAsyncStateProps } from '../utils/asyncStateResolver';
 
 // 框架特殊字段，不会传递给组件
 const FRAMEWORK_FIELDS = new Set([
@@ -106,7 +106,9 @@ export default class EficyNode {
    */
   @computed
   get props(): Record<string, any> {
-    const props: Record<string, any> = { ...this.dynamicProps };
+    let props: Record<string, any> = { ...this.dynamicProps };
+
+    props = processAsyncStateProps(props);
 
     // 添加样式
     if (this['#style']) {

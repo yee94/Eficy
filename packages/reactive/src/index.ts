@@ -10,6 +10,7 @@ export {
 // ==================== 核心响应式功能 ====================
 export { signal, effect, effectScope, isSignal, peek, readonly } from './core/signal';
 export { computed as createComputed } from './core/signal'; // 避免与装饰器冲突，使用别名
+export { computed as signalComputed } from './core/signal'; // 避免与装饰器冲突，使用别名
 export { batch, isBatchingUpdates, clearPendingEffects, batchScope } from './core/batch';
 export { action as createAction, isAction, getOriginalFunction, boundAction } from './core/action'; // 避免与装饰器冲突，使用别名
 export { watch, watchMultiple, watchOnce, watchDebounced } from './core/watch';

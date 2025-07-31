@@ -234,6 +234,46 @@ importers:
         specifier: ^0.1.13
         version: 0.1.14
 
+  packages/reactive-async:
+    dependencies:
+      '@eficy/reactive':
+        specifier: workspace:*
+        version: link:../reactive
+    devDependencies:
+      '@eficy/core':
+        specifier: workspace:*
+        version: link:../core
+      '@testing-library/jest-dom':
+        specifier: ^6.0.0
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: ^14.0.0
+        version: 14.3.1(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.9
+      '@types/react':
+        specifier: ^18.2.0
+        version: 18.3.23
+      '@types/react-dom':
+        specifier: ^18.2.0
+        version: 18.3.7(@types/react@18.3.23)
+      jsdom:
+        specifier: ^23.0.0
+        version: 23.2.0
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.4.2
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.9)(happy-dom@6.0.4(encoding@0.1.13))(jsdom@23.2.0)(less@4.4.0)(terser@5.43.1)
+
   packages/reactive-react:
     dependencies:
       '@eficy/reactive':

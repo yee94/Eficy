@@ -1,0 +1,64 @@
+{
+  "name": "@eficy/reactive-async",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "A reactive async request library with ahooks useRequest compatible API, powered by @eficy/reactive",
+  "keywords": [
+    "reactive",
+    "async",
+    "request",
+    "hooks",
+    "ahooks",
+    "useRequest",
+    "typescript",
+    "swr",
+    "polling",
+    "cache"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yee94/Eficy.git",
+    "directory": "packages/reactive"
+  },
+  "bugs": {
+    "url": "https://github.com/yee94/eficy/issues"
+  },
+  "homepage": "https://github.com/yee94/eficy#readme",
+  "engines": {
+    "npm": ">=3.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "dependencies": {
+    "@eficy/reactive": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "vitest": "^1.0.0",
+    "typescript": "^5.0.0",
+    "@eficy/core": "workspace:*",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "jsdom": "^23.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
