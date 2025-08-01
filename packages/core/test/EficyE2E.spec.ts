@@ -151,12 +151,12 @@ describe('Eficy E2E Hook Integration', () => {
               {
                 '#': 'title',
                 '#view': 'h1',
-                '#content': 'Hello World'
+                '#children': 'Hello World'
               },
               {
                 '#': 'content',
                 '#view': 'p',
-                '#content': 'This is a test'
+                '#children': 'This is a test'
               }
             ]
           }
@@ -244,7 +244,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'test',
             '#view': 'div',
-            '#content': 'Test'
+            '#children': 'Test'
           }
         ]
       };
@@ -290,7 +290,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'test',
             '#view': 'div',
-            '#content': 'Test'
+            '#children': 'Test'
           }
         ]
       };
@@ -332,7 +332,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'custom',
             '#view': 'CustomComponent',
-            '#content': 'Custom content'
+            '#children': 'Custom content'
           }
         ]
       };
@@ -352,7 +352,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'invalid',
             '#view': 'NonExistentComponent',
-            '#content': 'This should fail'
+            '#children': 'This should fail'
           }
         ]
       };
@@ -388,7 +388,7 @@ describe('Eficy E2E Hook Integration', () => {
               {
                 '#': 'child1',
                 '#view': 'span',
-                '#content': 'Child 1'
+                '#children': 'Child 1'
               }
             ]
           }
@@ -405,7 +405,7 @@ describe('Eficy E2E Hook Integration', () => {
 
       const childNode = eficy.findNode('child1');
       expect(childNode).toBeDefined();
-      expect(childNode?.['#content']).toBe('Child 1');
+      expect(childNode?.el).toBe('Child 1');
 
       // 节点不存在
       const nonExistentNode = eficy.findNode('non-existent');
@@ -418,7 +418,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'render-test',
             '#view': 'div',
-            '#content': 'Render test'
+            '#children': 'Render test'
           }
         ]
       };
@@ -442,7 +442,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'clear-test',
             '#view': 'div',
-            '#content': 'Clear test'
+            '#children': 'Clear test'
           }
         ]
       };
@@ -499,7 +499,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'context-test',
             '#view': 'div',
-            '#content': 'Context test'
+            '#children': 'Context test'
           }
         ]
       };
@@ -554,7 +554,7 @@ describe('Eficy E2E Hook Integration', () => {
           {
             '#': 'normal-node',
             '#view': 'div',
-            '#content': 'Normal'
+            '#children': 'Normal'
           }
         ]
       };

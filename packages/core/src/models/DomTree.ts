@@ -48,14 +48,10 @@ export default class DomTree {
 
       effect(() => {
         // 处理子节点
-        if (!eficyNode.children) {
+        if (!eficyNode.nodes) {
           return;
         }
-        if (!Array.isArray(eficyNode.children) || !(eficyNode.children[0] instanceof EficyNode)) {
-          return eficyNode.children;
-        }
-
-        const nextNodes = eficyNode.children as EficyNode[];
+        const nextNodes = eficyNode.nodes;
         const currentChildren = this.previousChildren.get(nodeId) ?? [];
         const nextKeys = new Set(nextNodes.map((child) => child.id));
 

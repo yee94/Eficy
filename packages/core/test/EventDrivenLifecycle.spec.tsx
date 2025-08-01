@@ -64,7 +64,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
           {
             '#': 'test-button',
             '#view': 'MockButton',
-            '#content': 'Click me',
+            '#children': 'Click me',
             onClick: () => {
               executionLog.push('button-clicked');
             },
@@ -153,7 +153,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
           {
             '#': 'plugin-test-button',
             '#view': 'PluginButton',
-            '#content': 'Plugin Button',
+            '#children': 'Plugin Button',
             onClick: () => {
               executionLog.push('plugin-button-clicked');
             },
@@ -192,7 +192,7 @@ describe('Event-Driven Lifecycle Hooks', () => {
           {
             '#': 'context-test',
             '#view': 'ContextComponent',
-            '#content': 'Context Test',
+            '#children': 'Context Test',
           },
         ],
       };

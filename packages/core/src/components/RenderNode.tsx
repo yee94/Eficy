@@ -60,17 +60,10 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
     props = processEventHandlers(props, eficyNode, eficyContext?.lifecycleEventEmitter);
 
     const children = (() => {
-      // 处理响应式子节点
-      if (Array.isArray(eficyNode.children) && eficyNode.children.length > 0) {
-        // 如果是 EficyNode 实例数组，需要映射到对应的 ReactElement
-        if (eficyNode.children[0] && typeof eficyNode.children[0] === 'object' && eficyNode.children[0].id) {
-          return eficyNode.children.map((child) => childrenMap.get(child.id));
-        }
-        // 如果是普通数组，直接返回
-        return eficyNode.children;
+      if (!eficyNode.nodes) {
+        return eficyNode.el;
       }
-
-      return eficyNode.children
+      return eficyNode.nodes.map((child) => childrenMap.get(child.id));
     })();
 
     // 创建最终props

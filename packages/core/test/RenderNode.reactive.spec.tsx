@@ -41,7 +41,7 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#': 'test-node',
         '#view': 'div',
         className: 'initial-class',
-        '#content': 'Initial Content',
+        '#children': 'Initial Content',
       };
 
       const eficyNode = new EficyNode(viewData);
@@ -53,7 +53,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       expect(screen.getByText('Initial Content')).toHaveClass('initial-class');
 
       eficyNode.updateField('className', 'updated-class');
-      eficyNode.updateField('#content', 'Updated Content');
+      eficyNode.updateField('#children', 'Updated Content');
 
       // 验证响应式更新
       await waitFor(() => {
@@ -66,7 +66,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       const viewData: IViewData = {
         '#': 'dynamic-component',
         '#view': 'div',
-        '#content': 'Content',
+        '#children': 'Content',
       };
 
       const eficyNode = new EficyNode(viewData);
@@ -90,7 +90,7 @@ describe('RenderNode - Reactive Capabilities', () => {
         '#': 'custom-node',
         '#view': 'CustomComponent',
         'data-value': 'initial',
-        '#content': 'Custom Content',
+        '#children': 'Custom Content',
       };
 
       const eficyNode = new EficyNode(viewData);
@@ -104,7 +104,7 @@ describe('RenderNode - Reactive Capabilities', () => {
 
       // 响应式更新属性
       eficyNode.updateField('data-value', 'updated');
-      eficyNode.updateField('#content', 'Updated Custom Content');
+      eficyNode.updateField('#children', 'Updated Custom Content');
 
       // 验证响应式更新
       await waitFor(() => {
@@ -130,7 +130,7 @@ describe('RenderNode - Reactive Capabilities', () => {
           {
             '#': 'child1',
             '#view': 'span',
-            '#content': 'Child 1',
+            '#children': 'Child 1',
           },
         ],
       };
@@ -141,16 +141,16 @@ describe('RenderNode - Reactive Capabilities', () => {
       const newChild = new EficyNode({
         '#': 'child2',
         '#view': 'span',
-        '#content': 'Child 2',
+        '#children': 'Child 2',
       });
 
       // 添加子节点
       parentNode.addChild(newChild);
 
       // 验证子节点确实被添加
-      expect(parentNode.children).toBeInstanceOf(Array);
-      expect((parentNode.children as EficyNode[]).length).toBe(2);
-      expect((parentNode.children as EficyNode[])[1]['#content']).toBe('Child 2');
+      expect(parentNode.nodes).toBeInstanceOf(Array);
+      expect((parentNode.nodes as EficyNode[]).length).toBe(2);
+      expect((parentNode.nodes as EficyNode[])[1].el).toBe('Child 2');
 
       // 验证 toJSON 包含新子节点
       const json = parentNode.toJSON();
@@ -166,12 +166,12 @@ describe('RenderNode - Reactive Capabilities', () => {
           {
             '#': 'child11',
             '#view': 'span',
-            '#content': 'Child 1',
+            '#children': 'Child 1',
           },
           {
             '#': 'child2',
             '#view': 'span',
-            '#content': 'Child 2',
+            '#children': 'Child 2',
           },
         ],
       };
@@ -207,7 +207,7 @@ describe('RenderNode - Reactive Capabilities', () => {
               {
                 '#': 'level2',
                 '#view': 'span',
-                '#content': 'Deep Content',
+                '#children': 'Deep Content',
               },
             ],
           },
@@ -224,7 +224,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       // 更新深层子节点
       const level1Node = rootNode.findChild('level1');
       const level2Node = level1Node?.findChild('level2');
-      level2Node?.updateField('#content', 'Updated Deep Content');
+      level2Node?.updateField('#children', 'Updated Deep Content');
 
       // 验证响应式更新
       await waitFor(() => {
@@ -239,7 +239,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       const viewData: IViewData = {
         '#': 'conditional',
         '#view': 'div',
-        '#content': 'Conditional Content',
+        '#children': 'Conditional Content',
         '#if': true,
       };
 
@@ -273,7 +273,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       const viewData: IViewData = {
         '#': 'functional-conditional',
         '#view': 'div',
-        '#content': 'Function Conditional',
+        '#children': 'Function Conditional',
         '#if': () => showCondition(),
       };
 
@@ -327,12 +327,12 @@ describe('RenderNode - Reactive Capabilities', () => {
           {
             '#': 'child1',
             '#view': 'SpyComponent',
-            '#content': 'Child 1',
+            '#children': 'Child 1',
           },
           {
             '#': 'child2',
             '#view': 'span',
-            '#content': 'Child 2',
+            '#children': 'Child 2',
           },
         ],
       };
@@ -345,7 +345,7 @@ describe('RenderNode - Reactive Capabilities', () => {
 
       // 只更新 child2，不应该重新渲染 child1 的 SpyComponent
       const child2 = parentNode.findChild('child2');
-      child2?.updateField('#content', 'Updated Child 2');
+      child2?.updateField('#children', 'Updated Child 2');
 
       await waitFor(() => {
         expect(screen.getByText('Updated Child 2')).toBeInTheDocument();
@@ -359,7 +359,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       const viewData: IViewData = {
         '#': 'rapid-update',
         '#view': 'div',
-        '#content': 'Initial',
+        '#children': 'Initial',
       };
 
       const eficyNode = new EficyNode(viewData);
@@ -373,7 +373,7 @@ describe('RenderNode - Reactive Capabilities', () => {
 
       updates.forEach((update, index) => {
         setTimeout(() => {
-          eficyNode.updateField('#content', update);
+          eficyNode.updateField('#children', update);
         }, index * 10);
       });
 
@@ -406,7 +406,7 @@ describe('RenderNode - Reactive Capabilities', () => {
       const viewData: IViewData = {
         '#': 'error-test',
         '#view': 'div',
-        '#content': 'Safe Content',
+        '#children': 'Safe Content',
       };
 
       const eficyNode = new EficyNode(viewData);
@@ -453,7 +453,7 @@ describe('RenderNode - Reactive Capabilities', () => {
 
       // 修复组件
       eficyNode.updateField('#view', 'div');
-      eficyNode.updateField('#content', 'Recovered Content');
+      eficyNode.updateField('#children', 'Recovered Content');
 
       // 点击 Try again 按钮
       const tryAgainButton = screen.getByText('Try again');

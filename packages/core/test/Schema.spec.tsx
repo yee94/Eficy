@@ -33,7 +33,7 @@ describe('Schema 渲染', () => {
             '#': 'simple',
             '#view': 'TestDiv',
             className: 'test-class',
-            '#content': 'Hello World',
+            '#children': 'Hello World',
           },
         ],
       };
@@ -55,7 +55,7 @@ describe('Schema 渲染', () => {
             '#': 'native',
             '#view': 'div',
             className: 'native-div',
-            '#content': 'Native HTML',
+            '#children': 'Native HTML',
           },
         ],
       };
@@ -75,7 +75,7 @@ describe('Schema 渲染', () => {
             '#': 'styled',
             '#view': 'div',
             style: { color: 'red', fontSize: '16px' },
-            '#content': 'Styled content',
+            '#children': 'Styled content',
           },
         ],
       };
@@ -101,12 +101,12 @@ describe('Schema 渲染', () => {
               {
                 '#': 'child1',
                 '#view': 'span',
-                '#content': 'Child 1',
+                '#children': 'Child 1',
               },
               {
                 '#': 'child2',
                 '#view': 'span',
-                '#content': 'Child 2',
+                '#children': 'Child 2',
               },
             ],
           },
@@ -142,7 +142,7 @@ describe('Schema 渲染', () => {
                     '#': 'level2',
                     '#view': 'span',
                     className: 'level-2',
-                    '#content': 'Deep nested',
+                    '#children': 'Deep nested',
                   },
                 ],
               },
@@ -172,13 +172,13 @@ describe('Schema 渲染', () => {
             '#': 'visible',
             '#view': 'div',
             '#if': true,
-            '#content': 'Visible content',
+            '#children': 'Visible content',
           },
           {
             '#': 'hidden',
             '#view': 'div',
             '#if': false,
-            '#content': 'Hidden content',
+            '#children': 'Hidden content',
           },
         ],
       };
@@ -198,7 +198,7 @@ describe('Schema 渲染', () => {
             '#': 'conditional',
             '#view': 'div',
             '#if': () => new Date().getHours() < 24, // 总是true
-            '#content': 'Function condition',
+            '#children': 'Function condition',
           },
         ],
       };
@@ -218,17 +218,17 @@ describe('Schema 渲染', () => {
           {
             '#': 'view1',
             '#view': 'div',
-            '#content': 'First view',
+            '#children': 'First view',
           },
           {
             '#': 'view2',
             '#view': 'div',
-            '#content': 'Second view',
+            '#children': 'Second view',
           },
           {
             '#': 'view3',
             '#view': 'div',
-            '#content': 'Third view',
+            '#children': 'Third view',
           },
         ],
       };
@@ -262,12 +262,12 @@ describe('Schema 渲染', () => {
           {
             '#': 'base',
             '#view': 'TestDiv',
-            '#content': 'Base component',
+            '#children': 'Base component',
           },
           {
             '#': 'extended',
             '#view': 'TestButton',
-            '#content': 'Extended component',
+            '#children': 'Extended component',
           },
         ],
       };
@@ -299,7 +299,7 @@ describe('Schema 渲染', () => {
           {
             '#': 'test',
             '#view': 'TestDiv',
-            '#content': 'Test content',
+            '#children': 'Test content',
           },
         ],
       };
@@ -320,7 +320,7 @@ describe('Schema 渲染', () => {
           {
             '#': 'missing',
             '#view': 'NonExistentComponent',
-            '#content': 'Should show error',
+            '#children': 'Should show error',
           },
         ],
       };

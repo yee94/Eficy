@@ -367,9 +367,9 @@ class I18nPlugin implements ILifecyclePlugin {
     context: IBuildSchemaNodeContext,
     next: () => Promise<EficyNode>
   ): Promise<EficyNode> {
-    // 翻译 #content
-    if (viewData['#content'] && typeof viewData['#content'] === 'string') {
-      viewData['#content'] = this.translate(viewData['#content'])
+    // 翻译 #children
+    if (viewData['#children'] && typeof viewData['#children'] === 'string') {
+      viewData['#children'] = this.translate(viewData['#children'])
     }
     
     return await next()

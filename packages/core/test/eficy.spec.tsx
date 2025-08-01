@@ -38,7 +38,7 @@ describe('Eficy 核心功能', () => {
         {
           '#': 'test',
           '#view': 'div',
-          '#content': 'Hello World',
+          '#children': 'Hello World',
         },
       ],
     };
@@ -79,12 +79,12 @@ describe('Eficy 核心功能', () => {
         {
           '#': 'view1',
           '#view': 'div',
-          '#content': 'View 1',
+          '#children': 'View 1',
         },
         {
           '#': 'view2',
           '#view': 'div',
-          '#content': 'View 2',
+          '#children': 'View 2',
         },
       ],
     };

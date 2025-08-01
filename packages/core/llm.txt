@@ -62,7 +62,7 @@ class EficyNode extends ObservableClass {
   @Observable public '#': string              // 节点ID
   @Observable public '#view': string          // 组件名称
   @Observable public '#children': EficyNode[] // 子节点
-  @Observable public '#content'?: string | ReactElement // 内容
+  @Observable public '#children'?: string | ReactElement // 内容
   @Observable public '#if'?: boolean | (() => boolean)   // 条件渲染
   @Observable public '#show'?: boolean | (() => boolean) // 显示/隐藏
   @Observable public '#style'?: Record<string, any>      // 样式
@@ -180,7 +180,7 @@ interface IViewData {
   '#'?: string                           // 节点ID
   '#view'?: string                       // 组件名称，默认 'div'
   '#children'?: IViewData[]              // 子节点
-  '#content'?: string | ReactElement     // 文本内容
+  '#children'?: string | ReactElement     // 文本内容
   '#if'?: boolean | (() => boolean)      // 条件渲染
   '#show'?: boolean | (() => boolean)    // 显示/隐藏
   '#style'?: Record<string, any>         // 样式
@@ -211,13 +211,13 @@ const schema = {
         {
           '#': 'title',
           '#view': 'h1',
-          '#content': 'Hello Eficy V3!',
+          '#children': 'Hello Eficy V3!',
           style: { color: 'blue' }
         },
         {
           '#': 'button',
           '#view': 'button',
-          '#content': 'Click Me',
+          '#children': 'Click Me',
           onClick: () => console.log('Clicked!')
         }
       ]
@@ -234,13 +234,13 @@ const conditionalSchema = {
       '#': 'greeting',
       '#view': 'div',
       '#if': () => new Date().getHours() < 12,
-      '#content': '早上好！'
+      '#children': '早上好！'
     },
     {
       '#': 'afternoon-greeting',
       '#view': 'div',
       '#if': () => new Date().getHours() >= 12,
-      '#content': '下午好！'
+      '#children': '下午好！'
     }
   ]
 }
@@ -276,7 +276,7 @@ const formSchema = {
               '#view': 'Button',
               type: 'primary',
               htmlType: 'submit',
-              '#content': '提交'
+              '#children': '提交'
             }
           ]
         }
@@ -338,7 +338,7 @@ const nodeTree = eficy.getNodeTree(schema)
 // 查找和操作节点
 const node = eficy.findNode('nodeId')
 eficy.updateNode('nodeId', { text: 'Updated' })
-eficy.addChild('parentId', { '#view': 'span', '#content': 'New child' })
+eficy.addChild('parentId', { '#view': 'span', '#children': 'New child' })
 eficy.removeChild('parentId', 'childId')
 ```
 
@@ -359,14 +359,14 @@ const eficyNode = new EficyNode({
 
 // 响应式更新
 eficyNode.updateField('count', 10)
-eficyNode.updateField('#content', 'Count: 10')
+eficyNode.updateField('#children', 'Count: 10')
 eficyNode.updateField('#style', { padding: '20px', color: 'blue' })
 
 // 添加子节点
 const child = new EficyNode({
   '#': 'display',
   '#view': 'span',
-  '#content': 'Count: 10'
+  '#children': 'Count: 10'
 })
 eficyNode.addChild(child)
 
@@ -586,7 +586,7 @@ describe('EficyNode', () => {
       '#': 'test',
       '#view': 'Button',
       type: 'primary',
-      '#content': 'Click me'
+      '#children': 'Click me'
     })
     
     const json = eficyNode.toJSON()
@@ -594,7 +594,7 @@ describe('EficyNode', () => {
       '#': 'test',
       '#view': 'Button',
       type: 'primary',
-      '#content': 'Click me'
+      '#children': 'Click me'
     })
   })
 })
@@ -613,7 +613,7 @@ describe('Eficy Integration', () => {
         {
           '#': 'greeting',
           '#view': 'h1',
-          '#content': 'Hello World'
+          '#children': 'Hello World'
         }
       ]
     }
@@ -631,7 +631,7 @@ describe('Eficy Integration', () => {
         {
           '#': 'counter',
           '#view': 'div',
-          '#content': 'Count: 0'
+          '#children': 'Count: 0'
         }
       ]
     }
@@ -639,7 +639,7 @@ describe('Eficy Integration', () => {
     await eficy.createElement(schema)
     
     // 更新节点
-    eficy.updateNode('counter', { '#content': 'Count: 1' })
+    eficy.updateNode('counter', { '#children': 'Count: 1' })
     
     const node = eficy.findNode('counter')
     expect(node?.props.children).toBe('Count: 1')
@@ -677,10 +677,10 @@ npm install @eficy/core @eficy/reactive @eficy/reactive-react
 #### 3. 类型错误
 ```typescript
 // 错误：Type 'string' is not assignable to type 'ReactElement'
-// 解决：检查 Schema 中的 '#content' 类型
+// 解决：检查 Schema 中的 '#children' 类型
 {
-  '#content': 'Text content' // ✅ 正确
-  // '#content': <Component /> // ✅ 也正确
+  '#children': 'Text content' // ✅ 正确
+  // '#children': <Component /> // ✅ 也正确
 }
 ```
 

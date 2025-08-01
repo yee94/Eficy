@@ -5,6 +5,7 @@ import type { IBuildSchemaNodeContext, IProcessPropsContext } from '../interface
 import { HookType } from '../interfaces/lifecycle';
 import { PluginManager } from '../services/PluginManager';
 import EficyNode from './EficyNode';
+import { ReactNode } from 'react';
 
 /**
  * Eficy Node 节点平铺 Store
@@ -63,7 +64,8 @@ export default class EficyModelTree {
     };
 
     return await this.pluginManager.executeHook(HookType.BUILD_SCHEMA_NODE, viewData, context, async () => {
-      const { '#children': children, ...rest } = viewData;
+      const { ...rest } = viewData;
+      const { children, element } = EficyNode.splitChildren(viewData);
       const node = new EficyNode(rest);
 
       const processedProps = await this.pluginManager.executeHook(
@@ -75,16 +77,20 @@ export default class EficyModelTree {
         } as IProcessPropsContext,
         async () => node.props,
       );
-      
+
       // 更新动态属性，确保插件对 props 的修改生效
       node.dynamicProps = { ...processedProps };
 
       // 递归构建子节点
-      if (children && Array.isArray(children)) {
+      if (children) {
         const childNodes = await Promise.all(
-          children.map((childData) => this.buildNodeWithHooks(childData, { parent: node, path: [...path, node.id] })),
+          children.map((childData) =>
+            this.buildNodeWithHooks(childData as IViewData, { parent: node, path: [...path, node.id] }),
+          ),
         );
         node.setChildren(childNodes);
+      } else if (element) {
+        node.setChildren(element);
       }
 
       return node;

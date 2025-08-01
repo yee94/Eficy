@@ -65,7 +65,7 @@ describe('RenderNode', () => {
         '#': 'test',
         '#view': 'div',
         className: 'test-class',
-        '#content': 'Hello World',
+        '#children': 'Hello World',
       });
 
       const renderNode = await createRenderNode(eficyNode, testComponentMap);
@@ -80,7 +80,7 @@ describe('RenderNode', () => {
         '#': 'button',
         '#view': 'TestButton',
         className: 'test-button',
-        '#content': 'Click Me',
+        '#children': 'Click Me',
       });
 
       const renderNode = await createRenderNode(eficyNode, testComponentMap);
@@ -97,7 +97,7 @@ describe('RenderNode', () => {
         '#': 'styled',
         '#view': 'div',
         style: { color: 'red', fontSize: '16px' },
-        '#content': 'Styled content',
+        '#children': 'Styled content',
       });
 
       const renderNode = await createRenderNode(eficyNode, testComponentMap);
@@ -120,12 +120,12 @@ describe('RenderNode', () => {
           {
             '#': 'child1',
             '#view': 'span',
-            '#content': 'Child 1',
+            '#children': 'Child 1',
           },
           {
             '#': 'child2',
             '#view': 'span',
-            '#content': 'Child 2',
+            '#children': 'Child 2',
           },
         ],
       });
@@ -157,7 +157,7 @@ describe('RenderNode', () => {
                 '#': 'level2',
                 '#view': 'span',
                 className: 'level-2',
-                '#content': 'Deep content',
+                '#children': 'Deep content',
               },
             ],
           },
@@ -181,7 +181,7 @@ describe('RenderNode', () => {
         '#': 'conditional',
         '#view': 'div',
         '#if': false,
-        '#content': 'Should not render',
+        '#children': 'Should not render',
       });
 
       const renderNode = await createRenderNode(eficyNode, testComponentMap);
@@ -194,7 +194,7 @@ describe('RenderNode', () => {
         '#': 'conditional',
         '#view': 'div',
         '#if': true,
-        '#content': 'Should render',
+        '#children': 'Should render',
       });
 
       const renderNode = await createRenderNode(eficyNode, testComponentMap);
@@ -206,7 +206,7 @@ describe('RenderNode', () => {
       const eficyNode = new EficyNode({
         '#': 'default',
         '#view': 'div',
-        '#content': 'Default render',
+        '#children': 'Default render',
       });
 
       const renderNode = await createRenderNode(eficyNode, testComponentMap);
@@ -220,7 +220,7 @@ describe('RenderNode', () => {
       const eficyNode = new EficyNode({
         '#': 'missing',
         '#view': 'NonExistentComponent',
-        '#content': 'This should show error',
+        '#children': 'This should show error',
       });
 
       // 捕获控制台错误
@@ -279,7 +279,7 @@ describe('RenderNode', () => {
       const eficyNode = new EficyNode({
         '#': 'memo-test',
         '#view': 'SpyComponent',
-        '#content': 'Memo test',
+        '#children': 'Memo test',
       });
 
       const renderNode = await createRenderNode(eficyNode, spyComponentMap);
@@ -307,12 +307,12 @@ describe('RenderNode', () => {
           {
             '#': 'child1',
             '#view': 'span',
-            '#content': 'Child 1',
+            '#children': 'Child 1',
           },
           {
             '#': 'child2',
             '#view': 'span',
-            '#content': 'Child 2',
+            '#children': 'Child 2',
           },
         ],
       });
@@ -341,7 +341,7 @@ describe('RenderNode', () => {
       await eficyModelTree.build({
         '#': 'test',
         '#view': 'div',
-        '#content': 'Test content',
+        '#children': 'Test content',
       });
 
       const domTree = container.resolve(DomTree);
@@ -373,7 +373,7 @@ describe('RenderNode', () => {
               {
                 '#': 'title',
                 '#view': 'span',
-                '#content': 'Title',
+                '#children': 'Title',
               },
             ],
           },
@@ -422,7 +422,7 @@ describe('RenderNode', () => {
       const newChild = eficy.addChild('container', {
         '#': 'newChild',
         '#view': 'span',
-        '#content': 'New child',
+        '#children': 'New child',
       });
 
       expect(newChild).toBeTruthy();

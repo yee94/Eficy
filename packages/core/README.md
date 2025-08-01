@@ -47,13 +47,13 @@ await eficy.render({
         {
           '#': 'title',
           '#view': 'h1',
-          '#content': 'Welcome to Eficy V3!'
+          '#children': 'Welcome to Eficy V3!'
         },
         {
           '#': 'button',
           '#view': 'Button',
           type: 'primary',
-          '#content': 'Click Me',
+          '#children': 'Click Me',
           onClick: () => console.log('Clicked!')
         }
       ]
@@ -69,7 +69,7 @@ interface IViewData {
   '#'?: string                           // 节点ID
   '#view'?: string                       // 组件名称
   '#children'?: IViewData[]              // 子节点
-  '#content'?: string | ReactElement     // 内容
+  '#children'?: string | ReactElement     // 内容
   '#if'?: boolean | (() => boolean)      // 条件渲染
   '#style'?: Record<string, any>         // 样式
   '#class'?: string | string[]           // CSS类名
@@ -93,7 +93,7 @@ await eficy.render(schema, '#root')
 
 // 节点操作
 eficy.updateNode('nodeId', { text: 'Updated' })
-eficy.addChild('parentId', { '#view': 'span', '#content': 'New' })
+eficy.addChild('parentId', { '#view': 'span', '#children': 'New' })
 ```
 
 ## 🔌 插件系统

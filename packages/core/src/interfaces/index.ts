@@ -9,13 +9,12 @@ export interface IViewData {
   '#'?: string; // 唯一标识
   '#view'?: string; // 组件类型
   '#children'?: IViewData[] | IViewData | ReactNode; // 子节点数据
-  '#content'?: ReactNode | IViewData; // 内容
   '#if'?: boolean | (() => boolean); // 条件渲染
   '#show'?: boolean | (() => boolean); // 显示/隐藏
-  '#style'?: Record<string, any>; // 样式
-  '#class'?: string | string[]; // CSS类名
-  '#events'?: Record<string, any>; // 事件处理器
-  '#staticProps'?: Record<string, any>; // 静态属性
+  // '#style'?: Record<string, any>; // 样式
+  // '#class'?: string | string[]; // CSS类名
+  // '#events'?: Record<string, any>; // 事件处理器
+  // '#staticProps'?: Record<string, any>; // 静态属性
 
   // 动态属性
   [key: string]: any;
@@ -38,32 +37,6 @@ export interface IEficySchema {
   views: IViewData[];
   plugins?: IPlugin[];
   [key: string]: any;
-}
-
-/**
- * 视图节点接口 - EficyNode的抽象
- */
-export interface IViewNode {
-  '#': string;
-  '#view': string;
-  '#children': IViewNode[];
-  '#content'?: string | ReactElement;
-  '#if'?: boolean | (() => boolean);
-  '#show'?: boolean | (() => boolean);
-  '#style'?: Record<string, any>;
-  '#class'?: string | string[];
-  '#events'?: Record<string, any>;
-
-  readonly id: string;
-  readonly props: Record<string, any>;
-  readonly shouldRender: boolean;
-  readonly viewDataMap: Record<string, IViewNode>;
-
-  updateField(key: string, value: any): void;
-  addChild(child: IViewNode): void;
-  removeChild(childId: string): void;
-  findChild(childId: string): IViewNode | null;
-  toJSON(): IViewData;
 }
 
 /**
@@ -136,7 +109,6 @@ export interface IExtendOptions {
 
 // 导出类型别名以保持向后兼容
 export type ViewData = IViewData;
-export type ViewNode = IViewNode;
 export type ComponentMap = IComponentMap;
 export type EficyProps = IEficyProps;
 export type EficyConfig = IEficyConfig;

@@ -471,7 +471,7 @@ describe('Lifecycle Hooks System', () => {
               {
                 '#': 'test-span',
                 '#view': 'span',
-                '#content': 'Hello World'
+                '#children': 'Hello World'
               }
             ]
           }

@@ -70,7 +70,7 @@ describe('EficyNode', () => {
       const childNode = new EficyNode({
         '#': 'child',
         '#view': 'span',
-        '#content': 'child content'
+        '#children': 'child content'
       })
 
       eficyNode.addChild(childNode)
@@ -131,12 +131,12 @@ describe('EficyNode', () => {
       expect(props.style).toEqual({ color: 'red' })
     })
 
-    it('应该处理 #content 特殊字段', () => {
-      eficyNode.updateField('#content', 'Hello World')
+    it('应该处理 #children 特殊字段', () => {
+      eficyNode.updateField('#children', 'Hello World')
       const props = eficyNode.props
       
-      expect(eficyNode.children).toBe('Hello World')
-      expect(props['#content']).toBeUndefined()
+      expect(eficyNode.el).toBe('Hello World')
+      expect(props['#children']).toBeUndefined()
     })
   })
 
