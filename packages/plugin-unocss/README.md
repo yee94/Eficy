@@ -42,7 +42,7 @@ const schema = {
       '#': 'root',
       '#view': 'div',
       className: 'text-red-500 p-4 bg-blue-500',
-      '#content': 'Hello UnoCSS',
+      '#children': 'Hello UnoCSS',
     },
   ],
 };

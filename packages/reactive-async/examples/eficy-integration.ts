@@ -139,7 +139,7 @@ export const setupEficyComponents = (eficy: Eficy) => {
           return {
             '#view': 'div',
             className: 'user-card loading',
-            '#content': 'Loading user...'
+            '#children': 'Loading user...'
           };
         }
 
@@ -147,7 +147,7 @@ export const setupEficyComponents = (eficy: Eficy) => {
           return {
             '#view': 'div',
             className: 'user-card error',
-            '#content': `Error: ${error.message}`
+            '#children': `Error: ${error.message}`
           };
         }
 
@@ -155,7 +155,7 @@ export const setupEficyComponents = (eficy: Eficy) => {
           return {
             '#view': 'div',
             className: 'user-card empty',
-            '#content': 'No user data'
+            '#children': 'No user data'
           };
         }
 
@@ -176,12 +176,12 @@ export const setupEficyComponents = (eficy: Eficy) => {
                 {
                   '#view': 'h3',
                   className: 'user-name',
-                  '#content': name
+                  '#children': name
                 },
                 {
                   '#view': 'p',
                   className: 'user-email',
-                  '#content': email
+                  '#children': email
                 }
               ]
             }
@@ -195,7 +195,7 @@ export const setupEficyComponents = (eficy: Eficy) => {
           return {
             '#view': 'div',
             className: 'posts-list loading',
-            '#content': 'Loading posts...'
+            '#children': 'Loading posts...'
           };
         }
 
@@ -203,7 +203,7 @@ export const setupEficyComponents = (eficy: Eficy) => {
           return {
             '#view': 'div',
             className: 'posts-list empty',
-            '#content': 'No posts found'
+            '#children': 'No posts found'
           };
         }
 
@@ -214,7 +214,7 @@ export const setupEficyComponents = (eficy: Eficy) => {
             {
               '#view': 'h4',
               className: 'posts-header',
-              '#content': `Posts (${count})`
+              '#children': `Posts (${count})`
             },
             ...posts.map((post: Post) => ({
               '#view': 'article',
@@ -224,12 +224,12 @@ export const setupEficyComponents = (eficy: Eficy) => {
                 {
                   '#view': 'h5',
                   className: 'post-title',
-                  '#content': post.title
+                  '#children': post.title
                 },
                 {
                   '#view': 'p',
                   className: 'post-content',
-                  '#content': post.content
+                  '#children': post.content
                 }
               ]
             }))
@@ -243,14 +243,14 @@ export const setupEficyComponents = (eficy: Eficy) => {
         className: `load-button ${disabled ? 'disabled' : ''} ${loading ? 'loading' : ''}`,
         onClick: disabled ? undefined : onClick,
         disabled,
-        '#content': children
+        '#children': children
       }),
 
       // 状态指示器
       StatusIndicator: ({ status, type = 'info' }: any) => ({
         '#view': 'div',
         className: `status-indicator ${type}`,
-        '#content': status
+        '#children': status
       }),
 
       // 条件渲染容器
@@ -283,7 +283,7 @@ export const createAppSchema = (appState: ReturnType<typeof createAppState>) => 
             '#children': [
               {
                 '#view': 'h1',
-                '#content': 'User Profile App'
+                '#children': 'User Profile App'
               },
               {
                 '#view': 'StatusIndicator',
@@ -308,7 +308,7 @@ export const createAppSchema = (appState: ReturnType<typeof createAppState>) => 
                 onClick: () => appState.loadUser('1'),
                 disabled: appState.isAnyLoading,
                 loading: appState.isAnyLoading,
-                '#content': asyncState(appState.user, () => 
+                '#children': asyncState(appState.user, () => 
                   appState.isAnyLoading ? 'Loading...' : 'Load User Profile'
                 )
               },
@@ -318,7 +318,7 @@ export const createAppSchema = (appState: ReturnType<typeof createAppState>) => 
                 disabled: asyncState(appState.user, state => 
                   appState.isAnyLoading || !state.data
                 ),
-                '#content': 'Refresh Data'
+                '#children': 'Refresh Data'
               },
               {
                 '#view': 'LoadButton',
@@ -326,7 +326,7 @@ export const createAppSchema = (appState: ReturnType<typeof createAppState>) => 
                 disabled: asyncState(appState.user, state => 
                   appState.isAnyLoading || !state.data
                 ),
-                '#content': 'Clear Data'
+                '#children': 'Clear Data'
               }
             ]
           },

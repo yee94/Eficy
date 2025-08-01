@@ -33,7 +33,7 @@ describe('asyncSignal 与 Eficy 集成', () => {
           {
             '#': 'test',
             '#view': 'div',
-            '#content': request.computed((state) => (state.loading ? 'Loading...' : state.data)),
+            '#children': request.computed((state) => (state.loading ? 'Loading...' : state.data)),
           },
         ],
       });

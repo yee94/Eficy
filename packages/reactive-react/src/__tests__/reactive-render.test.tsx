@@ -22,7 +22,7 @@ class MockViewNode extends ObservableClass {
   public '#view' = 'div'
 
   @Observable
-  public '#content'?: string
+  public '#children'?: string
 
   @Observable
   private dynamicProps: Record<string, any> = {}
@@ -36,9 +36,9 @@ class MockViewNode extends ObservableClass {
   private load(data: any): void {
     this['#'] = data['#'] || this['#']
     this['#view'] = data['#view'] || 'div'
-    this['#content'] = data['#content']
+    this['#children'] = data['#children']
     
-    const { '#': _id, '#view': _view, '#content': _content, ...otherProps } = data
+    const { '#': _id, '#view': _view, '#children': _content, ...otherProps } = data
     this.dynamicProps = { ...otherProps }
   }
 
@@ -46,8 +46,8 @@ class MockViewNode extends ObservableClass {
   get props(): Record<string, any> {
     const props: Record<string, any> = { ...this.dynamicProps }
     
-    if (this['#content'] !== undefined) {
-      props.children = this['#content']
+    if (this['#children'] !== undefined) {
+      props.children = this['#children']
     }
     
     return props
@@ -55,7 +55,7 @@ class MockViewNode extends ObservableClass {
 
   @Action
   updateField(key: string, value: any): void {
-    if (key === '#content') {
+    if (key === '#children') {
       this[key] = value
     } else if (key === '#view') {
       this[key] = value
@@ -113,7 +113,7 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
         '#': 'test-node',
         '#view': 'div',
         className: 'initial-class',
-        '#content': 'Initial Content'
+        '#children': 'Initial Content'
       }
 
       const viewNode = new MockViewNode(viewData)
@@ -126,7 +126,7 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
       
       // 响应式更新属性
       viewNode.updateField('className', 'updated-class')
-      viewNode.updateField('#content', 'Updated Content')
+      viewNode.updateField('#children', 'Updated Content')
       
       // 现在应该能正确触发 UI 重新渲染
       await waitFor(() => {
@@ -139,7 +139,7 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
       const viewData = {
         '#': 'dynamic-component',
         '#view': 'div',
-        '#content': 'Content'
+        '#children': 'Content'
       }
 
       const viewNode = new MockViewNode(viewData)
@@ -163,7 +163,7 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
         '#': 'custom-node',
         '#view': 'CustomComponent',
         'data-value': 'initial',
-        '#content': 'Custom Content'
+        '#children': 'Custom Content'
       }
 
       const viewNode = new MockViewNode(viewData)
@@ -177,7 +177,7 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
       
       // 响应式更新属性
       viewNode.updateField('data-value', 'updated')
-      viewNode.updateField('#content', 'Updated Custom Content')
+      viewNode.updateField('#children', 'Updated Custom Content')
       
       // 验证响应式更新
       await waitFor(() => {

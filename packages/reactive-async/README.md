@@ -57,7 +57,7 @@ await eficy.render({
         {
           '#': 'title',
           '#view': 'h1',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return 'Loading...';
             if (state.error) return `Error: ${state.error.message}`;
             if (state.data) return `User: ${state.data.name}`;
@@ -130,7 +130,7 @@ await eficy.render({
               '#': 'submit-btn',
               '#view': 'Button',
               disabled: computed(state => state.loading),
-              '#content': computed(state => state.loading ? '创建中...' : '创建用户'),
+              '#children': computed(state => state.loading ? '创建中...' : '创建用户'),
               onClick: () => {
                 const userData = {
                   name: 'John Doe',
@@ -144,7 +144,7 @@ await eficy.render({
         {
           '#': 'result',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '创建中...';
             if (state.error) return `错误: ${state.error.message}`;
             if (state.data) return `用户创建成功: ${state.data.name}`;
@@ -224,7 +224,7 @@ await eficy.render({
         {
           '#': 'status-text',
           '#view': 'span',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '检查状态中...';
             return `系统状态: ${state.data?.status || '未知'}`;
           })
@@ -271,13 +271,13 @@ await eficy.render({
           '#': 'search-results',
           '#view': 'div',
           '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#content': '搜索中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#content': `错误: ${state.error.message}` }];
+            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '搜索中...' }];
+            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `错误: ${state.error.message}` }];
             if (state.data) {
               return state.data.map((user, index) => ({
                 '#': `user-${index}`,
                 '#view': 'div',
-                '#content': user.name
+                '#children': user.name
               }));
             }
             return [];
@@ -332,7 +332,7 @@ await eficy.render({
         {
           '#': 'upload-status',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '上传中...';
             if (state.error) return `上传失败: ${state.error.message}`;
             if (state.data) return `上传成功: ${state.data.url}`;
@@ -372,7 +372,7 @@ await eficy.render({
         {
           '#': 'data-content',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '加载中...';
             if (state.error) return `加载失败: ${state.error.message}`;
             if (state.data) return `数据: ${JSON.stringify(state.data)}`;
@@ -413,7 +413,7 @@ await eficy.render({
         {
           '#': 'user-name',
           '#view': 'h2',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '加载中...';
             if (state.error) return '加载失败';
             if (state.data) return state.data.name;
@@ -452,7 +452,7 @@ await eficy.render({
         {
           '#': 'user-details',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '加载用户信息中...';
             if (state.error) return `加载失败: ${state.error.message}`;
             if (state.data) return `用户: ${state.data.name}, 邮箱: ${state.data.email}`;
@@ -491,7 +491,7 @@ await eficy.render({
         {
           '#': 'data-display',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (!userId) return '请输入用户ID';
             if (state.loading) return '加载中...';
             if (state.error) return `错误: ${state.error.message}`;
@@ -531,7 +531,7 @@ await eficy.render({
         {
           '#': 'data-content',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '获取最新数据中...';
             if (state.error) return `获取失败: ${state.error.message}`;
             if (state.data) return `最新数据: ${JSON.stringify(state.data)}`;
@@ -568,7 +568,7 @@ await eficy.render({
         {
           '#': 'add-user-btn',
           '#view': 'Button',
-          '#content': '添加用户',
+          '#children': '添加用户',
           onClick: () => {
             const newUser = { id: Date.now(), name: 'New User' };
             // 直接修改
@@ -579,13 +579,13 @@ await eficy.render({
           '#': 'user-items',
           '#view': 'div',
           '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#content': '加载中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#content': `错误: ${state.error.message}` }];
+            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '加载中...' }];
+            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `错误: ${state.error.message}` }];
             if (state.data) {
               return state.data.map((user, index) => ({
                 '#': `user-${index}`,
                 '#view': 'div',
-                '#content': user.name,
+                '#children': user.name,
                 onClick: () => {
                   // 函数式修改
                   mutate((prevData) => {
@@ -646,13 +646,13 @@ await eficy.render({
           '#': 'search-results',
           '#view': 'div',
           '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#content': '搜索中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#content': `搜索失败: ${state.error.message}` }];
+            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '搜索中...' }];
+            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `搜索失败: ${state.error.message}` }];
             if (state.data) {
               return state.data.map((user, index) => ({
                 '#': `user-${index}`,
                 '#view': 'div',
-                '#content': user.name
+                '#children': user.name
               }));
             }
             return [];
@@ -693,13 +693,13 @@ await eficy.render({
           '#': 'user-items',
           '#view': 'div',
           '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#content': '加载中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#content': `加载失败: ${state.error.message}` }];
+            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '加载中...' }];
+            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `加载失败: ${state.error.message}` }];
             if (state.data) {
               return state.data.users.map((user, index) => ({
                 '#': `user-${index}`,
                 '#view': 'div',
-                '#content': user.name
+                '#children': user.name
               }));
             }
             return [];
@@ -712,7 +712,7 @@ await eficy.render({
             {
               '#': 'prev-btn',
               '#view': 'Button',
-              '#content': '上一页',
+              '#children': '上一页',
               disabled: computed(state => state.loading),
               onClick: () => {
                 const currentPage = 1; // 这里应该从状态中获取当前页
@@ -724,7 +724,7 @@ await eficy.render({
             {
               '#': 'page-info',
               '#view': 'span',
-              '#content': computed(state => {
+              '#children': computed(state => {
                 if (state.loading) return '加载中...';
                 return `第 ${state.data?.page || 1} 页`;
               })
@@ -732,7 +732,7 @@ await eficy.render({
             {
               '#': 'next-btn',
               '#view': 'Button',
-              '#content': '下一页',
+              '#children': '下一页',
               disabled: computed(state => state.loading),
               onClick: () => {
                 const currentPage = 1; // 这里应该从状态中获取当前页
@@ -742,7 +742,7 @@ await eficy.render({
             {
               '#': 'refresh-btn',
               '#view': 'Button',
-              '#content': '刷新',
+              '#children': '刷新',
               onClick: () => {
                 const currentPage = 1; // 这里应该从状态中获取当前页
                 run(currentPage);
@@ -786,7 +786,7 @@ await eficy.render({
         {
           '#': 'status-title',
           '#view': 'h2',
-          '#content': '系统状态'
+          '#children': '系统状态'
         },
         {
           '#': 'status-content',
@@ -797,7 +797,7 @@ await eficy.render({
                 '#': 'error-message',
                 '#view': 'div',
                 style: { color: 'red' },
-                '#content': '获取状态失败'
+                '#children': '获取状态失败'
               }];
             }
             if (state.data) {
@@ -805,17 +805,17 @@ await eficy.render({
                 {
                   '#': 'cpu-status',
                   '#view': 'div',
-                  '#content': `CPU: ${state.data.cpu}%`
+                  '#children': `CPU: ${state.data.cpu}%`
                 },
                 {
                   '#': 'memory-status',
                   '#view': 'div',
-                  '#content': `内存: ${state.data.memory}%`
+                  '#children': `内存: ${state.data.memory}%`
                 },
                 {
                   '#': 'disk-status',
                   '#view': 'div',
-                  '#content': `磁盘: ${state.data.disk}%`
+                  '#children': `磁盘: ${state.data.disk}%`
                 }
               ];
             }
@@ -867,7 +867,7 @@ await eficy.render({
         {
           '#': 'data-content',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '加载中...';
             if (state.error) {
               return `加载失败: ${state.error.message}`;
@@ -879,7 +879,7 @@ await eficy.render({
         {
           '#': 'retry-btn',
           '#view': 'Button',
-          '#content': '重试',
+          '#children': '重试',
           onClick: () => run(),
           style: computed(state => ({
             display: state.error ? 'block' : 'none'
@@ -920,7 +920,7 @@ await eficy.render({
         {
           '#': 'user-info',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '加载用户信息中...';
             if (state.error) return `加载失败: ${state.error.message}`;
             if (state.data) return `用户: ${state.data.name}`;
@@ -960,7 +960,7 @@ await eficy.render({
         {
           '#': 'data-display',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '获取数据中...';
             if (state.error) return `获取失败: ${state.error.message}`;
             if (state.data) return `数据: ${JSON.stringify(state.data)}`;
@@ -1016,13 +1016,13 @@ await eficy.render({
         {
           '#': 'fetch-btn',
           '#view': 'Button',
-          '#content': '获取用户',
+          '#children': '获取用户',
           onClick: () => run('user123')
         },
         {
           '#': 'user-display',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             if (state.loading) return '获取中...';
             if (state.error) return `获取失败: ${state.error.message}`;
             if (state.data) return `当前用户: ${state.data.name}`;
@@ -1072,7 +1072,7 @@ await eficy.render({
         {
           '#': 'debug-info',
           '#view': 'div',
-          '#content': computed(state => {
+          '#children': computed(state => {
             return `状态: ${state.loading ? '加载中' : state.error ? '错误' : '完成'}`;
           })
         }
