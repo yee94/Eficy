@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, Fragment } from 'react';
+import React, { forwardRef, memo, Fragment, FC } from 'react';
 import { useObserver } from './hooks/useObserver';
 import type { IObserverOptions, IObserverProps, ReactFC } from './types';
 
@@ -13,7 +13,7 @@ function hoistStatics(target: unknown, source: unknown) {
   return target;
 }
 
-export function observer<P = any>(component: ReactFC<P>, options?: IObserverOptions): React.MemoExoticComponent<any> {
+export function observer<P = any>(component: ReactFC<P>, options?: IObserverOptions): FC<P> {
   const realOptions = {
     forwardRef: false,
     ...options,

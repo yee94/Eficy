@@ -1,0 +1,17 @@
+import { defineConfig } from 'vitest/config';
+import path from 'path';
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./test/setup.ts'],
+    globals: true,
+  },
+  resolve: {
+    alias: {
+      '@eficy/reactive': path.resolve(__dirname, '../reactive/src'),
+      '@eficy/core-v3': path.resolve(__dirname, './src'),
+      '@eficy/reactive-react': path.resolve(__dirname, '../reactive-react/src'),
+    },
+  },
+});

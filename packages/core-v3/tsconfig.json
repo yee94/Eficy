@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "paths": {
+      "@eficy/core-v3": ["./src"],
+      "@eficy/core-v3/jsx-runtime": ["src/jsx-runtime.tsx"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*"]
+}
