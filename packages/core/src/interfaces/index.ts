@@ -8,8 +8,8 @@ import type EficyModelTree from '../models/EficyModelTree';
 export interface IViewData {
   '#'?: string; // 唯一标识
   '#view'?: string; // 组件类型
-  '#children'?: IViewData[] | IViewData; // 子节点数据
-  '#content'?: string | ReactElement | IViewData; // 内容
+  '#children'?: IViewData[] | IViewData | ReactNode; // 子节点数据
+  '#content'?: ReactNode | IViewData; // 内容
   '#if'?: boolean | (() => boolean); // 条件渲染
   '#show'?: boolean | (() => boolean); // 显示/隐藏
   '#style'?: Record<string, any>; // 样式

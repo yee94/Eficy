@@ -1,6 +1,6 @@
 import { Action, Computed, isSignal, makeObservable, Observable } from '@eficy/reactive';
 import { nanoid } from 'nanoid';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import type { IViewData } from '../interfaces';
 import { setOmit } from '../utils/common';
 import { processAsyncStateProps } from '../utils/asyncStateResolver';
@@ -41,10 +41,10 @@ export default class EficyNode {
   public '#view' = 'div';
 
   @Observable
-  public '#children': EficyNode[] = [];
+  public '#children': EficyNode[];
 
   @Observable
-  public '#content'?: string | ReactElement | EficyNode;
+  public '#content'?: ReactNode | EficyNode;
 
   @Observable
   public '#if'?: boolean | (() => boolean) = true;
@@ -97,10 +97,6 @@ export default class EficyNode {
     this['#'] = data['#'] || nanoid();
     this['#view'] = data['#view'] || 'div';
 
-    this['#content'] = EficyNode.isEficySchema(data['#content'])
-      ? EficyNode.fromJSON(data['#content'] as IViewData)
-      : (data['#content'] as string | ReactElement);
-
     this['#if'] = data['#if'] !== undefined ? data['#if'] : true;
     this['#show'] = data['#show'] !== undefined ? data['#show'] : true;
     this['#style'] = data['#style'];
@@ -108,11 +104,31 @@ export default class EficyNode {
     this['#events'] = data['#events'];
 
     this['#children'] = (() => {
-      if (data['#children'] === undefined) {
+      if (data['#children'] !== undefined) {
+        const children = Array.isArray(data['#children']) ? data['#children'] : [data['#children']];
+        if (EficyNode.isEficySchema(children[0])) {
+          return children.map((child) => EficyNode.fromJSON(child as IViewData));
+        }
+      }
+    })();
+    
+    this['#content'] = (() => {
+      if (this['#children'] !== undefined) {
         return undefined;
       }
-      const children = Array.isArray(data['#children']) ? data['#children'] : [data['#children']];
-      return children.map((child: IViewData) => EficyNode.fromJSON(child));
+      
+      const children = Array.isArray(data['#children']) ? data['#children'][0] : data['#children'];
+      if (children && !EficyNode.isEficySchema(children)) {
+        // Children 不是 EficyNode，则直接返回
+        return data['#children'] as ReactNode;
+      }
+
+      if (data['#content'] !== undefined) {
+        if (EficyNode.isEficySchema(data['#content'])) {
+          return EficyNode.fromJSON(data['#content'] as IViewData);
+        }
+        return data['#content'] as ReactNode;
+      }
     })();
 
     // 设置其他属性
