@@ -1,0 +1,36 @@
+{
+  "name": "@eficy/plugin-form",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Form plugin for @eficy/core",
+  "keywords": [
+    "form",
+    "eficy"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yee94/Eficy.git",
+    "directory": "packages/plugin-unocss"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run test && npm run build"
+  },
+  "dependencies": {
+    "@eficy/core": "workspace:*",
+    "@unocss/core": "^66.0.0",
+    "@unocss/preset-attributify": "^66.0.0",
+    "@unocss/preset-uno": "^66.0.0"
+  }
+}
