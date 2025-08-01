@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, act, waitFor } from '@testing-library/react'
-import { signal, createAction, observable, computed, action, makeObservable } from '@eficy/reactive'
+import { signal, createAction, Observable, Computed, Action, makeObservable } from '@eficy/reactive'
 import { observer } from '../observer'
 
 describe('Simplified reactive patterns', () => {
@@ -97,23 +97,23 @@ describe('Simplified reactive patterns', () => {
 
   it('should work with decorator pattern for classes', async () => {
     class CounterStore {
-      @observable
+      @Observable
       count = 0
       
-      @observable
+      @Observable
       name = 'Counter'
       
-      @computed
+      @Computed
       get displayText() {
         return `${this.name}: ${this.count}`
       }
       
-      @action
+      @Action
       increment() {
         this.count++
       }
       
-      @action
+      @Action
       setName(name: string) {
         this.name = name
       }

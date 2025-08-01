@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { signal, createAction, observable, action, makeObservable, ObservableClass } from '@eficy/reactive'
+import { signal, createAction, Observable, Action, makeObservable, ObservableClass } from '@eficy/reactive'
 import { observer } from '../observer'
 
 describe('Integration Tests', () => {
@@ -84,19 +84,19 @@ describe('Integration Tests', () => {
     }
     
     class UserStore extends ObservableClass {
-      @observable
+      @Observable
       user: User = {
         name: 'John',
         age: 25
       }
       
-      @action
+      @Action
       updateUser(updates: Partial<User>) {
         // 新范式：重新赋值整个对象
         this.user = { ...this.user, ...updates }
       }
       
-      @action
+      @Action
       incrementAge() {
         this.user = { ...this.user, age: this.user.age + 1 }
       }

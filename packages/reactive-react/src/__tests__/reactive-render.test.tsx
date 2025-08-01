@@ -1,7 +1,7 @@
 import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { observable, computed, action, ObservableClass } from '@eficy/reactive'
+import { Observable, Computed, Action, ObservableClass } from '@eficy/reactive'
 import { useObserver } from '../hooks'
 
 /**
@@ -15,16 +15,16 @@ import { useObserver } from '../hooks'
 
 // 模拟 ViewNode 类
 class MockViewNode extends ObservableClass {
-  @observable
+  @Observable
   public '#' = ''
 
-  @observable
+  @Observable
   public '#view' = 'div'
 
-  @observable
+  @Observable
   public '#content'?: string
 
-  @observable
+  @Observable
   private dynamicProps: Record<string, any> = {}
 
   constructor(data: any) {
@@ -32,7 +32,7 @@ class MockViewNode extends ObservableClass {
     this.load(data)
   }
 
-  @action
+  @Action
   private load(data: any): void {
     this['#'] = data['#'] || this['#']
     this['#view'] = data['#view'] || 'div'
@@ -42,7 +42,7 @@ class MockViewNode extends ObservableClass {
     this.dynamicProps = { ...otherProps }
   }
 
-  @computed
+  @Computed
   get props(): Record<string, any> {
     const props: Record<string, any> = { ...this.dynamicProps }
     
@@ -53,7 +53,7 @@ class MockViewNode extends ObservableClass {
     return props
   }
 
-  @action
+  @Action
   updateField(key: string, value: any): void {
     if (key === '#content') {
       this[key] = value
@@ -190,20 +190,20 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
   describe('useObserver Hook Integration', () => {
     it('should work with computed values', async () => {
       class TestStore extends ObservableClass {
-        @observable count = 0
-        @observable multiplier = 2
+        @Observable count = 0
+        @Observable multiplier = 2
 
-        @computed
+        @Computed
         get result() {
           return this.count * this.multiplier
         }
 
-        @action
+        @Action
         increment() {
           this.count++
         }
 
-        @action
+        @Action
         setMultiplier(value: number) {
           this.multiplier = value
         }
@@ -242,16 +242,16 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
 
     it('should handle multiple observable updates in single action', async () => {
       class MultiStore extends ObservableClass {
-        @observable name = 'initial'
-        @observable age = 0
-        @observable email = 'initial@example.com'
+        @Observable name = 'initial'
+        @Observable age = 0
+        @Observable email = 'initial@example.com'
 
-        @computed
+        @Computed
         get fullInfo() {
           return `${this.name} (${this.age}) - ${this.email}`
         }
 
-        @action
+        @Action
         updateProfile(name: string, age: number, email: string) {
           this.name = name
           this.age = age
@@ -285,10 +285,10 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
       const renderSpy = vi.fn()
 
       class CountStore extends ObservableClass {
-        @observable count = 0
-        @observable ignored = 'static'
+        @Observable count = 0
+        @Observable ignored = 'static'
 
-        @action
+        @Action
         increment() {
           this.count++
         }

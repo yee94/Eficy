@@ -1,4 +1,4 @@
-import { action, batch, computed, effect, makeObservable, observable } from '@eficy/reactive';
+import { Action, batch, Computed, effect, makeObservable, Observable } from '@eficy/reactive';
 import { createElement, type ReactElement, type ReactNode } from 'react';
 import { inject, injectable } from 'tsyringe';
 import RenderNode from '../components/RenderNode';
@@ -14,7 +14,7 @@ import { PluginManager } from '../services/PluginManager';
  */
 @injectable()
 export default class DomTree {
-  @observable
+  @Observable
   private renderNodeCache: Map<string, ReactElement> = new Map();
   private previousChildren: Map<string, ReactElement[]> = new Map();
 
@@ -31,7 +31,7 @@ export default class DomTree {
    * 从内向外构建所有RenderNode的映射关系
    * 基于现有的 EficyModelTree 构建 RenderNode 映射
    */
-  @action
+  @Action
   public async createElement(eficyNode: EficyNode): Promise<ReactElement | null> {
     if (!eficyNode) {
       return null;
@@ -135,7 +135,7 @@ export default class DomTree {
   /**
    * 获取所有RenderNode映射
    */
-  @computed
+  @Computed
   get renderNodes(): Record<string, ReactElement> {
     const result: Record<string, ReactElement> = {};
     this.renderNodeCache.forEach((renderNode, nodeId) => {
@@ -147,7 +147,7 @@ export default class DomTree {
   /**
    * 更新特定节点的RenderNode
    */
-  @action
+  @Action
   async updateRenderNode(nodeId: string, eficyNode: EficyNode): Promise<void> {
     // 移除旧的缓存
     this.renderNodeCache.delete(nodeId);
@@ -158,7 +158,7 @@ export default class DomTree {
   /**
    * 添加新的RenderNode
    */
-  @action
+  @Action
   async addRenderNode(eficyNode: EficyNode): Promise<ReactElement | null> {
     return await this.createElement(eficyNode);
   }
@@ -166,7 +166,7 @@ export default class DomTree {
   /**
    * 移除RenderNode
    */
-  @action
+  @Action
   removeRenderNode(nodeId: string): void {
     this.renderNodeCache.delete(nodeId);
   }
@@ -174,7 +174,7 @@ export default class DomTree {
   /**
    * 清空所有RenderNode缓存
    */
-  @action
+  @Action
   clear(): void {
     this.renderNodeCache.clear();
   }
@@ -182,7 +182,7 @@ export default class DomTree {
   /**
    * 获取统计信息
    */
-  @computed
+  @Computed
   get stats() {
     return {
       totalRenderNodes: this.renderNodeCache.size,

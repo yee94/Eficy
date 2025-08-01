@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { 
-  observable, 
-  computed, 
-  action,
+  Observable, 
+  Computed as computed, 
+  Action,
   makeObservable,
   ObservableClass 
 } from '../index';
@@ -12,10 +12,10 @@ describe('Decorators', () => {
   describe('@observable', () => {
     it('should make class properties reactive', () => {
       class User {
-        @observable
+        @Observable
         name = 'John';
 
-        @observable
+        @Observable
         age = 25;
       }
 
@@ -45,10 +45,10 @@ describe('Decorators', () => {
 
     it('should support initial values', () => {
       class Store {
-        @observable('default value')
+        @Observable('default value')
         message!: string;
 
-        @observable(0)
+        @Observable(0)
         count!: number;
       }
 
@@ -61,10 +61,10 @@ describe('Decorators', () => {
 
     it('should work with ObservableClass base class', () => {
       class Counter extends ObservableClass {
-        @observable
+        @Observable
         count = 0;
 
-        @observable
+        @Observable
         name = 'Counter';
       }
 
@@ -90,10 +90,10 @@ describe('Decorators', () => {
   describe('@computed', () => {
     it('should create computed properties', () => {
       class Person {
-        @observable
+        @Observable
         firstName = 'John';
 
-        @observable
+        @Observable
         lastName = 'Doe';
 
         @computed
@@ -119,10 +119,10 @@ describe('Decorators', () => {
       let computeCount = 0;
 
       class Calculator {
-        @observable
+        @Observable
         a = 1;
 
-        @observable
+        @Observable
         b = 2;
 
         @computed
@@ -151,10 +151,10 @@ describe('Decorators', () => {
 
     it('should work with complex computed chains', () => {
       class Store {
-        @observable
+        @Observable
         items = ['apple', 'banana'];
 
-        @observable
+        @Observable
         filter = '';
 
         @computed
@@ -192,20 +192,20 @@ describe('Decorators', () => {
   describe('@action', () => {
     it('should mark methods as actions', () => {
       class Counter {
-        @observable
+        @Observable
         count = 0;
 
-        @action
+        @Action
         increment() {
           this.count++;
         }
 
-        @action
+        @Action
         add(value: number) {
           this.count += value;
         }
 
-        @action('reset counter')
+        @Action('reset counter')
         reset() {
           this.count = 0;
         }
@@ -237,16 +237,16 @@ describe('Decorators', () => {
 
     it('should batch multiple updates in actions', () => {
       class UserStore {
-        @observable
+        @Observable
         firstName = '';
 
-        @observable
+        @Observable
         lastName = '';
 
-        @observable
+        @Observable
         age = 0;
 
-        @action
+        @Action
         updateUser(first: string, last: string, userAge: number) {
           this.firstName = first;
           this.lastName = last;
@@ -283,13 +283,13 @@ describe('Decorators', () => {
   describe('Real-world examples', () => {
     it('should work with a complete User class example', () => {
       class User extends ObservableClass {
-        @observable
+        @Observable
         name = '';
 
-        @observable
+        @Observable
         email = '';
 
-        @observable
+        @Observable
         age = 0;
 
         @computed
@@ -302,14 +302,14 @@ describe('Decorators', () => {
           return this.name || this.email.split('@')[0] || 'Anonymous';
         }
 
-        @action
+        @Action
         updateProfile(name: string, email: string, age: number) {
           this.name = name;
           this.email = email;
           this.age = age;
         }
 
-        @action('clear user data')
+        @Action('clear user data')
         clear() {
           this.name = '';
           this.email = '';
@@ -351,10 +351,10 @@ describe('Decorators', () => {
       }
 
       class TodoStore extends ObservableClass {
-        @observable
+        @Observable
         todos: Todo[] = [];
 
-        @observable
+        @Observable
         filter: 'all' | 'active' | 'completed' = 'all';
 
         @computed
@@ -379,7 +379,7 @@ describe('Decorators', () => {
           return this.todos.filter(todo => todo.completed).length;
         }
 
-        @action
+        @Action
         addTodo(text: string) {
           // 新范式：重新赋值整个数组以触发更新
           this.todos = [...this.todos, {
@@ -389,7 +389,7 @@ describe('Decorators', () => {
           }];
         }
 
-        @action
+        @Action
         toggleTodo(id: number) {
           // 新范式：重新赋值整个数组
           this.todos = this.todos.map(todo => 
@@ -397,12 +397,12 @@ describe('Decorators', () => {
           );
         }
 
-        @action
+        @Action
         setFilter(filter: 'all' | 'active' | 'completed') {
           this.filter = filter;
         }
 
-        @action
+        @Action
         clearCompleted() {
           // 新范式：重新赋值整个数组
           this.todos = this.todos.filter(todo => !todo.completed);
@@ -450,10 +450,10 @@ describe('Decorators', () => {
   describe('Integration with effects', () => {
     it('should properly track dependencies across decorators', () => {
       class ReactiveStore extends ObservableClass {
-        @observable
+        @Observable
         input = '';
 
-        @observable
+        @Observable
         multiplier = 1;
 
         @computed
@@ -466,12 +466,12 @@ describe('Decorators', () => {
           return this.processedInput.repeat(this.multiplier);
         }
 
-        @action
+        @Action
         updateInput(value: string) {
           this.input = value;
         }
 
-        @action
+        @Action
         setMultiplier(value: number) {
           this.multiplier = value;
         }

@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable } from '@eficy/reactive';
+import { Action, Computed, makeObservable, Observable } from '@eficy/reactive';
 import { nanoid } from 'nanoid';
 import type { ReactElement } from 'react';
 import type { IViewData } from '../interfaces';
@@ -26,39 +26,39 @@ export default class EficyNode {
   }
 
   // 核心字段
-  @observable
+  @Observable
   public '#' = '';
 
-  @observable
+  @Observable
   public '#view' = 'div';
 
-  @observable
+  @Observable
   public '#children': EficyNode[] = [];
 
-  @observable
+  @Observable
   public '#content'?: string | ReactElement;
 
-  @observable
+  @Observable
   public '#if'?: boolean | (() => boolean) = true;
 
-  @observable
+  @Observable
   public '#show'?: boolean | (() => boolean) = true;
 
-  @observable
+  @Observable
   public '#style'?: Record<string, any>;
 
-  @observable
+  @Observable
   public '#class'?: string | string[];
 
-  @observable
+  @Observable
   public '#events'?: Record<string, any>;
 
   // 动态属性存储
-  @observable
+  @Observable
   public dynamicProps: Record<string, any> = {};
 
   // 子模型映射
-  @computed
+  @Computed
   get nodeMap(): Record<string, EficyNode> {
     return this['#children'].reduce((acc, child) => {
       acc[child.id] = child;
@@ -83,7 +83,7 @@ export default class EficyNode {
   /**
    * 加载ViewData数据
    */
-  @action
+  @Action
   private load(data: IViewData): void {
     // 设置核心字段
     this['#'] = data['#'] || nanoid();
@@ -104,7 +104,7 @@ export default class EficyNode {
   /**
    * 计算最终传递给组件的props
    */
-  @computed
+  @Computed
   get props(): Record<string, any> {
     let props: Record<string, any> = { ...this.dynamicProps };
 
@@ -131,7 +131,7 @@ export default class EficyNode {
   /**
    * 判断是否应该渲染
    */
-  @computed
+  @Computed
   get shouldRender(): boolean {
     const ifCondition = this.evaluateCondition(this['#if']);
     const showCondition = this.evaluateCondition(this['#show']);
@@ -154,7 +154,7 @@ export default class EficyNode {
   /**
    * 更新字段值
    */
-  @action
+  @Action
   updateField(key: string, value: any): void {
     if (FRAMEWORK_FIELDS.has(key)) {
       // 更新框架字段
@@ -171,7 +171,7 @@ export default class EficyNode {
   /**
    * 设置子节点（由外部EficyNodeStore调用）
    */
-  @action
+  @Action
   setChildren(children: EficyNode[]): void {
     this['#children'] = children;
   }
@@ -179,7 +179,7 @@ export default class EficyNode {
   /**
    * 添加子节点
    */
-  @action
+  @Action
   addChild(child: EficyNode): void {
     if (!(child instanceof EficyNode)) {
       throw new Error('Child must be an instance of EficyNode');
@@ -190,7 +190,7 @@ export default class EficyNode {
   /**
    * 移除子节点
    */
-  @action
+  @Action
   removeChild(childId: string): void {
     this['#children'] = this['#children'].filter((child) => child.id !== childId);
   }
@@ -205,7 +205,7 @@ export default class EficyNode {
   /**
    * 获取视图数据映射
    */
-  @computed
+  @Computed
   get viewDataMap(): Record<string, EficyNode> {
     const result: Record<string, EficyNode> = { [this.id]: this };
 
@@ -217,7 +217,7 @@ export default class EficyNode {
     return result;
   }
 
-  @computed
+  @Computed
   get children(): EficyNode[] | string | ReactElement {
     return this['#children'] ?? this['#content'] ?? null;
   }
@@ -273,7 +273,7 @@ export default class EficyNode {
   /**
    * 更新节点数据
    */
-  @action
+  @Action
   update(data: IViewData): void {
     // 更新核心字段
     if (data['#view'] !== undefined) this['#view'] = data['#view'];
@@ -292,7 +292,7 @@ export default class EficyNode {
   /**
    * 完全覆盖节点数据
    */
-  @action
+  @Action
   overwrite(data: IViewData): void {
     // 重置所有数据
     this.load(data);

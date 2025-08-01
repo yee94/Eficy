@@ -1,5 +1,5 @@
-import { computed, makeObservable } from '@eficy/reactive';
 import 'reflect-metadata';
+import { Computed, makeObservable } from '@eficy/reactive';
 import React, { type ReactElement } from 'react';
 import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
 import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces';
@@ -334,7 +334,7 @@ export default class Eficy {
   /**
    * 获取统计信息
    */
-  @computed
+  @Computed
   get stats() {
     return {
       nodeTree: this.models?.stats || null,

@@ -1,4 +1,4 @@
-import { action, computed, makeObservable, observable } from '@eficy/reactive';
+import { Action, Computed, makeObservable, Observable } from '@eficy/reactive';
 import { inject, injectable } from 'tsyringe';
 import type { IViewData } from '../interfaces';
 import type { IBuildSchemaNodeContext, IProcessPropsContext } from '../interfaces/lifecycle';
@@ -11,12 +11,12 @@ import EficyNode from './EficyNode';
  */
 @injectable()
 export default class EficyModelTree {
-  @observable
+  @Observable
   private rootNode: EficyNode;
 
   private pluginManager: PluginManager;
 
-  @computed
+  @Computed
   get nodeMap(): Record<string, EficyNode> {
     const nodeMap = {
       [this.rootNode.id]: this.rootNode,
@@ -32,7 +32,7 @@ export default class EficyModelTree {
   /**
    * 构建完整的EficyNode树 - 由内向外递归构建
    */
-  @action
+  @Action
   async build(views: IViewData | IViewData[]): Promise<void> {
     // 由内向外递归构建EficyNode树，使用生命周期钩子
     const viewsArray = Array.isArray(views) ? views : [views];
@@ -94,7 +94,7 @@ export default class EficyModelTree {
   /**
    * 获取根节点
    */
-  @computed
+  @Computed
   get root(): EficyNode | null {
     return this.rootNode;
   }
@@ -102,7 +102,7 @@ export default class EficyModelTree {
   /**
    * 获取所有节点映射
    */
-  @computed
+  @Computed
   get nodes(): Record<string, EficyNode> {
     return this.nodeMap;
   }
@@ -117,7 +117,7 @@ export default class EficyModelTree {
   /**
    * 更新节点数据
    */
-  @action
+  @Action
   updateNode(nodeId: string, data: Partial<IViewData>): void {
     const node = this.findNode(nodeId);
     if (!node) {
@@ -143,7 +143,7 @@ export default class EficyModelTree {
   /**
    * 添加子节点
    */
-  @action
+  @Action
   addChild(parentId: string, childData: IViewData): EficyNode | null {
     const parent = this.findNode(parentId);
     if (!parent) {
@@ -160,7 +160,7 @@ export default class EficyModelTree {
   /**
    * 移除子节点
    */
-  @action
+  @Action
   removeChild(parentId: string, childId: string): void {
     const parent = this.findNode(parentId);
     if (!parent) {
@@ -179,7 +179,7 @@ export default class EficyModelTree {
   /**
    * 重建整个树
    */
-  @action
+  @Action
   rebuild(): void {
     if (this.rootData) {
       this.build(this.rootData);
@@ -189,7 +189,7 @@ export default class EficyModelTree {
   /**
    * 清空树
    */
-  @action
+  @Action
   clear(): void {
     this.rootNode = null;
     this.rootData = null;
@@ -198,7 +198,7 @@ export default class EficyModelTree {
   /**
    * 获取树的统计信息
    */
-  @computed
+  @Computed
   get stats() {
     return {
       totalNodes: Object.keys(this.nodeMap).length,
