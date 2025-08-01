@@ -20,6 +20,14 @@ const FRAMEWORK_FIELDS = new Set([
 ]);
 
 export default class EficyNode {
+  static isEficySchema(data: IViewData | any): boolean {
+    if (typeof data !== 'object' || data === null) {
+      return false;
+    }
+
+    return data['#view'] !== undefined;
+  }
+
   // 唯一标识
   public get id(): string {
     return this['#'];
@@ -36,7 +44,7 @@ export default class EficyNode {
   public '#children': EficyNode[] = [];
 
   @Observable
-  public '#content'?: string | ReactElement;
+  public '#content'?: string | ReactElement | EficyNode;
 
   @Observable
   public '#if'?: boolean | (() => boolean) = true;
@@ -88,13 +96,24 @@ export default class EficyNode {
     // 设置核心字段
     this['#'] = data['#'] || nanoid();
     this['#view'] = data['#view'] || 'div';
-    this['#content'] = data['#content'];
+
+    this['#content'] = EficyNode.isEficySchema(data['#content'])
+      ? EficyNode.fromJSON(data['#content'] as IViewData)
+      : (data['#content'] as string | ReactElement);
+
     this['#if'] = data['#if'] !== undefined ? data['#if'] : true;
     this['#show'] = data['#show'] !== undefined ? data['#show'] : true;
     this['#style'] = data['#style'];
     this['#class'] = data['#class'];
     this['#events'] = data['#events'];
-    this['#children'] = data['#children']?.map((child: IViewData) => EficyNode.fromJSON(child));
+
+    this['#children'] = (() => {
+      if (data['#children'] === undefined) {
+        return undefined;
+      }
+      const children = Array.isArray(data['#children']) ? data['#children'] : [data['#children']];
+      return children.map((child: IViewData) => EficyNode.fromJSON(child));
+    })();
 
     // 设置其他属性
     const otherProps = setOmit(data, FRAMEWORK_FIELDS);
@@ -281,7 +300,11 @@ export default class EficyNode {
   update(data: IViewData): void {
     // 更新核心字段
     if (data['#view'] !== undefined) this['#view'] = data['#view'];
-    if (data['#content'] !== undefined) this['#content'] = data['#content'];
+    if (data['#content'] !== undefined)
+      this['#content'] = EficyNode.isEficySchema(data['#content'])
+        ? EficyNode.fromJSON(data['#content'] as IViewData)
+        : (data['#content'] as string | ReactElement);
+
     if (data['#if'] !== undefined) this['#if'] = data['#if'];
     if (data['#show'] !== undefined) this['#show'] = data['#show'];
     if (data['#style'] !== undefined) this['#style'] = data['#style'];

@@ -8,8 +8,8 @@ import type EficyModelTree from '../models/EficyModelTree';
 export interface IViewData {
   '#'?: string; // 唯一标识
   '#view'?: string; // 组件类型
-  '#children'?: IViewData[]; // 子节点数据
-  '#content'?: string | ReactElement; // 内容
+  '#children'?: IViewData[] | IViewData; // 子节点数据
+  '#content'?: string | ReactElement | IViewData; // 内容
   '#if'?: boolean | (() => boolean); // 条件渲染
   '#show'?: boolean | (() => boolean); // 显示/隐藏
   '#style'?: Record<string, any>; // 样式
@@ -153,11 +153,11 @@ export interface IComponentRegistry {
 
 // 生命周期上下文接口
 export interface ILifecycleContext {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface ILifecycleManager {
-  register(phase: string, target: any, method: string): void
-  execute(phase: string, context: ILifecycleContext): Promise<void>
-  hasHooks(phase: string): boolean
-} 
+  register(phase: string, target: any, method: string): void;
+  execute(phase: string, context: ILifecycleContext): Promise<void>;
+  hasHooks(phase: string): boolean;
+}
