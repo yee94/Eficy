@@ -1,258 +1,117 @@
-# @eficy/reactive-react
+# @eficy/plugin-unocss
 
-React bindings for @eficy/reactive - MobX-compatible reactive state management with React integration.
+UnoCSS plugin for @eficy/core - Automatically generates and injects CSS styles from className attributes in Eficy components.
 
-## 🚀 Quick Start
+## 🚀 Features
 
-### Installation
+- **Automatic Class Collection**: Automatically collects className attributes from Eficy components
+- **UnoCSS Integration**: Uses UnoCSS to generate corresponding CSS styles
+- **Smart Injection**: Injects generated styles into the root node
+- **Performance Optimized**: Includes caching mechanism to avoid redundant computations
+- **Customizable**: Supports custom UnoCSS configurations
+
+## 📦 Installation
 
 ```bash
-npm install @eficy/reactive-react
+npm install @eficy/plugin-unocss
 # or
-yarn add @eficy/reactive-react
-# or 
-pnpm add @eficy/reactive-react
+yarn add @eficy/plugin-unocss
+# or
+pnpm add @eficy/plugin-unocss
 ```
+
+## 📖 Usage
 
 ### Basic Usage
 
-```tsx
-import React from 'react';
-import { observable, action, observer } from '@eficy/reactive-react';
+```ts
+import { Eficy } from '@eficy/core';
+import { createUnocssPlugin } from '@eficy/plugin-unocss';
 
-// 使用 observable 创建响应式状态 (MobX 兼容语法)
-const store = observable({
-  count: 0,
-  name: 'Hello'
-});
+// Create Eficy instance
+const eficy = new Eficy();
 
-// 创建 actions
-const increment = action(() => {
-  store.set('count', store.get('count') + 1);
-});
+// Create and register the plugin
+const unocssPlugin = createUnocssPlugin();
+eficy.registerPlugin(unocssPlugin);
 
-const updateName = action((newName: string) => {
-  store.set('name', newName);
-});
+// Use in your schema
+const schema = {
+  views: [
+    {
+      '#': 'root',
+      '#view': 'div',
+      className: 'text-red-500 p-4 bg-blue-500',
+      '#content': 'Hello UnoCSS',
+    },
+  ],
+};
 
-// 使用 observer 让组件响应式
-const Counter = observer(() => (
-  <div>
-    <h1>{store.get('name')}: {store.get('count')}</h1>
-    <button onClick={increment}>+1</button>
-    <button onClick={() => updateName('Updated!')}>Update Name</button>
-  </div>
-));
-
-export default Counter;
+// The plugin will automatically collect className attributes and inject the corresponding CSS
+const element = await eficy.createElement(schema);
 ```
 
-## 📚 Core API
+### With Custom Configuration
 
-### observable
+```ts
+import { Eficy } from '@eficy/core';
+import { createUnocssPlugin } from '@eficy/plugin-unocss';
 
-主要的入口点，类似 MobX 的 `observable` 方法：
+const eficy = new Eficy();
 
-```tsx
-import { observable } from '@eficy/reactive-react';
-
-// 自动检测类型并创建对应的可观察对象
-const store = observable({
-  count: 0,
-  items: ['a', 'b', 'c']
+// Create plugin with custom UnoCSS configuration
+const unocssPlugin = createUnocssPlugin({
+  config: {
+    // Your custom UnoCSS configuration
+    rules: [
+      ['btn', { padding: '0.5rem 1rem', borderRadius: '0.25rem' }]
+    ],
+    // ... other UnoCSS options
+  }
 });
 
-const arr = observable([1, 2, 3]);
-const map = observable(new Map());
-const set = observable(new Set());
-const primitive = observable(42);
+eficy.registerPlugin(unocssPlugin);
 ```
 
-### observer
+## 🛠️ API
 
-将 React 组件转换为响应式组件：
+### createUnocssPlugin(config?: UnocssPluginConfig)
 
-```tsx
-import { observer } from '@eficy/reactive-react';
+Creates a new UnocssPlugin instance.
 
-const MyComponent = observer(() => {
-  return <div>Count: {store.get('count')}</div>;
-});
+#### UnocssPluginConfig
 
-// 带 forwardRef 的用法
-const MyInput = observer(React.forwardRef((props, ref) => {
-  return <input ref={ref} value={store.get('value')} />;
-}), { forwardRef: true });
-```
-
-### useObserver Hook
-
-在函数组件中直接使用响应式逻辑：
-
-```tsx
-import { useObserver } from '@eficy/reactive-react';
-
-function MyComponent() {
-  return useObserver(() => (
-    <div>Count: {store.get('count')}</div>
-  ));
+```ts
+interface UnocssPluginConfig {
+  config?: UserConfig; // Custom UnoCSS configuration
 }
 ```
 
-### action
+### UnocssPlugin Class
 
-批处理状态更新，确保只触发一次重新渲染：
+The main plugin class that implements ILifecyclePlugin.
 
-```tsx
-import { action } from '@eficy/reactive-react';
+#### Methods
 
-const updateMultiple = action(() => {
-  store.set('count', 10);
-  store.set('name', 'Updated');
-  // 只会触发一次重新渲染
-});
-```
+- `getGenerator(): UnoGenerator | null` - Returns the UnoCSS generator instance
+- `destroy(): void` - Cleans up resources and clears caches
 
-## 🎯 高级用法
+## 🧪 How It Works
 
-### 计算值
+1. **Initialization**: The plugin initializes the UnoCSS generator with default presets (Uno and Attributify)
+2. **Class Collection**: During the schema building phase, it collects className attributes from all components
+3. **CSS Generation**: When rendering the root node, it generates CSS for all collected classes using UnoCSS
+4. **Style Injection**: The generated CSS is injected as a `<style>` tag alongside the root element
+5. **Caching**: Uses caching to avoid regenerating CSS for the same set of classes
 
-```tsx
-import { computed } from '@eficy/reactive-react';
+## 🎯 Supported Features
 
-const store = observable({
-  firstName: 'John',
-  lastName: 'Doe'
-});
-
-const fullName = computed(() => 
-  `${store.get('firstName')} ${store.get('lastName')}`
-);
-
-const MyComponent = observer(() => (
-  <div>Full name: {fullName()}</div>
-));
-```
-
-### 数组操作
-
-```tsx
-const items = observable(['apple', 'banana']);
-
-const ItemList = observer(() => (
-  <ul>
-    {items.toArray().map((item, index) => (
-      <li key={index}>{item}</li>
-    ))}
-  </ul>
-));
-
-// 添加项目
-const addItem = action(() => {
-  items.push('orange');
-});
-```
-
-### Map 和 Set
-
-```tsx
-const userMap = observable.map<string, User>();
-const tagSet = observable.set<string>();
-
-const UserList = observer(() => {
-  // 确保通过访问 size 建立依赖关系
-  const mapSize = userMap.size;
-  const users = Array.from(userMap.entries());
-  
-  return (
-    <div>
-      <h3>Users ({mapSize}):</h3>
-      {users.map(([id, user]) => (
-        <div key={id}>{user.name}</div>
-      ))}
-    </div>
-  );
-});
-```
-
-## 🔄 从 MobX 迁移
-
-@eficy/reactive-react 提供了与 MobX 兼容的 API，迁移通常很简单：
-
-```tsx
-// MobX
-import { observable, action, computed } from 'mobx';
-import { observer } from 'mobx-react';
-
-// @eficy/reactive-react
-import { observable, action, computed, observer } from '@eficy/reactive-react';
-
-// API 基本相同！
-const store = observable({
-  count: 0
-});
-
-const increment = action(() => {
-  store.set('count', store.get('count') + 1);
-});
-```
-
-## ⚡ 性能特性
-
-- **精细化更新**: 只有依赖变化的组件会重新渲染
-- **自动批处理**: `action` 内的多个更新会被批处理  
-- **高效依赖追踪**: 基于 `@preact/signals-core` 的高性能实现
-- **懒计算**: 计算值只在被访问时计算
-
-## 🧪 测试
-
-```tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { observable, action, observer } from '@eficy/reactive-react';
-
-it('should update component when observable changes', () => {
-  const store = observable({ count: 0 });
-  const increment = action(() => store.set('count', store.get('count') + 1));
-  
-  const Counter = observer(() => (
-    <div>
-      <span data-testid="count">{store.get('count')}</span>
-      <button data-testid="increment" onClick={increment}>+</button>
-    </div>
-  ));
-  
-  render(<Counter />);
-  expect(screen.getByTestId('count')).toHaveTextContent('0');
-  
-  fireEvent.click(screen.getByTestId('increment'));
-  expect(screen.getByTestId('count')).toHaveTextContent('1');
-});
-```
-
-## 📝 TypeScript
-
-完全支持 TypeScript，提供类型安全的 API：
-
-```tsx
-interface UserStore {
-  name: string;
-  age: number;
-}
-
-const userStore = observable<UserStore>({
-  name: 'John',
-  age: 25
-});
-
-// 类型安全的访问
-const name: string = userStore.get('name');
-const age: number = userStore.get('age');
-```
-
-## 📖 更多信息
-
-- [GitHub Repository](https://github.com/yee94/eficy)
-- [@eficy/reactive 文档](../reactive/README.md)
+- Class name collection from both string and array formats
+- Nested component className collection
+- Incremental class collection
+- Caching for performance optimization
+- Error handling for CSS generation failures
+- Custom UnoCSS configuration support
 
 ## 📄 License
 
