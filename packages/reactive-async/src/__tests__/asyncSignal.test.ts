@@ -2,15 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { asyncSignal } from '../core/asyncSignal';
 
 describe('asyncSignal', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.clearAllTimers();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
+ 
   describe('基础功能', () => {
     it('应该创建 asyncSignal 并返回正确的结构', () => {
       const mockService = vi.fn().mockResolvedValue({ name: 'test' });
@@ -42,13 +34,13 @@ describe('asyncSignal', () => {
     it('应该处理服务函数错误', async () => {
       const error = new Error('Network error');
       const mockService = vi.fn().mockRejectedValue(error);
-      const result = asyncSignal(mockService);
+      const result = asyncSignal(mockService, { manual: true });
 
-      // 等待异步操作完成并处理错误
+      // 手动触发请求并等待错误
       try {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await result.run();
       } catch (e) {
-        // 忽略错误，因为这是预期的行为
+        // 预期的错误，忽略
       }
 
       expect(mockService).toHaveBeenCalledTimes(1);
@@ -118,13 +110,14 @@ describe('asyncSignal', () => {
         onError,
         onBefore,
         onFinally,
+        manual: true,
       });
 
-      // 等待异步操作完成并处理错误
+      // 手动触发请求并等待错误
       try {
-        await new Promise(resolve => setTimeout(resolve, 0));
+        await result.run();
       } catch (e) {
-        // 忽略错误，因为这是预期的行为
+        // 预期的错误，忽略
       }
 
       expect(onBefore).toHaveBeenCalledWith([]);
@@ -236,4 +229,4 @@ describe('asyncSignal', () => {
       expect(result.data).toEqual({ name: 'test' });
     });
   });
-}); 
+});

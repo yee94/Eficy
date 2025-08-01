@@ -141,7 +141,8 @@ export interface RequestState<TData> {
  */
 export interface CacheData<TData> {
   data: TData;
-  time: number;
+  time: number; // 缓存创建时间
+  expireTime: number; // 缓存过期时间
   params: any[];
 }
 

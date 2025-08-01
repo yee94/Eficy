@@ -1,42 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { asyncSignal } from '../core/asyncSignal';
-
-// Mock Eficy for testing
-const mockEficy = {
-  config: vi.fn(),
-  render: vi.fn().mockResolvedValue({}),
-};
-
-// Mock React for testing
-const mockReact = {
-  createElement: vi.fn((type, props, ...children) => ({
-    type,
-    props: { ...props, children },
-  })),
-};
-
-vi.mock('@eficy/core', () => ({
-  Eficy: vi.fn(() => mockEficy),
-}));
-
-vi.mock('react', () => mockReact);
+import { Eficy } from '@eficy/core';
+import React from 'react';
 
 describe('asyncSignal 与 Eficy 集成', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.clearAllTimers();
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.useRealTimers();
-  });
-
   describe('基础集成', () => {
     it('应该与 Eficy 正确集成', async () => {
-      const mockService = vi.fn().mockResolvedValue({ name: 'test user' });
-      const result = asyncSignal(mockService);
+      const fetchUserInfo = async () => ({ name: 'test user' });
+      const result = asyncSignal(fetchUserInfo);
 
       // 等待异步操作完成
       await new Promise(resolve => setTimeout(resolve, 0));
@@ -47,8 +18,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
     });
 
     it('应该在 Schema 中使用 computed 属性', () => {
-      const mockService = vi.fn().mockResolvedValue({ name: 'test user' });
-      const result = asyncSignal(mockService, { manual: true });
+      const fetchUserInfo = async () => ({ name: 'test user' });
+      const result = asyncSignal(fetchUserInfo, { manual: true });
 
       const computed = result.computed((state) => {
         if (state.loading) return 'Loading...';
@@ -64,8 +35,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
 
   describe('Schema 渲染集成', () => {
     it('应该支持在 Schema 中使用 asyncSignal', async () => {
-      const mockService = vi.fn().mockResolvedValue({ name: 'test user' });
-      const result = asyncSignal(mockService, { manual: true });
+      const fetchUserInfo = async () => ({ name: 'test user' });
+      const result = asyncSignal(fetchUserInfo, { manual: true });
 
       // 模拟 Schema 结构
       const schema = {
@@ -94,8 +65,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
     });
 
     it('应该支持动态 Schema 更新', async () => {
-      const mockService = vi.fn().mockResolvedValue({ users: [{ name: 'user1' }, { name: 'user2' }] });
-      const result = asyncSignal(mockService, { manual: true });
+      const fetchUserList = async () => ({ users: [{ name: 'user1' }, { name: 'user2' }] });
+      const result = asyncSignal(fetchUserList, { manual: true });
 
       const schema = {
         views: [
@@ -125,8 +96,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
 
   describe('事件处理集成', () => {
     it('应该支持在 Schema 中处理事件', async () => {
-      const mockService = vi.fn().mockResolvedValue({ success: true });
-      const result = asyncSignal(mockService, { manual: true });
+      const submitForm = async (data) => ({ success: true });
+      const result = asyncSignal(submitForm, { manual: true });
 
       const schema = {
         views: [
@@ -154,8 +125,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
     });
 
     it('应该支持条件渲染', async () => {
-      const mockService = vi.fn().mockResolvedValue({ isLoggedIn: true });
-      const result = asyncSignal(mockService, { manual: true });
+      const checkLoginStatus = async () => ({ isLoggedIn: true });
+      const result = asyncSignal(checkLoginStatus, { manual: true });
 
       const schema = {
         views: [
@@ -186,8 +157,10 @@ describe('asyncSignal 与 Eficy 集成', () => {
   describe('错误处理集成', () => {
     it('应该在 Schema 中处理错误状态', async () => {
       const error = new Error('Network error');
-      const mockService = vi.fn().mockRejectedValue(error);
-      const result = asyncSignal(mockService, { manual: true });
+      const fetchWithError = async () => {
+        throw error;
+      };
+      const result = asyncSignal(fetchWithError, { manual: true });
 
       const schema = {
         views: [
@@ -225,8 +198,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
 
   describe('数据修改集成', () => {
     it('应该在 Schema 中支持数据修改', async () => {
-      const mockService = vi.fn().mockResolvedValue({ items: [{ id: 1, name: 'item1' }] });
-      const result = asyncSignal(mockService, { manual: true });
+      const fetchItems = async () => ({ items: [{ id: 1, name: 'item1' }] });
+      const result = asyncSignal(fetchItems, { manual: true });
 
       const schema = {
         views: [
@@ -282,8 +255,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
 
   describe('性能优化集成', () => {
     it('应该支持缓存集成', async () => {
-      const mockService = vi.fn().mockResolvedValue({ data: 'cached data' });
-      const result = asyncSignal(mockService, {
+      const fetchCachedData = async () => ({ data: 'cached data' });
+      const result = asyncSignal(fetchCachedData, {
         cacheKey: 'test-cache',
         cacheTime: 5000,
         manual: true,
@@ -307,8 +280,8 @@ describe('asyncSignal 与 Eficy 集成', () => {
     });
 
     it('应该支持防抖集成', async () => {
-      const mockService = vi.fn().mockResolvedValue({ results: [] });
-      const result = asyncSignal(mockService, {
+      const searchService = async (query) => ({ results: [] });
+      const result = asyncSignal(searchService, {
         debounceWait: 300,
         manual: true,
       });

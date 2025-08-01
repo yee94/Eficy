@@ -7,13 +7,22 @@ class CacheManager {
   private cache = new Map<string, CacheData<any>>();
   
   /**
+   * 获取当前时间（支持测试环境的时间模拟）
+   */
+  private getCurrentTime(): number {
+    return Date.now();
+  }
+  
+  /**
    * 设置缓存
    */
   set<TData>(key: string, data: TData, params: any[], cacheTime: number): void {
+    const now = this.getCurrentTime();
     this.cache.set(key, {
       data,
       params,
-      time: Date.now() + cacheTime
+      time: now,
+      expireTime: now + cacheTime
     });
   }
   
@@ -28,7 +37,7 @@ class CacheManager {
     }
     
     // 检查是否过期
-    if (Date.now() > cached.time) {
+    if (this.getCurrentTime() > cached.expireTime) {
       this.cache.delete(key);
       return undefined;
     }
@@ -64,7 +73,7 @@ class CacheManager {
     const cached = this.cache.get(key);
     if (!cached) return false;
     
-    if (Date.now() > cached.time) {
+    if (this.getCurrentTime() > cached.time) {
       this.cache.delete(key);
       return false;
     }

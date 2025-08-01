@@ -2,16 +2,24 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cacheManager } from '../core/cache';
 
 describe('缓存管理器', () => {
+  let mockDateNow: any;
+  let currentTime = 0;
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.clearAllTimers();
     vi.useFakeTimers();
     cacheManager.clear();
+    
+    // 模拟 Date.now()
+    currentTime = 1000000; // 设置一个基准时间
+    mockDateNow = vi.spyOn(Date, 'now').mockImplementation(() => currentTime);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     vi.useRealTimers();
+    mockDateNow?.mockRestore();
   });
 
   describe('基础缓存功能', () => {
@@ -59,7 +67,7 @@ describe('缓存管理器', () => {
       expect(cacheManager.get('expire-key')).toBeDefined();
 
       // 推进时间超过缓存时间
-      vi.advanceTimersByTime(1000);
+      currentTime += 1001;
 
       // 缓存应该过期
       expect(cacheManager.get('expire-key')).toBeUndefined();
@@ -73,13 +81,13 @@ describe('缓存管理器', () => {
       cacheManager.set('long-key', data2, [], 5000);
 
       // 推进时间到短期缓存过期
-      vi.advanceTimersByTime(1000);
+      currentTime += 1001;
 
       expect(cacheManager.get('short-key')).toBeUndefined();
       expect(cacheManager.get('long-key')).toBeDefined();
 
       // 推进时间到长期缓存过期
-      vi.advanceTimersByTime(4000);
+      currentTime += 4000;
 
       expect(cacheManager.get('long-key')).toBeUndefined();
     });
@@ -130,7 +138,7 @@ describe('缓存管理器', () => {
       expect(cacheManager.size()).toBe(2);
 
       // 推进时间使第一个缓存过期
-      vi.advanceTimersByTime(1000);
+      currentTime += 1001;
 
       // 获取过期缓存会自动清理
       cacheManager.get('key1');
@@ -199,7 +207,7 @@ describe('缓存管理器', () => {
       expect(cacheManager.size()).toBe(20);
 
       // 推进时间使短期缓存过期
-      vi.advanceTimersByTime(1000);
+      currentTime += 1001;
 
       // 获取过期缓存会自动清理
       for (let i = 0; i < 10; i++) {
@@ -210,4 +218,4 @@ describe('缓存管理器', () => {
       expect(cacheManager.size()).toBe(10);
     });
   });
-}); 
+});

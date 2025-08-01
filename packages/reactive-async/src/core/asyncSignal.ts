@@ -60,11 +60,17 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
     if (this.options.cacheKey) {
       const cached = cacheManager.get<TData>(this.options.cacheKey);
       if (cached && isEqual(cached.params, params)) {
-        this.data(cached.data);
-        this.loading(false);
-        this.error(undefined);
-        this.params(params);
-        return cached.data;
+        // 检查数据是否在保鲜期内
+        const isStale = this.options.staleTime ? 
+          (Date.now() - cached.time) > this.options.staleTime : false;
+        
+        if (!isStale) {
+          this.data(cached.data);
+          this.loading(false);
+          this.error(undefined);
+          this.params(params);
+          return cached.data;
+        }
       }
     }
 
