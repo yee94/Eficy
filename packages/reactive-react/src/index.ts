@@ -13,11 +13,11 @@ export type * from './types'
 
 // ==================== 装饰器支持（优先级最高）====================
 export {
-  observable,
-  computed,
-  action,
+  Observable,
+  Computed,
+  Action,
   makeObservable,
-  ObservableClass
+  ObservableClass,
 } from '@eficy/reactive'
 
 // ==================== 核心 Signals 功能 ====================
@@ -27,7 +27,7 @@ export {
   batch,
   watch,
   isSignal,
-  createComputed,
+  computed,
   createAction
 } from '@eficy/reactive'
 

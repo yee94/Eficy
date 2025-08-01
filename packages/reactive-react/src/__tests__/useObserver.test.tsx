@@ -1,6 +1,5 @@
-import React from 'react'
 import { render, screen, act, waitFor } from '@testing-library/react'
-import { signal, createComputed, createAction } from '@eficy/reactive'
+import { signal, computed, createAction } from '@eficy/reactive'
 import { useObserver, useSignals } from '../hooks/useObserver'
 
 describe('useObserver', () => {
@@ -27,7 +26,7 @@ describe('useObserver', () => {
   
   it('should work with computed values', async () => {
     const count = signal(5)
-    const doubled = createComputed(() => count() * 2)
+    const doubled = computed(() => count() * 2)
     
     function Component() {
       return useObserver(() => (
@@ -157,8 +156,8 @@ describe('useSignals', () => {
   
   it('should work with computed signals', async () => {
     const count = signal(2)
-    const doubled = createComputed(() => count() * 2)
-    const tripled = createComputed(() => count() * 3)
+    const doubled = computed(() => count() * 2)
+    const tripled = computed(() => count() * 3)
     
     function Component() {
       useSignals()

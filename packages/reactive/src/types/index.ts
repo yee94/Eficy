@@ -6,14 +6,18 @@ export type WatchCallback<T> = (newValue: T, oldValue: T) => void;
 
 export type ActionFunction<Args extends any[], Return> = (...args: Args) => Return;
 
+// 信号标记符号
+export const SIGNAL_MARKER = Symbol('__EFICY_SIGNAL__') as unique symbol;
+
 // ==================== Signal 类型 ====================
 
 export interface Signal<T> {
   (): T;
   (value: T): void;
+  [SIGNAL_MARKER]: true;
 }
 
-export type ComputedSignal<T> = () => T;
+export type ComputedSignal<T> = () => T & { [SIGNAL_MARKER]: true };
 
 export interface Ref<T> {
   value: T;

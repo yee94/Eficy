@@ -6,6 +6,7 @@ import {
   untracked
 } from '@preact/signals-core';
 import type { Signal, ComputedSignal, Dispose } from '../types/index';
+import { SIGNAL_MARKER } from '../types/index';
 
 // ==================== Signal 实现 ====================
 
@@ -27,6 +28,9 @@ export function signal<T>(initialValue: T): Signal<T> {
     return newValue;
   }
   
+  // 添加信号标记
+  (signalAccessor as any)[SIGNAL_MARKER] = true;
+  
   return signalAccessor as Signal<T>;
 }
 
@@ -40,6 +44,9 @@ export function computed<T>(getter: () => T): ComputedSignal<T> {
   function computedAccessor(): T {
     return preactComp.value;
   }
+  
+  // 添加信号标记
+  (computedAccessor as any)[SIGNAL_MARKER] = true;
   
   return computedAccessor as ComputedSignal<T>;
 }
@@ -68,7 +75,7 @@ export { untracked };
  * 检查是否为信号
  */
 export function isSignal(value: unknown): value is Signal<unknown> {
-  return typeof value === 'function';
+  return typeof value === 'function' && (value as any)[SIGNAL_MARKER] === true;
 }
 
 /**

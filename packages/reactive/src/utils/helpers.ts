@@ -1,4 +1,5 @@
 import type { Signal, ComputedSignal } from '../types/index';
+import { SIGNAL_MARKER } from '../types/index';
 
 // ==================== 类型检查工具 ====================
 
@@ -43,6 +44,13 @@ export function isWeakSet(value: unknown): value is WeakSet<object> {
 }
 
 // ==================== 响应式系统工具 ====================
+
+/**
+ * 检查是否为信号
+ */
+export function isSignal(value: unknown): value is Signal<unknown> {
+  return typeof value === 'function' && (value as any)[SIGNAL_MARKER] === true;
+}
 
 // 用于存储原始对象的 WeakMap
 const rawMap = new WeakMap<object, unknown>();

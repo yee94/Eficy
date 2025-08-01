@@ -68,25 +68,6 @@ const set = observable(new Set());
 const primitive = observable(42);
 ```
 
-### 显式方法
-
-```tsx
-// 创建可观察对象
-const store = observable.object({ count: 0 });
-
-// 创建可观察数组  
-const items = observable.array(['apple', 'banana']);
-
-// 创建可观察的基本类型 (Box)
-const count = observable.box(0);
-
-// 创建可观察 Map
-const userMap = observable.map();
-
-// 创建可观察 Set
-const tagSet = observable.set();
-```
-
 ### observer
 
 将 React 组件转换为响应式组件：

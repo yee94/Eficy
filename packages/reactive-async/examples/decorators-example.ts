@@ -26,35 +26,35 @@ import {
 // ==================== 示例 1: 用户管理 ====================
 
 class UserStore {
-  @observable
+  @Observable
   firstName = '';
 
-  @observable
+  @Observable
   lastName = '';
 
-  @observable
+  @Observable
   age = 0;
 
-  @observable
+  @Observable
   isLoggedIn = false;
 
-  @computed
+  @Computed
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`.trim();
   }
 
-  @computed
+  @Computed
   get isAdult(): boolean {
     return this.age >= 18;
   }
 
-  @computed
+  @Computed
   get displayStatus(): string {
     if (!this.isLoggedIn) return 'Not logged in';
     return `${this.fullName} (${this.isAdult ? 'Adult' : 'Minor'})`;
   }
 
-  @action
+  @Action
   login(firstName: string, lastName: string, age: number) {
     this.firstName = firstName;
     this.lastName = lastName;
@@ -62,7 +62,7 @@ class UserStore {
     this.isLoggedIn = true;
   }
 
-  @action('logout user')
+  @Action('logout user')
   logout() {
     this.firstName = '';
     this.lastName = '';
@@ -70,7 +70,7 @@ class UserStore {
     this.isLoggedIn = false;
   }
 
-  @action
+  @Action
   updateProfile(updates: { firstName?: string; lastName?: string; age?: number }) {
     if (updates.firstName !== undefined) this.firstName = updates.firstName;
     if (updates.lastName !== undefined) this.lastName = updates.lastName;
@@ -92,38 +92,38 @@ interface CartItem {
 }
 
 class ShoppingCart extends ObservableClass {
-  @observable
+  @Observable
   items: CartItem[] = [];
 
-  @observable
+  @Observable
   discountPercent = 0;
 
-  @computed
+  @Computed
   get totalItems(): number {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  @computed
+  @Computed
   get subtotal(): number {
     return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
-  @computed
+  @Computed
   get discountAmount(): number {
     return this.subtotal * (this.discountPercent / 100);
   }
 
-  @computed
+  @Computed
   get total(): number {
     return this.subtotal - this.discountAmount;
   }
 
-  @computed
+  @Computed
   get isEmpty(): boolean {
     return this.items.length === 0;
   }
 
-  @action
+  @Action
   addItem(item: Omit<CartItem, 'quantity'>, quantity = 1) {
     const existingItem = this.items.find(i => i.id === item.id);
     if (existingItem) {
@@ -133,12 +133,12 @@ class ShoppingCart extends ObservableClass {
     }
   }
 
-  @action
+  @Action
   removeItem(id: string) {
     this.items = this.items.filter(item => item.id !== id);
   }
 
-  @action
+  @Action
   updateQuantity(id: string, quantity: number) {
     if (quantity <= 0) {
       this.removeItem(id);
@@ -150,12 +150,12 @@ class ShoppingCart extends ObservableClass {
     );
   }
 
-  @action
+  @Action
   applyDiscount(percent: number) {
     this.discountPercent = Math.max(0, Math.min(100, percent));
   }
 
-  @action
+  @Action
   clear() {
     this.items = [];
     this.discountPercent = 0;
@@ -165,30 +165,30 @@ class ShoppingCart extends ObservableClass {
 // ==================== 示例 3: 复杂状态管理 ====================
 
 class AppStore extends ObservableClass {
-  @observable
+  @Observable
   currentUser: UserStore | null = null;
 
-  @observable
+  @Observable
   cart = new ShoppingCart();
 
-  @observable
+  @Observable
   isLoading = false;
 
-  @observable
+  @Observable
   errorMessage = '';
 
-  @computed
+  @Computed
   get isUserLoggedIn(): boolean {
     return this.currentUser?.isLoggedIn ?? false;
   }
 
-  @computed
+  @Computed
   get cartSummary(): string {
     if (this.cart.isEmpty) return 'Cart is empty';
     return `${this.cart.totalItems} items, $${this.cart.total.toFixed(2)}`;
   }
 
-  @computed
+  @Computed
   get appStatus(): string {
     if (this.isLoading) return 'Loading...';
     if (this.errorMessage) return `Error: ${this.errorMessage}`;
@@ -196,12 +196,12 @@ class AppStore extends ObservableClass {
     return `Welcome ${this.currentUser!.fullName}! ${this.cartSummary}`;
   }
 
-  @action
+  @Action
   setCurrentUser(user: UserStore) {
     this.currentUser = user;
   }
 
-  @action
+  @Action
   setLoading(loading: boolean) {
     this.isLoading = loading;
     if (loading) {
@@ -209,18 +209,18 @@ class AppStore extends ObservableClass {
     }
   }
 
-  @action
+  @Action
   setError(message: string) {
     this.errorMessage = message;
     this.isLoading = false;
   }
 
-  @action
+  @Action
   clearError() {
     this.errorMessage = '';
   }
 
-  @action
+  @Action
   logout() {
     this.currentUser?.logout();
     this.currentUser = null;

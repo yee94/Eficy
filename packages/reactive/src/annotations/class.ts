@@ -1,4 +1,4 @@
-import { signal, computed as createComputed } from '../core/signal';
+import { signal, computed as computed } from '../core/signal';
 import { action } from '../core/action';
 import type { ReactiveClassDefinition, AnnotationMetadata } from '../types/index';
 
@@ -35,7 +35,7 @@ export function defineReactiveClass<T extends ReactiveClassDefinition>(
       
       // 如果是带注解的计算属性
       if (isAnnotationMetadata(value) && value.$computed && value.get) {
-        reactiveInstance[key] = createComputed(() => {
+        reactiveInstance[key] = computed(() => {
           // 在计算函数中，this 指向 reactiveInstance
           return value.get?.call(reactiveInstance);
         });

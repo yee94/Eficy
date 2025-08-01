@@ -65,30 +65,30 @@ For TypeScript projects with decorator support, you can use the class-based API:
 
 ```typescript
 import 'reflect-metadata';
-import { observable, computed, action, makeObservable, ObservableClass } from '@eficy/reactive/annotation';
+import { Observable, Computed, Action, makeObservable, ObservableClass } from '@eficy/reactive/annotation';
 
 // Option 1: Manual makeObservable
 class UserStore {
-  @observable
+  @Observable
   firstName = 'John';
 
-  @observable
+  @Observable
   lastName = 'Doe';
 
-  @observable
+  @Observable
   age = 25;
 
-  @computed
+  @Computed
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`;
   }
 
-  @computed
+  @Computed
   get isAdult(): boolean {
     return this.age >= 18;
   }
 
-  @action
+  @Action
   updateUser(first: string, last: string, age: number) {
     this.firstName = first;
     this.lastName = last;
@@ -102,26 +102,26 @@ class UserStore {
 
 // Option 2: ObservableClass base class (auto makeObservable)
 class UserStore extends ObservableClass {
-  @observable
+  @Observable
   firstName = 'John';
 
-  @observable
+  @Observable
   lastName = 'Doe';
 
-  @observable
+  @Observable
   age = 25;
 
-  @computed
+  @Computed
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`;
   }
 
-  @computed
+  @Computed
   get isAdult(): boolean {
     return this.age >= 18;
   }
 
-  @action
+  @Action
   updateUser(first: string, last: string, age: number) {
     this.firstName = first;
     this.lastName = last;
@@ -225,11 +225,11 @@ user.update({ email: 'jane@example.com' });
 
 ### Decorators (from '@eficy/reactive/annotation')
 
-- **`@observable`** - Mark class property as observable
-- **`@observable(initialValue)`** - Mark property as observable with initial value
-- **`@computed`** - Mark getter as computed property
-- **`@action`** - Mark method as action
-- **`@action('name')`** - Mark method as action with custom name
+- **`@Observable`** - Mark class property as observable
+- **`@Observable(initialValue)`** - Mark property as observable with initial value
+- **`@Computed`** - Mark getter as computed property
+- **`@Action`** - Mark method as action
+- **`@Action('name')`** - Mark method as action with custom name
 - **`makeObservable(instance)`** - Apply decorators to class instance
 - **`ObservableClass`** - Base class that auto-applies makeObservable
 
@@ -246,10 +246,10 @@ This library is designed to be largely compatible with MobX patterns:
 
 ```typescript
 // MobX style
-import { observable, computed, action, makeObservable } from 'mobx';
+import { Observable, Computed, Action, makeObservable } from 'mobx';
 
 // @eficy/reactive style (very similar!)
-import { observable, computed, action, makeObservable } from '@eficy/reactive/annotation';
+import { Observable, Computed, Action, makeObservable } from '@eficy/reactive/annotation';
 ```
 
 Key differences:

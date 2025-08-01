@@ -1,11 +1,11 @@
-import { createComputed } from '@eficy/reactive';
+import { computed } from '@eficy/reactive';
 import mapValues from 'lodash/mapValues';
 
 /**
  * AsyncState 标记接口（约定）
  * 任何符合这个约定的对象都会被识别为异步状态标记
  */
-export type AsyncStateMarker<T = any> = () => ReturnType<typeof createComputed<T>> & {
+export type AsyncStateMarker<T = any> = () => ReturnType<typeof computed<T>> & {
   __asyncState: true;
 };
 

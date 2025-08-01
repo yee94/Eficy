@@ -46,7 +46,7 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
   /**
    * 执行请求
    */
-  @action
+  @Action
   private async runRequest(...params: TParams): Promise<TData> {
     // 检查是否已准备就绪
     if (this.options.ready === false) {
@@ -210,7 +210,7 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
   /**
    * 修改数据
    */
-  @action
+  @Action
   mutate(data: TData | undefined | ((oldData: TData | undefined) => TData | undefined)): void {
     if (typeof data === 'function') {
       this.data((data as Function)(this.data()));

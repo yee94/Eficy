@@ -130,23 +130,23 @@ Eficy 完整包包含以下核心模块：
 基于 `@eficy/reactive` 的现代响应式系统：
 
 ```typescript
-import { observable, computed, action, ObservableClass } from '@eficy/reactive'
+import { Observable, Computed, Action, ObservableClass } from '@eficy/reactive'
 
 class UserStore extends ObservableClass {
-  @observable users = []
-  @observable filter = ''
+  @Observable users = []
+  @Observable filter = ''
   
-  @computed get filteredUsers() {
+  @Computed get filteredUsers() {
     return this.users.filter(user => 
       user.name.toLowerCase().includes(this.filter.toLowerCase())
     )
   }
   
-  @action addUser(user) {
+  @Action addUser(user) {
     this.users = [...this.users, user]
   }
   
-  @action setFilter(filter) {
+  @Action setFilter(filter) {
     this.filter = filter
   }
 }
@@ -416,9 +416,9 @@ eficy.config({
 ```typescript
 // 使用 computed 缓存计算结果
 class DataStore extends ObservableClass {
-  @observable rawData = []
+  @Observable rawData = []
   
-  @computed get processedData() {
+  @Computed get processedData() {
     // 复杂计算会被缓存
     return this.rawData.map(item => ({
       ...item,
@@ -428,7 +428,7 @@ class DataStore extends ObservableClass {
 }
 
 // 使用 action 批量更新
-@action updateMultiple() {
+@Action updateMultiple() {
   this.field1 = 'value1'
   this.field2 = 'value2'
   this.field3 = 'value3'

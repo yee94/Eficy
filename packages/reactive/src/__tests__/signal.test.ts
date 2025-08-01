@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { signal, computed, effect } from '../core/signal';
+import { isSignal } from '../utils/helpers';
 
 describe('Signal Core', () => {
   beforeEach(() => {
@@ -208,5 +209,21 @@ describe('Signal Core', () => {
       filter((x: number) => x > 3);
       expect(results).toEqual([5, 14, 9]); // 4 + 5
     });
+  });
+}); 
+
+describe('Signal Utilities', () => {
+  it('should correctly identify signals vs regular functions', () => {
+    const sig = signal(42);
+    const comp = computed(() => sig() * 2);
+    const regularFunction = () => 42;
+    const arrowFunction = () => 'hello';
+    
+    expect(isSignal(sig)).toBe(true);
+    expect(isSignal(comp)).toBe(true);
+    expect(isSignal(regularFunction)).toBe(false);
+    expect(isSignal(arrowFunction)).toBe(false);
+    expect(isSignal(() => {})).toBe(false);
+    expect(isSignal(function() { return 123; })).toBe(false);
   });
 }); 

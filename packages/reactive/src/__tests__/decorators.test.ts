@@ -1,15 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { 
-  Observable, 
-  Computed as computed, 
-  Action,
-  makeObservable,
-  ObservableClass 
-} from '../index';
+import { Observable, Computed, Action, makeObservable, ObservableClass } from '../index';
 import { effect } from '../core/signal';
 
 describe('Decorators', () => {
-  describe('@observable', () => {
+  describe('@Observable', () => {
     it('should make class properties reactive', () => {
       class User {
         @Observable
@@ -87,7 +81,7 @@ describe('Decorators', () => {
     });
   });
 
-  describe('@computed', () => {
+  describe('@Computed', () => {
     it('should create computed properties', () => {
       class Person {
         @Observable
@@ -96,7 +90,7 @@ describe('Decorators', () => {
         @Observable
         lastName = 'Doe';
 
-        @computed
+        @Computed
         get fullName(): string {
           return `${this.firstName} ${this.lastName}`;
         }
@@ -125,7 +119,7 @@ describe('Decorators', () => {
         @Observable
         b = 2;
 
-        @computed
+        @Computed
         get sum(): number {
           computeCount++;
           return this.a + this.b;
@@ -157,19 +151,17 @@ describe('Decorators', () => {
         @Observable
         filter = '';
 
-        @computed
+        @Computed
         get filteredItems(): string[] {
-          return this.items.filter(item => 
-            item.toLowerCase().includes(this.filter.toLowerCase())
-          );
+          return this.items.filter((item) => item.toLowerCase().includes(this.filter.toLowerCase()));
         }
 
-        @computed
+        @Computed
         get itemCount(): number {
           return this.filteredItems.length;
         }
 
-        @computed
+        @Computed
         get summary(): string {
           return `Found ${this.itemCount} items`;
         }
@@ -189,7 +181,7 @@ describe('Decorators', () => {
     });
   });
 
-  describe('@action', () => {
+  describe('@Action', () => {
     it('should mark methods as actions', () => {
       class Counter {
         @Observable
@@ -270,11 +262,11 @@ describe('Decorators', () => {
 
       // action 中的多个更新应该被批处理
       store.updateUser('John', 'Doe', 25);
-      
+
       expect(store.firstName).toBe('John');
       expect(store.lastName).toBe('Doe');
       expect(store.age).toBe(25);
-      
+
       // 应该只触发一次 effect（批处理）
       expect(effectCount).toBe(2);
     });
@@ -292,12 +284,12 @@ describe('Decorators', () => {
         @Observable
         age = 0;
 
-        @computed
+        @Computed
         get isAdult(): boolean {
           return this.age >= 18;
         }
 
-        @computed
+        @Computed
         get displayName(): string {
           return this.name || this.email.split('@')[0] || 'Anonymous';
         }
@@ -326,7 +318,7 @@ describe('Decorators', () => {
 
       // 测试更新
       user.updateProfile('John Doe', 'john@example.com', 25);
-      
+
       expect(user.name).toBe('John Doe');
       expect(user.email).toBe('john@example.com');
       expect(user.age).toBe(25);
@@ -335,7 +327,7 @@ describe('Decorators', () => {
 
       // 测试清除
       user.clear();
-      
+
       expect(user.name).toBe('');
       expect(user.email).toBe('');
       expect(user.age).toBe(0);
@@ -357,44 +349,45 @@ describe('Decorators', () => {
         @Observable
         filter: 'all' | 'active' | 'completed' = 'all';
 
-        @computed
+        @Computed
         get filteredTodos(): Todo[] {
           switch (this.filter) {
             case 'active':
-              return this.todos.filter(todo => !todo.completed);
+              return this.todos.filter((todo) => !todo.completed);
             case 'completed':
-              return this.todos.filter(todo => todo.completed);
+              return this.todos.filter((todo) => todo.completed);
             default:
               return this.todos;
           }
         }
 
-        @computed
+        @Computed
         get activeCount(): number {
-          return this.todos.filter(todo => !todo.completed).length;
+          return this.todos.filter((todo) => !todo.completed).length;
         }
 
-        @computed
+        @Computed
         get completedCount(): number {
-          return this.todos.filter(todo => todo.completed).length;
+          return this.todos.filter((todo) => todo.completed).length;
         }
 
         @Action
         addTodo(text: string) {
           // 新范式：重新赋值整个数组以触发更新
-          this.todos = [...this.todos, {
-            id: Date.now() + Math.random(), // 确保唯一性
-            text,
-            completed: false
-          }];
+          this.todos = [
+            ...this.todos,
+            {
+              id: Date.now() + Math.random(), // 确保唯一性
+              text,
+              completed: false,
+            },
+          ];
         }
 
         @Action
         toggleTodo(id: number) {
           // 新范式：重新赋值整个数组
-          this.todos = this.todos.map(todo => 
-            todo.id === id ? { ...todo, completed: !todo.completed } : todo
-          );
+          this.todos = this.todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
         }
 
         @Action
@@ -405,7 +398,7 @@ describe('Decorators', () => {
         @Action
         clearCompleted() {
           // 新范式：重新赋值整个数组
-          this.todos = this.todos.filter(todo => !todo.completed);
+          this.todos = this.todos.filter((todo) => !todo.completed);
         }
       }
 
@@ -456,12 +449,12 @@ describe('Decorators', () => {
         @Observable
         multiplier = 1;
 
-        @computed
+        @Computed
         get processedInput(): string {
           return this.input.toUpperCase();
         }
 
-        @computed
+        @Computed
         get finalResult(): string {
           return this.processedInput.repeat(this.multiplier);
         }
@@ -504,4 +497,4 @@ describe('Decorators', () => {
       expect(lastResult).toBe('WORLDWORLDWORLD');
     });
   });
-}); 
+});

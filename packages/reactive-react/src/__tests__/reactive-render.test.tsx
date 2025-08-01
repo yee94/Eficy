@@ -294,7 +294,7 @@ describe('Reactive Rendering Tests - Using New useObserver Implementation', () =
         }
 
         updateIgnored(value: string) {
-          // 不使用@action，应该不会触发更新
+          // 不使用@Action，应该不会触发更新
           this.ignored = value
         }
       }

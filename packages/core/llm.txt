@@ -59,15 +59,15 @@ class Eficy {
 ```typescript
 class EficyNode extends ObservableClass {
   // 核心字段
-  @observable public '#': string              // 节点ID
-  @observable public '#view': string          // 组件名称
-  @observable public '#children': EficyNode[] // 子节点
-  @observable public '#content'?: string | ReactElement // 内容
-  @observable public '#if'?: boolean | (() => boolean)   // 条件渲染
-  @observable public '#show'?: boolean | (() => boolean) // 显示/隐藏
-  @observable public '#style'?: Record<string, any>      // 样式
-  @observable public '#class'?: string | string[]        // CSS类名
-  @observable public '#events'?: Record<string, any>     // 事件处理器
+  @Observable public '#': string              // 节点ID
+  @Observable public '#view': string          // 组件名称
+  @Observable public '#children': EficyNode[] // 子节点
+  @Observable public '#content'?: string | ReactElement // 内容
+  @Observable public '#if'?: boolean | (() => boolean)   // 条件渲染
+  @Observable public '#show'?: boolean | (() => boolean) // 显示/隐藏
+  @Observable public '#style'?: Record<string, any>      // 样式
+  @Observable public '#class'?: string | string[]        // CSS类名
+  @Observable public '#events'?: Record<string, any>     // 事件处理器
   
   // 计算属性
   @Computed get props(): Record<string, any>
@@ -92,7 +92,7 @@ class EficyNode extends ObservableClass {
 ```typescript
 @injectable()
 class EficyModelTree {
-  @observable private rootNode: EficyNode
+  @Observable private rootNode: EficyNode
   
   @Computed get nodeMap(): Record<string, EficyNode>
   @Computed get root(): EficyNode | null
@@ -381,7 +381,7 @@ console.log(json)
 
 ### 计算属性和动作
 ```typescript
-import { observable, computed, action, ObservableClass } from '@eficy/reactive'
+import { Observable, Computed, Action, ObservableClass } from '@eficy/reactive'
 
 class CounterStore extends ObservableClass {
   @Observable count = 0
