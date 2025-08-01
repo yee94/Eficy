@@ -1,8 +1,7 @@
-import { action, ObservableClass, signal } from '@eficy/reactive';
+import { Action, computed, ComputedSignal, ObservableClass, Signal, signal } from '@eficy/reactive';
 import { cacheManager } from './cache';
 import type { AsyncSignalOptions, AsyncSignalResult, Data, Params, Service } from '../types';
 import { CancelToken, createCancelToken, debounce, delay, isEqual, makeCancellable, throttle } from '../utils';
-import { createAsyncStateComputed } from '../utils/marker';
 
 /**
  * 请求状态管理类
@@ -61,9 +60,8 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
       const cached = cacheManager.get<TData>(this.options.cacheKey);
       if (cached && isEqual(cached.params, params)) {
         // 检查数据是否在保鲜期内
-        const isStale = this.options.staleTime ? 
-          (Date.now() - cached.time) > this.options.staleTime : false;
-        
+        const isStale = this.options.staleTime ? Date.now() - cached.time > this.options.staleTime : false;
+
         if (!isStale) {
           this.data(cached.data);
           this.loading(false);
@@ -324,9 +322,7 @@ export function asyncSignal<TService extends Service>(
     $error: manager.error,
   } as unknown as RequestResult;
 
-  result.computed = (selector: (state: RequestResult) => any) => {
-    return createAsyncStateComputed(() => selector(result));
-  };
+  result.computed = <T>(selector: (state: RequestResult) => T) => computed<T>(() => selector(result));
 
   return result;
 }

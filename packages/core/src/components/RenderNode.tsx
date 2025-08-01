@@ -70,12 +70,7 @@ const RenderNodeInner: FC<IRenderNodeProps> = ({ eficyNode, componentMap = {}, c
         return eficyNode.children;
       }
 
-      // 如果是文本内容
-      if (eficyNode['#content']) {
-        return eficyNode['#content'];
-      }
-
-      return null;
+      return eficyNode.children
     })();
 
     // 创建最终props

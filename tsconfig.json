@@ -10,7 +10,7 @@
     "declaration": true,
     "skipLibCheck": true,
     "baseUrl": "./",
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
     "removeComments": false,
     "strictNullChecks": false,
     "esModuleInterop": true,

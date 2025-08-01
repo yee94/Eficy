@@ -1,4 +1,4 @@
-import { Action, Computed, makeObservable, Observable } from '@eficy/reactive';
+import { Action, Computed, isSignal, makeObservable, Observable } from '@eficy/reactive';
 import { nanoid } from 'nanoid';
 import type { ReactElement } from 'react';
 import type { IViewData } from '../interfaces';
@@ -108,8 +108,6 @@ export default class EficyNode {
   get props(): Record<string, any> {
     let props: Record<string, any> = { ...this.dynamicProps };
 
-    props = processAsyncStateProps(props);
-
     // 添加样式
     if (this['#style']) {
       props.style = this['#style'];
@@ -124,6 +122,8 @@ export default class EficyNode {
     if (this['#events']) {
       Object.assign(props, this['#events']);
     }
+
+    props = processAsyncStateProps(props);
 
     return props;
   }
@@ -219,7 +219,11 @@ export default class EficyNode {
 
   @Computed
   get children(): EficyNode[] | string | ReactElement {
-    return this['#children'] ?? this['#content'] ?? null;
+    const nextChild = this['#children'] ?? this['#content'] ?? null;
+    if (isSignal(nextChild)) {
+      return nextChild() as ReactElement;
+    }
+    return nextChild;
   }
 
   /**

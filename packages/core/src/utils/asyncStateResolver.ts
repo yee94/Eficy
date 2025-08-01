@@ -1,4 +1,4 @@
-import { computed } from '@eficy/reactive';
+import { computed, isSignal } from '@eficy/reactive';
 import mapValues from 'lodash/mapValues';
 
 /**
@@ -24,7 +24,7 @@ export function isAsyncState(value: any): value is AsyncStateMarker {
  */
 export function processAsyncStateProps(props: Record<string, any>): Record<string, any> {
   return mapValues(props, (value) => {
-    if (isAsyncState(value)) {
+    if (isSignal(value)) {
       return value();
     }
     return value;
