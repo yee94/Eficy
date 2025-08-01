@@ -18,7 +18,7 @@ pnpm add @eficy/reactive-react
 
 ```tsx
 import React from 'react';
-import { Observable, Action, observer } from '@eficy/reactive-react';
+import { observable, action, observer } from '@eficy/reactive-react';
 
 // 使用 observable 创建响应式状态 (MobX 兼容语法)
 const store = observable({
@@ -200,11 +200,11 @@ const UserList = observer(() => {
 
 ```tsx
 // MobX
-import { Observable, Action, computed } from 'mobx';
+import { observable, action, computed } from 'mobx';
 import { observer } from 'mobx-react';
 
 // @eficy/reactive-react
-import { Observable, Action, computed, observer } from '@eficy/reactive-react';
+import { observable, action, computed, observer } from '@eficy/reactive-react';
 
 // API 基本相同！
 const store = observable({
@@ -227,7 +227,7 @@ const increment = action(() => {
 
 ```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Observable, Action, observer } from '@eficy/reactive-react';
+import { observable, action, observer } from '@eficy/reactive-react';
 
 it('should update component when observable changes', () => {
   const store = observable({ count: 0 });
