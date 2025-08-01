@@ -58,7 +58,7 @@ await eficy.render({
         {
           '#': 'title',
           '#view': 'h1',
-          '#content': '欢迎使用 Eficy！',
+          '#children': '欢迎使用 Eficy！',
           '#style': { color: '#1890ff', textAlign: 'center' }
         },
         {
@@ -78,13 +78,13 @@ await eficy.render({
               '#': 'primary-btn',
               '#view': 'Button',
               type: 'primary',
-              '#content': '主要按钮',
+              '#children': '主要按钮',
               onClick: () => console.log('点击了主要按钮')
             },
             {
               '#': 'default-btn',
               '#view': 'Button',
-              '#content': '默认按钮',
+              '#children': '默认按钮',
               onClick: () => console.log('点击了默认按钮')
             }
           ]
@@ -118,7 +118,7 @@ Eficy 完整包包含以下核心模块：
   '#children': [
     {
       '#view': 'span',
-      '#content': '原子化样式示例',
+      '#children': '原子化样式示例',
       className: 'text-lg font-bold'
     }
   ]
@@ -203,7 +203,7 @@ interface IViewData {
   '#'?: string                           // 节点唯一标识
   '#view'?: string                       // 组件名称
   '#children'?: IViewData[]              // 子节点数组
-  '#content'?: string | ReactElement     // 节点内容
+  '#children'?: string | ReactElement     // 节点内容
   '#if'?: boolean | (() => boolean)      // 条件渲染
   '#style'?: Record<string, any>         // 内联样式
   '#class'?: string | string[]           // CSS 类名
@@ -221,7 +221,7 @@ interface IViewData {
   '#children': [
     {
       '#view': 'h2',
-      '#content': '欢迎回来！'
+      '#children': '欢迎回来！'
     }
   ]
 }
@@ -239,7 +239,7 @@ interface IViewData {
     '#children': [
       {
         '#view': 'p',
-        '#content': user.email
+        '#children': user.email
       }
     ]
   }))
@@ -266,12 +266,12 @@ const userManagementSchema = {
           '#children': [
             {
               '#view': 'h1',
-              '#content': '用户管理',
+              '#children': '用户管理',
               className: 'text-2xl font-bold mb-2'
             },
             {
               '#view': 'p',
-              '#content': '管理系统用户信息',
+              '#children': '管理系统用户信息',
               className: 'text-gray-600'
             }
           ]
@@ -295,7 +295,7 @@ const userManagementSchema = {
               '#': 'add-user-btn',
               '#view': 'Button',
               type: 'primary',
-              '#content': '添加用户',
+              '#children': '添加用户',
               onClick: () => userStore.showAddModal()
             }
           ]
@@ -324,7 +324,7 @@ const userManagementSchema = {
               render: (status) => ({
                 '#view': 'Tag',
                 color: status === 'active' ? 'green' : 'red',
-                '#content': status === 'active' ? '活跃' : '禁用'
+                '#children': status === 'active' ? '活跃' : '禁用'
               })
             },
             {
@@ -337,14 +337,14 @@ const userManagementSchema = {
                   {
                     '#view': 'Button',
                     size: 'small',
-                    '#content': '编辑',
+                    '#children': '编辑',
                     onClick: () => userStore.editUser(record.id)
                   },
                   {
                     '#view': 'Button',
                     size: 'small',
                     danger: true,
-                    '#content': '删除',
+                    '#children': '删除',
                     onClick: () => userStore.deleteUser(record.id)
                   }
                 ]
