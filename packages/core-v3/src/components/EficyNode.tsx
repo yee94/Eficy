@@ -51,7 +51,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 );
 
 // 处理 signals 的内部组件
-const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props, key }) => {
+const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props }) => {
   const eficyContext = useEficyContext();
 
   // 使用 useObserver 来监听 signals 的变化
@@ -67,6 +67,7 @@ const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props, key }) => {
         HookType.RENDER,
         {
           props: resolvedProps,
+          type: type,
         },
         () => Component,
       );
