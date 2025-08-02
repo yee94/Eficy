@@ -44,7 +44,6 @@ export class PluginManager {
     }
 
     const initialize = getLifecycleHooksByType(plugin, HookType.INITIALIZE);
-    console.log('🚀 #### ~ PluginManager ~ register ~ initialize:', initialize, getLifecycleHooks(plugin));
 
     await Promise.all(initialize.map((hook) => hook.handler(configs)));
 
@@ -56,7 +55,7 @@ export class PluginManager {
   /**
    * 卸载插件
    */
-  unregister(pluginName: string): void {
+  async unregister(pluginName: string): Promise<void> {
     const plugin = this.plugins.get(pluginName);
     if (!plugin) {
       console.warn(`[PluginManager] Plugin "${pluginName}" not found`);
@@ -72,9 +71,8 @@ export class PluginManager {
     }
 
     // 执行插件卸载
-    if (plugin.uninstall) {
-      plugin.uninstall();
-    }
+    const destroy = getLifecycleHooksByType(plugin, HookType.DESTROY);
+    await Promise.all(destroy.map((hook) => hook.handler()));
 
     this.plugins.delete(pluginName);
     console.log(`[PluginManager] Plugin "${pluginName}" unregistered successfully`);

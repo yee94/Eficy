@@ -30,6 +30,9 @@ function createLifecycleDecorator(hookType: HookType) {
 // 导出装饰器（只保留 Render）
 export const Render = createLifecycleDecorator(HookType.RENDER);
 export const Initialize = createLifecycleDecorator(HookType.INITIALIZE);
+export const RootMount = createLifecycleDecorator(HookType.ROOT_MOUNT);
+export const RootUnmount = createLifecycleDecorator(HookType.ROOT_UNMOUNT);
+export const Destroy = createLifecycleDecorator(HookType.DESTROY);
 
 // 获取类的生命周期钩子
 export function getLifecycleHooks(target: any) {
