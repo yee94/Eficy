@@ -1,8 +1,7 @@
-import { Initialize, injectable, Render } from '@eficy/core-v3';
 import type { ILifecyclePlugin, IRenderContext } from '@eficy/core-v3';
+import { Initialize, injectable, Render, RootMount } from '@eficy/core-v3';
 import type { UnoGenerator, UserConfig } from '@unocss/core';
 import type { ComponentType } from 'react';
-import React from 'react';
 
 export interface UnocssPluginConfig {
   config?: UserConfig;
@@ -24,7 +23,6 @@ export class UnocssPlugin implements ILifecyclePlugin {
 
   @Initialize()
   initialize(config: UnocssPluginConfig = {}) {
-    console.log("🚀 #### ~ UnocssPlugin ~ initialize ~ config:", config);
     this.config = config;
     return this.initializeGenerator();
   }
@@ -43,7 +41,7 @@ export class UnocssPlugin implements ILifecyclePlugin {
 
     // 返回包装后的组件，在根组件时注入样式
     return (props: any) => {
-      const element = React.createElement(OriginalComponent, props);
+      const element = <OriginalComponent {...props} />;
 
       // 检查是否是根组件（通过检查是否有特定的根标识）
       const isRootComponent =
@@ -67,7 +65,6 @@ export class UnocssPlugin implements ILifecyclePlugin {
    * 初始化 UnoCSS 生成器
    */
   private async initializeGenerator(): Promise<void> {
-    console.log('🚀 #### ~ UnocssPlugin ~ initializeGenerator ~ this.config:', this.config);
     try {
       const { createGenerator } = await import('@unocss/core');
       const { presetUno } = await import('@unocss/preset-uno');
@@ -114,6 +111,12 @@ export class UnocssPlugin implements ILifecyclePlugin {
         individualClasses.forEach((cls) => this.collectedClasses.add(cls));
       }
     });
+  }
+
+  @RootMount()
+  onRootMount(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any> {
+    console.log('🚀 #### ~ UnocssPlugin ~ onRootMount ~ context:', context);
+    return next();
   }
 
   /**

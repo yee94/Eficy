@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { UnocssPlugin } from '../src/UnocssPlugin';
-import { Eficy } from '../../core-v3/src';
+import { Eficy, EficyProvider } from '@eficy/core-v3';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
@@ -13,7 +13,7 @@ describe('UnocssPlugin Integration', () => {
     eficy = new Eficy();
 
     // Register plugin
-    await eficy.pluginManager.register(UnocssPlugin);
+    plugin = await eficy.pluginManager.register(UnocssPlugin);
   });
 
   afterEach(() => {
@@ -26,7 +26,7 @@ describe('UnocssPlugin Integration', () => {
       expect(eficy.pluginManager.getPlugin('unocss-plugin')?.constructor).toBe(UnocssPlugin);
     });
 
-    it.only('应该能够收集 className', () => {
+    it('应该能够收集 className', () => {
       const TestComponent = (props: any) => React.createElement('div', props, 'Test');
 
       const context = {
@@ -77,8 +77,14 @@ describe('UnocssPlugin Integration', () => {
       document.body.innerHTML = '';
     });
 
-    it('应该在根组件时注入样式', async () => {
-      const TestComponent = (props: any) => React.createElement('div', props, 'Root Component');
+    it.only('应该在根组件时注入样式', async () => {
+      const TestComponent = (props: any) => {
+        return (
+          <EficyProvider core={eficy}>
+            <div {...props}>Root Component</div>
+          </EficyProvider>
+        );
+      };
 
       const context = {
         props: { className: 'text-red-500 p-4' },

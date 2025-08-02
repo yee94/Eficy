@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src/**/*.ts"],
+  "include": ["./src/**/*.ts", "src/UnocssPlugin.tsx"],
   "exclude": ["./src/__tests__/*", "./dist/*", "./node_modules/*"],
   "compilerOptions": {
     "baseUrl": ".",
