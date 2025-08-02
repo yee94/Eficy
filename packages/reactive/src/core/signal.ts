@@ -1,9 +1,9 @@
-import { 
-  signal as preactSignal, 
-  computed as preactComputed, 
+import {
+  signal as preactSignal,
+  computed as preactComputed,
   effect as preactEffect,
   batch,
-  untracked
+  untracked,
 } from '@preact/signals-core';
 import type { Signal, ComputedSignal, Dispose } from '../types/index';
 import { SIGNAL_MARKER } from '../types/index';
@@ -15,22 +15,27 @@ import { SIGNAL_MARKER } from '../types/index';
  */
 export function signal<T>(initialValue: T): Signal<T> {
   const preactSig = preactSignal(initialValue);
-  
+
   // 适配 alien-signals 风格的 API（函数调用风格）
   function signalAccessor(): T;
   function signalAccessor(newValue: T): T;
-  function signalAccessor(...args: [] | [T]): T {
+  function signalAccessor(newValue: (prev: T) => T): T;
+  function signalAccessor(...args: [] | [T] | [(prev: T) => T]): T {
     if (args.length === 0) {
       return preactSig.value;
     }
     const [newValue] = args;
-    preactSig.value = newValue;
-    return newValue;
+    if (typeof newValue === 'function') {
+      preactSig.value = (newValue as (prev: T) => T)(preactSig.value);
+    } else {
+      preactSig.value = newValue;
+    }
+    return preactSig.value;
   }
-  
+
   // 添加信号标记
   (signalAccessor as any)[SIGNAL_MARKER] = true;
-  
+
   return signalAccessor as Signal<T>;
 }
 
@@ -39,15 +44,15 @@ export function signal<T>(initialValue: T): Signal<T> {
  */
 export function computed<T>(getter: () => T): ComputedSignal<T> {
   const preactComp = preactComputed(getter);
-  
+
   // 适配 alien-signals 风格的 API
   function computedAccessor(): T {
     return preactComp.value;
   }
-  
+
   // 添加信号标记
   (computedAccessor as any)[SIGNAL_MARKER] = true;
-  
+
   return computedAccessor as ComputedSignal<T>;
 }
 
@@ -98,4 +103,4 @@ export function readonly<T>(signal: Signal<T>): ComputedSignal<T> {
 export function effectScope(fn: () => void): () => void {
   const dispose = effect(fn);
   return dispose;
-} 
+}

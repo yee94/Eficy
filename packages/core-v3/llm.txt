@@ -1,0 +1,390 @@
+# @eficy/core-v3 - 技术架构文档
+
+## 项目概览
+
+@eficy/core-v3 是 Eficy 框架的第三代核心库，专为现代 B 端系统设计。它通过自定义 JSX runtime 和 signals 响应式系统，实现了在单文件 JSX 中完成完整页面渲染的目标。
+
+### 核心设计原则
+
+1. **单文件页面渲染**: 通过一个 JSX 文件完成完整的页面渲染
+2. **信号响应式**: 基于 @eficy/reactive 的细粒度响应式更新
+3. **零配置**: 自动识别 signals 并处理订阅
+4. **可扩展**: 通过插件系统提供强大的扩展能力
+5. **类型安全**: 完整的 TypeScript 支持
+
+## 技术架构
+
+### 架构分层
+
+```
+┌─────────────────────────────────────┐
+│           JSX Runtime               │  <- jsx(), jsxs(), Fragment()
+├─────────────────────────────────────┤
+│          EficyNode                  │  <- Signal 识别和响应式渲染
+├─────────────────────────────────────┤
+│         Plugin System               │  <- 生命周期钩子和中间件
+├─────────────────────────────────────┤
+│      Component Registry             │  <- 组件注册和解析
+├─────────────────────────────────────┤
+│       Dependency Injection         │  <- tsyringe 容器
+├─────────────────────────────────────┤
+│        Event System                │  <- 事件发射器
+└─────────────────────────────────────┘
+```
+
+### 核心模块
+
+1. **EficyCore**: 依赖注入容器管理，服务协调
+2. **EficyNode**: 响应式渲染核心，Signal 处理
+3. **PluginManager**: 插件生命周期管理，洋葱式中间件
+4. **ComponentRegistry**: 组件注册和查找
+5. **EventEmitter**: 事件系统
+6. **JSX Runtime**: 自定义 JSX 转换
+
+## 核心组件详解
+
+### 1. EficyCore (src/core/EficyCore.ts)
+
+**职责**: 
+- 依赖注入容器管理
+- 核心服务注册和协调
+- 子实例创建
+- 资源生命周期管理
+
+**关键特性**:
+- 基于 tsyringe 的 DI 系统
+- 支持父子容器继承
+- 服务单例管理
+- 自动清理机制
+
+```typescript
+class Eficy {
+  private _container: DependencyContainer;
+  private _componentRegistry: ComponentRegistry;
+  private _pluginManager: PluginManager;
+  private _eventEmitter: EventEmitter;
+
+  // 创建子实例，继承父实例的组件注册
+  createChild(): Eficy;
+  
+  // 组件注册管理
+  registerComponent(name: string, component: ComponentType<any>);
+  
+  // 插件安装
+  install: typeof PluginManager.prototype.register;
+}
+```
+
+### 2. EficyNode (src/components/EficyNode.tsx)
+
+**职责**:
+- Signal 属性自动识别和解析
+- 响应式渲染协调
+- 组件类型解析（字符串 -> 组件）
+- 错误边界处理
+- 插件钩子执行
+
+**关键机制**:
+- 使用 `useObserver` 监听 signal 变化
+- 通过 `mapValues` 递归解析 props 中的 signals
+- 支持 children 中的 signal 处理
+- 自动区分原生 HTML 标签和自定义组件
+
+**Signal 处理流程**:
+```typescript
+function resolveSignalProps(props) {
+  return mapValues(props, (value, key) => {
+    if (key === 'children') {
+      // 处理 children 中的 signals
+      return Array.isArray(value) ? value.map(child => 
+        isSignal(child) ? child() : child
+      ) : value;
+    }
+    // 解析普通属性中的 signals
+    return isSignal(value) ? value() : value;
+  });
+}
+```
+
+### 3. PluginManager (src/services/PluginManager.ts)
+
+**职责**:
+- 插件生命周期管理
+- 洋葱式中间件执行
+- 装饰器钩子处理
+- 依赖注入集成
+
+**生命周期钩子**:
+- `INITIALIZE`: 插件初始化
+- `RENDER`: 组件渲染拦截
+- `ROOT_MOUNT`: 根组件挂载
+- `ROOT_UNMOUNT`: 根组件卸载
+- `DESTROY`: 插件销毁
+
+**中间件执行机制**:
+```typescript
+// 洋葱式中间件模式
+executeHook<T>(hookType: HookType, context: Context, originalNext: () => T): T {
+  const compose = (index: number): (() => T) => {
+    if (index >= hooks.length) {
+      return originalNext; // 执行原始逻辑
+    }
+    
+    const hook = hooks[index];
+    const next = compose(index + 1);
+    
+    return () => hook.handler(context, next);
+  };
+  
+  return compose(0)();
+}
+```
+
+### 4. JSX Runtime (src/jsx-runtime.tsx)
+
+**职责**:
+- 拦截 JSX 转换
+- 统一路由到 EficyNode
+- 保持 React 兼容性
+
+**工作机制**:
+- 所有 JSX 元素都通过 `jsx()` 函数处理
+- 自动包装为 `<EficyNode>` 组件
+- 保留原始的 type 和 props 信息
+
+```typescript
+export function jsx(type: any, props: JSXProps = {}, key?: string) {
+  return <EficyNode type={type} props={props} key={key} />;
+}
+```
+
+### 5. ComponentRegistry (src/services/ComponentRegistry.ts)
+
+**职责**:
+- 组件注册和存储
+- 组件查找和解析
+- 批量操作支持
+- 注册状态管理
+
+**特性**:
+- Map 结构存储，O(1) 查找
+- 支持批量注册
+- 类型安全的注册接口
+- 自动重复检测
+
+## 响应式系统集成
+
+### Signal 自动识别
+
+EficyNode 通过以下步骤自动处理 signals：
+
+1. **检测阶段**: 使用 `isSignal()` 检测 props 中的 signal
+2. **解析阶段**: 通过 `resolveSignalProps()` 递归解析所有 signals
+3. **订阅阶段**: 使用 `useObserver()` 建立响应式连接
+4. **更新阶段**: signal 变化时自动触发组件重渲染
+
+### 性能优化策略
+
+1. **惰性解析**: 只有包含 signals 的 props 才进入响应式路径
+2. **细粒度订阅**: 只订阅实际使用的 signals
+3. **缓存机制**: 解析结果缓存，避免重复计算
+4. **错误隔离**: ErrorBoundary 确保单个组件错误不影响全局
+
+## 插件系统架构
+
+### 装饰器系统
+
+使用装饰器简化插件开发：
+
+```typescript
+@injectable()
+export class MyPlugin implements ILifecyclePlugin {
+  @Initialize()
+  async initialize(config) { /* 初始化逻辑 */ }
+
+  @Render(priority)
+  onRender(context, next) { /* 渲染逻辑 */ }
+
+  @RootMount()
+  onRootMount() { /* 挂载逻辑 */ }
+}
+```
+
+### 执行顺序控制
+
+通过 `enforce` 属性控制插件执行顺序：
+- `pre`: 优先执行
+- `undefined`: 默认顺序
+- `post`: 延后执行
+
+### 错误处理
+
+- 插件错误不影响其他插件执行
+- 自动错误日志记录
+- 优雅降级机制
+
+## 类型系统
+
+### 核心类型定义
+
+```typescript
+// 插件接口
+interface ILifecyclePlugin extends IEficyPlugin {
+  onRender?(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any>;
+}
+
+// 渲染上下文
+interface IRenderContext {
+  props: Record<string, any>;
+  type?: string | ComponentType<any>;
+}
+
+// 组件节点属性
+interface EficyNodeProps {
+  type: string | ComponentType<any>;
+  props: Record<string, any>;
+  key?: string;
+}
+```
+
+### JSX 类型扩展
+
+通过模块声明扩展 JSX 命名空间，支持自定义元素类型：
+
+```typescript
+declare module 'react/jsx-runtime' {
+  interface JSX {
+    // 支持字符串类型的组件名
+    IntrinsicElements: {
+      [K in string]: any;
+    };
+  }
+}
+```
+
+## 错误处理机制
+
+### 1. 组件级错误边界
+
+每个 EficyNode 都包装在 ErrorBoundary 中：
+- 捕获渲染错误
+- 显示友好的错误界面
+- 提供重试机制
+- 详细错误信息展示
+
+### 2. 插件错误隔离
+
+- 插件执行错误不影响其他插件
+- 自动记录错误日志
+- 继续执行后续插件
+
+### 3. Signal 错误处理
+
+- Signal 解析错误不阻断渲染
+- 错误 Signal 显示占位内容
+- 开发环境详细错误提示
+
+## 性能优化
+
+### 1. 渲染路径优化
+
+- 非 Signal 组件直接使用 React 渲染
+- Signal 组件走响应式渲染路径
+- 自动选择最优渲染策略
+
+### 2. 内存管理
+
+- 组件卸载时自动清理 Signal 订阅
+- 插件销毁时清理资源
+- 事件监听器自动移除
+
+### 3. 缓存策略
+
+- 组件解析结果缓存
+- 插件钩子执行结果缓存
+- Signal 计算结果缓存
+
+## 开发模式
+
+### 调试支持
+
+1. **开发环境警告**: 详细的组件未找到、类型错误等警告
+2. **React DevTools**: 完全兼容 React 开发者工具
+3. **错误边界**: 友好的错误界面和详细堆栈信息
+4. **插件调试**: 插件执行过程可视化
+
+### 测试支持
+
+1. **单元测试**: 使用 vitest + @testing-library/react
+2. **集成测试**: 插件系统集成测试
+3. **类型测试**: TypeScript 类型系统验证
+4. **快照测试**: 组件渲染结果快照
+
+## 与其他包的集成
+
+### @eficy/reactive 集成
+
+- 无缝 Signal 识别和处理
+- 自动响应式更新
+- 计算属性支持
+- 副作用管理
+
+### @eficy/reactive-react 集成
+
+- useObserver Hook 集成
+- React 生命周期兼容
+- 性能优化
+- 内存泄漏防护
+
+### @eficy/reactive-async 集成
+
+- 异步 Signal 支持
+- 加载状态自动管理
+- 错误状态处理
+- 缓存机制
+
+## 最佳实践
+
+### 1. 组件设计
+
+- 优先使用 signals 管理状态
+- 避免复杂的 React 状态管理
+- 合理使用计算属性
+- 注意 Signal 的生命周期
+
+### 2. 插件开发
+
+- 使用装饰器简化代码
+- 合理设置执行优先级
+- 避免插件间强耦合
+- 实现完整的错误处理
+
+### 3. 性能优化
+
+- 避免不必要的 Signal 创建
+- 使用 computed 缓存计算结果
+- 合理使用 React.memo
+- 注意内存泄漏问题
+
+### 4. 类型安全
+
+- 充分利用 TypeScript 类型系统
+- 定义清晰的接口契约
+- 使用泛型提高代码复用
+- 避免 any 类型滥用
+
+## 未来规划
+
+1. **SSR 支持**: 服务端渲染兼容
+2. **性能优化**: 更精细的渲染优化
+3. **开发工具**: 专用的调试和开发工具
+4. **生态扩展**: 更多官方插件支持
+5. **文档完善**: 更详细的使用指南和最佳实践
+
+## 技术债务
+
+1. **类型定义**: 部分类型定义需要进一步完善
+2. **错误处理**: 需要更完善的错误恢复机制
+3. **测试覆盖**: 需要提高测试覆盖率
+4. **文档**: 需要更多示例和教程
+5. **性能**: 在大型应用中的性能表现需要进一步验证

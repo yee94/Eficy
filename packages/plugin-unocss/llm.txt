@@ -1,0 +1,595 @@
+# @eficy/plugin-unocss - 技术架构文档
+
+## 项目概览
+
+@eficy/plugin-unocss 是为 Eficy 框架 v3 设计的 UnoCSS 集成插件，通过拦截组件渲染过程，自动提取和生成 CSS 样式。该插件采用了响应式架构、缓存优化和异步处理机制，为 Eficy 应用提供了高性能的原子化 CSS 支持。
+
+### 核心设计原则
+
+1. **自动化**: 零配置的样式类提取和 CSS 生成
+2. **高性能**: 基于缓存和异步处理的优化策略
+3. **响应式**: 与 Eficy 的 signals 系统深度集成
+4. **可扩展**: 支持完全自定义的 UnoCSS 配置
+5. **错误容错**: 优雅处理 CSS 生成失败的情况
+
+## 技术架构
+
+### 架构分层
+
+```
+┌─────────────────────────────────────┐
+│         Unocss Component            │  <- 样式注入组件
+├─────────────────────────────────────┤
+│       AsyncSignal System           │  <- 异步响应式 CSS 生成
+├─────────────────────────────────────┤
+│        Render Hook                  │  <- className 提取钩子
+├─────────────────────────────────────┤
+│       UnoCSS Generator              │  <- CSS 生成引擎
+├─────────────────────────────────────┤
+│        Cache System                 │  <- 样式缓存管理
+├─────────────────────────────────────┤
+│      Plugin Lifecycle              │  <- 生命周期管理
+└─────────────────────────────────────┘
+```
+
+### 核心模块
+
+1. **UnocssPlugin**: 主插件类，生命周期管理
+2. **Unocss**: 样式注入组件
+3. **AsyncSignal**: 异步响应式 CSS 生成
+4. **Cache System**: 智能缓存机制
+5. **Generator**: UnoCSS 生成器封装
+
+## 核心组件详解
+
+### 1. UnocssPlugin (src/UnocssPlugin.tsx)
+
+**职责**:
+- 插件生命周期管理
+- UnoCSS 生成器初始化
+- 样式类收集和缓存
+- 渲染钩子处理
+- 资源清理
+
+**关键特性**:
+- 基于 @injectable 的依赖注入
+- 支持自定义 UnoCSS 配置
+- 优先级控制 (enforce: 'pre')
+- 异步初始化支持
+
+```typescript
+@injectable()
+export class UnocssPlugin implements ILifecyclePlugin {
+  public readonly name = 'unocss-plugin';
+  public readonly version = '1.0.0';
+  public readonly enforce = 'pre' as const;
+
+  private generator: UnoGenerator | null;
+  private collectedClasses = new Set<string>();
+  private cssCache = new Map<string, string>();
+  private lastClassHash = '';
+  private isRootMounted = false;
+
+  private reactiveAsync = asyncSignal(
+    () => this.generateCSS(),
+    { manual: true, debounceWait: 1 }
+  );
+}
+```
+
+### 2. 生命周期钩子系统
+
+#### Initialize Hook (@Initialize)
+```typescript
+@Initialize()
+async initialize(config: UnocssPluginConfig = {}) {
+  this.config = config;
+  await this.initializeGenerator();
+}
+
+private async initializeGenerator(): Promise<void> {
+  const { createGenerator } = await import('@unocss/core');
+  const { presetUno } = await import('@unocss/preset-uno');
+  const { presetAttributify } = await import('@unocss/preset-attributify');
+
+  const userConfig: UserConfig = {
+    presets: [
+      presetUno({ preflight: false }),
+      presetAttributify(),
+    ],
+    ...this.config.config,
+  };
+
+  this.generator = await createGenerator(userConfig);
+}
+```
+
+#### Render Hook (@Render)
+```typescript
+@Render(5)
+onRender(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any> {
+  const OriginalComponent = next();
+
+  // 收集 className 中的样式类
+  if (context.props.className) {
+    this.collectClassNames(context.props.className);
+  }
+
+  // 只在根组件时注入样式
+  if (!OriginalComponent._eficy_root) {
+    return OriginalComponent;
+  }
+
+  return (props: any) => (
+    <>
+      <Unocss generateCSS={this.reactiveAsync} />
+      <OriginalComponent {...props} />
+    </>
+  );
+}
+```
+
+#### RootMount Hook (@RootMount)
+```typescript
+@RootMount()
+onRootMount(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any> {
+  this.isRootMounted = true;
+  this.reactiveAsync.run();
+  return next();
+}
+```
+
+### 3. 样式类收集机制
+
+**收集策略**:
+- 支持字符串和数组格式的 className
+- 自动分割空格分隔的类名
+- 去重处理避免重复收集
+- 实时触发 CSS 生成
+
+```typescript
+private collectClassNames(classNames: string | string[] | null | undefined): void {
+  if (!classNames) return;
+
+  const classes = Array.isArray(classNames) ? classNames : [classNames];
+  classes.forEach((className) => {
+    if (className && typeof className === 'string') {
+      // 分割多个类名
+      const individualClasses = className.split(/\s+/).filter(Boolean);
+      individualClasses.forEach((cls) => this.collectedClasses.add(cls));
+    }
+  });
+
+  this.reactiveAsync.run();
+}
+```
+
+### 4. CSS 生成和缓存系统
+
+**缓存策略**:
+- 基于样式类哈希的缓存键
+- 增量式缓存更新
+- 内存缓存避免重复计算
+- 错误处理和降级机制
+
+```typescript
+private async generateCSS(): Promise<string | null> {
+  if (!this.generator || this.collectedClasses.size === 0) {
+    return null;
+  }
+
+  // 计算当前类名的哈希值用于缓存键
+  const classArray = Array.from(this.collectedClasses).sort();
+  const currentClassHash = classArray.join('|');
+
+  // 如果类名没有变化，直接返回缓存的CSS
+  if (currentClassHash === this.lastClassHash && this.cssCache.has(currentClassHash)) {
+    return this.cssCache.get(currentClassHash) || null;
+  }
+
+  try {
+    const result = await this.generator.generate(classArray.join(' '));
+    const css = result.css || null;
+
+    // 更新缓存
+    if (css) {
+      this.cssCache.set(currentClassHash, css);
+      this.lastClassHash = currentClassHash;
+    }
+
+    return css;
+  } catch (error) {
+    console.error('[UnocssPlugin] Failed to generate styles:', error);
+    return null;
+  }
+}
+```
+
+### 5. Unocss 组件 (src/components/Unocss.tsx)
+
+**职责**:
+- 响应式 CSS 注入
+- DOM 样式标签管理
+- 错误边界处理
+
+```typescript
+export const Unocss = (props: { generateCSS: AsyncSignalResult<string, any> }) => {
+  const { generateCSS } = props;
+
+  const inlineStyle = useObserver(() => generateCSS.data);
+  if (!inlineStyle) {
+    return null;
+  }
+
+  return <style dangerouslySetInnerHTML={{ __html: inlineStyle }} id="unocss-styles" />;
+};
+```
+
+## 响应式系统集成
+
+### AsyncSignal 集成
+
+使用 @eficy/reactive-async 实现异步响应式 CSS 生成：
+
+```typescript
+private reactiveAsync = asyncSignal(
+  () => {
+    return this.generateCSS();
+  },
+  {
+    manual: true,        // 手动触发
+    debounceWait: 1,     // 1ms 防抖
+  },
+);
+```
+
+### 响应式更新流程
+
+1. **样式类收集**: 在 @Render 钩子中收集 className
+2. **触发生成**: 调用 `reactiveAsync.run()` 触发 CSS 生成
+3. **异步处理**: asyncSignal 防抖处理并异步生成 CSS
+4. **响应式更新**: useObserver 监听数据变化，自动更新样式标签
+5. **DOM 注入**: 通过 dangerouslySetInnerHTML 注入生成的 CSS
+
+## 性能优化策略
+
+### 1. 缓存机制
+
+**哈希缓存**:
+- 基于样式类集合生成哈希键
+- 相同样式类组合直接返回缓存结果
+- 避免重复的 UnoCSS 生成计算
+
+**缓存更新策略**:
+- 增量式更新，只在样式类变化时重新生成
+- 内存缓存，避免磁盘 I/O
+- 生命周期清理，防止内存泄漏
+
+### 2. 异步处理
+
+**防抖优化**:
+- 1ms 防抖避免频繁触发
+- 批量处理样式类收集
+- 异步生成不阻塞渲染
+
+**懒加载**:
+- 动态导入 UnoCSS 模块
+- 按需初始化生成器
+- 减少初始化开销
+
+### 3. 内存管理
+
+**资源清理**:
+```typescript
+destroy(): void {
+  this.collectedClasses.clear();
+  this.generator = null;
+  this.cssCache.clear();
+  this.lastClassHash = '';
+
+  // 移除样式标签
+  const styleElement = document.getElementById('unocss-styles');
+  if (styleElement) {
+    styleElement.remove();
+  }
+}
+```
+
+## 错误处理机制
+
+### 1. 生成器初始化错误
+
+```typescript
+private async initializeGenerator(): Promise<void> {
+  try {
+    // UnoCSS 初始化逻辑
+  } catch (error) {
+    console.error('[UnocssPlugin] Failed to initialize generator:', error);
+    // 创建一个模拟生成器用于测试
+    this.generator = {
+      generate: async (classes: string) => ({
+        css: classes
+          .split(' ')
+          .map((cls) => `.${cls} { /* mock styles */ }`)
+          .join('\n'),
+      }),
+    } as any;
+  }
+}
+```
+
+### 2. CSS 生成错误
+
+```typescript
+private async generateCSS(): Promise<string | null> {
+  try {
+    const result = await this.generator.generate(classArray.join(' '));
+    return result.css || null;
+  } catch (error) {
+    console.error('[UnocssPlugin] Failed to generate styles:', error);
+    return null;
+  }
+}
+```
+
+### 3. 渲染错误容错
+
+- 样式生成失败不影响组件正常渲染
+- 提供降级样式或无样式渲染
+- 详细错误日志便于调试
+
+## 插件配置系统
+
+### 配置接口
+
+```typescript
+export interface UnocssPluginConfig {
+  config?: UserConfig;
+}
+```
+
+### 默认配置
+
+```typescript
+const defaultConfig: UserConfig = {
+  presets: [
+    presetUno({
+      preflight: false, // 禁用预检样式，避免全局样式污染
+    }),
+    presetAttributify({
+      /* preset options */
+    }),
+  ],
+};
+```
+
+### 配置合并策略
+
+```typescript
+const userConfig: UserConfig = {
+  presets: [
+    presetUno({ preflight: false }),
+    presetAttributify(),
+  ],
+  ...this.config.config, // 用户配置覆盖默认配置
+};
+```
+
+## 测试策略
+
+### 1. 单元测试
+
+```typescript
+describe('UnocssPlugin', () => {
+  it('should collect className attributes', () => {
+    const plugin = new UnocssPlugin();
+    plugin.collectClassNames('text-red-500 p-4');
+    
+    const classes = plugin.getCollectedClasses();
+    expect(classes.has('text-red-500')).toBe(true);
+    expect(classes.has('p-4')).toBe(true);
+  });
+
+  it('should generate CSS for collected classes', async () => {
+    const plugin = new UnocssPlugin();
+    await plugin.initialize();
+    
+    plugin.collectClassNames('text-red-500');
+    const css = await plugin.generateCSS();
+    
+    expect(css).toContain('.text-red-500');
+    expect(css).toContain('color: rgb(239 68 68)');
+  });
+});
+```
+
+### 2. 集成测试
+
+```typescript
+describe('UnocssPlugin Integration', () => {
+  it('should inject styles into DOM', async () => {
+    const core = new Eficy();
+    await core.install(UnocssPlugin);
+    
+    const TestComponent = () => (
+      <div className="text-red-500 p-4">Test</div>
+    );
+    
+    render(
+      <EficyProvider core={core}>
+        <TestComponent />
+      </EficyProvider>
+    );
+    
+    // 验证样式注入
+    const styleElement = document.getElementById('unocss-styles');
+    expect(styleElement).toBeTruthy();
+    expect(styleElement?.innerHTML).toContain('.text-red-500');
+  });
+});
+```
+
+### 3. 性能测试
+
+```typescript
+describe('UnocssPlugin Performance', () => {
+  it('should cache CSS generation', async () => {
+    const plugin = new UnocssPlugin();
+    await plugin.initialize();
+    
+    const startTime = performance.now();
+    
+    // 第一次生成
+    plugin.collectClassNames('text-red-500 p-4');
+    await plugin.generateCSS();
+    
+    // 第二次生成（应该使用缓存）
+    plugin.collectClassNames('text-red-500 p-4');
+    await plugin.generateCSS();
+    
+    const endTime = performance.now();
+    expect(endTime - startTime).toBeLessThan(10); // 缓存应该很快
+  });
+});
+```
+
+## 与 Eficy 生态的集成
+
+### 1. 与 @eficy/core-v3 集成
+
+- 实现 ILifecyclePlugin 接口
+- 使用 @injectable 依赖注入装饰器
+- 集成生命周期钩子系统
+- 支持插件优先级控制
+
+### 2. 与 @eficy/reactive-async 集成
+
+- 使用 asyncSignal 实现异步响应式
+- 支持手动触发和防抖处理
+- 错误状态管理
+- 加载状态跟踪
+
+### 3. 与 @eficy/reactive-react 集成
+
+- 使用 useObserver 监听 signal 变化
+- 自动重渲染样式组件
+- React 生命周期兼容
+- 内存泄漏防护
+
+## 最佳实践
+
+### 1. 性能优化
+
+```typescript
+// ✅ 推荐：使用计算属性缓存动态样式
+const dynamicClasses = computed(() => 
+  `text-${color()} bg-${bgColor()} ${isActive() ? 'font-bold' : ''}`
+);
+
+// ❌ 避免：在渲染函数中创建新的样式字符串
+const Component = () => (
+  <div className={`text-${Math.random() > 0.5 ? 'red' : 'blue'}-500`}>
+    Content
+  </div>
+);
+```
+
+### 2. 配置管理
+
+```typescript
+// ✅ 推荐：统一的配置管理
+const unocssConfig = {
+  rules: [
+    ['btn', { padding: '0.5rem 1rem', borderRadius: '0.25rem' }],
+  ],
+  shortcuts: [
+    ['btn-primary', 'btn bg-blue-500 text-white hover:bg-blue-600'],
+  ],
+  theme: {
+    colors: {
+      primary: '#3b82f6',
+    },
+  },
+};
+
+await core.install(UnocssPlugin, { config: unocssConfig });
+```
+
+### 3. 错误处理
+
+```typescript
+// ✅ 推荐：优雅的错误处理
+const StyledComponent = () => {
+  try {
+    return <div className="text-red-500 p-4">Content</div>;
+  } catch (error) {
+    console.error('Styling error:', error);
+    return <div style={{ color: 'red', padding: '1rem' }}>Content</div>;
+  }
+};
+```
+
+## 调试和监控
+
+### 1. 开发模式调试
+
+```typescript
+// 开发环境下的详细日志
+if (process.env.NODE_ENV === 'development') {
+  console.log('[UnocssPlugin] Collected classes:', this.collectedClasses);
+  console.log('[UnocssPlugin] Generated CSS length:', css?.length);
+  console.log('[UnocssPlugin] Cache size:', this.cssCache.size);
+}
+```
+
+### 2. 性能监控
+
+```typescript
+// 性能指标收集
+const performanceMetrics = {
+  cssGenerationTime: 0,
+  cacheHitRate: 0,
+  memoryUsage: 0,
+};
+
+private async generateCSS(): Promise<string | null> {
+  const startTime = performance.now();
+  
+  // CSS 生成逻辑
+  
+  const endTime = performance.now();
+  performanceMetrics.cssGenerationTime = endTime - startTime;
+}
+```
+
+### 3. 错误上报
+
+```typescript
+// 错误收集和上报
+private handleError(error: Error, context: string) {
+  console.error(`[UnocssPlugin] ${context}:`, error);
+  
+  // 可选：发送到错误监控服务
+  if (window.errorTracker) {
+    window.errorTracker.captureException(error, {
+      tags: { plugin: 'unocss', context },
+    });
+  }
+}
+```
+
+## 未来规划
+
+1. **SSR 支持**: 服务端渲染兼容性
+2. **预处理优化**: 编译时样式预处理
+3. **主题系统**: 动态主题切换支持
+4. **开发工具**: 样式调试和预览工具
+5. **性能分析**: 更详细的性能分析工具
+
+## 技术债务
+
+1. **类型定义**: 需要更完善的 UnoCSS 类型定义
+2. **错误恢复**: 需要更强大的错误恢复机制
+3. **内存优化**: 大型应用中的内存使用优化
+4. **测试覆盖**: 需要更全面的测试用例
+5. **文档完善**: 需要更多使用示例和最佳实践指南
