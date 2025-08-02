@@ -93,19 +93,19 @@ export class PluginManager {
   /**
    * 执行钩子链 - 洋葱式中间件模式
    */
-  executeHook<T>(hookType: HookType, context: IRenderContext, next: () => T): T {
+  executeHook<T, Context>(hookType: HookType, context: Context, originalNext: () => T): T {
     const hooks = this.hooks.get(hookType) || [];
-
+    
     if (hooks.length === 0) {
-      // 如果没有钩子，返回最后一个参数作为默认结果
-      return next();
+      // 如果没有钩子，执行原始的 next 函数
+      return originalNext();
     }
 
     // 创建洋葱式中间件执行链
     const compose = (index: number): (() => T) => {
       if (index >= hooks.length) {
-        // 到达链的末尾，返回默认结果
-        return () => next();
+        // 到达链的末尾，执行原始的 next 函数
+        return originalNext;
       }
 
       const hook = hooks[index];
@@ -113,7 +113,7 @@ export class PluginManager {
 
       return () => {
         try {
-          // 调用钩子函数，传递所有参数和next函数
+          // 调用钩子函数，传递 context 和 next
           return hook.handler(context, next);
         } catch (error) {
           console.error(`[PluginManager] Error in plugin "${hook.plugin.name}" ${hookType} hook:`, error);

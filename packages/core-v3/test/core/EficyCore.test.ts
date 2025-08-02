@@ -4,9 +4,9 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Eficy } from '@eficy/core-v3';
-import { ComponentRegistry } from '@eficy/core-v3/services/ComponentRegistry';
-import { PluginManager } from '@eficy/core-v3/services/PluginManager';
-import { EventEmitter } from '@eficy/core-v3/services/EventEmitter';
+import { ComponentRegistry } from '../../src/services/ComponentRegistry';
+import { PluginManager } from '../../src/services/PluginManager';
+import { EventEmitter } from '../../src/services/EventEmitter';
 
 describe('EficyCore', () => {
   let core: Eficy;
