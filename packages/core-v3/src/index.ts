@@ -27,5 +27,7 @@ export { jsx, jsxs, Fragment } from './jsx-runtime';
 // 导出工具函数
 export * from './utils';
 
+export * from 'tsyringe';
+
 // 导出类型定义
 export * from './types';

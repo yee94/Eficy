@@ -35,9 +35,9 @@ export class Eficy {
    * 设置核心服务
    */
   private setupServices(): void {
-    if (!this._container.isRegistered(ComponentRegistry)) {
-      this._container.registerSingleton(ComponentRegistry);
-    }
+    this._container.register('Container', {
+      useFactory: () => this._container,
+    });
 
     if (!this._container.isRegistered(PluginManager)) {
       this._container.registerSingleton(PluginManager);

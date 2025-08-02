@@ -9,9 +9,11 @@ export interface IEficyPlugin {
   dependencies?: string[];
   enforce?: PluginEnforce;
 
-  install?(container: DependencyContainer): void;
-  uninstall?(container: DependencyContainer): void;
+  initialize?(): Promise<void> | void;
+  uninstall?(): Promise<void> | void;
 }
+
+export type EficyPlugin<T extends IEficyPlugin> = new (...args: any[]) => T;
 
 // 生命周期插件接口 - 支持装饰器
 export interface ILifecyclePlugin extends IEficyPlugin {

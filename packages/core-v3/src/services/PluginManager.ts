@@ -1,7 +1,13 @@
-import { container, singleton } from 'tsyringe';
+import { DependencyContainer, inject, singleton } from 'tsyringe';
 import { HookType } from '../constants';
 import { getLifecycleHooks } from '../decorators/lifecycle';
-import type { IEficyPlugin, IRenderContext, PluginEnforce, ILifecyclePlugin } from '../interfaces/lifecycle';
+import type {
+  IEficyPlugin,
+  IRenderContext,
+  PluginEnforce,
+  ILifecyclePlugin,
+  EficyPlugin,
+} from '../interfaces/lifecycle';
 import type { ComponentType } from 'react';
 
 /**
@@ -11,28 +17,34 @@ import type { ComponentType } from 'react';
 export class PluginManager {
   private plugins: Map<string, IEficyPlugin> = new Map();
   private hooks: Map<HookType, Array<{ plugin: IEficyPlugin; handler: Function; enforce?: PluginEnforce }>> = new Map();
+  private container: DependencyContainer;
+
+  constructor(@inject('Container') container: DependencyContainer) {
+    this.container = container;
+  }
 
   /**
    * 注册插件
    */
-  register(plugin: IEficyPlugin): void {
+  register<T extends IEficyPlugin>(pluginInstance: new (...args: any[]) => T): T {
+    const plugin = this.container.resolve(pluginInstance);
+
     if (this.plugins.has(plugin.name)) {
       console.warn(`[PluginManager] Plugin "${plugin.name}" already registered, overwriting`);
     }
 
     this.plugins.set(plugin.name, plugin);
 
-    // 执行插件安装
-    if (plugin.install) {
-      plugin.install(container);
-    }
-
     // 注册钩子
     if (this.isLifecyclePlugin(plugin)) {
       this.registerLifecycleHooks(plugin as ILifecyclePlugin);
     }
 
+    plugin.initialize?.();
+
     console.log(`[PluginManager] Plugin "${plugin.name}" registered successfully`);
+
+    return plugin;
   }
 
   /**
@@ -95,7 +107,7 @@ export class PluginManager {
    */
   executeHook<T, Context>(hookType: HookType, context: Context, originalNext: () => T): T {
     const hooks = this.hooks.get(hookType) || [];
-    
+
     if (hooks.length === 0) {
       // 如果没有钩子，执行原始的 next 函数
       return originalNext();

@@ -5,41 +5,43 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import 'reflect-metadata';
-import { 
-  PluginManager, 
+import {
+  PluginManager,
   type IRenderContext,
   type IEficyPlugin,
   type ILifecyclePlugin,
   Render,
-  HookType
+  HookType,
+  Eficy,
 } from '../../src';
 
 describe('PluginManager', () => {
   let manager: PluginManager;
 
   beforeEach(() => {
-    manager = new PluginManager();
+    const eficy = new Eficy();
+    manager = eficy.pluginManager;
   });
 
   describe('基础功能', () => {
     it('应该能够注册和获取插件', () => {
-      const plugin: IEficyPlugin = {
-        name: 'test-plugin',
-        version: '1.0.0'
-      };
+      class TestPlugin implements IEficyPlugin {
+        name = 'test-plugin';
+        version = '1.0.0';
+      }
 
-      manager.register(plugin);
-      expect(manager.getPlugin('test-plugin')).toBe(plugin);
+      manager.register(TestPlugin);
+      expect(manager.getPlugin('test-plugin').constructor).toBe(TestPlugin);
       expect(manager.isInstalled('test-plugin')).toBe(true);
     });
 
     it('应该能够卸载插件', () => {
-      const plugin: IEficyPlugin = {
-        name: 'test-plugin',
-        version: '1.0.0'
-      };
+      class TestPlugin implements IEficyPlugin {
+        name = 'test-plugin';
+        version = '1.0.0';
+      }
 
-      manager.register(plugin);
+      manager.register(TestPlugin);
       manager.unregister('test-plugin');
 
       expect(manager.getPlugin('test-plugin')).toBeUndefined();
@@ -56,13 +58,16 @@ describe('PluginManager', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          return (props: any) => React.createElement('div', { 'data-testid': 'plugin-wrapper' },
-            React.createElement(OriginalComponent, props)
-          );
+          return (props: any) =>
+            React.createElement(
+              'div',
+              { 'data-testid': 'plugin-wrapper' },
+              React.createElement(OriginalComponent, props),
+            );
         }
       }
 
-      manager.register(new TestPlugin());
+      manager.register(TestPlugin);
 
       const TestComponent = () => React.createElement('div', null, 'Content');
       const context: IRenderContext = { props: {} };
@@ -98,8 +103,8 @@ describe('PluginManager', () => {
         }
       }
 
-      manager.register(new PostPlugin());
-      manager.register(new PrePlugin());
+      manager.register(PostPlugin);
+      manager.register(PrePlugin);
 
       const TestComponent = () => React.createElement('div', null, 'Content');
       const context: IRenderContext = { props: {} };
@@ -123,7 +128,7 @@ describe('PluginManager', () => {
         }
       }
 
-      manager.register(new ErrorPlugin());
+      manager.register(ErrorPlugin);
 
       const TestComponent = () => React.createElement('div', null, 'Content');
       const context: IRenderContext = { props: {} };
@@ -139,11 +144,18 @@ describe('PluginManager', () => {
 
   describe('查询方法', () => {
     it('应该返回所有插件', () => {
-      const plugin1: IEficyPlugin = { name: 'plugin1', version: '1.0.0' };
-      const plugin2: IEficyPlugin = { name: 'plugin2', version: '1.0.0' };
+      class Plugin1 implements IEficyPlugin {
+        name = 'plugin1';
+        version = '1.0.0';
+      }
 
-      manager.register(plugin1);
-      manager.register(plugin2);
+      class Plugin2 implements IEficyPlugin {
+        name = 'plugin2';
+        version = '1.0.0';
+      }
+
+      manager.register(Plugin1);
+      manager.register(Plugin2);
 
       const plugins = manager.getAllPlugins();
       expect(plugins).toHaveLength(2);
@@ -160,7 +172,7 @@ describe('PluginManager', () => {
         }
       }
 
-      manager.register(new TestPlugin());
+      manager.register(TestPlugin);
       const hookStats = manager.getHookStats();
       expect(hookStats.render).toBe(1);
     });
@@ -168,8 +180,12 @@ describe('PluginManager', () => {
 
   describe('清理', () => {
     it('应该能够清理所有插件', () => {
-      const plugin: IEficyPlugin = { name: 'test-plugin', version: '1.0.0' };
-      manager.register(plugin);
+      class TestPlugin implements IEficyPlugin {
+        name = 'test-plugin';
+        version = '1.0.0';
+      }
+
+      manager.register(TestPlugin);
 
       manager.dispose();
       expect(manager.getAllPlugins()).toHaveLength(0);

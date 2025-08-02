@@ -101,7 +101,7 @@ describe('Eficy Core V3 Basic Tests', () => {
 
       expect(screen.getByTestId('signal-content')).toHaveTextContent('Count: 0');
     });
-    it.only('应该有响应式更新', async () => {
+    it('应该有响应式更新', async () => {
       const core = new Eficy();
       const count = signal(0);
 

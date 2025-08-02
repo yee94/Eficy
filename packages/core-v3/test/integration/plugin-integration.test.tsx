@@ -6,23 +6,18 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import 'reflect-metadata';
-import { 
-  PluginManager,
-  Render,
-  type ILifecyclePlugin,
-  type IRenderContext,
-  type IEficyPlugin
-} from '../../src';
+import { PluginManager, Render, type ILifecyclePlugin, type IRenderContext, type IEficyPlugin, Eficy } from '../../src';
 
 describe('Plugin Integration - 渲染行为验证', () => {
   let pluginManager: PluginManager;
 
   beforeEach(() => {
-    pluginManager = new PluginManager();
+    const eficy = new Eficy();
+    pluginManager = eficy.pluginManager;
   });
 
   describe('基础渲染场景', () => {
-    it('应该能够通过插件修改组件', () => {
+    it.only('应该能够通过插件修改组件', () => {
       class ThemePlugin implements ILifecyclePlugin {
         name = 'theme-plugin';
         version = '1.0.0';
@@ -30,7 +25,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          
+
           // 返回包装后的组件
           return (props: any) => (
             <div className="theme-dark" style={{ backgroundColor: '#333', color: '#fff' }}>
@@ -40,7 +35,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
         }
       }
 
-      pluginManager.register(new ThemePlugin());
+      pluginManager.register(ThemePlugin);
 
       // 测试组件
       const TestComponent = (props: any) => (
@@ -50,7 +45,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       );
 
       const context: IRenderContext = {
-        props: { className: 'original' }
+        props: { className: 'original' },
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
@@ -60,7 +55,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       expect(typeof ModifiedComponent).toBe('function');
     });
 
-    it('应该按 enforce 顺序执行插件', () => {
+    it.only('应该按 enforce 顺序执行插件', () => {
       const executionOrder: string[] = [];
 
       class PrePlugin implements ILifecyclePlugin {
@@ -114,12 +109,12 @@ describe('Plugin Integration - 渲染行为验证', () => {
       }
 
       // 乱序注册
-      pluginManager.register(new PostPlugin());
-      pluginManager.register(new NormalPlugin());
-      pluginManager.register(new PrePlugin());
+      pluginManager.register(PostPlugin);
+      pluginManager.register(NormalPlugin);
+      pluginManager.register(PrePlugin);
 
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       const TestComponent = () => <div>Content</div>;
@@ -132,25 +127,17 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('条件渲染场景', () => {
-    it('应该支持条件渲染插件', () => {
+    it.only('应该支持条件渲染插件', () => {
       class PermissionPlugin implements ILifecyclePlugin {
         name = 'permission-plugin';
         version = '1.0.0';
-        private hasPermission: boolean;
-
-        constructor(hasPermission: boolean = true) {
-          this.hasPermission = hasPermission;
-        }
+        hasPermission: boolean = true;
 
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           if (!this.hasPermission) {
             // 无权限时返回拒绝组件
-            return () => (
-              <div className="access-denied">
-                Access Denied
-              </div>
-            );
+            return () => <div className="access-denied">Access Denied</div>;
           }
           // 有权限时继续正常流程
           return next();
@@ -158,12 +145,11 @@ describe('Plugin Integration - 渲染行为验证', () => {
       }
 
       // 测试有权限的情况
-      const allowedPlugin = new PermissionPlugin(true);
-      pluginManager.register(allowedPlugin);
+      pluginManager.register(PermissionPlugin);
 
       const TestComponent = () => <div>Original Content</div>;
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
@@ -171,10 +157,12 @@ describe('Plugin Integration - 渲染行为验证', () => {
 
       // 测试无权限的情况
       pluginManager.dispose();
-      pluginManager = new PluginManager();
-      
-      const deniedPlugin = new PermissionPlugin(false);
-      pluginManager.register(deniedPlugin);
+      const eficy = new Eficy();
+      pluginManager = eficy.pluginManager;
+
+      const plugin = pluginManager.register(PermissionPlugin);
+
+      plugin.hasPermission = false;
 
       const DeniedComponent = pluginManager.executeRenderHooks(TestComponent, context);
       expect(DeniedComponent).not.toBe(TestComponent); // 应该返回不同的组件
@@ -182,7 +170,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('样式修改场景', () => {
-    it('应该能够通过插件修改组件样式', () => {
+    it.only('应该能够通过插件修改组件样式', () => {
       class StylePlugin implements ILifecyclePlugin {
         name = 'style-plugin';
         version = '1.0.0';
@@ -191,31 +179,31 @@ describe('Plugin Integration - 渲染行为验证', () => {
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
           return (props: any) => (
-            <OriginalComponent 
-              {...props} 
+            <OriginalComponent
+              {...props}
               style={{
                 ...props.style,
                 backgroundColor: 'red',
                 color: 'white',
-                padding: '10px'
+                padding: '10px',
               }}
             />
           );
         }
       }
 
-      pluginManager.register(new StylePlugin());
+      pluginManager.register(StylePlugin);
 
       const TestComponent = (props: any) => <div {...props}>Content</div>;
       const context: IRenderContext = {
-        props: { style: { fontSize: '16px' } }
+        props: { style: { fontSize: '16px' } },
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
       expect(ModifiedComponent).not.toBe(TestComponent);
     });
 
-    it('应该支持多个样式插件的叠加', () => {
+    it.only('应该支持多个样式插件的叠加', () => {
       class ColorPlugin implements ILifecyclePlugin {
         name = 'color-plugin';
         version = '1.0.0';
@@ -223,12 +211,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          return (props: any) => (
-            <OriginalComponent 
-              {...props} 
-              style={{ ...props.style, color: 'blue' }}
-            />
-          );
+          return (props: any) => <OriginalComponent {...props} style={{ ...props.style, color: 'blue' }} />;
         }
       }
 
@@ -239,21 +222,16 @@ describe('Plugin Integration - 渲染行为验证', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          return (props: any) => (
-            <OriginalComponent 
-              {...props} 
-              style={{ ...props.style, fontSize: '18px' }}
-            />
-          );
+          return (props: any) => <OriginalComponent {...props} style={{ ...props.style, fontSize: '18px' }} />;
         }
       }
 
-      pluginManager.register(new ColorPlugin());
-      pluginManager.register(new SizePlugin());
+      pluginManager.register(ColorPlugin);
+      pluginManager.register(SizePlugin);
 
       const TestComponent = (props: any) => <div {...props}>Content</div>;
       const context: IRenderContext = {
-        props: { style: { backgroundColor: 'white' } }
+        props: { style: { backgroundColor: 'white' } },
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
@@ -262,7 +240,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('属性修改场景', () => {
-    it('应该能够通过插件修改组件属性', () => {
+    it.only('应该能够通过插件修改组件属性', () => {
       class AttributePlugin implements ILifecyclePlugin {
         name = 'attribute-plugin';
         version = '1.0.0';
@@ -271,7 +249,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
           return (props: any) => (
-            <OriginalComponent 
+            <OriginalComponent
               {...props}
               data-testid="modified-component"
               aria-label="Plugin modified component"
@@ -281,18 +259,18 @@ describe('Plugin Integration - 渲染行为验证', () => {
         }
       }
 
-      pluginManager.register(new AttributePlugin());
+      pluginManager.register(AttributePlugin);
 
       const TestComponent = (props: any) => <div {...props}>Content</div>;
       const context: IRenderContext = {
-        props: { className: 'original' }
+        props: { className: 'original' },
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
       expect(ModifiedComponent).not.toBe(TestComponent);
     });
 
-    it('应该支持事件处理器的修改', () => {
+    it.only('应该支持事件处理器的修改', () => {
       const originalClick = vi.fn();
       const pluginClick = vi.fn();
 
@@ -306,7 +284,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
           return (props: any) => {
             const originalOnClick = props.onClick;
             return (
-              <OriginalComponent 
+              <OriginalComponent
                 {...props}
                 onClick={(event: any) => {
                   pluginClick();
@@ -320,11 +298,11 @@ describe('Plugin Integration - 渲染行为验证', () => {
         }
       }
 
-      pluginManager.register(new EventPlugin());
+      pluginManager.register(EventPlugin);
 
       const TestComponent = (props: any) => <button {...props}>Click me</button>;
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
@@ -333,7 +311,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('内容修改场景', () => {
-    it('应该能够通过插件修改组件内容', () => {
+    it.only('应该能够通过插件修改组件内容', () => {
       class ContentPlugin implements ILifecyclePlugin {
         name = 'content-plugin';
         version = '1.0.0';
@@ -341,26 +319,22 @@ describe('Plugin Integration - 渲染行为验证', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          return (props: any) => (
-            <OriginalComponent {...props}>
-              Modified by plugin
-            </OriginalComponent>
-          );
+          return (props: any) => <OriginalComponent {...props}>Modified by plugin</OriginalComponent>;
         }
       }
 
-      pluginManager.register(new ContentPlugin());
+      pluginManager.register(ContentPlugin);
 
       const TestComponent = (props: any) => <div {...props}>Original content</div>;
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
       expect(ModifiedComponent).not.toBe(TestComponent);
     });
 
-    it('应该支持复杂内容的修改', () => {
+    it.only('应该支持复杂内容的修改', () => {
       class ComplexContentPlugin implements ILifecyclePlugin {
         name = 'complex-content-plugin';
         version = '1.0.0';
@@ -378,11 +352,11 @@ describe('Plugin Integration - 渲染行为验证', () => {
         }
       }
 
-      pluginManager.register(new ComplexContentPlugin());
+      pluginManager.register(ComplexContentPlugin);
 
       const TestComponent = (props: any) => <div {...props}>Content</div>;
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
@@ -391,7 +365,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('错误处理场景', () => {
-    it('应该处理插件错误而不影响渲染', () => {
+    it.only('应该处理插件错误而不影响渲染', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       class ErrorPlugin implements ILifecyclePlugin {
@@ -419,12 +393,12 @@ describe('Plugin Integration - 渲染行为验证', () => {
         }
       }
 
-      pluginManager.register(new ErrorPlugin());
-      pluginManager.register(new GoodPlugin());
+      pluginManager.register(ErrorPlugin);
+      pluginManager.register(GoodPlugin);
 
       const TestComponent = () => <div>Test</div>;
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       // 错误插件不应该影响其他插件
@@ -435,7 +409,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       // 验证错误被记录
       expect(consoleError).toHaveBeenCalledWith(
         expect.stringContaining('[PluginManager] Error in plugin "error-plugin"'),
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleError.mockRestore();
@@ -443,7 +417,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('插件组合场景', () => {
-    it('应该支持多个插件的组合使用', () => {
+    it.only('应该支持多个插件的组合使用', () => {
       class ThemePlugin implements ILifecyclePlugin {
         name = 'theme-plugin';
         version = '1.0.0';
@@ -466,12 +440,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          return (props: any) => (
-            <OriginalComponent 
-              {...props} 
-              style={{ ...props.style, fontSize: '16px' }}
-            />
-          );
+          return (props: any) => <OriginalComponent {...props} style={{ ...props.style, fontSize: '16px' }} />;
         }
       }
 
@@ -482,21 +451,17 @@ describe('Plugin Integration - 渲染行为验证', () => {
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
           const OriginalComponent = next();
-          return (props: any) => (
-            <OriginalComponent {...props}>
-              Combined content
-            </OriginalComponent>
-          );
+          return (props: any) => <OriginalComponent {...props}>Combined content</OriginalComponent>;
         }
       }
 
-      pluginManager.register(new ThemePlugin());
-      pluginManager.register(new SizePlugin());
-      pluginManager.register(new ContentPlugin());
+      pluginManager.register(ThemePlugin);
+      pluginManager.register(SizePlugin);
+      pluginManager.register(ContentPlugin);
 
       const TestComponent = (props: any) => <div {...props}>Original</div>;
       const context: IRenderContext = {
-        props: {}
+        props: {},
       };
 
       const ModifiedComponent = pluginManager.executeRenderHooks(TestComponent, context);
