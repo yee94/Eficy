@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import * as antd from 'antd';
+import * as antdIcons from '@ant-design/icons';
 
 // @ts-ignore
 import tableRaw from './jsxs/table.jsx?raw';
@@ -6,8 +8,6 @@ import tableRaw from './jsxs/table.jsx?raw';
 import { transform } from 'sucrase';
 import { create, EficyProvider } from 'eficy';
 import React from 'react';
-
-globalThis.ReactT = React;
 
 const result = transform(tableRaw, {
   transforms: ['typescript', 'jsx'],
@@ -30,12 +30,7 @@ async function loadCode(code: string) {
 (async () => {
   try {
     const core = await create();
-    const CustomButton = ({ children, ...props }: any) => (
-      <button data-testid="custom-button" {...props}>
-        {children}
-      </button>
-    );
-    core.registerComponents({ CustomButton });
+    core.registerComponents({ ...(antd as any), ...(antdIcons as any) });
     const Component = await loadCode(result.code);
 
     // 渲染组件到DOM

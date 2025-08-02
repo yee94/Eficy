@@ -217,6 +217,9 @@ importers:
       '@eficy/reactive':
         specifier: workspace:~
         version: link:../reactive
+      '@eficy/reactive-async':
+        specifier: workspace:~
+        version: link:../reactive-async
       '@eficy/reactive-react':
         specifier: workspace:~
         version: link:../reactive-react
