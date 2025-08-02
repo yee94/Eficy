@@ -240,8 +240,17 @@ importers:
   packages/plugin-unocss:
     dependencies:
       '@eficy/core-v3':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../core-v3
+      '@eficy/reactive':
+        specifier: workspace:~
+        version: link:../reactive
+      '@eficy/reactive-async':
+        specifier: workspace:~
+        version: link:../reactive-async
+      '@eficy/reactive-react':
+        specifier: workspace:~
+        version: link:../reactive-react
       '@unocss/core':
         specifier: ^66.0.0
         version: 66.3.3
