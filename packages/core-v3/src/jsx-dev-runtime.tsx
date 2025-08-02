@@ -2,8 +2,9 @@
  * Eficy Core V3 JSX Development Runtime
  */
 
-import { ReactElement } from 'react';
+import React, { ReactElement } from 'react';
 import { jsx, type JSXProps } from './jsx-runtime';
+
 
 export interface JSXDevProps extends JSXProps {
   __source?: {

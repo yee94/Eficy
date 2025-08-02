@@ -6,12 +6,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@eficy/core': path.resolve(__dirname, '../packages/core/src/index.ts'),
+      react: path.resolve(__dirname, '../node_modules/react'),
+      'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
     },
   },
-  plugins: [
-    react(),
-    import('vite-plugin-pages')
-      .then((m) => m.default)
-      .then((m) => m({ dirs: ['src/examples'] })),
-  ],
+  plugins: [react(), import('vite-plugin-pages').then((m) => m.default).then((m) => m({ dirs: ['src/examples'] }))],
 });

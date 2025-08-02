@@ -25,6 +25,7 @@
   ],
   "scripts": {
     "build": "tsdown",
+    "dev": "tsdown --watch",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "typecheck": "tsc --noEmit"

@@ -21,7 +21,9 @@ export class ComponentRegistry {
       throw new Error('Component cannot be null or undefined');
     }
     
-    this.components.set(name, component);
+    // 添加 e- 前缀
+    const prefixedName = name.startsWith('e-') ? name : `e-${name}`;
+    this.components.set(prefixedName, component);
   }
   
   /**
@@ -37,14 +39,18 @@ export class ComponentRegistry {
    * 获取组件
    */
   get(name: string): ComponentType<any> | undefined {
-    return this.components.get(name);
+    // 添加 e- 前缀
+    const prefixedName = name.startsWith('e-') ? name : `e-${name}`;
+    return this.components.get(prefixedName);
   }
   
   /**
    * 检查组件是否存在
    */
   has(name: string): boolean {
-    return this.components.has(name);
+    // 添加 e- 前缀
+    const prefixedName = name.startsWith('e-') ? name : `e-${name}`;
+    return this.components.has(prefixedName);
   }
   
   /**
@@ -71,7 +77,9 @@ export class ComponentRegistry {
    * 取消注册组件
    */
   unregister(name: string): boolean {
-    return this.components.delete(name);
+    // 添加 e- 前缀
+    const prefixedName = name.startsWith('e-') ? name : `e-${name}`;
+    return this.components.delete(prefixedName);
   }
   
   /**

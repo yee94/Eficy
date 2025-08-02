@@ -1,6 +1,6 @@
 /**
  * Eficy Core V3 JSX Runtime
- * 
+ *
  * 直接基于 React 的 JSX runtime，不需要转换为 ViewData
  * 重点是处理含有 signals 的 props
  */
@@ -19,14 +19,15 @@ export interface JSXProps {
  */
 export function jsx(type: any, props: JSXProps = {}, key?: string): React.ReactElement {
   // 检查 props 中是否有 signals
-  const hasSignals = props && typeof props === 'object' && 
-    Object.values(props).some(value => isSignal(value));
-  
+  const hasSignals = props && typeof props === 'object' && Object.values(props).some((value) => isSignal(value));
+
+  const isEficyComponent = typeof type === 'string' && type.startsWith('e-');
+
   // 如果有 signals，使用 EficyNode 进行响应式渲染
-  if (hasSignals) {
+  if (hasSignals || isEficyComponent) {
     return <EficyNode type={type} props={props} key={key} />;
   }
-  
+
   // 否则直接使用 React.createElement
   const Component = type;
   return <Component {...props} key={key} />;
