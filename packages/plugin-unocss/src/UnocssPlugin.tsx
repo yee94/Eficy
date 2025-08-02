@@ -137,10 +137,6 @@ export class UnocssPlugin implements ILifecyclePlugin {
 	 * 生成 CSS 字符串 - 使用缓存避免重复计算
 	 */
 	private async generateCSS(): Promise<string | null> {
-		if (!this.isRootMounted) {
-			return null;
-		}
-
 		if (!this.generator || this.collectedClasses.size === 0) {
 			return null;
 		}

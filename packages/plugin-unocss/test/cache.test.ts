@@ -1,11 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { UnocssPlugin } from '../src/UnocssPlugin';
+import { Eficy } from '@eficy/core-v3';
 
 describe('UnocssPlugin Cache Functionality', () => {
   let plugin: UnocssPlugin;
 
-  beforeEach(() => {
-    plugin = new UnocssPlugin();
+  beforeEach(async() => {
+    const eficy = new Eficy();
+    plugin = await eficy.pluginManager.register(UnocssPlugin);
+    // 等待插件初始化完成
+    await new Promise(resolve => setTimeout(resolve, 10));
   });
 
   afterEach(() => {
@@ -212,7 +216,9 @@ describe('UnocssPlugin Cache Functionality', () => {
       expect(collectedClasses.has('p-4')).toBe(true);
     });
 
-    it('应该提供获取生成器的方法', () => {
+    it('应该提供获取生成器的方法', async () => {
+      // 确保生成器已初始化
+      await new Promise(resolve => setTimeout(resolve, 10));
       const generator = plugin.getGenerator();
       expect(generator).toBeDefined();
     });
