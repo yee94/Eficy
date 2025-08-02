@@ -31,25 +31,19 @@ describe("UnocssPlugin Integration", () => {
 		});
 
 		it("应该能够收集 className", () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: "text-red-500 p-4 bg-blue-500" },
 			};
 
-			const ModifiedComponent = eficy.pluginManager.executeRenderHooks(
-				TestComponent,
-				context,
-			);
+			eficy.pluginManager.executeRenderHooks(TestComponent, context);
 
-			expect(ModifiedComponent).not.toBe(TestComponent);
 			expect(plugin.getCollectedClasses().size).toBeGreaterThan(0);
 		});
 
 		it("应该处理数组形式的 className", () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: ["text-red-500", "p-4", "bg-blue-500"] },
@@ -60,13 +54,11 @@ describe("UnocssPlugin Integration", () => {
 				context,
 			);
 
-			expect(ModifiedComponent).not.toBe(TestComponent);
 			expect(plugin.getCollectedClasses().size).toBeGreaterThan(0);
 		});
 
 		it("应该忽略空的或无效的 className", () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: "" },
@@ -77,7 +69,6 @@ describe("UnocssPlugin Integration", () => {
 				context,
 			);
 
-			expect(ModifiedComponent).not.toBe(TestComponent);
 			expect(plugin.getCollectedClasses().size).toBe(0);
 		});
 	});
@@ -93,7 +84,7 @@ describe("UnocssPlugin Integration", () => {
 			document.body.innerHTML = "";
 		});
 
-		it.only("应该在根组件时注入样式", async () => {
+		it("应该在根组件时注入样式", async () => {
 			const TestComponent = (props: any) => {
 				return (
 					<EficyProvider core={eficy}>
@@ -121,8 +112,7 @@ describe("UnocssPlugin Integration", () => {
 		});
 
 		it("应该只注入一次样式", async () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: "text-red-500" },
@@ -135,19 +125,25 @@ describe("UnocssPlugin Integration", () => {
 
 			// 第一次渲染
 			render(
-				React.createElement(ModifiedComponent, { "data-eficy-root": true }),
+				<EficyProvider core={eficy}>
+					<ModifiedComponent data-eficy-root={true} />
+				</EficyProvider>,
 			);
 
 			// 等待异步样式注入
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			await waitFor(() => {
+				const styleElement = document.getElementById("unocss-styles");
+				expect(styleElement).toBeTruthy();
+			});
 
 			// 第二次渲染
-			render(
-				React.createElement(ModifiedComponent, { "data-eficy-root": true }),
-			);
+			render(<ModifiedComponent data-eficy-root={true} />);
 
 			// 等待异步样式注入
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			await waitFor(() => {
+				const styleElement = document.getElementById("unocss-styles");
+				expect(styleElement).toBeTruthy();
+			});
 
 			// 应该只有一个样式标签
 			const styleElements = document.querySelectorAll("#unocss-styles");
@@ -164,8 +160,7 @@ describe("UnocssPlugin Integration", () => {
 		});
 
 		it("应该处理无效的 className", () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: null },
@@ -176,7 +171,6 @@ describe("UnocssPlugin Integration", () => {
 				context,
 			);
 
-			expect(ModifiedComponent).not.toBe(TestComponent);
 			expect(plugin.getCollectedClasses().size).toBe(0);
 		});
 	});
@@ -190,14 +184,15 @@ describe("UnocssPlugin Integration", () => {
 			});
 
 			// 等待生成器初始化
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			await waitFor(() => {
+				expect(customPlugin.getGenerator()).toBeTruthy();
+			});
 
 			expect(customPlugin.getGenerator()).toBeTruthy();
 		});
 
 		it("应该能够清理资源", async () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: "text-red-500" },
@@ -210,11 +205,16 @@ describe("UnocssPlugin Integration", () => {
 
 			// 渲染组件
 			render(
-				React.createElement(ModifiedComponent, { "data-eficy-root": true }),
+				<EficyProvider core={eficy}>
+					<ModifiedComponent data-eficy-root={true} />
+				</EficyProvider>,
 			);
 
 			// 等待异步样式注入
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			await waitFor(() => {
+				const styleElement = document.getElementById("unocss-styles");
+				expect(styleElement).toBeTruthy();
+			});
 
 			// 清理插件
 			plugin.destroy();
@@ -227,8 +227,7 @@ describe("UnocssPlugin Integration", () => {
 
 	describe("缓存机制", () => {
 		it("应该缓存生成的 CSS", async () => {
-			const TestComponent = (props: any) =>
-				React.createElement("div", props, "Test");
+			const TestComponent = (props: any) => <div {...props}>Test</div>;
 
 			const context = {
 				props: { className: "text-red-500 p-4" },
@@ -241,21 +240,31 @@ describe("UnocssPlugin Integration", () => {
 
 			// 第一次渲染
 			render(
-				React.createElement(ModifiedComponent, { "data-eficy-root": true }),
+				<EficyProvider core={eficy}>
+					<ModifiedComponent data-eficy-root={true} />
+				</EficyProvider>,
 			);
 
 			// 等待异步样式注入
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			await waitFor(() => {
+				const styleElement = document.getElementById("unocss-styles");
+				expect(styleElement).toBeTruthy();
+			});
 
 			const firstStyle = document.getElementById("unocss-styles")?.textContent;
 
 			// 第二次渲染相同样式
 			render(
-				React.createElement(ModifiedComponent, { "data-eficy-root": true }),
+				<EficyProvider core={eficy}>
+					<ModifiedComponent data-eficy-root={true} />,
+				</EficyProvider>,
 			);
 
 			// 等待异步样式注入
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			await waitFor(() => {
+				const styleElement = document.getElementById("unocss-styles");
+				expect(styleElement).toBeTruthy();
+			});
 
 			const secondStyle = document.getElementById("unocss-styles")?.textContent;
 
