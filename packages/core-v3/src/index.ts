@@ -13,8 +13,13 @@ export { EficyProvider, useEficyContext } from './contexts/EficyContext';
 
 // 导出服务
 export { ComponentRegistry } from './services/ComponentRegistry';
-export { PluginManager, type Plugin } from './services/PluginManager';
+export { PluginManager, type Plugin, type IRenderContext as RenderContext } from './services/PluginManager';
 export { EventEmitter, type EventListener } from './services/EventEmitter';
+
+// 导出插件系统
+export * from './interfaces/lifecycle';
+export * from './decorators/lifecycle';
+export { HookType } from './constants';
 
 // 导出 JSX runtime（通过重新导出，支持直接导入）
 export { jsx, jsxs, Fragment } from './jsx-runtime';

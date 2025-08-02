@@ -1,20 +1,29 @@
 /**
- * PluginManager 测试
+ * PluginManager 测试 - 支持装饰器版本
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PluginManager, type Plugin } from '@eficy/core-v3/services/PluginManager';
+import React from 'react';
+import 'reflect-metadata';
+import { 
+  PluginManager, 
+  type IRenderContext,
+  type IEficyPlugin,
+  type ILifecyclePlugin,
+  Render,
+  HookType
+} from '../../src';
 
-describe('PluginManager', () => {
+describe('PluginManager - 支持装饰器版本', () => {
   let manager: PluginManager;
 
   beforeEach(() => {
     manager = new PluginManager();
   });
 
-  describe('插件注册', () => {
-    it('应该能够注册插件', () => {
-      const plugin: Plugin = {
+  describe('基础插件功能', () => {
+    it('应该能够注册基础插件', () => {
+      const plugin: IEficyPlugin = {
         name: 'test-plugin',
         version: '1.0.0'
       };
@@ -22,33 +31,19 @@ describe('PluginManager', () => {
       manager.register(plugin);
 
       expect(manager.getPlugin('test-plugin')).toBe(plugin);
-    });
-
-    it('应该拒绝无效的插件名称', () => {
-      expect(() => {
-        manager.register({
-          name: '',
-          version: '1.0.0'
-        });
-      }).toThrow('Plugin name must be a non-empty string');
-
-      expect(() => {
-        manager.register({
-          name: null as any,
-          version: '1.0.0'
-        });
-      }).toThrow('Plugin name must be a non-empty string');
+      expect(manager.isInstalled('test-plugin')).toBe(true);
     });
 
     it('重复注册应该覆盖并警告', () => {
       const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
       
-      const plugin1: Plugin = {
+      const plugin1: IEficyPlugin = {
         name: 'test-plugin',
         version: '1.0.0'
       };
 
-      const plugin2: Plugin = {
+      const plugin2: IEficyPlugin = {
         name: 'test-plugin',
         version: '2.0.0'
       };
@@ -62,270 +57,333 @@ describe('PluginManager', () => {
       );
 
       consoleWarn.mockRestore();
+      consoleLog.mockRestore();
     });
-  });
 
-  describe('插件安装', () => {
-    it('应该能够安装插件', async () => {
-      const installSpy = vi.fn();
-      const plugin: Plugin = {
+    it('应该能够卸载插件', () => {
+      const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      const plugin: IEficyPlugin = {
         name: 'test-plugin',
-        version: '1.0.0',
-        install: installSpy
+        version: '1.0.0'
       };
 
       manager.register(plugin);
-      await manager.install('test-plugin', { context: 'test' });
-
-      expect(installSpy).toHaveBeenCalledWith({ context: 'test' });
       expect(manager.isInstalled('test-plugin')).toBe(true);
-    });
 
-    it('应该能够安装没有 install 方法的插件', async () => {
-      const plugin: Plugin = {
-        name: 'simple-plugin',
-        version: '1.0.0'
-      };
+      manager.unregister('test-plugin');
 
-      manager.register(plugin);
-      
-      await expect(manager.install('simple-plugin')).resolves.not.toThrow();
-      expect(manager.isInstalled('simple-plugin')).toBe(true);
-    });
-
-    it('应该拒绝安装不存在的插件', async () => {
-      await expect(manager.install('nonexistent')).rejects.toThrow(
-        'Plugin "nonexistent" not found'
-      );
-    });
-
-    it('应该处理安装错误', async () => {
-      const plugin: Plugin = {
-        name: 'error-plugin',
-        version: '1.0.0',
-        install: () => {
-          throw new Error('Install failed');
-        }
-      };
-
-      manager.register(plugin);
-
-      await expect(manager.install('error-plugin')).rejects.toThrow('Install failed');
-      expect(manager.isInstalled('error-plugin')).toBe(false);
-    });
-
-    it('重复安装应该警告', async () => {
-      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
-      const plugin: Plugin = {
-        name: 'test-plugin',
-        version: '1.0.0'
-      };
-
-      manager.register(plugin);
-      await manager.install('test-plugin');
-      await manager.install('test-plugin');
-
-      expect(consoleWarn).toHaveBeenCalledWith(
-        '[PluginManager] Plugin "test-plugin" already installed'
-      );
-
-      consoleWarn.mockRestore();
-    });
-  });
-
-  describe('插件卸载', () => {
-    it('应该能够卸载插件', async () => {
-      const uninstallSpy = vi.fn();
-      const plugin: Plugin = {
-        name: 'test-plugin',
-        version: '1.0.0',
-        uninstall: uninstallSpy
-      };
-
-      manager.register(plugin);
-      await manager.install('test-plugin');
-      await manager.uninstall('test-plugin', { context: 'test' });
-
-      expect(uninstallSpy).toHaveBeenCalledWith({ context: 'test' });
+      expect(manager.getPlugin('test-plugin')).toBeUndefined();
       expect(manager.isInstalled('test-plugin')).toBe(false);
-    });
-
-    it('应该能够卸载没有 uninstall 方法的插件', async () => {
-      const plugin: Plugin = {
-        name: 'simple-plugin',
-        version: '1.0.0'
-      };
-
-      manager.register(plugin);
-      await manager.install('simple-plugin');
-      
-      await expect(manager.uninstall('simple-plugin')).resolves.not.toThrow();
-      expect(manager.isInstalled('simple-plugin')).toBe(false);
-    });
-
-    it('应该拒绝卸载不存在的插件', async () => {
-      await expect(manager.uninstall('nonexistent')).rejects.toThrow(
-        'Plugin "nonexistent" not found'
+      expect(consoleLog).toHaveBeenCalledWith(
+        '[PluginManager] Plugin "test-plugin" unregistered successfully'
       );
+
+      consoleLog.mockRestore();
     });
 
-    it('卸载未安装的插件应该警告', async () => {
+    it('卸载不存在的插件应该警告', () => {
       const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      
-      const plugin: Plugin = {
-        name: 'test-plugin',
-        version: '1.0.0'
-      };
 
-      manager.register(plugin);
-      await manager.uninstall('test-plugin');
+      manager.unregister('nonexistent');
 
       expect(consoleWarn).toHaveBeenCalledWith(
-        '[PluginManager] Plugin "test-plugin" not installed'
+        '[PluginManager] Plugin "nonexistent" not found'
       );
 
       consoleWarn.mockRestore();
     });
   });
 
-  describe('批量操作', () => {
-    it('应该能够批量安装所有插件', async () => {
-      const plugin1: Plugin = { name: 'plugin1', version: '1.0.0' };
-      const plugin2: Plugin = { name: 'plugin2', version: '1.0.0' };
+  describe('渲染钩子功能', () => {
+    it('应该执行渲染钩子', () => {
+      const executionOrder: string[] = [];
 
-      manager.register(plugin1);
-      manager.register(plugin2);
+      class Plugin1 implements ILifecyclePlugin {
+        name = 'plugin1';
+        version = '1.0.0';
 
-      await manager.installAll();
-
-      expect(manager.isInstalled('plugin1')).toBe(true);
-      expect(manager.isInstalled('plugin2')).toBe(true);
-    });
-
-    it('应该能够批量卸载所有插件', async () => {
-      const plugin1: Plugin = { name: 'plugin1', version: '1.0.0' };
-      const plugin2: Plugin = { name: 'plugin2', version: '1.0.0' };
-
-      manager.register(plugin1);
-      manager.register(plugin2);
-      await manager.installAll();
-
-      await manager.uninstallAll();
-
-      expect(manager.isInstalled('plugin1')).toBe(false);
-      expect(manager.isInstalled('plugin2')).toBe(false);
-    });
-
-    it('批量安装应该处理单个插件错误', async () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
-      const goodPlugin: Plugin = { name: 'good-plugin', version: '1.0.0' };
-      const badPlugin: Plugin = {
-        name: 'bad-plugin',
-        version: '1.0.0',
-        install: () => {
-          throw new Error('Install failed');
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('plugin1');
+          next();
         }
+      }
+
+      class Plugin2 implements ILifecyclePlugin {
+        name = 'plugin2';
+        version = '1.0.0';
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('plugin2');
+          next();
+        }
+      }
+
+      manager.register(new Plugin1());
+      manager.register(new Plugin2());
+
+      const context: IRenderContext = {
+        props: {}
       };
 
-      manager.register(goodPlugin);
-      manager.register(badPlugin);
+      manager.executeRenderHooks(context);
 
-      await manager.installAll();
+      expect(executionOrder).toEqual(['plugin1', 'plugin2']);
+    });
 
-      expect(manager.isInstalled('good-plugin')).toBe(true);
-      expect(manager.isInstalled('bad-plugin')).toBe(false);
+    it('应该按 enforce 配置排序执行', () => {
+      const executionOrder: string[] = [];
+
+      class PrePlugin implements ILifecyclePlugin {
+        name = 'pre-plugin';
+        version = '1.0.0';
+        enforce = 'pre' as const;
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('pre-plugin');
+          next();
+        }
+      }
+
+      class NormalPlugin implements ILifecyclePlugin {
+        name = 'normal-plugin';
+        version = '1.0.0';
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('normal-plugin');
+          next();
+        }
+      }
+
+      class PostPlugin implements ILifecyclePlugin {
+        name = 'post-plugin';
+        version = '1.0.0';
+        enforce = 'post' as const;
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('post-plugin');
+          next();
+        }
+      }
+
+      // 故意乱序注册
+      manager.register(new PostPlugin());
+      manager.register(new NormalPlugin());
+      manager.register(new PrePlugin());
+
+      const context: IRenderContext = {
+        props: {}
+      };
+
+      manager.executeRenderHooks(context);
+
+      // 应该按 enforce 排序：pre < normal < post
+      expect(executionOrder).toEqual(['pre-plugin', 'normal-plugin', 'post-plugin']);
+    });
+
+    it('应该处理插件中的错误', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      class ErrorPlugin implements ILifecyclePlugin {
+        name = 'error-plugin';
+        version = '1.0.0';
+
+        @Render(0)
+        onRender(): void {
+          throw new Error('Render error');
+        }
+      }
+
+      class GoodPlugin implements ILifecyclePlugin {
+        name = 'good-plugin';
+        version = '1.0.0';
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          next();
+        }
+      }
+
+      manager.register(new ErrorPlugin());
+      manager.register(new GoodPlugin());
+
+      const context: IRenderContext = {
+        props: {}
+      };
+
+      // 错误插件不应该影响其他插件的执行
+      expect(() => {
+        manager.executeRenderHooks(context);
+      }).not.toThrow();
+
       expect(consoleError).toHaveBeenCalled();
 
       consoleError.mockRestore();
+    });
+
+    it('应该支持非装饰器插件', () => {
+      const executionOrder: string[] = [];
+
+      class DecoratorPlugin implements ILifecyclePlugin {
+        name = 'decorator-plugin';
+        version = '1.0.0';
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('decorator');
+          next();
+        }
+      }
+
+      const plainPlugin: IEficyPlugin = {
+        name: 'plain-plugin',
+        version: '1.0.0',
+        onRender(context: IRenderContext, next: () => void): void {
+          executionOrder.push('plain');
+          next();
+        }
+      };
+
+      manager.register(new DecoratorPlugin());
+      manager.register(plainPlugin);
+
+      const context: IRenderContext = {
+        props: {}
+      };
+
+      manager.executeRenderHooks(context);
+
+      expect(executionOrder).toEqual(['decorator', 'plain']);
     });
   });
 
   describe('查询方法', () => {
     it('应该返回所有已注册的插件', () => {
-      const plugin1: Plugin = { name: 'plugin1', version: '1.0.0' };
-      const plugin2: Plugin = { name: 'plugin2', version: '1.0.0' };
+      const plugin1: IEficyPlugin = { name: 'plugin1', version: '1.0.0' };
+      const plugin2: IEficyPlugin = { name: 'plugin2', version: '1.0.0' };
 
       manager.register(plugin1);
       manager.register(plugin2);
 
       const plugins = manager.getAllPlugins();
-
+      expect(plugins).toHaveLength(2);
       expect(plugins).toContain(plugin1);
       expect(plugins).toContain(plugin2);
-      expect(plugins).toHaveLength(2);
     });
 
-    it('应该返回所有已安装的插件名称', async () => {
-      const plugin1: Plugin = { name: 'plugin1', version: '1.0.0' };
-      const plugin2: Plugin = { name: 'plugin2', version: '1.0.0' };
+    it('应该返回所有已安装的插件名称', () => {
+      const plugin1: IEficyPlugin = { name: 'plugin1', version: '1.0.0' };
+      const plugin2: IEficyPlugin = { name: 'plugin2', version: '1.0.0' };
 
       manager.register(plugin1);
       manager.register(plugin2);
-      await manager.install('plugin1');
 
-      const installedPlugins = manager.getInstalledPlugins();
-
-      expect(installedPlugins).toContain('plugin1');
-      expect(installedPlugins).not.toContain('plugin2');
-      expect(installedPlugins).toHaveLength(1);
+      const names = manager.getInstalledPlugins();
+      expect(names).toHaveLength(2);
+      expect(names).toContain('plugin1');
+      expect(names).toContain('plugin2');
     });
 
-    it('应该返回正确的统计信息', async () => {
-      const plugin1: Plugin = { name: 'plugin1', version: '1.0.0' };
-      const plugin2: Plugin = { name: 'plugin2', version: '1.0.0' };
+    it('应该返回正确的统计信息', () => {
+      const plugin1: IEficyPlugin = { name: 'plugin1', version: '1.0.0' };
+      const plugin2: IEficyPlugin = { name: 'plugin2', version: '1.0.0' };
 
       manager.register(plugin1);
       manager.register(plugin2);
-      await manager.install('plugin1');
 
       const stats = manager.getStats();
+      expect(stats.total).toBe(2);
+      expect(stats.installed).toBe(2);
+    });
 
-      expect(stats).toEqual({
-        total: 2,
-        installed: 1,
-        uninstalled: 1
-      });
+    it('应该返回钩子统计信息', () => {
+      class TestPlugin implements ILifecyclePlugin {
+        name = 'test-plugin';
+        version = '1.0.0';
+
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          next();
+        }
+      }
+
+      manager.register(new TestPlugin());
+
+      const hookStats = manager.getHookStats();
+      expect(hookStats.render).toBe(1);
+    });
+
+    it('应该返回插件执行顺序', () => {
+      class PrePlugin implements ILifecyclePlugin {
+        name = 'pre-plugin';
+        version = '1.0.0';
+        enforce = 'pre' as const;
+
+        @Render(0)
+        onRender() {}
+      }
+
+      class PostPlugin implements ILifecyclePlugin {
+        name = 'post-plugin';
+        version = '1.0.0';
+        enforce = 'post' as const;
+
+        @Render(0)
+        onRender() {}
+      }
+
+      manager.register(new PostPlugin());
+      manager.register(new PrePlugin());
+
+      const executionOrder = manager.getExecutionOrder();
+      expect(executionOrder).toHaveLength(2);
+      expect(executionOrder[0].name).toBe('pre-plugin');
+      expect(executionOrder[0].enforce).toBe('pre');
+      expect(executionOrder[1].name).toBe('post-plugin');
+      expect(executionOrder[1].enforce).toBe('post');
     });
   });
 
   describe('清理', () => {
-    it('应该能够清理所有插件', async () => {
-      const uninstallSpy = vi.fn();
-      const plugin: Plugin = {
-        name: 'test-plugin',
-        version: '1.0.0',
-        uninstall: uninstallSpy
-      };
+    it('应该能够清理所有插件', () => {
+      const plugin1: IEficyPlugin = { name: 'plugin1', version: '1.0.0' };
+      const plugin2: IEficyPlugin = { name: 'plugin2', version: '1.0.0' };
 
-      manager.register(plugin);
-      await manager.install('test-plugin');
+      manager.register(plugin1);
+      manager.register(plugin2);
+
+      expect(manager.getAllPlugins()).toHaveLength(2);
 
       manager.dispose();
 
       expect(manager.getAllPlugins()).toHaveLength(0);
-      expect(manager.getInstalledPlugins()).toHaveLength(0);
+      expect(manager.getHookStats().render).toBe(0);
     });
+  });
 
-    it('应该处理清理时的异步卸载错误', async () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
-      const plugin: Plugin = {
-        name: 'error-plugin',
-        version: '1.0.0',
-        uninstall: () => Promise.reject(new Error('Uninstall failed'))
-      };
+  describe('向后兼容', () => {
+    it('应该支持 executeHook 方法', () => {
+      class TestPlugin implements ILifecyclePlugin {
+        name = 'test-plugin';
+        version = '1.0.0';
 
-      manager.register(plugin);
-      await manager.install('error-plugin');
+        @Render(0)
+        onRender(context: IRenderContext, next: () => void): void {
+          next();
+        }
+      }
 
-      expect(() => manager.dispose()).not.toThrow();
+      manager.register(new TestPlugin());
 
-      // 等待异步错误处理
-      await new Promise(resolve => setTimeout(resolve, 10));
+      const context: IRenderContext = { props: {} };
+      const result = manager.executeHook(HookType.RENDER, context, () => 'test');
 
-      consoleError.mockRestore();
+      expect(result).toBe('test');
     });
   });
 });

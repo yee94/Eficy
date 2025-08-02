@@ -11,6 +11,7 @@ import { useEficyContext } from '../contexts/EficyContext';
 import { useObserver } from '@eficy/reactive-react';
 import { ComponentRegistry } from '../services/ComponentRegistry';
 import mapValues from 'lodash/mapValues';
+import { HookType } from '../constants';
 
 export interface EficyNodeProps {
   type: string | ComponentType<any>;
@@ -59,7 +60,17 @@ const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props, key }) => {
     const resolvedProps = resolveSignalProps(props);
 
     // 获取实际的组件
-    const Component = resolveComponent(type, eficyContext?.componentRegistry);
+    let Component = resolveComponent(type, eficyContext?.componentRegistry);
+
+    if (eficyContext?.pluginManager) {
+      Component = eficyContext.pluginManager.executeHook(
+        HookType.RENDER,
+        {
+          props: resolvedProps,
+        },
+        () => Component,
+      );
+    }
 
     if (!Component) {
       console.error(`[Eficy V3] Component "${String(type)}" not found`);

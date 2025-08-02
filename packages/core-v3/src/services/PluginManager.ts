@@ -1,195 +1,238 @@
+import { container, singleton } from 'tsyringe';
+import { HookType } from '../constants';
+import { getLifecycleHooks } from '../decorators/lifecycle';
+import type { IEficyPlugin, IRenderContext, PluginEnforce, ILifecyclePlugin } from '../interfaces/lifecycle';
+import type { ComponentType } from 'react';
+
 /**
- * PluginManager - 插件管理器服务
+ * 简化的插件管理器 - 保留装饰器支持
  */
-
-import { injectable } from 'tsyringe';
-
-export interface Plugin {
-  name: string;
-  version: string;
-  install?: (context: any) => void | Promise<void>;
-  uninstall?: (context: any) => void | Promise<void>;
-}
-
-@injectable()
+@singleton()
 export class PluginManager {
-  private plugins = new Map<string, Plugin>();
-  private installed = new Set<string>();
-  
+  private plugins: Map<string, IEficyPlugin> = new Map();
+  private hooks: Map<HookType, Array<{ plugin: IEficyPlugin; handler: Function; enforce?: PluginEnforce }>> = new Map();
+
   /**
    * 注册插件
    */
-  register(plugin: Plugin): void {
-    if (!plugin.name || typeof plugin.name !== 'string') {
-      throw new Error('Plugin name must be a non-empty string');
-    }
-    
+  register(plugin: IEficyPlugin): void {
     if (this.plugins.has(plugin.name)) {
       console.warn(`[PluginManager] Plugin "${plugin.name}" already registered, overwriting`);
     }
-    
+
     this.plugins.set(plugin.name, plugin);
+
+    // 执行插件安装
+    if (plugin.install) {
+      plugin.install(container);
+    }
+
+    // 注册钩子
+    if (this.isLifecyclePlugin(plugin)) {
+      this.registerLifecycleHooks(plugin as ILifecyclePlugin);
+    }
+
+    console.log(`[PluginManager] Plugin "${plugin.name}" registered successfully`);
   }
-  
-  /**
-   * 安装插件
-   */
-  async install(name: string, context?: any): Promise<void> {
-    const plugin = this.plugins.get(name);
-    
-    if (!plugin) {
-      throw new Error(`Plugin "${name}" not found`);
-    }
-    
-    if (this.installed.has(name)) {
-      console.warn(`[PluginManager] Plugin "${name}" already installed`);
-      return;
-    }
-    
-    try {
-      if (plugin.install) {
-        await plugin.install(context);
-      }
-      
-      this.installed.add(name);
-      console.log(`[PluginManager] Plugin "${name}" installed successfully`);
-    } catch (error) {
-      console.error(`[PluginManager] Failed to install plugin "${name}":`, error);
-      throw error;
-    }
-  }
-  
+
   /**
    * 卸载插件
    */
-  async uninstall(name: string, context?: any): Promise<void> {
-    const plugin = this.plugins.get(name);
-    
+  unregister(pluginName: string): void {
+    const plugin = this.plugins.get(pluginName);
     if (!plugin) {
-      throw new Error(`Plugin "${name}" not found`);
-    }
-    
-    if (!this.installed.has(name)) {
-      console.warn(`[PluginManager] Plugin "${name}" not installed`);
+      console.warn(`[PluginManager] Plugin "${pluginName}" not found`);
       return;
     }
-    
-    try {
-      if (plugin.uninstall) {
-        await plugin.uninstall(context);
-      }
-      
-      this.installed.delete(name);
-      console.log(`[PluginManager] Plugin "${name}" uninstalled successfully`);
-    } catch (error) {
-      console.error(`[PluginManager] Failed to uninstall plugin "${name}":`, error);
-      throw error;
+
+    // 移除所有钩子
+    for (const [hookType, hooks] of this.hooks.entries()) {
+      this.hooks.set(
+        hookType,
+        hooks.filter((hook) => hook.plugin !== plugin),
+      );
     }
+
+    // 执行插件卸载
+    if (plugin.uninstall) {
+      plugin.uninstall(container);
+    }
+
+    this.plugins.delete(pluginName);
+    console.log(`[PluginManager] Plugin "${pluginName}" unregistered successfully`);
   }
-  
+
+  /**
+   * 获取插件
+   */
+  getPlugin(name: string): IEficyPlugin | undefined {
+    return this.plugins.get(name);
+  }
+
+  /**
+   * 获取所有插件
+   */
+  getAllPlugins(): IEficyPlugin[] {
+    return Array.from(this.plugins.values());
+  }
+
+  /**
+   * 获取已安装的插件名称列表
+   */
+  getInstalledPlugins(): string[] {
+    return Array.from(this.plugins.keys());
+  }
+
   /**
    * 检查插件是否已安装
    */
-  isInstalled(name: string): boolean {
-    return this.installed.has(name);
+  isInstalled(pluginName: string): boolean {
+    return this.plugins.has(pluginName);
   }
-  
+
   /**
-   * 获取插件信息
+   * 执行钩子链 - 洋葱式中间件模式
    */
-  getPlugin(name: string): Plugin | undefined {
-    return this.plugins.get(name);
-  }
-  
-  /**
-   * 获取所有已注册的插件
-   */
-  getAllPlugins(): Plugin[] {
-    return Array.from(this.plugins.values());
-  }
-  
-  /**
-   * 获取所有已安装的插件名称
-   */
-  getInstalledPlugins(): string[] {
-    return Array.from(this.installed);
-  }
-  
-  /**
-   * 批量安装插件
-   */
-  async installAll(context?: any): Promise<void> {
-    const plugins = Array.from(this.plugins.keys());
-    
-    for (const name of plugins) {
-      if (!this.installed.has(name)) {
+  executeHook<T>(hookType: HookType, context: IRenderContext, next: () => T): T {
+    const hooks = this.hooks.get(hookType) || [];
+
+    if (hooks.length === 0) {
+      // 如果没有钩子，返回最后一个参数作为默认结果
+      return next();
+    }
+
+    // 创建洋葱式中间件执行链
+    const compose = (index: number): (() => T) => {
+      if (index >= hooks.length) {
+        // 到达链的末尾，返回默认结果
+        return () => next();
+      }
+
+      const hook = hooks[index];
+      const next = compose(index + 1);
+
+      return () => {
         try {
-          await this.install(name, context);
+          // 调用钩子函数，传递所有参数和next函数
+          return hook.handler(context, next);
         } catch (error) {
-          console.error(`[PluginManager] Failed to install plugin "${name}" during batch install:`, error);
+          console.error(`[PluginManager] Error in plugin "${hook.plugin.name}" ${hookType} hook:`, error);
+          // 继续执行下一个钩子
+          return next();
         }
-      }
-    }
-  }
-  
-  /**
-   * 批量卸载插件
-   */
-  async uninstallAll(context?: any): Promise<void> {
-    const installedPlugins = Array.from(this.installed);
-    
-    for (const name of installedPlugins) {
-      try {
-        await this.uninstall(name, context);
-      } catch (error) {
-        console.error(`[PluginManager] Failed to uninstall plugin "${name}" during batch uninstall:`, error);
-      }
-    }
-  }
-  
-  /**
-   * 获取插件统计信息
-   */
-  getStats(): {
-    total: number;
-    installed: number;
-    uninstalled: number;
-  } {
-    const total = this.plugins.size;
-    const installed = this.installed.size;
-    
-    return {
-      total,
-      installed,
-      uninstalled: total - installed
+      };
     };
+
+    // 从第一个钩子开始执行
+    return compose(0)();
   }
-  
+
+  /**
+   * 执行渲染钩子 - 便捷方法
+   */
+  executeRenderHooks(Component: ComponentType<any>, context: IRenderContext): ComponentType<any> {
+    return this.executeHook(HookType.RENDER, context, () => Component);
+  }
+
+  /**
+   * 获取插件执行顺序
+   */
+  getExecutionOrder(): Array<{ name: string; enforce?: PluginEnforce }> {
+    const renderHooks = this.hooks.get(HookType.RENDER) || [];
+    return renderHooks.map((hook) => ({
+      name: hook.plugin.name,
+      enforce: hook.enforce,
+    }));
+  }
+
   /**
    * 清理所有插件
    */
   dispose(): void {
-    // 卸载所有已安装的插件（同步版本）
-    const installedPlugins = Array.from(this.installed);
-    
-    installedPlugins.forEach(name => {
-      const plugin = this.plugins.get(name);
-      if (plugin?.uninstall) {
-        try {
-          // 如果是同步函数，直接调用
-          const result = plugin.uninstall({});
-          if (result instanceof Promise) {
-            result.catch(error => {
-              console.error(`[PluginManager] Error during plugin "${name}" cleanup:`, error);
-            });
-          }
-        } catch (error) {
-          console.error(`[PluginManager] Error during plugin "${name}" cleanup:`, error);
+    for (const pluginName of this.plugins.keys()) {
+      this.unregister(pluginName);
+    }
+    this.plugins.clear();
+    this.hooks.clear();
+  }
+
+  /**
+   * 获取统计信息
+   */
+  getStats(): { total: number; installed: number } {
+    const total = this.plugins.size;
+    return { total, installed: total };
+  }
+
+  /**
+   * 获取钩子统计信息
+   */
+  getHookStats(): Record<string, number> {
+    const stats: Record<string, number> = {};
+    for (const [hookType, hooks] of this.hooks.entries()) {
+      stats[hookType] = hooks.length;
+    }
+    return stats;
+  }
+
+  /**
+   * 检查是否为生命周期插件
+   */
+  private isLifecyclePlugin(plugin: IEficyPlugin): boolean {
+    const proto = Object.getPrototypeOf(plugin);
+    const hooks = getLifecycleHooks(proto);
+    return hooks.length > 0;
+  }
+
+  /**
+   * 注册生命周期钩子
+   */
+  private registerLifecycleHooks(plugin: ILifecyclePlugin): void {
+    const proto = Object.getPrototypeOf(plugin);
+    const hooks = getLifecycleHooks(proto);
+
+    hooks.forEach((hookInfo: any) => {
+      const { hookType, methodName } = hookInfo;
+
+      const method = plugin[methodName as keyof ILifecyclePlugin];
+      if (typeof method === 'function') {
+        if (!this.hooks.has(hookType)) {
+          this.hooks.set(hookType, []);
         }
+
+        this.hooks.get(hookType)!.push({
+          plugin,
+          handler: method.bind(plugin),
+          enforce: plugin.enforce,
+        });
       }
     });
-    
-    this.installed.clear();
-    this.plugins.clear();
+
+    // 按enforce重新排序所有钩子
+    this.sortAllHooks();
+  }
+
+  /**
+   * 按enforce配置排序所有钩子
+   */
+  private sortAllHooks(): void {
+    for (const [hookType, hooks] of this.hooks.entries()) {
+      hooks.sort((a, b) => {
+        // enforce排序：pre < undefined < post
+        const enforceOrder = { pre: 0, undefined: 1, post: 2 };
+        const aEnforce = enforceOrder[a.enforce || undefined];
+        const bEnforce = enforceOrder[b.enforce || undefined];
+
+        if (aEnforce !== bEnforce) {
+          return aEnforce - bEnforce;
+        }
+
+        // 如果enforce相同，按插件名称排序保证稳定性
+        return a.plugin.name.localeCompare(b.plugin.name);
+      });
+    }
   }
 }
+
+// 向后兼容的类型导出
+export type { IRenderContext, IEficyPlugin as Plugin };
