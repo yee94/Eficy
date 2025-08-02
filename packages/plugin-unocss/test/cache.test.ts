@@ -168,6 +168,15 @@ describe('UnocssPlugin Cache Functionality', () => {
 
       expect(plugin['collectedClasses'].size).toBe(0);
     });
+
+    it('应该分割多个类名', () => {
+      plugin['collectClassNames']('text-red-500 p-4 bg-blue-500');
+      
+      expect(plugin['collectedClasses'].size).toBe(3);
+      expect(plugin['collectedClasses'].has('text-red-500')).toBe(true);
+      expect(plugin['collectedClasses'].has('p-4')).toBe(true);
+      expect(plugin['collectedClasses'].has('bg-blue-500')).toBe(true);
+    });
   });
 
   describe('Performance', () => {
@@ -188,6 +197,24 @@ describe('UnocssPlugin Cache Functionality', () => {
       const result2 = await plugin['generateCSS']();
       expect(result2).toBe('.large { color: red; }');
       expect(mockGenerator.generate).toHaveBeenCalledTimes(1); // 仍然只调用一次，证明使用了缓存
+    });
+  });
+
+  describe('Public API', () => {
+    it('应该提供获取收集类名的方法', () => {
+      plugin['collectedClasses'].add('text-red-500');
+      plugin['collectedClasses'].add('p-4');
+
+      const collectedClasses = plugin.getCollectedClasses();
+      expect(collectedClasses).toBeInstanceOf(Set);
+      expect(collectedClasses.size).toBe(2);
+      expect(collectedClasses.has('text-red-500')).toBe(true);
+      expect(collectedClasses.has('p-4')).toBe(true);
+    });
+
+    it('应该提供获取生成器的方法', () => {
+      const generator = plugin.getGenerator();
+      expect(generator).toBeDefined();
     });
   });
 });

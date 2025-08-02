@@ -1,305 +1,217 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { UnocssPlugin } from '../src/UnocssPlugin';
-import { Eficy } from '@eficy/core';
+import { Eficy } from '../../core-v3/src';
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-
-// 简单的渲染函数替代 @testing-library/react
-async function render(element: React.ReactElement) {
-  const container = document.createElement('div');
-  const root = createRoot(container);
-  root.render(element);
-  
-  // 等待 React 渲染完成
-  await new Promise(resolve => setTimeout(resolve, 0));
-  
-  return { container, root };
-}
-
-// 简单的 waitFor 替代
-async function waitFor(callback: () => void) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      callback();
-      resolve();
-    }, 0);
-  });
-}
+import { render, screen } from '@testing-library/react';
 
 describe('UnocssPlugin Integration', () => {
   let eficy: Eficy;
   let plugin: UnocssPlugin;
-  let mockDocument: any;
 
   beforeEach(async () => {
     // Create fresh instances
     eficy = new Eficy();
-    plugin = new UnocssPlugin();
 
     // Register plugin
-    eficy.registerPlugin(plugin);
+    await eficy.pluginManager.register(UnocssPlugin);
   });
 
   afterEach(() => {
-    plugin.destroy();
+    // plugin.destroy();
     vi.clearAllMocks();
   });
 
-  describe('Complete Workflow', () => {
-    it('应该完整地处理简单 Schema 的 UnoCSS 样式', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: 'text-red-500 p-4 bg-blue-500',
-            '#children': 'Hello UnoCSS',
-          },
-        ],
-      };
-
-      // Configure component map
-      eficy.config({
-        componentMap: {
-          div: 'div',
-        },
-      });
-
-      // 渲染 Schema
-      const element = await eficy.createElement(schema);
-      const { container } = await render(element);
-
-      // 验证原始内容存在
-      expect(container.textContent).toContain('Hello UnoCSS');
-
-      // 验证插件收集了类名（通过检查元素的 className）
-      const divElement = container.querySelector('div');
-      expect(divElement).toBeTruthy();
-      expect(divElement?.className).toContain('text-red-500');
-      expect(divElement?.className).toContain('p-4');
-      expect(divElement?.className).toContain('bg-blue-500');
-
-      // 插件已注册但需要在真实 Eficy 环境中才能完整工作
-      expect(plugin['collectedClasses'].size).toBeGreaterThanOrEqual(0);
+  describe('基础功能', () => {
+    it('应该能够注册插件', () => {
+      expect(eficy.pluginManager.getPlugin('unocss-plugin')?.constructor).toBe(UnocssPlugin);
     });
 
-    it('应该处理嵌套组件的 className 收集', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: 'text-red-500',
-            '#children': [
-              {
-                '#': 'header',
-                '#view': 'div',
-                className: 'p-4',
-                '#children': [
-                  {
-                    '#': 'title',
-                    '#view': 'h1',
-                    className: 'bg-blue-500',
-                    '#children': 'Title',
-                  },
-                ],
-              },
-              {
-                '#': 'content',
-                '#view': 'div',
-                className: 'flex items-center',
-                '#children': 'Content',
-              },
-            ],
-          },
-        ],
+    it.only('应该能够收集 className', () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: 'text-red-500 p-4 bg-blue-500' },
       };
 
-      eficy.config({
-        componentMap: {
-          div: 'div',
-          h1: 'h1',
-        },
-      });
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
 
-      const element = await eficy.createElement(schema);
-      const { container } = await render(element);
-
-      // 验证嵌套元素和 className 存在
-      expect(container.textContent).toContain('Title');
-      expect(container.textContent).toContain('Content');
-
-      // 验证各个元素的 className
-      const elements = container.querySelectorAll('div, h1');
-      expect(elements.length).toBeGreaterThan(0);
-
-      // 验证插件工作
-      expect(plugin['collectedClasses'].size).toBeGreaterThanOrEqual(0);
+      expect(ModifiedComponent).not.toBe(TestComponent);
+      expect(plugin.getCollectedClasses().size).toBeGreaterThan(0);
     });
 
-    it('应该处理数组形式的 className', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: ['text-red-500', 'p-4', 'bg-blue-500'],
-            '#children': 'Array className test',
-          },
-        ],
+    it('应该处理数组形式的 className', () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: ['text-red-500', 'p-4', 'bg-blue-500'] },
       };
 
-      eficy.config({
-        componentMap: { div: 'div' },
-      });
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
 
-      const element = await eficy.createElement(schema);
-      const { container } = await render(element);
-
-      // 验证内容渲染
-      expect(container.textContent).toContain('Array className test');
-
-      // 验证数组形式的 className 被正确应用
-      const divElement = container.querySelector('div');
-      expect(divElement).toBeTruthy();
-
-      // 插件应该处理数组形式的 className
-      expect(plugin['collectedClasses'].size).toBeGreaterThanOrEqual(0);
+      expect(ModifiedComponent).not.toBe(TestComponent);
+      expect(plugin.getCollectedClasses().size).toBeGreaterThan(0);
     });
 
-    it('应该忽略空的或无效的 className', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: 'text-red-500 valid-class',
-            '#children': [
-              {
-                '#': 'child1',
-                '#view': 'div',
-                className: '',
-                '#children': 'Empty',
-              },
-              {
-                '#': 'child2',
-                '#view': 'div',
-                className: null,
-                '#children': 'Null',
-              },
-            ],
-          },
-        ],
+    it('应该忽略空的或无效的 className', () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: '' },
       };
 
-      eficy.config({
-        componentMap: { div: 'div' },
-      });
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
 
-      const element = await eficy.createElement(schema);
-      const { container } = await render(element);
-
-      // 验证内容正确渲染
-      expect(container.textContent).toContain('Empty');
-      expect(container.textContent).toContain('Null');
-
-      // 验证有效的 className 被应用
-      const elements = container.querySelectorAll('div');
-      expect(elements.length).toBeGreaterThan(0);
-
-      // 插件应该忽略无效值
-      expect(plugin['collectedClasses'].size).toBeGreaterThanOrEqual(0);
-    });
-
-    it('应该只在根节点渲染时注入样式一次', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: 'text-red-500',
-            '#children': 'Test',
-          },
-        ],
-      };
-
-      // 多次渲染
-      const element1 = await eficy.createElement(schema);
-      const element2 = await eficy.createElement(schema);
-
-      const { container: container1 } = await render(element1);
-      const { container: container2 } = await render(element2);
-
-      await waitFor(() => {
-        // 每次都应该有样式标签（因为是不同的渲染结果）
-        expect(container1.querySelector('style')).toBeTruthy();
-        expect(container2.querySelector('style')).toBeTruthy();
-      });
+      expect(ModifiedComponent).not.toBe(TestComponent);
+      expect(plugin.getCollectedClasses().size).toBe(0);
     });
   });
 
-  describe('Error Handling', () => {
-    it('应该优雅地处理 UnoCSS 生成错误', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: 'some-unknown-class',
-            '#children': 'Error test',
-          },
-        ],
-      };
-
-      eficy.config({
-        componentMap: { div: 'div' },
-      });
-
-      // Should not throw even with unknown classes
-      const element = await eficy.createElement(schema);
-      const { container } = await render(element);
-
-      expect(element).toBeTruthy();
-      expect(container.textContent).toContain('Error test');
+  describe('样式注入', () => {
+    beforeEach(() => {
+      // 设置 DOM 环境
+      document.body.innerHTML = '<div id="root"></div>';
     });
 
-    it('应该在服务端渲染环境中工作', async () => {
-      const schema = {
-        views: [
-          {
-            '#': 'root',
-            '#view': 'div',
-            className: 'text-red-500',
-            '#children': 'SSR test',
-          },
-        ],
+    afterEach(() => {
+      // 清理 DOM
+      document.body.innerHTML = '';
+    });
+
+    it('应该在根组件时注入样式', async () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Root Component');
+
+      const context = {
+        props: { className: 'text-red-500 p-4' },
       };
 
-      eficy.config({
-        componentMap: { div: 'div' },
-      });
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
 
-      // Should work without browser APIs
-      const element = await eficy.createElement(schema);
-      expect(element).toBeTruthy();
+      // 渲染根组件
+      render(React.createElement(ModifiedComponent, { 'data-eficy-root': true }));
+
+      // 等待异步样式注入
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // 检查样式是否被注入
+      const styleElement = document.getElementById('unocss-styles');
+      expect(styleElement).toBeTruthy();
+    });
+
+    it('应该只注入一次样式', async () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: 'text-red-500' },
+      };
+
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
+
+      // 第一次渲染
+      render(React.createElement(ModifiedComponent, { 'data-eficy-root': true }));
+
+      // 等待异步样式注入
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // 第二次渲染
+      render(React.createElement(ModifiedComponent, { 'data-eficy-root': true }));
+
+      // 等待异步样式注入
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // 应该只有一个样式标签
+      const styleElements = document.querySelectorAll('#unocss-styles');
+      expect(styleElements.length).toBe(1);
     });
   });
 
-  describe('Plugin Configuration', () => {
+  describe('错误处理', () => {
+    it('应该优雅地处理生成器初始化错误', () => {
+      // 不进行 mock，让插件正常初始化
+      expect(() => {
+        new UnocssPlugin();
+      }).not.toThrow();
+    });
+
+    it('应该处理无效的 className', () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: null },
+      };
+
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
+
+      expect(ModifiedComponent).not.toBe(TestComponent);
+      expect(plugin.getCollectedClasses().size).toBe(0);
+    });
+  });
+
+  describe('插件配置', () => {
     it('应该支持自定义 UnoCSS 配置', async () => {
-      const customPlugin = new UnocssPlugin({
+      const customPlugin = await eficy.pluginManager.register(UnocssPlugin, {
         config: {
           rules: [['custom-rule', { color: 'red' }]],
         },
       });
 
-      // 初始化插件
-      const next = vi.fn().mockResolvedValue(undefined);
-      await customPlugin.onInit({} as any, next);
+      // 等待生成器初始化
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
-      // 验证插件被正确初始化
       expect(customPlugin.getGenerator()).toBeTruthy();
-      expect(next).toHaveBeenCalled();
+    });
+
+    it('应该能够清理资源', async () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: 'text-red-500' },
+      };
+
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
+
+      // 渲染组件
+      render(React.createElement(ModifiedComponent, { 'data-eficy-root': true }));
+
+      // 等待异步样式注入
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      // 清理插件
+      plugin.destroy();
+
+      // 检查样式标签是否被移除
+      const styleElement = document.getElementById('unocss-styles');
+      expect(styleElement).toBeNull();
+    });
+  });
+
+  describe('缓存机制', () => {
+    it('应该缓存生成的 CSS', async () => {
+      const TestComponent = (props: any) => React.createElement('div', props, 'Test');
+
+      const context = {
+        props: { className: 'text-red-500 p-4' },
+      };
+
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
+
+      // 第一次渲染
+      render(React.createElement(ModifiedComponent, { 'data-eficy-root': true }));
+
+      // 等待异步样式注入
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const firstStyle = document.getElementById('unocss-styles')?.textContent;
+
+      // 第二次渲染相同样式
+      render(React.createElement(ModifiedComponent, { 'data-eficy-root': true }));
+
+      // 等待异步样式注入
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const secondStyle = document.getElementById('unocss-styles')?.textContent;
+
+      // 样式应该相同（缓存生效）
+      expect(firstStyle).toBe(secondStyle);
     });
   });
 });

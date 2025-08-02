@@ -4,7 +4,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@eficy/core': path.resolve(__dirname, '../core/src/index.ts'),
+      // '@eficy/core-v3': path.resolve(__dirname, '../core-v3/src/index.ts'),
+      // 'reflect-metadata': path.resolve(__dirname, './node_modules/reflect-metadata/Reflect.js'),
     },
   },
   test: {
@@ -14,8 +15,5 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
     },
-  },
-  esbuild: {
-    target: 'node14'
   },
 });

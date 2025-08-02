@@ -50,6 +50,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
       tsdown:
         specifier: ^0.13.0
         version: 0.13.0(typescript@5.4.2)
@@ -197,8 +200,8 @@ importers:
         specifier: ^4.0.11
         version: 4.1.2(react@18.3.1)
       reflect-metadata:
-        specifier: ^0.1.13
-        version: 0.1.14
+        specifier: ^0.2.2
+        version: 0.2.2
       tsyringe:
         specifier: ^4.8.0
         version: 4.10.0
@@ -236,9 +239,9 @@ importers:
 
   packages/plugin-unocss:
     dependencies:
-      '@eficy/core':
+      '@eficy/core-v3':
         specifier: workspace:*
-        version: link:../core
+        version: link:../core-v3
       '@unocss/core':
         specifier: ^66.0.0
         version: 66.3.3
@@ -248,6 +251,9 @@ importers:
       '@unocss/preset-uno':
         specifier: ^66.0.0
         version: 66.3.3
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
 
   packages/reactive:
     dependencies:
@@ -255,8 +261,8 @@ importers:
         specifier: ^1.5.0
         version: 1.11.0
       reflect-metadata:
-        specifier: ^0.1.13
-        version: 0.1.14
+        specifier: ^0.2.2
+        version: 0.2.2
 
   packages/reactive-async:
     dependencies:
@@ -3035,9 +3041,6 @@ packages:
   redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
-
-  reflect-metadata@0.1.14:
-    resolution: {integrity: sha512-ZhYeb6nRaXCfhnndflDK8qI6ZQ/YcWZCISRAWICW9XYqMUwjZM9Z0DveWX/ABN01oxSHwVxKQmxeYZSsm0jh5A==}
 
   reflect-metadata@0.2.2:
     resolution: {integrity: sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==}
@@ -6757,8 +6760,6 @@ snapshots:
     dependencies:
       indent-string: 4.0.0
       strip-indent: 3.0.0
-
-  reflect-metadata@0.1.14: {}
 
   reflect-metadata@0.2.2: {}
 

@@ -24,22 +24,12 @@ export type ComponentMap = Record<string, ComponentType<any>>;
 export interface EficyConfig {
   /** 组件映射 */
   components?: ComponentMap;
-  
+
   /** 是否启用开发模式 */
   development?: boolean;
-  
+
   /** 是否启用调试日志 */
   debug?: boolean;
-}
-
-/**
- * 插件接口
- */
-export interface EficyPlugin {
-  name: string;
-  version: string;
-  install?: (core: Eficy) => void | Promise<void>;
-  uninstall?: (core: Eficy) => void | Promise<void>;
 }
 
 /**
@@ -90,7 +80,7 @@ export enum LifecycleEvents {
   AFTER_RENDER = 'afterRender',
   COMPONENT_MOUNT = 'componentMount',
   COMPONENT_UNMOUNT = 'componentUnmount',
-  ERROR = 'error'
+  ERROR = 'error',
 }
 
 /**

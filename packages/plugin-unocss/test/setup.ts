@@ -1,2 +1,2 @@
 // Basic setup for Eficy tests
-console.log('Test setup loaded');
+import 'reflect-metadata';

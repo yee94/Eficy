@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { isSignal } from '@eficy/reactive';
-import { EficyNode } from './components/EficyNode';
+import { EficyNode } from './index';
 
 export interface JSXProps {
   children?: any;

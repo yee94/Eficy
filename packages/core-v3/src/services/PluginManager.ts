@@ -44,6 +44,7 @@ export class PluginManager {
     }
 
     const initialize = getLifecycleHooksByType(plugin, HookType.INITIALIZE);
+    console.log('🚀 #### ~ PluginManager ~ register ~ initialize:', initialize, getLifecycleHooks(plugin));
 
     await Promise.all(initialize.map((hook) => hook.handler(configs)));
 
