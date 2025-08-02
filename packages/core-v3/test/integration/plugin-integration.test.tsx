@@ -6,7 +6,15 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import 'reflect-metadata';
-import { PluginManager, Render, type ILifecyclePlugin, type IRenderContext, type IEficyPlugin, Eficy } from '../../src';
+import {
+  PluginManager,
+  Render,
+  type ILifecyclePlugin,
+  type IRenderContext,
+  type IEficyPlugin,
+  Eficy,
+  Initialize,
+} from '../../src';
 
 describe('Plugin Integration - 渲染行为验证', () => {
   let pluginManager: PluginManager;
@@ -127,11 +135,17 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('条件渲染场景', () => {
-    it.only('应该支持条件渲染插件', () => {
+    it.only('应该支持条件渲染插件', async () => {
       class PermissionPlugin implements ILifecyclePlugin {
         name = 'permission-plugin';
         version = '1.0.0';
-        hasPermission: boolean = true;
+        hasPermission: boolean;
+
+        @Initialize()
+        initialize(props?: { hasPermission: boolean }) {
+          this.hasPermission = props?.hasPermission ?? true;
+          console.log('🚀 #### ~ PermissionPlugin ~ initialize ~ this.hasPermission:', this, this.hasPermission);
+        }
 
         @Render(0)
         onRender(context: IRenderContext, next: () => React.ComponentType<any>): React.ComponentType<any> {
@@ -160,9 +174,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       const eficy = new Eficy();
       pluginManager = eficy.pluginManager;
 
-      const plugin = pluginManager.register(PermissionPlugin);
-
-      plugin.hasPermission = false;
+      pluginManager.register(PermissionPlugin, { hasPermission: false });
 
       const DeniedComponent = pluginManager.executeRenderHooks(TestComponent, context);
       expect(DeniedComponent).not.toBe(TestComponent); // 应该返回不同的组件

@@ -1,6 +1,6 @@
 import { DependencyContainer, inject, singleton } from 'tsyringe';
 import { HookType } from '../constants';
-import { getLifecycleHooks } from '../decorators/lifecycle';
+import { getLifecycleHooks, getLifecycleHooksByType } from '../decorators/lifecycle';
 import type {
   IEficyPlugin,
   IRenderContext,
@@ -26,7 +26,10 @@ export class PluginManager {
   /**
    * 注册插件
    */
-  register<T extends IEficyPlugin>(pluginInstance: new (...args: any[]) => T): T {
+  async register<T extends IEficyPlugin>(
+    pluginInstance: new (...args: any[]) => T,
+    configs?: Parameters<T['initialize']>[0],
+  ): Promise<T> {
     const plugin = this.container.resolve(pluginInstance);
 
     if (this.plugins.has(plugin.name)) {
@@ -40,7 +43,9 @@ export class PluginManager {
       this.registerLifecycleHooks(plugin as ILifecyclePlugin);
     }
 
-    plugin.initialize?.();
+    const initialize = getLifecycleHooksByType(plugin, HookType.INITIALIZE);
+
+    await Promise.all(initialize.map((hook) => hook.handler(configs)));
 
     console.log(`[PluginManager] Plugin "${plugin.name}" registered successfully`);
 
@@ -67,7 +72,7 @@ export class PluginManager {
 
     // 执行插件卸载
     if (plugin.uninstall) {
-      plugin.uninstall(container);
+      plugin.uninstall();
     }
 
     this.plugins.delete(pluginName);

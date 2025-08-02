@@ -9,7 +9,7 @@ export interface IEficyPlugin {
   dependencies?: string[];
   enforce?: PluginEnforce;
 
-  initialize?(): Promise<void> | void;
+  initialize?(configs?: any): Promise<void> | void;
   uninstall?(): Promise<void> | void;
 }
 
