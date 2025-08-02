@@ -14,7 +14,7 @@ const result = transform(tableRaw, {
   disableESTransforms: true,
   jsxRuntime: 'automatic',
   production: process.env.NODE_ENV === 'production',
-  jsxImportSource: '@eficy/core-v3',
+  jsxImportSource: 'eficy',
 });
 
 async function loadCode(code: string) {
