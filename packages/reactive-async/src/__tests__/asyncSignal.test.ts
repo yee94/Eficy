@@ -26,9 +26,9 @@ describe('asyncSignal', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(result.data).toEqual({ name: 'test' });
-      expect(result.loading).toBe(false);
-      expect(result.error).toBeUndefined();
+      expect(result.data()).toEqual({ name: 'test' });
+      expect(result.loading()).toBe(false);
+      expect(result.error()).toBeUndefined();
     });
 
     it('应该处理服务函数错误', async () => {
@@ -44,9 +44,9 @@ describe('asyncSignal', () => {
       }
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(result.data).toBeUndefined();
-      expect(result.loading).toBe(false);
-      expect(result.error).toEqual(error);
+      expect(result.data()).toBeUndefined();
+      expect(result.loading()).toBe(false);
+      expect(result.error()).toEqual(error);
     });
   });
 
@@ -56,7 +56,7 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService, { manual: true });
 
       expect(mockService).not.toHaveBeenCalled();
-      expect(result.loading).toBe(false);
+      expect(result.loading()).toBe(false);
     });
 
     it('应该手动触发请求', async () => {
@@ -64,12 +64,12 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService, { manual: true });
 
       const promise = result.run();
-      expect(result.loading).toBe(true);
+      expect(result.loading()).toBe(true);
 
       const data = await promise;
       expect(data).toEqual({ name: 'test' });
-      expect(result.data).toEqual({ name: 'test' });
-      expect(result.loading).toBe(false);
+      expect(result.data()).toEqual({ name: 'test' });
+      expect(result.loading()).toBe(false);
     });
   });
 
@@ -133,7 +133,7 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService, { manual: true });
 
       result.mutate({ name: 'updated' });
-      expect(result.data).toEqual({ name: 'updated' });
+      expect(result.data()).toEqual({ name: 'updated' });
     });
 
     it('应该支持函数式修改数据', () => {
@@ -145,7 +145,7 @@ describe('asyncSignal', () => {
         return { ...oldData, name: 'updated' };
       });
 
-      expect(result.data).toEqual({ name: 'new' });
+      expect(result.data()).toEqual({ name: 'new' });
     });
   });
 
@@ -205,7 +205,7 @@ describe('asyncSignal', () => {
         initialData 
       });
 
-      expect(result.data).toEqual(initialData);
+      expect(result.data()).toEqual(initialData);
     });
   });
 
@@ -226,7 +226,7 @@ describe('asyncSignal', () => {
         data: { name: 'test' },
         status: 200 
       });
-      expect(result.data).toEqual({ name: 'test' });
+      expect(result.data()).toEqual({ name: 'test' });
     });
   });
 });

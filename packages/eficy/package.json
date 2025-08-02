@@ -51,7 +51,8 @@
     "@eficy/core-v3": "workspace:~",
     "@eficy/plugin-unocss": "workspace:~",
     "@eficy/reactive": "workspace:~",
-    "@eficy/reactive-react": "workspace:~"
+    "@eficy/reactive-react": "workspace:~",
+    "@eficy/reactive-async": "workspace:~"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",

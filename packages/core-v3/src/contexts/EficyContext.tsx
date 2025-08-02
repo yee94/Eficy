@@ -47,9 +47,5 @@ export const EficyProvider: FC<EficyProviderProps> = ({ children, core }) => {
 export function useEficyContext(): Eficy {
   const context = useContext(EficyContext);
 
-  if (!context) {
-    throw new Error('useEficyContext must be used within EficyProvider');
-  }
-
   return context;
 }

@@ -300,26 +300,15 @@ export function asyncSignal<TService extends Service>(
   const result = {
     // 基础属性使用 getter，保持与 signal 同步
     // 注意：@eficy/reactive 的 signal 是函数调用风格，不是 .value 风格
-    get data() {
-      return manager.data();
-    },
-    get loading() {
-      return manager.loading();
-    },
-    get error() {
-      return manager.error();
-    },
+    data: manager.data,
+    loading: manager.loading,
+    error: manager.error,
 
     // 方法直接绑定
     run: manager.run,
     refresh: manager.refresh,
     cancel: manager.cancel,
     mutate: manager.mutate,
-
-    // 信号访问器 - 用于高级响应式用法
-    $data: manager.data,
-    $loading: manager.loading,
-    $error: manager.error,
   } as unknown as RequestResult;
 
   result.computed = <T>(selector: (state: RequestResult) => T) => computed<T>(() => selector(result));

@@ -20,7 +20,6 @@ export class UnocssPlugin implements ILifecyclePlugin {
   private config: UnocssPluginConfig;
   private cssCache = new Map<string, string>();
   private lastClassHash = '';
-  private isRootMounted = false;
 
   private reactiveAsync = asyncSignal(
     () => {
@@ -120,7 +119,6 @@ export class UnocssPlugin implements ILifecyclePlugin {
 
   @RootMount()
   onRootMount(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any> {
-    this.isRootMounted = true;
     this.reactiveAsync.run();
     return next();
   }

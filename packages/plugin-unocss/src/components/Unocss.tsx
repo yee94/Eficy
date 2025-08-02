@@ -4,7 +4,7 @@ import { useObserver } from '@eficy/reactive-react';
 export const Unocss = (props: { generateCSS: AsyncSignalResult<string, any> }) => {
   const { generateCSS } = props;
 
-  const inlineStyle = useObserver(() => generateCSS.data);
+  const inlineStyle = useObserver(() => generateCSS.data());
   if (!inlineStyle) {
     return null;
   }

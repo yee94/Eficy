@@ -20,6 +20,8 @@ export * from '@eficy/core-v3';
 
 // 重新导出响应式模块
 export * from '@eficy/reactive';
+export * from '@eficy/reactive-async';
+export * from '@eficy/reactive-react';
 
 // 重新导出插件
 export { UnocssPlugin } from '@eficy/plugin-unocss';
@@ -27,3 +29,4 @@ export type { UnocssPluginConfig } from '@eficy/plugin-unocss';
 
 // 默认导出
 export default { create, Eficy };
+
