@@ -4,7 +4,10 @@
     "jsx": "react-jsx",
     "baseUrl": "./",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "paths": {}
   },
   "include": ["src/**/*", "test/**/*"]
 }

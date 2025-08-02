@@ -1,7 +1,7 @@
-import { Action, computed, ComputedSignal, ObservableClass, Signal, signal } from '@eficy/reactive';
-import { cacheManager } from './cache';
+import { Action, computed, ObservableClass, signal } from '@eficy/reactive';
 import type { AsyncSignalOptions, AsyncSignalResult, Data, Params, Service } from '../types';
 import { CancelToken, createCancelToken, debounce, delay, isEqual, makeCancellable, throttle } from '../utils';
+import { cacheManager } from './cache';
 
 /**
  * 请求状态管理类

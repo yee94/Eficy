@@ -4,6 +4,8 @@
   "exclude": ["./src/__tests__/*", "./dist/*", "./node_modules/*"],
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   }

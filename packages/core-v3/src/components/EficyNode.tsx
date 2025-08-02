@@ -97,22 +97,16 @@ const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props, key }) => {
 };
 
 // 主要的 EficyNode 组件
-export const EficyNode = memo<EficyNodeProps>(
-  (props) => (
-    <ErrorBoundary
-      FallbackComponent={ErrorFallback}
-      onError={(error, info) => {
-        console.error('[Eficy V3] Render Error:', error);
-        console.error('Component Stack:', info.componentStack);
-      }}
-    >
-      <EficyNodeInner {...props} />
-    </ErrorBoundary>
-  ),
-  // 只有当 type 或 props 引用发生变化时才重新渲染
-  (prevProps, nextProps) => {
-    return prevProps.type === nextProps.type && prevProps.props === nextProps.props;
-  },
+export const EficyNode = (props) => (
+  <ErrorBoundary
+    FallbackComponent={ErrorFallback}
+    onError={(error, info) => {
+      console.error('[Eficy V3] Render Error:', error);
+      console.error('Component Stack:', info.componentStack);
+    }}
+  >
+    <EficyNodeInner {...props} />
+  </ErrorBoundary>
 );
 
 EficyNode.displayName = 'EficyNode';

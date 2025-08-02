@@ -1,4 +1,5 @@
-import { DependencyContainer, inject, singleton } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
+import { inject, singleton } from 'tsyringe';
 import { HookType } from '../constants';
 import { getLifecycleHooks, getLifecycleHooksByType } from '../decorators/lifecycle';
 import type {
@@ -45,7 +46,7 @@ export class PluginManager {
 
     const initialize = getLifecycleHooksByType(plugin, HookType.INITIALIZE);
 
-    await Promise.all(initialize.map((hook) => hook.handler(configs)));
+    await Promise.all(initialize.map((hook) => hook.handler.call(plugin, configs)));
 
     console.log(`[PluginManager] Plugin "${plugin.name}" registered successfully`);
 
@@ -72,7 +73,7 @@ export class PluginManager {
 
     // 执行插件卸载
     const destroy = getLifecycleHooksByType(plugin, HookType.DESTROY);
-    await Promise.all(destroy.map((hook) => hook.handler()));
+    await Promise.all(destroy.map((hook) => hook.handler.call(plugin)));
 
     this.plugins.delete(pluginName);
     console.log(`[PluginManager] Plugin "${pluginName}" unregistered successfully`);

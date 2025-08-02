@@ -15,6 +15,21 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./jsx-runtime": {
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./dist/jsx-dev-runtime.d.ts",
+      "import": "./dist/jsx-dev-runtime.js"
+    },
+    "./package.json": "./package.json"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yee94/Eficy.git",
@@ -33,10 +48,10 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "dependencies": {
-    "@eficy/core": "workspace:*",
-    "@eficy/plugin-unocss": "workspace:*",
-    "@eficy/reactive": "workspace:*",
-    "@eficy/reactive-react": "workspace:*"
+    "@eficy/core-v3": "workspace:~",
+    "@eficy/plugin-unocss": "workspace:~",
+    "@eficy/reactive": "workspace:~",
+    "@eficy/reactive-react": "workspace:~"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",

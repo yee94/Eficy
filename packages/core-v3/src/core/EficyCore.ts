@@ -7,7 +7,8 @@
 import 'reflect-metadata';
 
 import { ComponentType } from 'react';
-import { container, DependencyContainer } from 'tsyringe';
+import { container } from 'tsyringe';
+import type { DependencyContainer } from 'tsyringe';
 import { ComponentRegistry } from '../services/ComponentRegistry';
 import { EventEmitter } from '../services/EventEmitter';
 import { PluginManager } from '../services/PluginManager';
@@ -126,21 +127,9 @@ export class Eficy {
     return this._container.resolve<T>(token as any);
   }
 
-  /**
-   * 注册服务
-   */
-  register<T>(token: string | symbol | Function, implementation: any): this {
-    this._container.register(token as any, implementation);
-    return this;
-  }
-
-  /**
-   * 注册单例服务
-   */
-  registerSingleton<T>(token: string | symbol | Function): this {
-    this._container.registerSingleton(token as any);
-    return this;
-  }
+  install: typeof PluginManager.prototype.register = (...args) => {
+    return this._pluginManager.register(...args);
+  };
 
   /**
    * 销毁实例

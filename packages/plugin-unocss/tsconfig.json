@@ -6,7 +6,8 @@
     "baseUrl": ".",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "paths": {
-    }
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "paths": {}
   }
 }

@@ -16,7 +16,7 @@ function createLifecycleDecorator(hookType: HookType) {
         hookType,
         methodName: propertyKey,
         priority,
-        handler: descriptor.value.bind(target),
+        handler: descriptor.value,
       };
 
       // 保存钩子信息到元数据

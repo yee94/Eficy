@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Computed, makeObservable } from '@eficy/reactive';
 import React, { type ReactElement } from 'react';
-import { DependencyContainer, container as tsyringeContainer } from 'tsyringe';
+import { type DependencyContainer, container as tsyringeContainer } from 'tsyringe';
 import type { IEficyConfig, IEficySchema, IExtendOptions } from '../interfaces';
 import { HookType, type ILifecyclePlugin } from '../interfaces/lifecycle';
 import type EficyNode from '../models/EficyNode';

@@ -1,4 +1,4 @@
-import { Eficy } from '@eficy/core';
+import { Eficy } from '@eficy/core-v3';
 import { UnocssPlugin } from '@eficy/plugin-unocss';
 
 // 预设插件列表
@@ -9,46 +9,20 @@ const presetPlugins = [UnocssPlugin];
  * 自动注册常用插件：UnoCSS
  * @returns 配置好的 Eficy 实例
  */
-export const create = () => {
+export const create = async () => {
   const eficy = new Eficy();
-  for (const plugin of presetPlugins) {
-    eficy.registerPlugin(new plugin());
-  }
+  await Promise.all(presetPlugins.map((plugin) => eficy.install(plugin)));
   return eficy;
 };
 
 // 重新导出核心模块
-export { Eficy } from '@eficy/core';
-export type { 
-  IViewData, 
-  ILifecyclePlugin, 
-  EficyNode, 
-  IInitContext, 
-  IProcessPropsContext, 
-  IRenderContext 
-} from '@eficy/core';
+export * from '@eficy/core-v3';
 
 // 重新导出响应式模块
-export {
-  observable,
-  computed,
-  action,
-  signal,
-  effect,
-  batch,
-  watch,
-  ref,
-  ObservableClass,
-  makeObservable
-} from '@eficy/reactive';
-
-export type {
-  Signal,
-  ComputedSignal
-} from '@eficy/reactive';
+export * from '@eficy/reactive';
 
 // 重新导出插件
-export { UnocssPlugin, createUnocssPlugin } from '@eficy/plugin-unocss';
+export { UnocssPlugin } from '@eficy/plugin-unocss';
 export type { UnocssPluginConfig } from '@eficy/plugin-unocss';
 
 // 默认导出

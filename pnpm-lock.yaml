@@ -208,17 +208,17 @@ importers:
 
   packages/eficy:
     dependencies:
-      '@eficy/core':
-        specifier: workspace:*
-        version: link:../core
+      '@eficy/core-v3':
+        specifier: workspace:~
+        version: link:../core-v3
       '@eficy/plugin-unocss':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../plugin-unocss
       '@eficy/reactive':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../reactive
       '@eficy/reactive-react':
-        specifier: workspace:*
+        specifier: workspace:~
         version: link:../reactive-react
     devDependencies:
       '@testing-library/jest-dom':
@@ -364,6 +364,9 @@ importers:
       antd:
         specifier: ^5.0.0
         version: 5.26.6(date-fns@2.30.0)(moment@2.30.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      eficy:
+        specifier: workspace:*
+        version: link:../packages/eficy
       lodash:
         specifier: ^4.17.21
         version: 4.17.21

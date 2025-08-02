@@ -4,7 +4,7 @@ import 'reflect-metadata';
 import tableRaw from './jsxs/table.jsx?raw';
 
 import { transform } from 'sucrase';
-import { Eficy, EficyProvider } from '@eficy/core-v3';
+import { create, EficyProvider } from 'eficy';
 import React from 'react';
 
 globalThis.ReactT = React;
@@ -29,7 +29,7 @@ async function loadCode(code: string) {
 // 运行 Code
 (async () => {
   try {
-    const core = new Eficy();
+    const core = await create();
     const CustomButton = ({ children, ...props }: any) => (
       <button data-testid="custom-button" {...props}>
         {children}
