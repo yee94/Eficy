@@ -57,10 +57,10 @@ describe('EficyCore', () => {
 
       const allComponents = core.getAllComponents();
 
-      expect(allComponents).toEqual({
-        TestComponent,
-        AnotherComponent
-      });
+      // ComponentRegistry 会自动添加 e- 前缀
+      expect(allComponents['e-TestComponent']).toBe(TestComponent);
+      expect(allComponents['e-AnotherComponent']).toBe(AnotherComponent);
+      expect(Object.keys(allComponents)).toHaveLength(2);
     });
 
     it('获取不存在的组件应该返回 undefined', () => {

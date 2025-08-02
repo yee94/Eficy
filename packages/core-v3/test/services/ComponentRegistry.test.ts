@@ -74,10 +74,10 @@ describe('ComponentRegistry', () => {
 
       const allComponents = registry.getAll();
 
-      expect(allComponents).toEqual({
-        TestComponent,
-        AnotherComponent
-      });
+      // ComponentRegistry 会自动添加 e- 前缀
+      expect(allComponents['e-TestComponent']).toBe(TestComponent);
+      expect(allComponents['e-AnotherComponent']).toBe(AnotherComponent);
+      expect(Object.keys(allComponents)).toHaveLength(2);
     });
 
     it('应该能够获取组件名称列表', () => {
@@ -86,8 +86,9 @@ describe('ComponentRegistry', () => {
 
       const names = registry.getNames();
 
-      expect(names).toContain('TestComponent');
-      expect(names).toContain('AnotherComponent');
+      // ComponentRegistry 会自动添加 e- 前缀
+      expect(names).toContain('e-TestComponent');
+      expect(names).toContain('e-AnotherComponent');
       expect(names).toHaveLength(2);
     });
 
@@ -140,7 +141,8 @@ describe('ComponentRegistry', () => {
       const map = registry.getMap();
 
       expect(map).toBeInstanceOf(Map);
-      expect(map.get('TestComponent')).toBe(TestComponent);
+      // ComponentRegistry 会自动添加 e- 前缀
+      expect(map.get('e-TestComponent')).toBe(TestComponent);
       expect(map.size).toBe(1);
     });
 
