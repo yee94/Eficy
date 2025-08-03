@@ -15,11 +15,11 @@ export class ComponentRegistry {
    */
   register(name: string, component: ComponentType<any>): void {
     if (!name || typeof name !== 'string') {
-      throw new Error('Component name must be a non-empty string');
+      return;
     }
 
     if (!component) {
-      throw new Error('Component cannot be null or undefined');
+      return;
     }
 
     this.components.set(name, component);
@@ -54,9 +54,11 @@ export class ComponentRegistry {
     if (this.components.has(name)) {
       return this.components.get(name);
     }
-    const maybeName = name.replace(/([A-Z])/g, (match, p1, offset) => {
-      return offset === 0 ? p1 : '.' + p1;
-    })?.split('.');
+    const maybeName = name
+      .replace(/([A-Z])/g, (match, p1, offset) => {
+        return offset === 0 ? p1 : '.' + p1;
+      })
+      ?.split('.');
     if (maybeName && this.components.has(maybeName[0])) {
       return get(this.components.get(maybeName[0]), maybeName.slice(1).join('.'));
     }

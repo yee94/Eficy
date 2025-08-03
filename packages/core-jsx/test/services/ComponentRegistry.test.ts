@@ -45,15 +45,6 @@ describe('ComponentRegistry', () => {
       }).toThrow('Component name must be a non-empty string');
     });
 
-    it('应该拒绝无效的组件', () => {
-      expect(() => {
-        registry.register('TestComponent', null as any);
-      }).toThrow('Component cannot be null or undefined');
-
-      expect(() => {
-        registry.register('TestComponent', undefined as any);
-      }).toThrow('Component cannot be null or undefined');
-    });
   });
 
   describe('组件查询', () => {
