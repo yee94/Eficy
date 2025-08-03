@@ -1,6 +1,5 @@
 import { render, initEficy, signal, isSignal, computed, effect } from 'eficy';
 import * as MerlionUI from 'https://g.alicdn.com/code/npm/@ali/merlion-ui/2.8.1/index.mjs';
-import * as MerlionTable from 'https://g.alicdn.com/code/npm/@alife/merlion-table/1.0.20/index.mjs';
 
 await initEficy({ components: { ...window.antd5, ...MerlionUI } });
 

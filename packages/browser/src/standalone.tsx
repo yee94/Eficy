@@ -6,7 +6,7 @@
 
 import 'reflect-metadata';
 import { create, Eficy, EficyProvider } from 'eficy';
-import React from 'react';
+import React, { ComponentType, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { transform } from 'sucrase';
 
@@ -84,14 +84,12 @@ export async function loadCode(code: string): Promise<any> {
 /**
  * 渲染组件到指定 DOM 元素
  */
-export async function render(Component: React.ComponentType<any>, container: HTMLElement): Promise<void> {
+export async function render(Component: ComponentType<any> | ReactNode, container: HTMLElement): Promise<void> {
   const eficy = await getEficy();
   const root = ReactDOM.createRoot(container);
 
   root.render(
-    <EficyProvider core={eficy}>
-      <Component />
-    </EficyProvider>,
+    <EficyProvider core={eficy}>{typeof Component === 'function' ? <Component /> : Component}</EficyProvider>,
   );
 }
 
