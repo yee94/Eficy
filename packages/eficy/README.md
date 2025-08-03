@@ -1060,7 +1060,7 @@ const OptimizedComponent = () => {
 
 ## 📚 相关文档
 
-- [核心框架文档](../core-v3/README.md) - @eficy/core-jsx 详细文档
+- [核心框架文档](../core-jsx/README.md) - @eficy/core-jsx 详细文档
 - [响应式系统文档](../reactive/README.md) - @eficy/reactive 详细文档
 - [React 响应式集成文档](../reactive-react/README.md) - @eficy/reactive-react 详细文档
 - [异步响应式文档](../reactive-async/README.md) - @eficy/reactive-async 详细文档

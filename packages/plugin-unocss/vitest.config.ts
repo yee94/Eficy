@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@eficy/core-jsx': path.resolve(__dirname, '../core-v3/src'),
+      '@eficy/core-jsx': path.resolve(__dirname, '../core-jsx/src'),
     },
   },
   test: {

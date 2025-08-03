@@ -5,7 +5,7 @@ import { Observable, Computed, Action, ObservableClass } from '@eficy/reactive'
 import { useObserver } from '../hooks'
 
 /**
- * 这些测试用例记录了从 core-v3 RenderNode.reactive.spec.tsx 中发现的响应式系统问题
+ * 这些测试用例记录了从 core-jsx RenderNode.reactive.spec.tsx 中发现的响应式系统问题
  * 
  * 使用新的 @preact/signals-react 的 useSignals 实现后，应该解决大部分问题：
  * 1. ViewNode 的响应式更新现在应该正确触发 UI 重新渲染

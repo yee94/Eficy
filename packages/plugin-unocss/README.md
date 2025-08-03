@@ -504,7 +504,7 @@ describe('UnocssPlugin', () => {
 
 ## 📦 相关包
 
-- [`@eficy/core-jsx`](../core-v3) - Eficy 核心框架
+- [`@eficy/core-jsx`](../core-jsx) - Eficy 核心框架
 - [`@eficy/reactive`](../reactive) - 响应式系统
 - [`@eficy/reactive-async`](../reactive-async) - 异步响应式支持
 - [`@unocss/core`](https://github.com/unocss/unocss) - UnoCSS 核心库

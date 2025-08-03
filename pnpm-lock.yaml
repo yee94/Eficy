@@ -182,7 +182,7 @@ importers:
         specifier: ^26.1.0
         version: 26.1.0
 
-  packages/core-v3:
+  packages/core-jsx:
     dependencies:
       '@eficy/reactive':
         specifier: workspace:~
@@ -210,7 +210,7 @@ importers:
     dependencies:
       '@eficy/core-jsx':
         specifier: workspace:~
-        version: link:../core-v3
+        version: link:../core-jsx
       '@eficy/plugin-unocss':
         specifier: workspace:~
         version: link:../plugin-unocss
@@ -244,7 +244,7 @@ importers:
     dependencies:
       '@eficy/core-jsx':
         specifier: workspace:~
-        version: link:../core-v3
+        version: link:../core-jsx
       '@eficy/reactive':
         specifier: workspace:~
         version: link:../reactive
@@ -354,7 +354,7 @@ importers:
         version: link:../packages/core
       '@eficy/core-jsx':
         specifier: workspace:*
-        version: link:../packages/core-v3
+        version: link:../packages/core-jsx
       '@eficy/reactive':
         specifier: workspace:*
         version: link:../packages/reactive
