@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@eficy/browser 基础示例</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+      .content {
+        padding: 20px;
+      }
+      .demo-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+      }
+      .demo-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+        transition: background-color 0.2s;
+      }
+      button:hover {
+        background: #5a6fd8;
+      }
+      input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin: 5px;
+        width: 200px;
+      }
+      .counter {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+        margin: 10px 0;
+      }
+      .todo-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      .todo-item:last-child {
+        border-bottom: none;
+      }
+      .todo-text {
+        flex: 1;
+        margin-left: 10px;
+      }
+      .completed {
+        text-decoration: line-through;
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>@eficy/browser 示例</h1>
+        <p>在浏览器中直接使用 Eficy，无需编译步骤</p>
+      </div>
+
+      <div class="content">
+        <div class="demo-section">
+          <div class="demo-title">1. 基础计数器</div>
+          <div id="counter-demo"></div>
+        </div>
+
+        <div class="demo-section">
+          <div class="demo-title">2. 响应式输入</div>
+          <div id="input-demo"></div>
+        </div>
+
+        <div class="demo-section">
+          <div class="demo-title">3. Todo 列表</div>
+          <div id="todo-demo"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 引入 Eficy Browser -->
+    <script
+      type="text/javascript"
+      src="//g.alicdn.com/??code/lib/react/18.2.0/umd/react.production.min.js,code/lib/react-dom/18.2.0/umd/react-dom.production.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="//g.alicdn.com/??/lazada/static/0.0.5/moment/moment-with-locales.min.js,code/lib/moment-timezone/0.5.26/moment-timezone-with-data.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="//g.alicdn.com/code/npm/@alife/lazada-asc-theme-antd/3.0.4/antd/LAZADA.js"></script>
+    <!-- import map -->
+
+    <script type="module" src="../dist/standalone.js"></script>
+
+    <script type="text/eficy">
+      import { render, initEficy, signal,isSignal, computed, effect } from 'eficy';
+
+      await initEficy({ components: window.antd5 });
+
+      // 1. 基础计数器示例
+      const count = signal(0);
+
+      function Counter() {
+        return (
+          <div>
+            <div class="counter">Count: {count}</div>
+            <e-Button onClick={() => count(count() + 1)}>+1</e-Button>
+            <button onClick={() => count(count() - 1)}>-1</button>
+            <button onClick={() => count(0)}>Reset</button>
+          </div>
+        );
+      }
+
+      // 2. 响应式输入示例
+      const name = signal('World');
+      const greeting = computed(() => `Hello, ${name()}!`);
+      function InputDemo() {
+        return (
+          <div>
+            <div className="text-lg mb-2">{greeting}</div>
+            <input
+              value={name}
+              onChange={(e) => name(e.target.value)}
+              placeholder="输入你的名字"
+            />
+          </div>
+        );
+      }
+
+      // 3. Todo 列表示例
+      const todos = signal([
+        { id: 1, text: '学习 Eficy', completed: false },
+        { id: 2, text: '构建应用', completed: true },
+        { id: 3, text: '分享给朋友', completed: false }
+      ]);
+      const newTodoText = signal('');
+      function TodoList() {
+        const addTodo = () => {
+          if (newTodoText().trim()) {
+            const newTodo = {
+              id: Date.now(),
+              text: newTodoText(),
+              completed: false
+            };
+            todos([...todos(), newTodo]);
+            newTodoText('');
+          }
+        };
+
+        const toggleTodo = (id) => {
+          todos(todos().map(todo =>
+            todo.id === id ? { ...todo, completed: !todo.completed } : todo
+          ));
+        };
+
+        const deleteTodo = (id) => {
+          todos(todos().filter(todo => todo.id !== id));
+        };
+
+        return (
+          <div>
+            <div className="mb-4">
+              <input
+                value={newTodoText}
+                onChange={(e) => newTodoText(e.target.value)}
+                placeholder="添加新的待办事项"
+                onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+              />
+              <button onClick={addTodo}>添加</button>
+            </div>
+
+            <div>
+              {computed(() => todos().map(todo => (
+                <div key={todo.id} class="todo-item">
+                  <input
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={() => toggleTodo(todo.id)}
+                  />
+                  <span class={`todo-text ${todo.completed ? 'completed' : ''}`}>
+                    {todo.text}
+                  </span>
+                  <button onClick={() => deleteTodo(todo.id)}>删除</button>
+                </div>
+              )))}
+            </div>
+
+            {todos().length === 0 && (
+              <div className="text-center text-gray-500 p-5">
+                暂无待办事项
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // 渲染所有示例
+      render(Counter, document.getElementById('counter-demo'));
+      render(InputDemo, document.getElementById('input-demo'));
+      render(TodoList, document.getElementById('todo-demo'));
+    </script>
+  </body>
+</html>
