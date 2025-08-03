@@ -4,7 +4,7 @@
  * 基于现有的 RenderNode 逻辑，简化并专注于 signals 响应式处理
  */
 
-import React, { memo, ComponentType } from 'react';
+import React, { memo, ComponentType, forwardRef } from 'react';
 import { isSignal } from '@eficy/reactive';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useEficyContext } from '../contexts/EficyContext';
@@ -51,7 +51,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 );
 
 // 处理 signals 的内部组件
-const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props }) => {
+const EficyNodeInner = forwardRef(({ type, props }: EficyNodeProps, ref) => {
   const eficyContext = useEficyContext();
 
   // 使用 useObserver 来监听 signals 的变化
@@ -91,24 +91,28 @@ const EficyNodeInner: React.FC<EficyNodeProps> = ({ type, props }) => {
     }
 
     // 渲染组件
-    return <Component {...resolvedProps} />;
+    return <Component {...resolvedProps} ref={ref} />;
   });
 
   return renderResult;
-};
+});
 
 // 主要的 EficyNode 组件
-export const EficyNode = (props) => (
-  <ErrorBoundary
-    FallbackComponent={ErrorFallback}
-    onError={(error, info) => {
-      console.error('[Eficy V3] Render Error:', error);
-      console.error('Component Stack:', info.componentStack);
-    }}
-  >
-    <EficyNodeInner {...props} />
-  </ErrorBoundary>
-);
+export const EficyNode = forwardRef((props: EficyNodeProps, ref) => {
+  const { type, props: props2, ...rest } = props;
+  const mergedProps = { ...rest, ...props.props };
+  return (
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error, info) => {
+        console.error('[Eficy V3] Render Error:', error);
+        console.error('Component Stack:', info.componentStack);
+      }}
+    >
+      <EficyNodeInner {...props} props={mergedProps} ref={ref as any} />
+    </ErrorBoundary>
+  );
+});
 
 EficyNode.displayName = 'EficyNode';
 
@@ -158,12 +162,7 @@ function resolveComponent(
     }
 
     // 然后从组件注册表中查找
-    if (componentRegistry && componentRegistry.has(type)) {
-      return componentRegistry.get(type)!;
-    }
-
-    // 如果都找不到，返回 null
-    return null;
+    return componentRegistry?.resolve(type);
   }
 
   return null;

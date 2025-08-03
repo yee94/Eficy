@@ -107,6 +107,11 @@
           <div class="demo-title">3. Todo 列表</div>
           <div id="todo-demo"></div>
         </div>
+
+        <div class="demo-section">
+          <div class="demo-title">4. 表单示例 (e-Form & e-FormItem)</div>
+          <div id="form-demo"></div>
+        </div>
       </div>
     </div>
 
@@ -228,10 +233,87 @@
         );
       }
 
+
+
+
+      function FormDemo() {
+
+        function handleSubmit(values) {
+          console.log("🚀 #### ~ handleSubmit ~ values:", values);
+        }
+        return (
+          <e-Form layout="vertical" style={{ maxWidth: '400px' }} onSubmit={handleSubmit} onFinish={handleSubmit}>
+            <e-FormItem
+              label="用户名"
+              name="username"
+            >
+              <e-Input
+                placeholder="请输入用户名"
+              />
+            </e-FormItem>
+
+            <e-FormItem
+              label="邮箱"
+              required
+              rules={[{ required: true }]}
+              name="email"
+            >
+              <e-Input
+                placeholder="请输入邮箱"
+              />
+            </e-FormItem>
+
+            <e-FormItem
+              label="密码"
+              required
+              rules={[{ required: true }]}
+              name="password"
+            >
+              <e-InputPassword
+                placeholder="请输入密码"
+              />
+            </e-FormItem>
+
+            <e-FormItem
+              label="确认密码"
+              required
+              rules={[{ required: true }]}
+              name="confirmPassword"
+            >
+              <e-InputPassword
+                placeholder="请再次输入密码"
+              />
+            </e-FormItem>
+
+            <e-FormItem
+              required
+              rules={[{ required: true , message: '请同意用户协议' }]}
+              name="agree"
+              valuePropName="checked"
+            >
+              <e-Checkbox
+              >
+                我已阅读并同意
+                <a href="#" onClick={(e) => { e.preventDefault(); alert('用户协议'); }}>
+                  用户协议
+                </a>
+              </e-Checkbox>
+            </e-FormItem>
+
+            <e-FormItem>
+              <e-Button type="primary" htmlType="submit">
+                提交
+              </e-Button>
+            </e-FormItem>
+          </e-Form>
+        );
+      }
+
       // 渲染所有示例
       render(Counter, document.getElementById('counter-demo'));
       render(InputDemo, document.getElementById('input-demo'));
       render(TodoList, document.getElementById('todo-demo'));
+      render(FormDemo, document.getElementById('form-demo'));
     </script>
   </body>
 </html>
