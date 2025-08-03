@@ -126,13 +126,14 @@
       src="//g.alicdn.com/??/lazada/static/0.0.5/moment/moment-with-locales.min.js,code/lib/moment-timezone/0.5.26/moment-timezone-with-data.min.js"
       crossorigin="anonymous"
     ></script>
-    <script src="//g.alicdn.com/code/npm/@alife/lazada-asc-theme-antd/3.0.4/antd/LAZADA.js"></script>
+    <script src="//g.alicdn.com/code/npm/@alife/lazada-asc-theme-antd/3.0.7/antd/LAZADA.js"></script>
     <!-- import map -->
 
-    <script type="module" src="../dist/standalone.mjs"></script>
+    <!-- <script type="module" src="../dist/standalone.mjs"></script> -->
+    <script type="module" src="//unpkg.com/@eficy/browser"></script>
 
     <script type="text/eficy">
-      import { render, initEficy, signal,isSignal, computed, effect } from 'eficy';
+      import { render, initEficy, signal, isSignal, computed, effect } from 'eficy';
 
       await initEficy({ components: window.antd5 });
 
@@ -242,70 +243,72 @@
           console.log("🚀 #### ~ handleSubmit ~ values:", values);
         }
         return (
-          <e-Form layout="vertical" style={{ maxWidth: '400px' }} onSubmit={handleSubmit} onFinish={handleSubmit}>
-            <e-FormItem
-              label="用户名"
-              name="username"
-            >
-              <e-Input
-                placeholder="请输入用户名"
-              />
-            </e-FormItem>
-
-            <e-FormItem
-              label="邮箱"
-              required
-              rules={[{ required: true }]}
-              name="email"
-            >
-              <e-Input
-                placeholder="请输入邮箱"
-              />
-            </e-FormItem>
-
-            <e-FormItem
-              label="密码"
-              required
-              rules={[{ required: true }]}
-              name="password"
-            >
-              <e-InputPassword
-                placeholder="请输入密码"
-              />
-            </e-FormItem>
-
-            <e-FormItem
-              label="确认密码"
-              required
-              rules={[{ required: true }]}
-              name="confirmPassword"
-            >
-              <e-InputPassword
-                placeholder="请再次输入密码"
-              />
-            </e-FormItem>
-
-            <e-FormItem
-              required
-              rules={[{ required: true , message: '请同意用户协议' }]}
-              name="agree"
-              valuePropName="checked"
-            >
-              <e-Checkbox
+          <e-ThemeProvider prefixCls="e">
+            <e-Form layout="vertical" style={{ maxWidth: '400px' }} onSubmit={handleSubmit} onFinish={handleSubmit}>
+              <e-FormItem
+                label="用户名"
+                name="username"
               >
-                我已阅读并同意
-                <a href="#" onClick={(e) => { e.preventDefault(); alert('用户协议'); }}>
-                  用户协议
-                </a>
-              </e-Checkbox>
-            </e-FormItem>
+                <e-Input
+                  placeholder="请输入用户名"
+                />
+              </e-FormItem>
 
-            <e-FormItem>
-              <e-Button type="primary" htmlType="submit">
-                提交
-              </e-Button>
-            </e-FormItem>
-          </e-Form>
+              <e-FormItem
+                label="邮箱"
+                required
+                rules={[{ required: true }]}
+                name="email"
+              >
+                <e-Input
+                  placeholder="请输入邮箱"
+                />
+              </e-FormItem>
+
+              <e-FormItem
+                label="密码"
+                required
+                rules={[{ required: true }]}
+                name="password"
+              >
+                <e-InputPassword
+                  placeholder="请输入密码"
+                />
+              </e-FormItem>
+
+              <e-FormItem
+                label="确认密码"
+                required
+                rules={[{ required: true }]}
+                name="confirmPassword"
+              >
+                <e-InputPassword
+                  placeholder="请再次输入密码"
+                />
+              </e-FormItem>
+
+              <e-FormItem
+                required
+                rules={[{ required: true , message: '请同意用户协议' }]}
+                name="agree"
+                valuePropName="checked"
+              >
+                <e-Checkbox
+                >
+                  我已阅读并同意
+                  <a href="#" onClick={(e) => { e.preventDefault(); alert('用户协议'); }}>
+                    用户协议
+                  </a>
+                </e-Checkbox>
+              </e-FormItem>
+
+              <e-FormItem>
+                <e-Button type="primary" htmlType="submit">
+                  提交
+                </e-Button>
+              </e-FormItem>
+            </e-Form>
+          </e-ThemeProvider>
         );
       }
 
