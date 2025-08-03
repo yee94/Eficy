@@ -4,7 +4,7 @@
  * 演示如何使用新的架构进行响应式开发
  */
 
-/** @jsxImportSource @eficy/core-v3 */
+/** @jsxImportSource eficy */
 
 import React from 'react';
 import { signal } from '@eficy/reactive';

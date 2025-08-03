@@ -1,4 +1,4 @@
-/** @jsxImportSource @eficy/core-v3 */
+/** @jsxImportSource eficy */
 
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';

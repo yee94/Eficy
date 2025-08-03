@@ -1,5 +1,6 @@
 // 主要的 Hook 导出
 export { asyncSignal } from './core/asyncSignal';
+export { antdTableSignal } from './core/antdTableSignal';
 
 // 类型导出
 export type * from './types';

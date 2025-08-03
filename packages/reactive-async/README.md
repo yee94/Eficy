@@ -6,10 +6,12 @@
 
 🔄 **响应式状态管理** - 基于 @eficy/reactive 的细粒度响应式更新  
 ⚡ **高性能** - 智能缓存和批量更新优化  
-🎯 **完全兼容** - 与 ahooks useRequest API 完全兼容  
+🎯 **完全兼容** - 与 ahooks useRequest 和 useAntdTable API 完全兼容  
 🛡️ **TypeScript** - 完整的 TypeScript 类型支持  
-🔧 **功能丰富** - 支持轮询、防抖、节流、重试、缓存等高级特性  
-📦 **轻量级** - 基于 @preact/signals 的轻量级实现
+🔧 **功能丰富** - 支持轮询、防抖、节流、重试、缓存、表格分页等高级特性  
+📦 **轻量级** - 基于 @preact/signals 的轻量级实现  
+📋 **表格支持** - 内置 Ant Design Table 集成，支持分页、排序、筛选、搜索  
+🌍 **组件外使用** - signals 可以在组件外独立使用，提供更灵活的状态管理
 
 ## 安装
 
@@ -21,82 +23,113 @@ yarn add @eficy/reactive-async
 pnpm add @eficy/reactive-async
 ```
 
+## JSX Import Source 配置
+
+为了在 JSX 中使用 signals，需要配置 JSX Import Source：
+
+### 在文件顶部添加注释
+
+```jsx
+/** @jsxImportSource eficy */
+
+import { asyncSignal } from '@eficy/reactive-async';
+
+const userService = (userId) => fetch(`/api/user/${userId}`).then(res => res.json());
+
+// signals 在组件外定义和使用
+const userSignal = asyncSignal(() => userService('123'));
+
+function UserProfile() {
+  return (
+    <div>
+      <h1>用户信息</h1>
+      {userSignal.loading() && <div>加载中...</div>}
+      {userSignal.error() && <div>错误: {userSignal.error().message}</div>}
+      {userSignal.data() && <div>用户名: {userSignal.data().name}</div>}
+      <button onClick={() => userSignal.refresh()}>刷新</button>
+    </div>
+  );
+}
+```
+
+### TypeScript 配置
+
+在 `tsconfig.json` 中配置：
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "eficy"
+  }
+}
+```
+
+### Vite 配置
+
+```js
+// vite.config.js
+export default {
+  esbuild: {
+    jsxImportSource: 'eficy'
+  }
+}
+```
+
 ## 基础用法
 
 ### 自动请求
 
-```typescript
+```jsx
+/** @jsxImportSource eficy */
+
 import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
 
-import * as antd from 'antd'
-import 'reflect-metadata'
-
-
-const eficy = new Eficy()
-
-// 配置组件库
-eficy.config({
-  componentMap: antd
-})
-
-
-// 定义异步服务函数
-const getUserInfo = (userId: string) => {
-  return fetch(`/api/user/${userId}`).then((res) => res.json());
+// 定义服务函数
+const getUserInfo = (userId) => {
+  return fetch(`/api/user/${userId}`).then(res => res.json());
 };
-const { data, loading, error, computed } = asyncSignal(() => getUserInfo(userId));
 
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'welcome',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'title',
-          '#view': 'h1',
-          '#children': computed(state => {
-            if (state.loading) return 'Loading...';
-            if (state.error) return `Error: ${state.error.message}`;
-            if (state.data) return `User: ${state.data.name}`;
-            return 'No data';
-          })
-        },
-      ]
-    }
-  ]
-}, '#root')
+// 在组件外定义 signal - 这是关键特性
+const userDataSignal = asyncSignal(() => getUserInfo('123'));
+
+function UserCard() {
+  return (
+    <div className="user-card">
+      {userDataSignal.loading() && <div>加载中...</div>}
+      {userDataSignal.error() && (
+        <div className="error">错误: {userDataSignal.error().message}</div>
+      )}
+      {userDataSignal.data() && (
+        <div>
+          <h2>{userDataSignal.data().name}</h2>
+          <p>{userDataSignal.data().email}</p>
+        </div>
+      )}
+      <button onClick={() => userDataSignal.refresh()}>刷新</button>
+    </div>
+  );
+}
 ```
 
 ### 手动请求
 
-```typescript
+```jsx
+/** @jsxImportSource eficy */
+
 import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
 
-import * as antd from 'antd'
-import 'reflect-metadata'
-
-const eficy = new Eficy()
-
-// 配置组件库
-eficy.config({
-  componentMap: antd
-})
-
-// 定义异步服务函数
-const createUser = (userData: UserData) => {
+const createUser = (userData) => {
   return fetch('/api/user', {
     method: 'POST',
-    body: JSON.stringify(userData),
     headers: { 'Content-Type': 'application/json' },
-  }).then((res) => res.json());
+    body: JSON.stringify(userData),
+  }).then(res => res.json());
 };
 
-const { data, loading, error, run, computed } = asyncSignal(createUser, {
-  manual: true, // 手动触发
+// 在组件外定义手动触发的 signal
+const createUserSignal = asyncSignal(createUser, {
+  manual: true,
   onSuccess: (result) => {
     console.log('用户创建成功:', result);
   },
@@ -105,56 +138,143 @@ const { data, loading, error, run, computed } = asyncSignal(createUser, {
   },
 });
 
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'create-user',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'form',
-          '#view': 'form',
-          '#children': [
-            {
-              '#': 'name-input',
-              '#view': 'Input',
-              placeholder: '用户名'
-            },
-            {
-              '#': 'email-input',
-              '#view': 'Input',
-              placeholder: '邮箱'
-            },
-            {
-              '#': 'submit-btn',
-              '#view': 'Button',
-              disabled: computed(state => state.loading),
-              '#children': computed(state => state.loading ? '创建中...' : '创建用户'),
-              onClick: () => {
-                const userData = {
-                  name: 'John Doe',
-                  email: 'john@example.com'
-                };
-                run(userData);
-              }
-            }
-          ]
-        },
-        {
-          '#': 'result',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '创建中...';
-            if (state.error) return `错误: ${state.error.message}`;
-            if (state.data) return `用户创建成功: ${state.data.name}`;
-            return '';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
+function CreateUserForm() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const userData = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+    };
+    createUserSignal.run(userData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" placeholder="姓名" required />
+      <input name="email" type="email" placeholder="邮箱" required />
+      <button 
+        type="submit" 
+        disabled={createUserSignal.loading()}
+      >
+        {createUserSignal.loading() ? '创建中...' : '创建用户'}
+      </button>
+      
+      {createUserSignal.error() && (
+        <div className="error">
+          创建失败: {createUserSignal.error().message}
+        </div>
+      )}
+      
+      {createUserSignal.data() && (
+        <div className="success">
+          用户创建成功: {createUserSignal.data().name}
+        </div>
+      )}
+    </form>
+  );
+}
+```
+
+### 组件外使用 - 核心特性
+
+signals 的最大优势是可以在组件外定义和使用，实现真正的状态共享：
+
+```jsx
+/** @jsxImportSource eficy */
+
+import { asyncSignal } from '@eficy/reactive-async';
+
+// ============ 在组件外定义 signals ============
+const userService = (userId) => fetch(`/api/user/${userId}`).then(res => res.json());
+const todosService = (userId) => fetch(`/api/user/${userId}/todos`).then(res => res.json());
+
+// 全局用户状态
+const userSignal = asyncSignal(() => userService(getCurrentUserId()), {
+  staleTime: 5 * 60 * 1000, // 5分钟内认为数据新鲜
+  cacheKey: 'current-user'
+});
+
+// 依赖用户数据的待办事项
+const todosSignal = asyncSignal(() => {
+  const user = userSignal.data();
+  if (!user) return Promise.resolve([]);
+  return todosService(user.id);
+}, {
+  refreshDeps: [userSignal.data] // 当用户数据变化时自动刷新
+});
+
+// ============ 多个组件可以共享同一个 signal ============
+
+function Header() {
+  return (
+    <header>
+      <div>
+        欢迎, {userSignal.data()?.name || '游客'}
+        {userSignal.loading() && <span> (加载中...)</span>}
+      </div>
+      <button onClick={() => userSignal.refresh()}>刷新用户信息</button>
+    </header>
+  );
+}
+
+function Profile() {
+  return (
+    <div className="profile">
+      <h2>个人资料</h2>
+      {userSignal.loading() && <div>加载用户信息中...</div>}
+      {userSignal.error() && <div>加载失败: {userSignal.error().message}</div>}
+      {userSignal.data() && (
+        <div>
+          <p>姓名: {userSignal.data().name}</p>
+          <p>邮箱: {userSignal.data().email}</p>
+          <p>注册时间: {userSignal.data().createdAt}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TodoList() {
+  return (
+    <div className="todos">
+      <h2>待办事项</h2>
+      {todosSignal.loading() && <div>加载待办事项中...</div>}
+      {todosSignal.error() && <div>加载失败: {todosSignal.error().message}</div>}
+      {todosSignal.data() && (
+        <ul>
+          {todosSignal.data().map(todo => (
+            <li key={todo.id}>{todo.title}</li>
+          ))}
+        </ul>
+      )}
+      <button onClick={() => todosSignal.refresh()}>刷新待办</button>
+    </div>
+  );
+}
+
+// ============ 在任何地方都可以访问和操作 signals ============
+
+// 在事件处理函数中
+function handleLogout() {
+  userSignal.mutate(null); // 清除用户数据
+  todosSignal.mutate([]); // 清除待办数据
+}
+
+// 在工具函数中
+function getCurrentUser() {
+  return userSignal.data();
+}
+
+// 在异步函数中
+async function refreshAllUserData() {
+  await userSignal.refresh();
+  await todosSignal.refresh();
+}
+
+function getCurrentUserId() {
+  return localStorage.getItem('userId') || '1';
+}
 ```
 
 ## API 参考
@@ -162,7 +282,7 @@ await eficy.render({
 ### asyncSignal
 
 ```typescript
-const { data, loading, error, run, refresh, cancel, mutate, computed } = asyncSignal(service, options);
+const { data, loading, error, run, refresh, cancel, mutate } = asyncSignal(service, options);
 ```
 
 #### 参数
@@ -174,14 +294,13 @@ const { data, loading, error, run, refresh, cancel, mutate, computed } = asyncSi
 
 | 属性     | 类型                                     | 描述                 |
 | -------- | ---------------------------------------- | -------------------- |
-| data     | `TData \| undefined`                     | 响应数据             |
-| loading  | `boolean`                                | 加载状态             |
-| error    | `Error \| undefined`                     | 错误信息             |
+| data     | `Signal<TData \| undefined>`             | 响应数据 signal      |
+| loading  | `Signal<boolean>`                        | 加载状态 signal      |
+| error    | `Signal<Error \| undefined>`             | 错误信息 signal      |
 | run      | `(...params: TParams) => Promise<TData>` | 手动触发请求         |
 | refresh  | `() => Promise<TData>`                   | 使用上次参数重新请求 |
 | cancel   | `() => void`                             | 取消当前请求         |
 | mutate   | `(data) => void`                         | 修改数据             |
-| computed | `(fn) => T`                              | 计算属性             |
 
 #### 配置选项
 
@@ -200,904 +319,405 @@ const { data, loading, error, run, refresh, cancel, mutate, computed } = asyncSi
 
 #### 轮询
 
-```typescript
+```jsx
+/** @jsxImportSource eficy */
+
 import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
 
-const eficy = new Eficy()
+const getStatus = () => fetch('/api/status').then(res => res.json());
 
-const getStatus = () => {
-  return fetch('/api/status').then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(getStatus, {
+const statusSignal = asyncSignal(getStatus, {
   pollingInterval: 1000, // 每秒轮询一次
 });
 
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'status',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'status-text',
-          '#view': 'span',
-          '#children': computed(state => {
-            if (state.loading) return '检查状态中...';
-            return `系统状态: ${state.data?.status || '未知'}`;
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
+function StatusMonitor() {
+  return (
+    <div>
+      <h3>系统状态监控</h3>
+      {statusSignal.loading() && <div>检查状态中...</div>}
+      <div>系统状态: {statusSignal.data()?.status || '未知'}</div>
+      <div>最后更新: {new Date().toLocaleTimeString()}</div>
+    </div>
+  );
+}
 ```
 
-#### 防抖
+#### 防抖搜索
 
-```typescript
+```jsx
+/** @jsxImportSource eficy */
+
 import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
 
-const eficy = new Eficy()
-
-const searchUsers = (keyword: string) => {
-  return fetch(`/api/users?q=${keyword}`).then((res) => res.json());
+const searchUsers = (keyword) => {
+  return fetch(`/api/users?q=${keyword}`).then(res => res.json());
 };
 
-const { data, run, computed } = asyncSignal(searchUsers, {
+const searchSignal = asyncSignal(searchUsers, {
   manual: true,
   debounceWait: 300, // 300ms 防抖
 });
 
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'search',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'search-input',
-          '#view': 'Input',
-          placeholder: '搜索用户...',
-          onChange: (e) => {
-            run(e.target.value);
-          }
-        },
-        {
-          '#': 'search-results',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '搜索中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `错误: ${state.error.message}` }];
-            if (state.data) {
-              return state.data.map((user, index) => ({
-                '#': `user-${index}`,
-                '#view': 'div',
-                '#children': user.name
-              }));
-            }
-            return [];
-          })
-        }
-      ]
+function SearchUsers() {
+  const handleSearch = (e) => {
+    const keyword = e.target.value.trim();
+    if (keyword) {
+      searchSignal.run(keyword);
     }
-  ]
-}, '#root')
+  };
+
+  return (
+    <div>
+      <input 
+        type="text" 
+        placeholder="搜索用户..." 
+        onChange={handleSearch}
+      />
+      
+      {searchSignal.loading() && <div>搜索中...</div>}
+      {searchSignal.error() && <div>搜索失败: {searchSignal.error().message}</div>}
+      
+      <div className="search-results">
+        {searchSignal.data()?.map(user => (
+          <div key={user.id} className="user-item">
+            {user.name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 ```
 
-#### 节流
+#### 缓存和智能刷新
 
-```typescript
+```jsx
+/** @jsxImportSource eficy */
+
 import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
 
-const eficy = new Eficy()
-
-const uploadFile = (file: File) => {
-  const formData = new FormData();
-  formData.append('file', file);
-  return fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-  }).then((res) => res.json());
+const getUserInfo = (userId) => {
+  return fetch(`/api/user/${userId}`).then(res => res.json());
 };
 
-const { data, run, computed } = asyncSignal(uploadFile, {
-  manual: true,
-  throttleWait: 1000, // 1秒内最多执行一次
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'upload',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'file-input',
-          '#view': 'input',
-          type: 'file',
-          onChange: (e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              run(file);
-            }
-          }
-        },
-        {
-          '#': 'upload-status',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '上传中...';
-            if (state.error) return `上传失败: ${state.error.message}`;
-            if (state.data) return `上传成功: ${state.data.url}`;
-            return '请选择文件';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-#### 重试
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const fetchData = () => {
-  return fetch('/api/data').then((res) => res.json());
-};
-
-const { data, error, computed } = asyncSignal(fetchData, {
-  retryCount: 3, // 最多重试3次
-  retryInterval: 1000, // 重试间隔1秒
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'data-display',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'data-content',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '加载中...';
-            if (state.error) return `加载失败: ${state.error.message}`;
-            if (state.data) return `数据: ${JSON.stringify(state.data)}`;
-            return '暂无数据';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-#### 缓存
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getUserInfo = (userId: string) => {
-  return fetch(`/api/user/${userId}`).then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(() => getUserInfo(userId), {
+const userInfoSignal = asyncSignal(() => getUserInfo(currentUserId), {
   cacheKey: 'user-info', // 缓存键
   cacheTime: 60000, // 缓存1分钟
   staleTime: 30000, // 30秒内认为数据新鲜
+  refreshOnWindowFocus: true, // 窗口重新获得焦点时刷新
 });
 
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'user-info',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'user-name',
-          '#view': 'h2',
-          '#children': computed(state => {
-            if (state.loading) return '加载中...';
-            if (state.error) return '加载失败';
-            if (state.data) return state.data.name;
-            return '未知用户';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
+function UserInfo() {
+  return (
+    <div>
+      <h2>用户信息</h2>
+      {userInfoSignal.loading() && <div>加载中...</div>}
+      {userInfoSignal.error() && <div>加载失败</div>}
+      {userInfoSignal.data() && (
+        <div>
+          <p>姓名: {userInfoSignal.data().name}</p>
+          <p>最后登录: {userInfoSignal.data().lastLogin}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 ```
 
 #### 依赖刷新
 
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
+```jsx
+/** @jsxImportSource eficy */
 
-const eficy = new Eficy()
-
-const getUserInfo = (userId: string) => {
-  return fetch(`/api/user/${userId}`).then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(() => getUserInfo(userId), {
-  refreshDeps: [userId], // 当 userId 变化时重新请求
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'user-profile',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'user-details',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '加载用户信息中...';
-            if (state.error) return `加载失败: ${state.error.message}`;
-            if (state.data) return `用户: ${state.data.name}, 邮箱: ${state.data.email}`;
-            return '请选择用户';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-#### 条件请求
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const fetchUserData = (userId: string) => {
-  return fetch(`/api/user/${userId}`).then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(() => fetchUserData(userId), {
-  ready: !!userId, // 只有当 userId 存在时才发起请求
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'conditional-data',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'data-display',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (!userId) return '请输入用户ID';
-            if (state.loading) return '加载中...';
-            if (state.error) return `错误: ${state.error.message}`;
-            if (state.data) return `用户数据: ${JSON.stringify(state.data)}`;
-            return '暂无数据';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-#### 窗口焦点刷新
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getLatestData = () => {
-  return fetch('/api/latest').then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(getLatestData, {
-  refreshOnWindowFocus: true, // 窗口重新获得焦点时刷新
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'latest-data',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'data-content',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '获取最新数据中...';
-            if (state.error) return `获取失败: ${state.error.message}`;
-            if (state.data) return `最新数据: ${JSON.stringify(state.data)}`;
-            return '暂无数据';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-### 数据修改
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getUserList = () => {
-  return fetch('/api/users').then((res) => res.json());
-};
-
-const { data, mutate, computed } = asyncSignal(getUserList);
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'user-list',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'add-user-btn',
-          '#view': 'Button',
-          '#children': '添加用户',
-          onClick: () => {
-            const newUser = { id: Date.now(), name: 'New User' };
-            // 直接修改
-            mutate([...data.value, newUser]);
-          }
-        },
-        {
-          '#': 'user-items',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '加载中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `错误: ${state.error.message}` }];
-            if (state.data) {
-              return state.data.map((user, index) => ({
-                '#': `user-${index}`,
-                '#view': 'div',
-                '#children': user.name,
-                onClick: () => {
-                  // 函数式修改
-                  mutate((prevData) => {
-                    if (!prevData) return [user];
-                    return prevData.map(u => u.id === user.id ? { ...u, name: u.name + ' (已点击)' } : u);
-                  });
-                }
-              }));
-            }
-            return [];
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-## 高级用法示例
-
-### 搜索功能
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const searchUsers = (keyword: string) => {
-  return fetch(`/api/users?q=${keyword}`).then((res) => res.json());
-};
-
-const { data, run, computed } = asyncSignal(searchUsers, {
-  manual: true,
-  debounceWait: 300,
-  formatResult: (response) => response.data,
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'search-container',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'search-input',
-          '#view': 'Input',
-          placeholder: '搜索用户...',
-          onChange: (e) => {
-            const keyword = e.target.value.trim();
-            if (keyword) {
-              run(keyword);
-            }
-          }
-        },
-        {
-          '#': 'search-results',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '搜索中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `搜索失败: ${state.error.message}` }];
-            if (state.data) {
-              return state.data.map((user, index) => ({
-                '#': `user-${index}`,
-                '#view': 'div',
-                '#children': user.name
-              }));
-            }
-            return [];
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-### 分页列表
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getUserList = (page: number) => {
-  return fetch(`/api/users?page=${page}`).then((res) => res.json());
-};
-
-const { data, run, computed } = asyncSignal(getUserList, {
-  defaultParams: [1],
-  cacheKey: (page) => `user-list-${page}`,
-  cacheTime: 60000,
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'user-list',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'user-items',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return [{ '#': 'loading', '#view': 'div', '#children': '加载中...' }];
-            if (state.error) return [{ '#': 'error', '#view': 'div', '#children': `加载失败: ${state.error.message}` }];
-            if (state.data) {
-              return state.data.users.map((user, index) => ({
-                '#': `user-${index}`,
-                '#view': 'div',
-                '#children': user.name
-              }));
-            }
-            return [];
-          })
-        },
-        {
-          '#': 'pagination',
-          '#view': 'div',
-          '#children': [
-            {
-              '#': 'prev-btn',
-              '#view': 'Button',
-              '#children': '上一页',
-              disabled: computed(state => state.loading),
-              onClick: () => {
-                const currentPage = 1; // 这里应该从状态中获取当前页
-                if (currentPage > 1) {
-                  run(currentPage - 1);
-                }
-              }
-            },
-            {
-              '#': 'page-info',
-              '#view': 'span',
-              '#children': computed(state => {
-                if (state.loading) return '加载中...';
-                return `第 ${state.data?.page || 1} 页`;
-              })
-            },
-            {
-              '#': 'next-btn',
-              '#view': 'Button',
-              '#children': '下一页',
-              disabled: computed(state => state.loading),
-              onClick: () => {
-                const currentPage = 1; // 这里应该从状态中获取当前页
-                run(currentPage + 1);
-              }
-            },
-            {
-              '#': 'refresh-btn',
-              '#view': 'Button',
-              '#children': '刷新',
-              onClick: () => {
-                const currentPage = 1; // 这里应该从状态中获取当前页
-                run(currentPage);
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-### 实时数据监控
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getSystemStatus = () => {
-  return fetch('/api/system/status').then((res) => res.json());
-};
-
-const { data, error, computed } = asyncSignal(getSystemStatus, {
-  pollingInterval: 5000, // 每5秒轮询
-  refreshOnWindowFocus: true,
-  onError: (error) => {
-    console.error('获取系统状态失败:', error);
-  },
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'system-status',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'status-title',
-          '#view': 'h2',
-          '#children': '系统状态'
-        },
-        {
-          '#': 'status-content',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.error) {
-              return [{
-                '#': 'error-message',
-                '#view': 'div',
-                style: { color: 'red' },
-                '#children': '获取状态失败'
-              }];
-            }
-            if (state.data) {
-              return [
-                {
-                  '#': 'cpu-status',
-                  '#view': 'div',
-                  '#children': `CPU: ${state.data.cpu}%`
-                },
-                {
-                  '#': 'memory-status',
-                  '#view': 'div',
-                  '#children': `内存: ${state.data.memory}%`
-                },
-                {
-                  '#': 'disk-status',
-                  '#view': 'div',
-                  '#children': `磁盘: ${state.data.disk}%`
-                }
-              ];
-            }
-            return [];
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-## 错误处理
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const fetchData = () => {
-  return fetch('/api/data').then((res) => res.json());
-};
-
-const { data, error, run, computed } = asyncSignal(fetchData, {
-  retryCount: 3,
-  onError: (error, params) => {
-    // 记录错误日志
-    console.error('请求失败:', error, params);
-
-    // 显示用户友好的错误消息
-    if (error.message.includes('network')) {
-      console.error('网络连接失败，请检查网络设置');
-    } else if (error.message.includes('timeout')) {
-      console.error('请求超时，请稍后重试');
-    } else {
-      console.error('请求失败，请稍后重试');
-    }
-  },
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'error-handling',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'data-content',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '加载中...';
-            if (state.error) {
-              return `加载失败: ${state.error.message}`;
-            }
-            if (state.data) return `数据: ${JSON.stringify(state.data)}`;
-            return '暂无数据';
-          })
-        },
-        {
-          '#': 'retry-btn',
-          '#view': 'Button',
-          '#children': '重试',
-          onClick: () => run(),
-          style: computed(state => ({
-            display: state.error ? 'block' : 'none'
-          }))
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-## 性能优化
-
-### 请求合并
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getUserInfo = (userId: string) => {
-  return fetch(`/api/user/${userId}`).then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(() => getUserInfo(userId), {
-  cacheKey: (userId) => `user-${userId}`,
-  cacheTime: 300000, // 缓存5分钟
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'user-cache',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'user-info',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '加载用户信息中...';
-            if (state.error) return `加载失败: ${state.error.message}`;
-            if (state.data) return `用户: ${state.data.name}`;
-            return '请选择用户';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-### 智能刷新
-
-```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const getData = () => {
-  return fetch('/api/data').then((res) => res.json());
-};
-
-const { data, computed } = asyncSignal(getData, {
-  staleTime: 60000, // 1分钟内认为数据新鲜
-  cacheTime: 300000, // 缓存5分钟
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'smart-refresh',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'data-display',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '获取数据中...';
-            if (state.error) return `获取失败: ${state.error.message}`;
-            if (state.data) return `数据: ${JSON.stringify(state.data)}`;
-            return '暂无数据';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
-```
-
-## 与其他库集成
-
-### 与状态管理集成
-
-```typescript
 import { asyncSignal } from '@eficy/reactive-async';
 import { signal } from '@eficy/reactive';
-import { Eficy } from '@eficy/core'
 
-const eficy = new Eficy()
+// 用户ID state
+const userIdSignal = signal('1');
 
-const userStore = {
-  currentUser: signal(null),
-
-  async fetchUser(userId: string) {
-    const { run } = asyncSignal(getUserInfo);
-    const user = await run(userId);
-    this.currentUser.value = user;
-    return user;
-  },
+const getUserInfo = (userId) => {
+  return fetch(`/api/user/${userId}`).then(res => res.json());
 };
 
-const getUserInfo = (userId: string) => {
-  return fetch(`/api/user/${userId}`).then((res) => res.json());
-};
-
-const { data, run, computed } = asyncSignal(getUserInfo, {
-  manual: true,
-  onSuccess: (user) => {
-    userStore.currentUser.value = user;
-  },
+// 当 userId 变化时自动重新请求
+const userInfoSignal = asyncSignal(() => getUserInfo(userIdSignal.value), {
+  refreshDeps: [userIdSignal.value], // 依赖 userId
 });
 
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'user-store',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'fetch-btn',
-          '#view': 'Button',
-          '#children': '获取用户',
-          onClick: () => run('user123')
-        },
-        {
-          '#': 'user-display',
-          '#view': 'div',
-          '#children': computed(state => {
-            if (state.loading) return '获取中...';
-            if (state.error) return `获取失败: ${state.error.message}`;
-            if (state.data) return `当前用户: ${state.data.name}`;
-            return '请点击获取用户';
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
+function UserSelector() {
+  return (
+    <div>
+      <select 
+        value={userIdSignal.value} 
+        onChange={e => userIdSignal.value = e.target.value}
+      >
+        <option value="1">用户 1</option>
+        <option value="2">用户 2</option>
+        <option value="3">用户 3</option>
+      </select>
+      
+      <div className="user-info">
+        {userInfoSignal.loading() && <div>加载用户信息中...</div>}
+        {userInfoSignal.error() && <div>加载失败: {userInfoSignal.error().message}</div>}
+        {userInfoSignal.data() && (
+          <div>
+            <h3>{userInfoSignal.data().name}</h3>
+            <p>{userInfoSignal.data().email}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 ```
 
-## 开发调试
+## antdTableSignal
+
+专为 Ant Design Table 组件设计的响应式表格数据管理工具，提供与 ahooks useAntdTable 完全兼容的 API。
+
+### 基础用法
+
+```jsx
+/** @jsxImportSource eficy */
+
+import { antdTableSignal } from '@eficy/reactive-async';
+import { Table } from 'antd';
+
+// 定义数据类型
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  status: 'active' | 'inactive';
+}
+
+// 定义 API 服务函数
+const getUserList = async (
+  { current, pageSize, sorter, filters },
+  formData?
+): Promise<{ total: number; list: UserData[] }> => {
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      page: current,
+      size: pageSize,
+      sortField: sorter?.field,
+      sortOrder: sorter?.order,
+      ...formData,
+      ...filters,
+    }),
+  });
+  
+  return response.json();
+};
+
+// 在组件外定义表格 signal
+const userTableSignal = antdTableSignal(getUserList, {
+  defaultPageSize: 10,
+  onSuccess: (data) => {
+    console.log(`加载了 ${data.list.length} 条数据，总共 ${data.total} 条`);
+  }
+});
+
+function UserTable() {
+  const columns = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+      sorter: true,
+    },
+    {
+      title: '姓名',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: true,
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      filters: [
+        { text: '激活', value: 'active' },
+        { text: '禁用', value: 'inactive' },
+      ],
+    },
+  ];
+
+  return (
+    <Table
+      {...userTableSignal.tableProps}
+      columns={columns}
+      rowKey="id"
+    />
+  );
+}
+```
+
+### 带搜索表单的用法
+
+```jsx
+/** @jsxImportSource eficy */
+
+import { antdTableSignal } from '@eficy/reactive-async';
+import { Form, Input, Button, Table, Card } from 'antd';
+
+const [form] = Form.useForm();
+
+const userTableWithSearchSignal = antdTableSignal(getUserList, {
+  form,
+  defaultType: 'simple',
+});
+
+function UserTableWithSearch() {
+  // 简单搜索表单
+  const renderSimpleForm = () => (
+    <Form form={form} layout="inline">
+      <Form.Item name="name" label="姓名">
+        <Input placeholder="请输入姓名" />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" onClick={userTableWithSearchSignal.search.submit}>
+          搜索
+        </Button>
+        <Button onClick={userTableWithSearchSignal.search.reset} style={{ marginLeft: 8 }}>
+          重置
+        </Button>
+        <Button type="link" onClick={userTableWithSearchSignal.search.changeType}>
+          高级搜索
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+
+  return (
+    <Card>
+      {userTableWithSearchSignal.search.type() === 'simple' ? renderSimpleForm() : null}
+      <Table 
+        {...userTableWithSearchSignal.tableProps} 
+        columns={columns} 
+        rowKey="id" 
+      />
+    </Card>
+  );
+}
+```
+
+### API 参考
+
+#### antdTableSignal
 
 ```typescript
-import { asyncSignal } from '@eficy/reactive-async';
-import { Eficy } from '@eficy/core'
-
-const eficy = new Eficy()
-
-const fetchData = () => {
-  return fetch('/api/data').then((res) => res.json());
-};
-
-const { data, loading, error, computed } = asyncSignal(fetchData, {
-  onBefore: (params) => {
-    console.log('请求开始:', params);
-  },
-  onSuccess: (data, params) => {
-    console.log('请求成功:', data, params);
-  },
-  onError: (error, params) => {
-    console.error('请求失败:', error, params);
-  },
-  onFinally: (params, data, error) => {
-    console.log('请求完成:', { params, data, error });
-  },
-});
-
-// 渲染 Schema
-await eficy.render({
-  views: [
-    {
-      '#': 'debug-display',
-      '#view': 'div',
-      '#children': [
-        {
-          '#': 'debug-info',
-          '#view': 'div',
-          '#children': computed(state => {
-            return `状态: ${state.loading ? '加载中' : state.error ? '错误' : '完成'}`;
-          })
-        }
-      ]
-    }
-  ]
-}, '#root')
+const { tableProps, search, loading, error, refresh, mutate } = antdTableSignal(service, options);
 ```
+
+##### 参数
+
+- **service**: `(params: AntdTableParams, formData?: any) => Promise<{ total: number; list: TData[] }>` - 异步服务函数
+- **options**: `AntdTableSignalOptions<TData>` - 配置选项
+
+##### 返回值
+
+| 属性       | 类型                                           | 描述           |
+| ---------- | ---------------------------------------------- | -------------- |
+| tableProps | `{ dataSource, loading, onChange, pagination }` | 表格属性       |
+| search     | `{ type, changeType, submit, reset }`          | 搜索控制       |
+| loading    | `Signal<boolean>`                              | 加载状态       |
+| error      | `Signal<Error \| undefined>`                   | 错误信息       |
+| refresh    | `() => Promise<any>`                           | 刷新数据       |
+| mutate     | `(data) => void`                               | 修改数据       |
 
 ## 迁移指南
 
 ### 从 ahooks useRequest 迁移
 
-本库与 ahooks useRequest 100% API 兼容，可以直接替换导入：
+本库与 ahooks useRequest 100% API 兼容，只需要：
 
-```typescript
+1. 替换导入
+2. 添加 JSX Import Source
+3. 在组件外定义 signals（推荐）
+
+```jsx
 // 之前
 import { useRequest } from 'ahooks';
 
+function MyComponent() {
+  const { data, loading, run } = useRequest(fetchData, options);
+  // ...
+}
+
 // 现在
+/** @jsxImportSource eficy */
 import { asyncSignal } from '@eficy/reactive-async';
 
-// 其他代码无需修改
-const { data, loading, run } = asyncSignal(fetchData, options);
+// 在组件外定义（推荐）
+const dataSignal = asyncSignal(fetchData, options);
+
+function MyComponent() {
+  // 直接使用 signals
+  return (
+    <div>
+      {dataSignal.loading() && <div>加载中...</div>}
+      {dataSignal.data() && <div>{dataSignal.data().title}</div>}
+      <button onClick={() => dataSignal.run()}>刷新</button>
+    </div>
+  );
+}
 ```
+
+### 从 ahooks useAntdTable 迁移
+
+```jsx
+// 之前
+import { useAntdTable } from 'ahooks';
+
+function TableComponent() {
+  const { tableProps, search, loading, error, refresh } = useAntdTable(service, options);
+  // ...
+}
+
+// 现在
+/** @jsxImportSource eficy */
+import { antdTableSignal } from '@eficy/reactive-async';
+
+// 在组件外定义
+const tableSignal = antdTableSignal(service, options);
+
+function TableComponent() {
+  return (
+    <Table {...tableSignal.tableProps} columns={columns} rowKey="id" />
+  );
+}
+```
+
+## 核心优势
+
+### 1. 组件外使用
+- signals 可以在组件外定义和使用
+- 实现真正的全局状态管理
+- 多个组件可以共享同一个 signal
+- 在任何地方都可以访问和操作数据
+
+### 2. 细粒度响应式
+- 基于 @preact/signals 的细粒度更新
+- 只有依赖变化的组件会重新渲染
+- 避免不必要的性能开销
+
+### 3. 完全兼容
+- 与 ahooks API 100% 兼容
+- 平滑迁移，学习成本低
+- 支持所有高级特性
+
+### 4. 现代化开发体验
+- TypeScript 原生支持
+- JSX Import Source 配置
+- 声明式的响应式编程
 
 ## 许可证
 
