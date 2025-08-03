@@ -1,15 +1,14 @@
 import { computed, signal } from '@eficy/reactive';
-import type { 
-  AntdTableService, 
-  AntdTableData, 
-  AntdTableSignalOptions, 
-  AntdTableSignalResult, 
+import type {
+  AntdTableService,
+  AntdTableData,
+  AntdTableSignalOptions,
+  AntdTableSignalResult,
   AntdTableParams,
   AsyncSignalOptions,
-  FormInstance
+  FormInstance,
 } from '../types';
 import { asyncSignal } from './asyncSignal';
-
 
 /**
  * 增强的表格状态管理器
@@ -21,12 +20,12 @@ class EnhancedTableStateManager<TData> {
   public sorter = signal<any>(undefined);
   public filters = signal<any>(undefined);
   public extra = signal<any>(undefined);
-  
+
   // 搜索状态
   public searchType = signal<'simple' | 'advance'>('simple');
   public currentFormData = signal<any>({});
   public allFormData = signal<any>({}); // 保存所有表单数据（包括切换类型时的数据）
-  
+
   // 分页配置
   public showSizeChanger = signal<boolean>(true);
   public showQuickJumper = signal<boolean>(true);
@@ -65,7 +64,6 @@ class EnhancedTableStateManager<TData> {
       this.ready(this.options.ready);
     }
   }
-
 
   /**
    * 构建请求参数
@@ -116,7 +114,7 @@ class EnhancedTableStateManager<TData> {
       const newAllFormData = { ...this.allFormData(), ...activeValues };
       this.allFormData(newAllFormData);
     }
-    
+
     this.searchType(this.searchType() === 'simple' ? 'advance' : 'simple');
   }
 
@@ -180,7 +178,7 @@ class EnhancedFormController<TData> {
   constructor(
     private stateManager: EnhancedTableStateManager<TData>,
     private asyncResult: any,
-    private options: AntdTableSignalOptions<TData>
+    private options: AntdTableSignalOptions<TData>,
   ) {}
 
   /**
@@ -188,24 +186,23 @@ class EnhancedFormController<TData> {
    */
   submit = async (e?: any): Promise<void> => {
     e?.preventDefault?.();
-    
+
     if (!this.stateManager.ready()) {
       return;
     }
 
     try {
       const values = await this.stateManager.validateAndGetFormData();
-      
+
       // 更新表单数据
       this.stateManager.updateFormData(values);
-      
+
       // 重置到第一页 (简化逻辑，总是重置到第一页)
       this.stateManager.resetToFirstPage();
 
       // 构建参数并触发请求 (不等待，保持与v2版本一致)
       const params = this.stateManager.buildRequestParams();
       this.asyncResult.run(...params);
-      
     } catch (error) {
       // 表单验证失败，不做处理
       console.warn('Form validation failed:', error);
@@ -218,19 +215,19 @@ class EnhancedFormController<TData> {
   reset = (): void => {
     // 重置表单
     this.stateManager.resetForm();
-    
+
     // 重置到第一页
     this.stateManager.resetToFirstPage();
-    
+
     // 使用默认参数触发请求
     const defaultParams = this.options.defaultParams?.[0] || {
       current: 1,
       pageSize: this.options.defaultPageSize || 10,
     };
-    
+
     this.stateManager.current(defaultParams.current);
     this.stateManager.pageSize(defaultParams.pageSize);
-    
+
     const params = this.stateManager.buildRequestParams();
     this.asyncResult.run(...params);
   };
@@ -240,7 +237,7 @@ class EnhancedFormController<TData> {
    */
   changeType = (): void => {
     this.stateManager.toggleSearchType();
-    
+
     // 恢复对应类型的表单数据
     setTimeout(() => {
       this.stateManager.restoreFormData();
@@ -252,10 +249,7 @@ class EnhancedFormController<TData> {
  * 增强的表格控制器
  */
 class EnhancedTableController<TData> {
-  constructor(
-    private stateManager: EnhancedTableStateManager<TData>,
-    private asyncResult: any
-  ) {}
+  constructor(private stateManager: EnhancedTableStateManager<TData>, private asyncResult: any) {}
 
   /**
    * 表格变化处理
@@ -263,7 +257,7 @@ class EnhancedTableController<TData> {
   onChange = (pagination: any, filters: any, sorter: any, extra?: any): void => {
     // 获取旧的参数
     const oldParams = this.stateManager.buildRequestParams();
-    
+
     // 更新状态
     this.stateManager.updatePagination(pagination, filters, sorter, extra);
 
@@ -300,10 +294,7 @@ class EnhancedTableResultAdapter<TData> {
     return 0;
   });
 
-  constructor(
-    private asyncResult: any,
-    private stateManager: EnhancedTableStateManager<TData>
-  ) {
+  constructor(private asyncResult: any, private stateManager: EnhancedTableStateManager<TData>) {
     this.setupSuccessCallback();
   }
 
@@ -315,11 +306,16 @@ class EnhancedTableResultAdapter<TData> {
   /**
    * 修改表格数据
    */
-  mutateTableData(data: { total: number; list: TData[] } | undefined | ((oldData: { total: number; list: TData[] } | undefined) => { total: number; list: TData[] } | undefined)): void {
+  mutateTableData(
+    data:
+      | { total: number; list: TData[] }
+      | undefined
+      | ((oldData: { total: number; list: TData[] } | undefined) => { total: number; list: TData[] } | undefined),
+  ): void {
     if (typeof data === 'function') {
       const currentData = {
         total: this.total(),
-        list: this.dataSource()
+        list: this.dataSource(),
       };
       const newData = data(currentData.total === 0 && currentData.list.length === 0 ? undefined : currentData);
       this.asyncResult.mutate(newData);
@@ -344,10 +340,10 @@ export function antdTableSignal<TService extends AntdTableService>(
   // 创建包装后的服务函数
   const wrappedService = async (...args: [AntdTableParams, any, any?]) => {
     const result = await service(args[0], args[1]);
-    
+
     // 标记运行成功
     stateManager.markRunSuccess();
-    
+
     return result;
   };
 
@@ -357,25 +353,25 @@ export function antdTableSignal<TService extends AntdTableService>(
     manual: options?.manual,
     ready: options?.ready,
     defaultParams: stateManager.buildRequestParams(),
-    
+
     // 数据处理
     initialData: options?.initialData,
     formatResult: options?.formatResult,
-    
+
     // 回调函数
     onSuccess: (data, params) => {
       stateManager.markRunSuccess();
       options?.onSuccess?.(data, params);
     },
-    
+
     onError: (error, params) => {
       options?.onError?.(error, params);
       options?.onRequestError?.(error);
     },
-    
+
     onBefore: options?.onBefore,
     onFinally: options?.onFinally,
-    
+
     // 高级功能（直接透传给 asyncSignal）
     pollingInterval: options?.pollingInterval,
     refreshOnWindowFocus: options?.refreshOnWindowFocus,
@@ -403,13 +399,13 @@ export function antdTableSignal<TService extends AntdTableService>(
       dataSource: resultAdapter.dataSource,
       loading: asyncResult.loading,
       onChange: tableController.onChange,
-      pagination: {
-        current: stateManager.current,
-        pageSize: stateManager.pageSize,
-        total: resultAdapter.total,
-        showSizeChanger: stateManager.showSizeChanger,
-        showQuickJumper: stateManager.showQuickJumper,
-      },
+      pagination: computed(() => ({
+        current: stateManager.current(),
+        pageSize: stateManager.pageSize(),
+        total: resultAdapter.total(),
+        showSizeChanger: stateManager.showSizeChanger(),
+        showQuickJumper: stateManager.showQuickJumper(),
+      })),
     },
 
     // 搜索控制
@@ -429,7 +425,7 @@ export function antdTableSignal<TService extends AntdTableService>(
       const params = stateManager.buildRequestParams();
       return asyncResult.run(...params);
     },
-    
+
     mutate: resultAdapter.mutateTableData.bind(resultAdapter),
     cancel: asyncResult.cancel,
   };
