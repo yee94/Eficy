@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { EventEmitter } from '@eficy/core-v3/services/EventEmitter';
+import { EventEmitter } from '@eficy/core-jsx/services/EventEmitter';
 
 describe('EventEmitter', () => {
   let emitter: EventEmitter;

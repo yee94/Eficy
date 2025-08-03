@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@eficy/reactive': path.resolve(__dirname, '../reactive/src'),
-      '@eficy/core-v3': path.resolve(__dirname, './src'),
+      '@eficy/core-jsx': path.resolve(__dirname, './src'),
       '@eficy/reactive-react': path.resolve(__dirname, '../reactive-react/src'),
     },
   },

@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { signal } from '@eficy/reactive';
-import { EficyCore, EficyProvider } from '@eficy/core-v3';
+import { EficyCore, EficyProvider } from '@eficy/core-jsx';
 
 // 创建 signals
 const count = signal(0);

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { UnocssPlugin } from '../src/UnocssPlugin';
-import { Eficy } from '@eficy/core-v3';
+import { Eficy } from '@eficy/core-jsx';
 
 describe('UnocssPlugin Cache Functionality', () => {
   let plugin: UnocssPlugin;

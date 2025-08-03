@@ -4,7 +4,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { signal, isSignal } from '@eficy/reactive';
-import { hasSignals, resolveSignals } from '@eficy/core-v3/utils';
+import { hasSignals, resolveSignals } from '@eficy/core-jsx/utils';
 
 describe('Debug Signals', () => {
   it('should debug signal detection', () => {

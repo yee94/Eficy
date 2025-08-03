@@ -1,4 +1,7 @@
-# Eficy Core V3
+# Eficy Core By Signals
+
+> 未上线，已废弃，仅做备份
+> 实现到一半，忽然意识到纯使用 Json 驱动，有种倒行逆施的感觉。JSX 本身也是 DSL，并且目前的编译器可以开放使用不同的 jsx 消费器，我们的核心目的是让用户可以避免使用编译环境，将一个页面写成一个文件，并且可以随时修改，并且可以随时查看效果。只要能够解决在浏览器中对 jsx 的解析，就可以实现这个目标。
 
 [![Using TypeScript](https://img.shields.io/badge/%3C/%3E-TypeScript-0072C4.svg)](https://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/npm/l/generator-bxd-oss.svg)](#License)

@@ -1,4 +1,4 @@
-import { Eficy } from '@eficy/core-v3';
+import { Eficy } from '@eficy/core-jsx';
 import { UnocssPlugin } from '@eficy/plugin-unocss';
 
 // 预设插件列表
@@ -16,7 +16,7 @@ export const create = async () => {
 };
 
 // 重新导出核心模块
-export * from '@eficy/core-v3';
+export * from '@eficy/core-jsx';
 
 // 重新导出响应式模块
 export * from '@eficy/reactive';

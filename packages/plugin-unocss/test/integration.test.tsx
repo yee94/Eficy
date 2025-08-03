@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { UnocssPlugin } from '../src/UnocssPlugin';
-import { Eficy, EficyProvider } from '@eficy/core-v3';
+import { Eficy, EficyProvider } from '@eficy/core-jsx';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 
-/** @jsxImportSource @eficy/core-v3 **/
+/** @jsxImportSource @eficy/core-jsx **/
 
 describe('UnocssPlugin Integration', () => {
   let eficy: Eficy;

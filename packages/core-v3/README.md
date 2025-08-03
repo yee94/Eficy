@@ -1,10 +1,10 @@
-# @eficy/core-v3
+# @eficy/core-jsx
 
 Modern React-based component system with signals reactivity
 
 ## 📖 概述
 
-`@eficy/core-v3` 是 Eficy 框架的第三代核心库，专为 B 端系统设计，旨在通过单文件 JSX 实现完整的页面渲染。该版本基于 React 18+ 构建，深度集成了 signals 响应式系统，提供了强大的插件体系和组件注册机制。
+`@eficy/core-jsx` 是 Eficy 框架的第三代核心库，专为 B 端系统设计，旨在通过单文件 JSX 实现完整的页面渲染。该版本基于 React 18+ 构建，深度集成了 signals 响应式系统，提供了强大的插件体系和组件注册机制。
 
 ## 🎯 核心理念
 
@@ -62,11 +62,11 @@ export default () => (
 ## 📦 安装
 
 ```bash
-npm install @eficy/core-v3 @eficy/reactive @eficy/reactive-react
+npm install @eficy/core-jsx @eficy/reactive @eficy/reactive-react
 # 或
-yarn add @eficy/core-v3 @eficy/reactive @eficy/reactive-react
+yarn add @eficy/core-jsx @eficy/reactive @eficy/reactive-react
 # 或
-pnpm add @eficy/core-v3 @eficy/reactive @eficy/reactive-react
+pnpm add @eficy/core-jsx @eficy/reactive @eficy/reactive-react
 ```
 
 ## 🚀 快速开始
@@ -79,7 +79,7 @@ pnpm add @eficy/core-v3 @eficy/reactive @eficy/reactive-react
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "@eficy/core-v3"
+    "jsxImportSource": "@eficy/core-jsx"
   }
 }
 ```
@@ -89,7 +89,7 @@ pnpm add @eficy/core-v3 @eficy/reactive @eficy/reactive-react
 ```tsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { EficyProvider, Eficy } from '@eficy/core-v3';
+import { EficyProvider, Eficy } from '@eficy/core-jsx';
 import { signal } from '@eficy/reactive';
 
 // 创建 Eficy 实例
@@ -199,7 +199,7 @@ EficyNode 是框架的核心渲染组件，负责：
 ### Hooks
 
 ```tsx
-import { useEficyContext } from '@eficy/core-v3';
+import { useEficyContext } from '@eficy/core-jsx';
 
 function MyComponent() {
   // 获取 Eficy 实例
@@ -219,7 +219,7 @@ function MyComponent() {
 ### 基础插件结构
 
 ```typescript
-import { injectable, ILifecyclePlugin, Initialize, Render } from '@eficy/core-v3';
+import { injectable, ILifecyclePlugin, Initialize, Render } from '@eficy/core-jsx';
 
 @injectable()
 export class MyPlugin implements ILifecyclePlugin {
@@ -263,7 +263,7 @@ enum HookType {
 ### 装饰器使用
 
 ```typescript
-import { Initialize, Render, RootMount, RootUnmount, Destroy } from '@eficy/core-v3';
+import { Initialize, Render, RootMount, RootUnmount, Destroy } from '@eficy/core-jsx';
 
 @injectable()
 export class ExamplePlugin implements ILifecyclePlugin {
@@ -421,7 +421,7 @@ export class PluginB implements ILifecyclePlugin {
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { Eficy, EficyProvider } from '@eficy/core-v3';
+import { Eficy, EficyProvider } from '@eficy/core-jsx';
 import { signal } from '@eficy/reactive';
 
 describe('Eficy Core V3', () => {

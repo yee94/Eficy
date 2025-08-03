@@ -1,6 +1,6 @@
 # @eficy/plugin-unocss
 
-UnoCSS plugin for @eficy/core-v3 - Automatically extracts and generates CSS styles from className attributes in Eficy components.
+UnoCSS plugin for @eficy/core-jsx - Automatically extracts and generates CSS styles from className attributes in Eficy components.
 
 ## 📖 概述
 
@@ -49,7 +49,7 @@ pnpm add @eficy/plugin-unocss @unocss/core @unocss/preset-uno @unocss/preset-att
 ```tsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Eficy, EficyProvider } from '@eficy/core-v3';
+import { Eficy, EficyProvider } from '@eficy/core-jsx';
 import { UnocssPlugin } from '@eficy/plugin-unocss';
 import { signal } from '@eficy/reactive';
 
@@ -456,7 +456,7 @@ const App = () => {
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { Eficy, EficyProvider } from '@eficy/core-v3';
+import { Eficy, EficyProvider } from '@eficy/core-jsx';
 import { UnocssPlugin } from '@eficy/plugin-unocss';
 
 describe('UnocssPlugin', () => {
@@ -504,7 +504,7 @@ describe('UnocssPlugin', () => {
 
 ## 📦 相关包
 
-- [`@eficy/core-v3`](../core-v3) - Eficy 核心框架
+- [`@eficy/core-jsx`](../core-v3) - Eficy 核心框架
 - [`@eficy/reactive`](../reactive) - 响应式系统
 - [`@eficy/reactive-async`](../reactive-async) - 异步响应式支持
 - [`@unocss/core`](https://github.com/unocss/unocss) - UnoCSS 核心库

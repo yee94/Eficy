@@ -1,1 +1,1 @@
-export * from '@eficy/core-v3/jsx-dev-runtime';
+export * from '@eficy/core-jsx/jsx-dev-runtime';

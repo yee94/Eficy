@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Eficy } from '@eficy/core-v3';
+import { Eficy } from '@eficy/core-jsx';
 import { ComponentRegistry } from '../../src/services/ComponentRegistry';
 import { PluginManager } from '../../src/services/PluginManager';
 import { EventEmitter } from '../../src/services/EventEmitter';

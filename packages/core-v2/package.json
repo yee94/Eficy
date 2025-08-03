@@ -1,5 +1,5 @@
 {
-  "name": "@eficy/core-v2",
+  "name": "@eficy/core",
   "version": "2.0.1",
   "description": "A front-end orchestration framework by JSON.",
   "type": "module",

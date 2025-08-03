@@ -1,5 +1,5 @@
 {
-  "name": "@eficy/core-v3",
+  "name": "@eficy/core-jsx",
   "version": "0.1.0",
   "description": "Eficy Core V3 - Modern React-based component system with signals reactivity",
   "type": "module",

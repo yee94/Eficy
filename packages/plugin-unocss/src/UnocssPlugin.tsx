@@ -1,5 +1,5 @@
-import type { ILifecyclePlugin, IRenderContext } from '@eficy/core-v3';
-import { Initialize, injectable, Render, RootMount } from '@eficy/core-v3';
+import type { ILifecyclePlugin, IRenderContext } from '@eficy/core-jsx';
+import { Initialize, injectable, Render, RootMount } from '@eficy/core-jsx';
 import type { UnoGenerator, UserConfig } from '@unocss/core';
 import type { ComponentType } from 'react';
 import { Unocss } from './components/Unocss';

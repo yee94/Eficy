@@ -2,7 +2,7 @@
   "name": "@eficy/plugin-unocss",
   "version": "1.0.0",
   "license": "MIT",
-  "description": "UnoCSS plugin for @eficy/core-v3",
+  "description": "UnoCSS plugin for @eficy/core-jsx",
   "keywords": [
     "unocss",
     "eficy"
@@ -28,7 +28,7 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "dependencies": {
-    "@eficy/core-v3": "workspace:~",
+    "@eficy/core-jsx": "workspace:~",
     "@eficy/reactive-async": "workspace:~",
     "@eficy/reactive": "workspace:~",
     "@eficy/reactive-react": "workspace:~",

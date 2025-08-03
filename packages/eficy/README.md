@@ -178,7 +178,7 @@ root.render(
 Eficy 完整包包含以下核心模块：
 
 ### 核心框架
-- **@eficy/core-v3** - 第三代核心引擎，基于自定义 JSX runtime
+- **@eficy/core-jsx** - 第三代核心引擎，基于自定义 JSX runtime
 - **@eficy/reactive** - 高性能响应式状态管理系统
 - **@eficy/reactive-react** - React 响应式集成
 - **@eficy/reactive-async** - 异步响应式支持
@@ -1060,7 +1060,7 @@ const OptimizedComponent = () => {
 
 ## 📚 相关文档
 
-- [核心框架文档](../core-v3/README.md) - @eficy/core-v3 详细文档
+- [核心框架文档](../core-v3/README.md) - @eficy/core-jsx 详细文档
 - [响应式系统文档](../reactive/README.md) - @eficy/reactive 详细文档
 - [React 响应式集成文档](../reactive-react/README.md) - @eficy/reactive-react 详细文档
 - [异步响应式文档](../reactive-async/README.md) - @eficy/reactive-async 详细文档

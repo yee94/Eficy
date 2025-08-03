@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ComponentRegistry } from '@eficy/core-v3/services/ComponentRegistry';
+import { ComponentRegistry } from '@eficy/core-jsx/services/ComponentRegistry';
 
 describe('ComponentRegistry', () => {
   let registry: ComponentRegistry;

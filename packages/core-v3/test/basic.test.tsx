@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { signal } from '@eficy/reactive';
-import { Eficy, EficyProvider } from '@eficy/core-v3';
+import { Eficy, EficyProvider } from '@eficy/core-jsx';
 import { SFragment } from '@eficy/reactive-react';
 
 describe('Eficy Core V3 Basic Tests', () => {

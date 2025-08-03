@@ -1,5 +1,5 @@
 /**
- * @eficy/core-v3 - Modern React-based component system with signals reactivity
+ * @eficy/core-jsx - Modern React-based component system with signals reactivity
  */
 
 // 导出核心类

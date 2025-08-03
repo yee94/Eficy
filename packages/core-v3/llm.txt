@@ -1,8 +1,8 @@
-# @eficy/core-v3 - 技术架构文档
+# @eficy/core-jsx - 技术架构文档
 
 ## 项目概览
 
-@eficy/core-v3 是 Eficy 框架的第三代核心库，专为现代 B 端系统设计。它通过自定义 JSX runtime 和 signals 响应式系统，实现了在单文件 JSX 中完成完整页面渲染的目标。
+@eficy/core-jsx 是 Eficy 框架的第三代核心库，专为现代 B 端系统设计。它通过自定义 JSX runtime 和 signals 响应式系统，实现了在单文件 JSX 中完成完整页面渲染的目标。
 
 ### 核心设计原则
 

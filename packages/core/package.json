@@ -1,5 +1,6 @@
 {
-  "name": "@eficy/core",
+  "name": "@eficy/core-signal-schema",
+  "private": true,
   "version": "3.0.0",
   "description": "A front-end orchestration framework by JSON.",
   "type": "module",
@@ -7,7 +8,6 @@
   "types": "./dist/index.d.ts",
   "unpkg": "./dist/index.global.iife.js",
   "jsdelivr": "./dist/index.global.iife.js",
-  "private": false,
   "scripts": {
     "dev": "tsdown --watch",
     "build": "tsdown",

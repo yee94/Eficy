@@ -48,7 +48,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@eficy/core-v3": "workspace:~",
+    "@eficy/core-jsx": "workspace:~",
     "@eficy/plugin-unocss": "workspace:~",
     "@eficy/reactive": "workspace:~",
     "@eficy/reactive-react": "workspace:~",

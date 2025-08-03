@@ -455,7 +455,7 @@ describe('UnocssPlugin Performance', () => {
 
 ## 与 Eficy 生态的集成
 
-### 1. 与 @eficy/core-v3 集成
+### 1. 与 @eficy/core-jsx 集成
 
 - 实现 ILifecyclePlugin 接口
 - 使用 @injectable 依赖注入装饰器
