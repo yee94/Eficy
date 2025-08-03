@@ -13,14 +13,14 @@ import { transform } from 'sucrase';
 export { Fragment, jsx, jsxs } from 'eficy';
 
 // 全局 Eficy 实例
-let globalEficy: Eficy | null = null;
+let globalEficy: Promise<Eficy> | null = null;
 
 /**
  * 创建全局 Eficy 实例
  */
 async function createEficy(): Promise<Eficy> {
   if (!globalEficy) {
-    globalEficy = await create();
+    globalEficy = create();
   }
   return globalEficy;
 }
@@ -28,7 +28,7 @@ async function createEficy(): Promise<Eficy> {
 /**
  * 获取全局 Eficy 实例
  */
-export function getEficy(): Eficy {
+export async function getEficy(): Promise<Eficy> {
   if (!globalEficy) {
     throw new Error('Eficy instance not initialized. Call createEficy() first.');
   }
@@ -38,16 +38,16 @@ export function getEficy(): Eficy {
 /**
  * 注册组件到全局 Eficy 实例
  */
-export function registerComponent(name: string, component: React.ComponentType<any>): void {
-  const eficy = getEficy();
+export async function registerComponent(name: string, component: React.ComponentType<any>): Promise<void> {
+  const eficy = await getEficy();
   eficy.registerComponent(name, component);
 }
 
 /**
  * 批量注册组件
  */
-export function registerComponents(components: Record<string, React.ComponentType<any>>): void {
-  const eficy = getEficy();
+export async function registerComponents(components: Record<string, React.ComponentType<any>>): Promise<void> {
+  const eficy = await getEficy();
   eficy.registerComponents(components);
 }
 
@@ -60,7 +60,6 @@ export function compileJSX(code: string): string {
     disableESTransforms: true,
     jsxRuntime: 'automatic',
     production: true,
-    // 当前目录 __dirname
     jsxImportSource: 'eficy',
   });
   return result.code;
@@ -86,7 +85,7 @@ export async function loadCode(code: string): Promise<any> {
  * 渲染组件到指定 DOM 元素
  */
 export async function render(Component: React.ComponentType<any>, container: HTMLElement): Promise<void> {
-  const eficy = getEficy();
+  const eficy = await getEficy();
   const root = ReactDOM.createRoot(container);
 
   root.render(
@@ -116,7 +115,6 @@ export { React, ReactDOM };
 function setImportMap() {
   const importMap = document.createElement('script');
   importMap.type = 'importmap';
-  const url = new URL('jsx-runtime.js', import.meta.url);
   importMap.textContent = `{
     "imports": {
       "eficy/jsx-runtime": "${import.meta.url}",
@@ -133,6 +131,13 @@ function setImportMap() {
     const code = script.textContent;
     if (code) {
       await loadCode(code);
+      continue;
+    }
+
+    const src = script.getAttribute('src');
+    if (src) {
+      const str = await fetch(src).then((res) => res.text());
+      await loadCode(str);
     }
   }
 })();
