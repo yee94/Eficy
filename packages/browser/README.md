@@ -24,7 +24,7 @@ npm install @eficy/browser
 <html>
 <head>
   <title>Eficy Browser Demo</title>
-  <script src="https://unpkg.com/@eficy/browser/dist/index.iife.js"></script>
+  <script src="https://unpkg.com/@eficy/browser/dist/standalone.js"></script>
 </head>
 <body>
   <div id="root"></div>

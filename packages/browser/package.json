@@ -15,32 +15,7 @@
     "jsx",
     "runtime"
   ],
-  "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.iife.js"
-    },
-    "./jsx-runtime": {
-      "types": "./dist/jsx-runtime.d.ts",
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.iife.js"
-    },
-    "./jsx-dev-runtime": {
-      "types": "./dist/jsx-dev-runtime.d.ts",
-      "import": "./dist/jsx-dev-runtime.js",
-      "require": "./dist/jsx-dev-runtime.iife.js"
-    },
-    "./browser-runtime": {
-      "types": "./dist/browser-runtime.d.ts",
-      "import": "./dist/browser-runtime.js",
-      "require": "./dist/browser-runtime.iife.js"
-    },
-    "./package.json": "./package.json"
-  },
+  "main": "./dist/standalone.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yee94/Eficy.git",
