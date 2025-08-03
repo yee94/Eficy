@@ -1,6 +1,6 @@
 {
   "name": "@eficy/browser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "Use eficy in browser without compilation",
   "keywords": [
@@ -15,7 +15,7 @@
     "jsx",
     "runtime"
   ],
-  "main": "./dist/standalone.js",
+  "main": "./dist/standalone.mjs",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yee94/Eficy.git",
