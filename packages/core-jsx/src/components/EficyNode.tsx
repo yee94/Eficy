@@ -261,6 +261,7 @@ function isNativeHTMLTag(tagName: string): boolean {
     'em',
     'code',
     'pre',
+    'style',
   ]);
 
   return nativeTags.has(tagName.toLowerCase());
