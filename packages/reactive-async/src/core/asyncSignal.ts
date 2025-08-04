@@ -141,14 +141,14 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
    * 防抖包装的请求函数
    */
   private debouncedRun = this.options.debounceWait
-    ? debounce(this.runRequest.bind(this), this.options.debounceWait)
+    ? debounce({ delay: this.options.debounceWait }, this.runRequest.bind(this))
     : null;
 
   /**
    * 节流包装的请求函数
    */
   private throttledRun = this.options.throttleWait
-    ? throttle(this.runRequest.bind(this), this.options.throttleWait)
+    ? throttle({ interval: this.options.throttleWait }, this.runRequest.bind(this))
     : null;
 
   /**

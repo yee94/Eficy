@@ -25,7 +25,7 @@ interface TableParams {
 
 describe('antdTableSignal', () => {
   let mockUsers: UserData[];
-  
+
   beforeEach(() => {
     // 模拟用户数据
     mockUsers = [
@@ -42,31 +42,25 @@ describe('antdTableSignal', () => {
     return vi.fn().mockImplementation(async (params: TableParams, formData?: any) => {
       // 模拟网络延迟
       if (delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
 
       let filteredUsers = [...mockUsers];
 
       // 应用表单搜索
       if (formData?.name) {
-        filteredUsers = filteredUsers.filter(user => 
-          user.name.toLowerCase().includes(formData.name.toLowerCase())
-        );
+        filteredUsers = filteredUsers.filter((user) => user.name.toLowerCase().includes(formData.name.toLowerCase()));
       }
       if (formData?.email) {
-        filteredUsers = filteredUsers.filter(user => 
-          user.email.toLowerCase().includes(formData.email.toLowerCase())
-        );
+        filteredUsers = filteredUsers.filter((user) => user.email.toLowerCase().includes(formData.email.toLowerCase()));
       }
       if (formData?.status) {
-        filteredUsers = filteredUsers.filter(user => user.status === formData.status);
+        filteredUsers = filteredUsers.filter((user) => user.status === formData.status);
       }
 
       // 应用表格筛选
       if (params.filters?.status) {
-        filteredUsers = filteredUsers.filter(user => 
-          params.filters.status.includes(user.status)
-        );
+        filteredUsers = filteredUsers.filter((user) => params.filters.status.includes(user.status));
       }
 
       // 应用排序
@@ -74,7 +68,7 @@ describe('antdTableSignal', () => {
         filteredUsers.sort((a, b) => {
           const aValue = a[params.sorter.field as keyof UserData];
           const bValue = b[params.sorter.field as keyof UserData];
-          
+
           if (params.sorter.order === 'ascend') {
             return aValue > bValue ? 1 : -1;
           } else if (params.sorter.order === 'descend') {
@@ -128,22 +122,19 @@ describe('antdTableSignal', () => {
 
     it('应该自动执行服务函数并更新数据', async () => {
       const mockService = createMockService();
-      const result = antdTableSignal(mockService);
+      const result = antdTableSignal(mockService, { form: {} });
 
-      // 等待异步操作完成
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // 等待异步操作完成 - 增加等待时间
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(mockService).toHaveBeenCalledWith(
-        { current: 1, pageSize: 10, sorter: undefined, filters: undefined },
-        {}
-      );
-      
+      expect(mockService).toHaveBeenCalledWith({ current: 1, pageSize: 10, sorter: undefined, filters: undefined }, {});
+
       expect(result.tableProps.dataSource()).toEqual(mockUsers);
       expect(result.tableProps.loading()).toBe(false);
       expect(result.error()).toBeUndefined();
-      expect(result.tableProps.pagination.current()).toBe(1);
-      expect(result.tableProps.pagination.total()).toBe(5);
+      expect(result.tableProps.pagination().current).toBe(1);
+      expect(result.tableProps.pagination().total).toBe(5);
     });
 
     it('应该处理服务函数错误', async () => {
@@ -169,42 +160,43 @@ describe('antdTableSignal', () => {
     it('应该正确处理分页参数', async () => {
       const mockService = createMockService();
       const result = antdTableSignal(mockService, {
-        defaultPageSize: 2
+        defaultPageSize: 2,
+        form: {},
       });
 
-      // 等待初始加载
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // 等待初始加载 - 增加等待时间
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(result.tableProps.pagination.pageSize()).toBe(2);
+      expect(result.tableProps.pagination().pageSize).toBe(2);
       expect(result.tableProps.dataSource()).toHaveLength(2);
 
       // 测试分页变化
       result.tableProps.onChange({ current: 2, pageSize: 2 }, {}, {});
 
       // 等待请求完成
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(mockService).toHaveBeenLastCalledWith(
-        { current: 2, pageSize: 2, sorter: {}, filters: {} },
-        {}
-      );
+      expect(mockService).toHaveBeenLastCalledWith({ current: 2, pageSize: 2, sorter: {}, filters: {} }, {});
     });
 
     it('应该支持自定义默认分页参数', async () => {
       const mockService = createMockService();
       const result = antdTableSignal(mockService, {
-        defaultParams: [
-          { current: 2, pageSize: 3 },
-          { status: 'active' }
-        ]
+        defaultParams: [{ current: 2, pageSize: 3 }, { status: 'active' }],
+        form: {
+          getFieldsValue: vi.fn().mockReturnValue({ name: 'Alice', status: 'active' }),
+          setFieldsValue: vi.fn(),
+          resetFields: vi.fn(),
+          validateFields: vi.fn().mockResolvedValue({ name: 'Alice', status: 'active' }),
+        },
       });
 
       // 等待初始加载
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockService).toHaveBeenCalledWith(
         { current: 2, pageSize: 3, sorter: undefined, filters: undefined },
-        { status: 'active' }
+        { status: 'active' },
       );
     });
   });
@@ -219,12 +211,9 @@ describe('antdTableSignal', () => {
       result.tableProps.onChange({ current: 1, pageSize: 10 }, {}, sorter);
 
       // 等待请求完成
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(mockService).toHaveBeenCalledWith(
-        { current: 1, pageSize: 10, sorter, filters: {} },
-        {}
-      );
+      expect(mockService).toHaveBeenCalledWith({ current: 1, pageSize: 10, sorter, filters: {} }, {});
     });
   });
 
@@ -238,12 +227,9 @@ describe('antdTableSignal', () => {
       result.tableProps.onChange({ current: 1, pageSize: 10 }, filters, {});
 
       // 等待请求完成
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(mockService).toHaveBeenCalledWith(
-        { current: 1, pageSize: 10, sorter: {}, filters },
-        {}
-      );
+      expect(mockService).toHaveBeenCalledWith({ current: 1, pageSize: 10, sorter: {}, filters }, {});
     });
   });
 
@@ -267,7 +253,7 @@ describe('antdTableSignal', () => {
       const mockService = createMockService();
       const result = antdTableSignal(mockService, {
         manual: true,
-        defaultType: 'advance'
+        defaultType: 'advance',
       });
 
       expect(result.search.type()).toBe('advance');
@@ -279,24 +265,24 @@ describe('antdTableSignal', () => {
         getFieldsValue: vi.fn().mockReturnValue({ name: 'Alice', status: 'active' }),
         setFieldsValue: vi.fn(),
         resetFields: vi.fn(),
-        validateFields: vi.fn().mockResolvedValue({ name: 'Alice', status: 'active' })
+        validateFields: vi.fn().mockResolvedValue({ name: 'Alice', status: 'active' }),
       };
-      
+
       const result = antdTableSignal(mockService, {
         manual: true,
-        form: mockForm
+        form: mockForm,
       });
 
       // 提交搜索
       await result.search.submit();
-      
+
       // 等待请求完成
-      await new Promise(resolve => setTimeout(resolve, 10));
-      
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
       expect(mockForm.validateFields).toHaveBeenCalled();
       expect(mockService).toHaveBeenCalledWith(
         { current: 1, pageSize: 10, sorter: undefined, filters: undefined },
-        { name: 'Alice', status: 'active' }
+        { name: 'Alice', status: 'active' },
       );
     });
 
@@ -306,25 +292,22 @@ describe('antdTableSignal', () => {
         getFieldsValue: vi.fn().mockReturnValue({}),
         setFieldsValue: vi.fn(),
         resetFields: vi.fn(),
-        validateFields: vi.fn().mockResolvedValue({})
+        validateFields: vi.fn().mockResolvedValue({}),
       };
-      
+
       const result = antdTableSignal(mockService, {
         manual: true,
-        form: mockForm
+        form: mockForm,
       });
 
       // 重置表单
       result.search.reset();
 
       // 等待请求完成
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(mockForm.resetFields).toHaveBeenCalled();
-      expect(mockService).toHaveBeenCalledWith(
-        { current: 1, pageSize: 10, sorter: undefined, filters: undefined },
-        {}
-      );
+      expect(mockService).toHaveBeenCalledWith({ current: 1, pageSize: 10, sorter: undefined, filters: undefined }, {});
     });
   });
 
@@ -378,7 +361,7 @@ describe('antdTableSignal', () => {
       result.mutate(newData);
 
       expect(result.tableProps.dataSource()).toEqual([mockUsers[0]]);
-      expect(result.tableProps.pagination.total()).toBe(1);
+      expect(result.tableProps.pagination().total).toBe(1);
     });
 
     it('应该支持函数式修改数据', () => {
@@ -388,12 +371,12 @@ describe('antdTableSignal', () => {
       result.mutate((oldData) => {
         return {
           total: 2,
-          list: mockUsers.slice(0, 2)
+          list: mockUsers.slice(0, 2),
         };
       });
 
       expect(result.tableProps.dataSource()).toEqual(mockUsers.slice(0, 2));
-      expect(result.tableProps.pagination.total()).toBe(2);
+      expect(result.tableProps.pagination().total).toBe(2);
     });
   });
 
@@ -405,18 +388,25 @@ describe('antdTableSignal', () => {
       const onRequestError = vi.fn();
 
       const result = antdTableSignal(mockService, {
+        form: {
+          getFieldsValue: vi.fn().mockReturnValue({ name: 'Alice', status: 'active' }),
+          setFieldsValue: vi.fn(),
+          resetFields: vi.fn(),
+          validateFields: vi.fn().mockResolvedValue({ name: 'Alice', status: 'active' }),
+        },
         onSuccess,
         onError,
-        onRequestError
+        onRequestError,
       });
 
       // 等待异步操作完成
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(onSuccess).toHaveBeenCalledWith(
-        { total: 5, list: mockUsers },
-        [{ current: 1, pageSize: 10, sorter: undefined, filters: undefined }, {}, { allFormData: {}, type: 'simple' }]
-      );
+      expect(onSuccess).toHaveBeenCalledWith({ total: 5, list: mockUsers }, [
+        { current: 1, pageSize: 10, sorter: undefined, filters: undefined },
+        {},
+        { allFormData: {}, type: 'simple' },
+      ]);
       expect(onError).not.toHaveBeenCalled();
       expect(onRequestError).not.toHaveBeenCalled();
     });
@@ -432,7 +422,7 @@ describe('antdTableSignal', () => {
         manual: true,
         onSuccess,
         onError,
-        onRequestError
+        onRequestError,
       });
 
       try {
@@ -441,10 +431,11 @@ describe('antdTableSignal', () => {
         // 预期的错误
       }
 
-      expect(onError).toHaveBeenCalledWith(
-        error,
-        [{ current: 1, pageSize: 10, sorter: undefined, filters: undefined }, {}, { allFormData: {}, type: 'simple' }]
-      );
+      expect(onError).toHaveBeenCalledWith(error, [
+        { current: 1, pageSize: 10, sorter: undefined, filters: undefined },
+        {},
+        { allFormData: {}, type: 'simple' },
+      ]);
       expect(onRequestError).toHaveBeenCalledWith(error);
       expect(onSuccess).not.toHaveBeenCalled();
     });
@@ -454,19 +445,25 @@ describe('antdTableSignal', () => {
     it('应该在依赖变化时自动刷新', async () => {
       const mockService = createMockService();
       let dep = 1;
-      
+
       const result = antdTableSignal(mockService, {
-        refreshDeps: [dep]
+        refreshDeps: [dep],
+        form: {
+          getFieldsValue: vi.fn().mockReturnValue({ name: 'Alice', status: 'active' }),
+          setFieldsValue: vi.fn(),
+          resetFields: vi.fn(),
+          validateFields: vi.fn().mockResolvedValue({ name: 'Alice', status: 'active' }),
+        },
       });
 
       // 等待初始加载
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       expect(mockService).toHaveBeenCalledTimes(1);
 
       // 模拟依赖变化（在实际使用中会通过外部状态变化触发）
       // 这里我们直接调用刷新来模拟依赖变化的效果
       await result.refresh();
-      
+
       expect(mockService).toHaveBeenCalledTimes(2);
     });
   });
@@ -477,22 +474,22 @@ describe('antdTableSignal', () => {
       const result = antdTableSignal(mockService, { manual: true });
 
       const pagination = result.tableProps.pagination;
-      
-      expect(pagination.current()).toBe(1);
-      expect(pagination.pageSize()).toBe(10);
-      expect(pagination.total()).toBe(0);
-      expect(pagination.showSizeChanger()).toBe(true);
-      expect(pagination.showQuickJumper()).toBe(true);
+
+      expect(pagination().current).toBe(1);
+      expect(pagination().pageSize).toBe(10);
+      expect(pagination().total).toBe(0);
+      expect(pagination().showSizeChanger).toBe(true);
+      expect(pagination().showQuickJumper).toBe(true);
     });
 
     it('应该支持自定义分页大小', () => {
       const mockService = createMockService();
-      const result = antdTableSignal(mockService, { 
+      const result = antdTableSignal(mockService, {
         manual: true,
-        defaultPageSize: 20 
+        defaultPageSize: 20,
       });
 
-      expect(result.tableProps.pagination.pageSize()).toBe(20);
+      expect(result.tableProps.pagination().pageSize).toBe(20);
     });
   });
 
