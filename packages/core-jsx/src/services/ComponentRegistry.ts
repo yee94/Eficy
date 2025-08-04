@@ -55,7 +55,7 @@ export class ComponentRegistry {
       return this.components.get(name);
     }
     const maybeName = name
-      .replace(/([A-Z])/g, (match, p1, offset) => {
+      .replace(/(-)/g, (match, p1, offset) => {
         return offset === 0 ? p1 : '.' + p1;
       })
       ?.split('.');
