@@ -302,4 +302,7 @@ export interface AntdTableSignalResult<TData> {
 
   /** 取消请求 */
   cancel?: () => void;
+
+  /** 设置 form 实例 */
+  setForm?: (form: FormInstance) => void;
 }

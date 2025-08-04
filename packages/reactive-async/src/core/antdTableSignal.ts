@@ -34,7 +34,14 @@ class EnhancedTableStateManager<TData> {
   public ready = signal<boolean>(true);
   public runSuccessRef = signal<boolean>(false);
 
+  // Form 实例
+  private formInstance?: FormInstance;
+  // 是否需要等待 form 设置
+  private needsFormToStart: boolean;
+
   constructor(private options: AntdTableSignalOptions<TData> = {}) {
+    this.formInstance = options.form;
+    this.needsFormToStart = !options.form; // 如果没有传入 form，则需要等待外部设置
     this.initializeState();
   }
 
@@ -63,6 +70,13 @@ class EnhancedTableStateManager<TData> {
     if (this.options.ready !== undefined) {
       this.ready(this.options.ready);
     }
+  }
+
+  /**
+   * 获取当前 form 实例
+   */
+  private getForm(): FormInstance | undefined {
+    return this.formInstance;
   }
 
   /**
@@ -108,9 +122,10 @@ class EnhancedTableStateManager<TData> {
    * 切换搜索类型（保存当前表单数据）
    */
   toggleSearchType(): void {
-    if (this.options.form) {
+    const form = this.getForm();
+    if (form) {
       // 保存当前表单数据
-      const activeValues = this.options.form.getFieldsValue();
+      const activeValues = form.getFieldsValue();
       const newAllFormData = { ...this.allFormData(), ...activeValues };
       this.allFormData(newAllFormData);
     }
@@ -122,8 +137,9 @@ class EnhancedTableStateManager<TData> {
    * 恢复表单数据
    */
   restoreFormData(): void {
-    if (this.options.form) {
-      this.options.form.setFieldsValue(this.allFormData());
+    const form = this.getForm();
+    if (form) {
+      form.setFieldsValue(this.allFormData());
     }
   }
 
@@ -131,12 +147,13 @@ class EnhancedTableStateManager<TData> {
    * 验证并获取表单数据
    */
   async validateAndGetFormData(): Promise<Record<string, any>> {
-    if (!this.options.form) {
+    const form = this.getForm();
+    if (!form) {
       return {};
     }
 
     try {
-      const values = await this.options.form.validateFields();
+      const values = await form.validateFields();
       return values;
     } catch (error) {
       throw error;
@@ -147,8 +164,9 @@ class EnhancedTableStateManager<TData> {
    * 重置表单
    */
   resetForm(): void {
-    if (this.options.form) {
-      this.options.form.resetFields();
+    const form = this.getForm();
+    if (form) {
+      form.resetFields();
     }
     this.currentFormData({});
     this.allFormData({});
@@ -168,6 +186,21 @@ class EnhancedTableStateManager<TData> {
    */
   markRunSuccess(): void {
     this.runSuccessRef(true);
+  }
+
+  /**
+   * 设置 form 实例
+   */
+  setForm(form: FormInstance): void {
+    this.formInstance = form;
+    this.needsFormToStart = false; // 设置后不再需要等待
+  }
+
+  /**
+   * 是否需要等待 form 设置才能开始
+   */
+  isWaitingForForm(): boolean {
+    return this.needsFormToStart;
   }
 }
 
@@ -350,7 +383,7 @@ export function antdTableSignal<TService extends AntdTableService>(
   // 构建 asyncSignal 的选项
   const asyncOptions: AsyncSignalOptions<any, [AntdTableParams, any, any?]> = {
     // 基础配置
-    manual: options?.manual,
+    manual: options?.manual || stateManager.isWaitingForForm(), // 如果需要等待 form，则设置为手动模式
     ready: options?.ready,
     defaultParams: stateManager.buildRequestParams(),
 
@@ -428,7 +461,32 @@ export function antdTableSignal<TService extends AntdTableService>(
 
     mutate: resultAdapter.mutateTableData.bind(resultAdapter),
     cancel: asyncResult.cancel,
+
+    // Form 设置方法
+    setForm: (form: FormInstance) => {
+      const wasWaitingForForm = stateManager.isWaitingForForm();
+      stateManager.setForm(form);
+
+      // 如果之前在等待 form，现在触发请求
+      if (wasWaitingForForm) {
+        formController.submit();
+      }
+    },
   };
 
   return result;
 }
+
+/**
+ * 使用示例：
+ *
+ * // 创建 signal（如果没有传入 form，会等待外部设置）
+ * const tableSignal = antdTableSignal(fetchTableData);
+ *
+ * // 在组件中获取 form 实例后设置（会自动触发请求）
+ * const [form] = Form.useForm();
+ * tableSignal.setForm?.(form);
+ *
+ * // 或者在创建时直接传入
+ * const tableSignal2 = antdTableSignal(fetchTableData, { form: formInstance });
+ */
