@@ -1,8 +1,6 @@
 import { render, initEficy, signal, isSignal, computed, effect } from 'eficy';
-import * as MerlionUI from 'https://g.alicdn.com/code/npm/@ali/merlion-ui/2.8.1/index.mjs';
-import * as MerlionTable from 'https://g.alicdn.com/code/npm/@alife/merlion-table/1.0.20/index.mjs';
 
-await initEficy({ components: { ...window.antd5, ...MerlionUI } });
+await initEficy({ components: { ...window.antd5 } });
 
 // 1. 基础计数器示例
 const count = signal(0);
@@ -93,24 +91,27 @@ function FormDemo() {
   }
   return (
     <e-ThemeProvider prefixCls="e">
+      <>
+      Hi
+      </>
       <e-Form layout="vertical" style={{ maxWidth: '400px' }} onSubmit={handleSubmit} onFinish={handleSubmit}>
-        <e-FormItem label="用户名" name="username">
+        <e-Form-Item label="用户名" name="username">
           <e-Input placeholder="请输入用户名" />
-        </e-FormItem>
+        </e-Form-Item>
 
-        <e-FormItem label="邮箱" required rules={[{ required: true }]} name="email">
+        <e-Form-Item label="邮箱" required rules={[{ required: true }]} name="email">
           <e-Input placeholder="请输入邮箱" />
-        </e-FormItem>
+        </e-Form-Item>
 
-        <e-FormItem label="密码" required rules={[{ required: true }]} name="password">
-          <e-InputPassword placeholder="请输入密码" />
-        </e-FormItem>
+        <e-Form-Item label="密码" required rules={[{ required: true }]} name="password">
+          <e-Input-Password placeholder="请输入密码" />
+        </e-Form-Item>
 
-        <e-FormItem label="确认密码" required rules={[{ required: true }]} name="confirmPassword">
-          <e-InputPassword placeholder="请再次输入密码" />
-        </e-FormItem>
+        <e-Form-Item label="确认密码" required rules={[{ required: true }]} name="confirmPassword">
+          <e-Input-Password placeholder="请再次输入密码" />
+        </e-Form-Item>
 
-        <e-FormItem
+        <e-Form-Item
           required
           rules={[{ required: true, message: '请同意用户协议' }]}
           name="agree"
@@ -128,13 +129,13 @@ function FormDemo() {
               用户协议
             </a>
           </e-Checkbox>
-        </e-FormItem>
+        </e-Form-Item>
 
-        <e-FormItem>
+        <e-Form-Item>
           <e-Button type="primary" htmlType="submit">
             提交
           </e-Button>
-        </e-FormItem>
+        </e-Form-Item>
       </e-Form>
     </e-ThemeProvider>
   );

@@ -5,32 +5,36 @@
  * 重点是处理含有 signals 的 props
  */
 
-import React from 'react';
-import { isSignal } from '@eficy/reactive';
-import { EficyNode, EficyProvider } from './index';
+import React from "react";
+import { Fragment } from "react/jsx-runtime";
+import { EficyNode } from "./index";
+
+export { Fragment };
 
 export interface JSXProps {
-  children?: any;
-  [key: string]: any;
+	children?: any;
+	[key: string]: any;
 }
 
 /**
  * jsx() 函数 - 处理 JSX 元素
  */
-export function jsx(type: any, props: JSXProps = {}, key?: string): React.ReactElement {
-  return <EficyNode type={type} props={props} key={key} />;
+export function jsx(
+	type: any,
+	props: JSXProps = {},
+	key?: string,
+): React.ReactElement {
+	// 对于其他类型，使用 EficyNode 包装
+	return <EficyNode type={type} props={props} key={key} />;
 }
 
 /**
  * jsxs() 函数 - 处理有多个子元素的 JSX 元素
  */
-export function jsxs(type: any, props: JSXProps = {}, key?: string): React.ReactElement {
-  return jsx(type, props, key);
-}
-
-/**
- * Fragment 组件
- */
-export function Fragment(props: { children?: any }): React.ReactElement {
-  return <Fragment {...props} />;
+export function jsxs(
+	type: any,
+	props: JSXProps = {},
+	key?: string,
+): React.ReactElement {
+	return jsx(type, props, key);
 }

@@ -54,11 +54,7 @@ export class ComponentRegistry {
     if (this.components.has(name)) {
       return this.components.get(name);
     }
-    const maybeName = name
-      .replace(/(-)/g, (match, p1, offset) => {
-        return offset === 0 ? p1 : '.' + p1;
-      })
-      ?.split('.');
+    const maybeName = name.split('-');
     if (maybeName && this.components.has(maybeName[0])) {
       return get(this.components.get(maybeName[0]), maybeName.slice(1).join('.'));
     }
