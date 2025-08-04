@@ -2,9 +2,11 @@
  * EficyCore 测试
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Eficy } from '../../src/core/EficyCore';
 import { ComponentType } from 'react';
+import { ComponentRegistry } from '../../src/services/ComponentRegistry';
+import { PluginManager } from '../../src/services/PluginManager';
 
 describe('EficyCore', () => {
   let core: Eficy;
@@ -101,12 +103,12 @@ describe('EficyCore', () => {
 
   describe('依赖注入', () => {
     it('应该能够解析服务', () => {
-      const componentRegistry = core.resolve('ComponentRegistry');
+      const componentRegistry = core.resolve(ComponentRegistry);
       expect(componentRegistry).toBeDefined();
     });
 
     it('应该能够解析插件管理器', () => {
-      const pluginManager = core.resolve('PluginManager');
+      const pluginManager = core.resolve(PluginManager);
       expect(pluginManager).toBeDefined();
     });
   });

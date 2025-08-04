@@ -40,6 +40,10 @@ export class Eficy {
       useFactory: () => this._container,
     });
 
+    if (!this._container.isRegistered(ComponentRegistry)) {
+      this._container.registerSingleton(ComponentRegistry);
+    }
+
     if (!this._container.isRegistered(PluginManager)) {
       this._container.registerSingleton(PluginManager);
     }
