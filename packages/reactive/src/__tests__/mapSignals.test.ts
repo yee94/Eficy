@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mapSignals, hasSignals } from '../utils/mapSignals';
 import { signal } from '../core/signal';
+import { isSignal } from '../utils';
 
 describe('MapSignals', () => {
   describe('mapSignals', () => {
@@ -91,6 +92,152 @@ describe('MapSignals', () => {
       // 测试超过4层的情况
       const result5 = mapSignals(obj, 5);
       expect(result5.level1.level2.level3.level4).toBe(42);
+    });
+
+    it('should not modify original object', () => {
+      const count = signal(42);
+      const name = signal('John');
+
+      const originalObj = {
+        count,
+        name,
+        age: 30,
+        nested: {
+          value: signal('nested value'),
+          deep: {
+            signal: signal(100),
+          },
+        },
+        array: [signal(1), signal(2), signal(3)],
+      };
+
+      // 保存原始对象的深拷贝用于比较
+      const originalObjCopy = JSON.parse(
+        JSON.stringify({
+          count: count(),
+          name: name(),
+          age: 30,
+          nested: {
+            value: 'nested value',
+            deep: {
+              signal: 100,
+            },
+          },
+          array: [1, 2, 3],
+        }),
+      );
+
+      const result = mapSignals(originalObj);
+
+      // 验证结果正确
+      expect(result.count).toBe(42);
+      expect(result.name).toBe('John');
+      expect(result.age).toBe(30);
+      expect(result.nested.value).toBe('nested value');
+      expect(result.nested.deep.signal).toBe(100);
+      expect(result.array).toEqual([1, 2, 3]);
+
+      // 验证原对象没有被修改
+      expect(originalObj.count).toBe(count);
+      expect(originalObj.name).toBe(name);
+      expect(originalObj.age).toBe(30);
+      expect(isSignal(originalObj.nested.value)).toBeTruthy();
+      expect(isSignal(originalObj.nested.deep.signal)).toBeTruthy();
+      expect(originalObj.array.every(isSignal)).toBeTruthy();
+
+      // 验证返回的对象是全新的对象
+      expect(result).not.toBe(originalObj);
+      expect(result.nested).not.toBe(originalObj.nested);
+      expect(result.nested.deep).not.toBe(originalObj.nested.deep);
+      expect(result.array).not.toBe(originalObj.array);
+    });
+
+    it('should not modify original array', () => {
+      const items = [signal(1), signal(2), signal(3)];
+      const originalArray = [...items];
+
+      const obj = {
+        items,
+        count: signal(3),
+      };
+
+      const result = mapSignals(obj);
+
+      // 验证结果正确
+      expect(result.items).toEqual([1, 2, 3]);
+      expect(result.count).toBe(3);
+
+      // 验证原数组没有被修改
+      expect(obj.items).toBe(items);
+      expect(obj.items).toEqual(originalArray);
+      expect(isSignal(obj.count)).toBeTruthy();
+
+      // 验证返回的数组是全新的数组
+      expect(result.items).not.toBe(obj.items);
+    });
+
+    it('should handle complex nested objects without modification', () => {
+      const user = {
+        name: signal('Alice'),
+        age: signal(25),
+        preferences: {
+          theme: signal('dark'),
+          language: signal('en'),
+          settings: {
+            notifications: signal(true),
+            autoSave: signal(false),
+          },
+        },
+      };
+
+      const originalUser = {
+        name: user.name,
+        age: user.age,
+        preferences: {
+          theme: user.preferences.theme,
+          language: user.preferences.language,
+          settings: {
+            notifications: user.preferences.settings.notifications,
+            autoSave: user.preferences.settings.autoSave,
+          },
+        },
+      };
+
+      const obj = {
+        user,
+        active: signal(true),
+        tags: [signal('tag1'), signal('tag2')],
+      };
+
+      const result = mapSignals(obj, 4);
+
+      // 验证结果正确
+      expect(result.user.name).toBe('Alice');
+      expect(result.user.age).toBe(25);
+      expect(result.user.preferences.theme).toBe('dark');
+      expect(result.user.preferences.language).toBe('en');
+      expect(result.user.preferences.settings.notifications).toBe(true);
+      expect(result.user.preferences.settings.autoSave).toBe(false);
+      expect(result.active).toBe(true);
+      expect(result.tags).toEqual(['tag1', 'tag2']);
+
+      // 验证原对象没有被修改
+      expect(obj.user).toBe(user);
+      expect(obj.user.name).toBe(user.name);
+      expect(obj.user.age).toBe(user.age);
+      expect(obj.user.preferences.theme).toBe(user.preferences.theme);
+      expect(obj.user.preferences.language).toBe(user.preferences.language);
+      expect(obj.user.preferences.settings.notifications).toBe(user.preferences.settings.notifications);
+      expect(obj.user.preferences.settings.autoSave).toBe(user.preferences.settings.autoSave);
+      expect(isSignal(obj.active)).toBeTruthy();
+      expect(obj.tags.every(isSignal)).toBeTruthy();
+
+      // 验证返回的对象是全新的对象
+      expect(result).not.toBe(obj);
+      expect(result.user).not.toBe(obj.user);
+      expect(result.user.preferences).not.toBe(obj.user.preferences);
+      expect(result.user.preferences.settings).not.toBe(obj.user.preferences.settings);
+      expect(result.tags).not.toBe(obj.tags);
     });
   });
 

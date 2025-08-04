@@ -1,4 +1,4 @@
-import { traverse } from 'radashi';
+import { get, set, traverse } from 'radashi';
 import { isSignal } from './helpers';
 import { isValidElement } from 'react';
 
@@ -30,7 +30,7 @@ export function mapSignals<T extends Record<string, any>, Depth extends number =
   }
 
   // 使用浅拷贝避免修改原对象，但保留函数
-  const result = Array.isArray(obj) ? [...obj] : { ...obj };
+  let result = Array.isArray(obj) ? [...obj] : { ...obj };
 
   traverse(
     result,
@@ -39,22 +39,24 @@ export function mapSignals<T extends Record<string, any>, Depth extends number =
 
       // 如果达到最大深度，跳过进一步遍历
       if (depth > maxDepth) {
+        result = set(result, context.path.join('.'), value);
         context.skip();
         return;
       }
 
       if (isValidElement(value)) {
+        result = set(result, context.path.join('.'), value);
         context.skip();
         return;
       }
 
       // 如果是信号，检查是否达到最大深度
       if (isSignal(value)) {
-        parent[key] = value();
+        result = set(result, context.path.join('.'), value());
+        return;
       }
-      return value as any;
+      result = set(result, context.path.join('.'), value);
     },
-    { rootNeedsVisit: true },
   );
 
   return result as MapSignalsDeep<T>;
