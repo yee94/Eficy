@@ -35,14 +35,14 @@ describe('PluginManager', () => {
       expect(manager.isInstalled('test-plugin')).toBe(true);
     });
 
-    it('应该能够卸载插件', () => {
+    it('应该能够卸载插件', async () => {
       class TestPlugin implements IEficyPlugin {
         name = 'test-plugin';
         version = '1.0.0';
       }
 
-      manager.register(TestPlugin);
-      manager.unregister('test-plugin');
+      await manager.register(TestPlugin);
+      await manager.unregister('test-plugin');
 
       expect(manager.getPlugin('test-plugin')).toBeUndefined();
       expect(manager.isInstalled('test-plugin')).toBe(false);

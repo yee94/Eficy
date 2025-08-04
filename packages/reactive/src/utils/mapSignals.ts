@@ -1,14 +1,9 @@
-import { traverse, TraverseVisitor, TraverseContext } from 'radashi';
+import { traverse } from 'radashi';
 import { isSignal } from './helpers';
+import { isValidElement } from 'react';
 
 // 定义信号类型
 type Signal<T> = () => T;
-
-// 定义可能的信号值类型
-type SignalValue<T> = T | Signal<T>;
-
-// 定义映射后的类型
-type MappedValue<T> = T extends Signal<infer U> ? U : T;
 
 // 递归映射对象类型
 type MapSignalsDeep<T> = T extends Signal<infer U>
@@ -44,6 +39,11 @@ export function mapSignals<T extends Record<string, any>, Depth extends number =
 
       // 如果达到最大深度，跳过进一步遍历
       if (depth > maxDepth) {
+        context.skip();
+        return;
+      }
+
+      if (isValidElement(value)) {
         context.skip();
         return;
       }
