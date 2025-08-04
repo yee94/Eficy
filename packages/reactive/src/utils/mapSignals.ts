@@ -1,4 +1,5 @@
-import { set as setRadashi, traverse } from 'radashi';
+import { get, set as setRadashi, traverse } from 'radashi';
+import { set as setLodash } from 'lodash-es';
 import { isSignal } from './helpers';
 import { isValidElement } from 'react';
 
@@ -19,7 +20,7 @@ type MapSignalsDeep<T> = T extends Signal<infer U>
 const set: typeof setRadashi = (obj, path, value) => {
   const output = setRadashi(obj, path, value);
   if (value === undefined) {
-    delete output[path];
+    setLodash(output, path, undefined);
   }
   return output;
 };
