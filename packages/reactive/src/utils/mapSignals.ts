@@ -1,4 +1,4 @@
-import { get, set, traverse } from 'radashi';
+import { set as setRadashi, traverse } from 'radashi';
 import { isSignal } from './helpers';
 import { isValidElement } from 'react';
 
@@ -16,6 +16,14 @@ type MapSignalsDeep<T> = T extends Signal<infer U>
   ? { readonly [K in keyof T]: MapSignalsDeep<T[K]> }
   : T;
 
+const set: typeof setRadashi = (obj, path, value) => {
+  const output = setRadashi(obj, path, value);
+  if (value === undefined) {
+    delete output[path];
+  }
+  return output;
+};
+
 /**
  * 映射对象中的信号值
  * 将信号值转换为实际值，支持嵌套对象和数组
@@ -32,32 +40,31 @@ export function mapSignals<T extends Record<string, any>, Depth extends number =
   // 使用浅拷贝避免修改原对象，但保留函数
   let result = Array.isArray(obj) ? [...obj] : { ...obj };
 
-  traverse(
-    result,
-    (value, key, parent, context) => {
-      const depth = context.parents?.length ?? 0;
+  traverse(result, (value, key, parent, context) => {
+    const depth = context.parents?.length ?? 0;
 
-      // 如果达到最大深度，跳过进一步遍历
-      if (depth > maxDepth) {
-        result = set(result, context.path.join('.'), value);
-        context.skip();
-        return;
-      }
+    const pathStr = context.path.join('.');
 
-      if (isValidElement(value)) {
-        result = set(result, context.path.join('.'), value);
-        context.skip();
-        return;
-      }
+    // 如果达到最大深度，跳过进一步遍历
+    if (depth > maxDepth) {
+      result = set(result, pathStr, value);
+      context.skip();
+      return;
+    }
 
-      // 如果是信号，检查是否达到最大深度
-      if (isSignal(value)) {
-        result = set(result, context.path.join('.'), value());
-        return;
-      }
-      result = set(result, context.path.join('.'), value);
-    },
-  );
+    if (isValidElement(value)) {
+      result = set(result, pathStr, value);
+      context.skip();
+      return;
+    }
+
+    // 如果是信号，检查是否达到最大深度
+    if (isSignal(value)) {
+      result = set(result, pathStr, value());
+      return;
+    }
+    result = set(result, pathStr, value);
+  });
 
   return result as MapSignalsDeep<T>;
 }

@@ -101,6 +101,8 @@ describe('MapSignals', () => {
       const originalObj = {
         count,
         name,
+        loading: signal(true),
+        error: signal(undefined),
         age: 30,
         nested: {
           value: signal('nested value'),
@@ -111,22 +113,6 @@ describe('MapSignals', () => {
         array: [signal(1), signal(2), signal(3)],
       };
 
-      // 保存原始对象的深拷贝用于比较
-      const originalObjCopy = JSON.parse(
-        JSON.stringify({
-          count: count(),
-          name: name(),
-          age: 30,
-          nested: {
-            value: 'nested value',
-            deep: {
-              signal: 100,
-            },
-          },
-          array: [1, 2, 3],
-        }),
-      );
-
       const result = mapSignals(originalObj);
 
       // 验证结果正确
@@ -136,11 +122,15 @@ describe('MapSignals', () => {
       expect(result.nested.value).toBe('nested value');
       expect(result.nested.deep.signal).toBe(100);
       expect(result.array).toEqual([1, 2, 3]);
+      expect(result.loading).toBe(true);
+      expect(result.error).toBe(undefined);
 
       // 验证原对象没有被修改
       expect(originalObj.count).toBe(count);
       expect(originalObj.name).toBe(name);
+      expect(isSignal(originalObj.loading)).toBeTruthy();
       expect(originalObj.age).toBe(30);
+      expect(isSignal(originalObj.error)).toBeTruthy();
       expect(isSignal(originalObj.nested.value)).toBeTruthy();
       expect(isSignal(originalObj.nested.deep.signal)).toBeTruthy();
       expect(originalObj.array.every(isSignal)).toBeTruthy();
