@@ -1,7 +1,6 @@
-import { get, set as setRadashi, traverse } from 'radashi';
-import { set as setLodash } from 'lodash-es';
-import { isSignal } from './helpers';
+import { clone, isDangerousKey, isIntString, traverse } from 'radashi';
 import { isValidElement } from 'react';
+import { isSignal } from './helpers';
 
 // 定义信号类型
 type Signal<T> = () => T;
@@ -17,13 +16,30 @@ type MapSignalsDeep<T> = T extends Signal<infer U>
   ? { readonly [K in keyof T]: MapSignalsDeep<T[K]> }
   : T;
 
-const set: typeof setRadashi = (obj, path, value) => {
-  const output = setRadashi(obj, path, value);
-  if (value === undefined) {
-    setLodash(output, path, undefined);
+// fork from radashi, allow undefined value
+function set(initial, path, value) {
+  if (!initial) {
+    return {};
   }
-  return output;
-};
+  if (!path) {
+    return initial;
+  }
+  return (function recurse(object, keys2, index) {
+    const key = keys2[index];
+    object ??= isIntString(key) ? [] : {};
+    if (isDangerousKey(key, object)) {
+      throw new Error('Unsafe key in path: ' + key);
+    }
+    if (index < keys2.length - 1) {
+      value = recurse(object[key], keys2, index + 1);
+    }
+    if (!Object.is(object[key], value)) {
+      object = clone(object);
+      object[key] = value;
+    }
+    return object;
+  })(initial, path.match(/[^.[\]]+/g), 0);
+}
 
 /**
  * 映射对象中的信号值
