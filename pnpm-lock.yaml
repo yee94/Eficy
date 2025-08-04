@@ -174,9 +174,9 @@ importers:
       '@eficy/reactive-react':
         specifier: workspace:~
         version: link:../reactive-react
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
+      radashi:
+        specifier: ^12.6.0
+        version: 12.6.0
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -311,6 +311,9 @@ importers:
       '@preact/signals-core':
         specifier: ^1.5.0
         version: 1.11.0
+      radashi:
+        specifier: ^12.6.0
+        version: 12.6.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -320,19 +323,16 @@ importers:
       '@eficy/reactive':
         specifier: workspace:~
         version: link:../reactive
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
       nanoid:
         specifier: ^4.0.2
         version: 4.0.2
+      radashi:
+        specifier: ^12.6.0
+        version: 12.6.0
     devDependencies:
       '@eficy/core':
         specifier: workspace:~
         version: link:../core-v2
-      '@types/lodash':
-        specifier: ^4.14.202
-        version: 4.17.20
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -2777,6 +2777,10 @@ packages:
 
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
+
+  radashi@12.6.0:
+    resolution: {integrity: sha512-nJcpgS3La+yRlxm4bLjCcjsi1G5VeOycSo8nt5BzSEDWqSY0XNAUAwckvCa8uMHXtZqCK8fntJPXPlLve+vKhA==}
+    engines: {node: '>=16.0.0'}
 
   rc-align@4.0.15:
     resolution: {integrity: sha512-wqJtVH60pka/nOX7/IspElA8gjPNQKIx/ZqJ6heATCkXpe1Zg4cPVrMD2vC96wjsFFL8WsmhPbx9tdMo1qqlIA==}
@@ -6485,6 +6489,8 @@ snapshots:
   quansync@0.2.10: {}
 
   querystringify@2.2.0: {}
+
+  radashi@12.6.0: {}
 
   rc-align@4.0.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

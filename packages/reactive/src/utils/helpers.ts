@@ -1,46 +1,31 @@
 import type { Signal, ComputedSignal } from '../types/index';
 import { SIGNAL_MARKER } from '../types/index';
+import {
+  isFunction,
+  isArray,
+  isPlainObject,
+  isMap,
+  isSet,
+  isWeakMap,
+  isWeakSet,
+  cloneDeep,
+  clone,
+  isEqual,
+  traverse,
+} from 'radashi';
 
 // ==================== 类型检查工具 ====================
 
-export function isFunction(value: unknown): value is (...args: unknown[]) => unknown {
-  return typeof value === 'function';
-}
+// 使用 radashi 的类型检查函数
+export { isFunction, isArray, isPlainObject, isMap, isSet, isWeakMap, isWeakSet };
 
+// 保留原来的 isObject 实现，因为 radashi 的 isObject 只检查纯对象
 export function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object';
 }
 
 export function isPrimitive(value: unknown): value is string | number | boolean | null | undefined | symbol | bigint {
   return value == null || typeof value !== 'object';
-}
-
-export function isArray(value: unknown): value is unknown[] {
-  return Array.isArray(value);
-}
-
-export function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (!isObject(value)) return false;
-  
-  // 检查是否是普通对象
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-}
-
-export function isMap(value: unknown): value is Map<unknown, unknown> {
-  return value instanceof Map;
-}
-
-export function isSet(value: unknown): value is Set<unknown> {
-  return value instanceof Set;
-}
-
-export function isWeakMap(value: unknown): value is WeakMap<object, unknown> {
-  return value instanceof WeakMap;
-}
-
-export function isWeakSet(value: unknown): value is WeakSet<object> {
-  return value instanceof WeakSet;
 }
 
 // ==================== 响应式系统工具 ====================
@@ -68,17 +53,17 @@ export function toRaw<T>(value: T): T {
   if (isPrimitive(value)) {
     return value;
   }
-  
+
   // 如果对象有原始版本，返回原始版本
   if (isObject(value) && rawMap.has(value)) {
     return rawMap.get(value) as T;
   }
-  
+
   // 检查是否有 RAW_MARKER，返回对象本身（因为标记为原始对象）
   if (isObject(value) && RAW_MARKER in value) {
     return value;
   }
-  
+
   return value;
 }
 
@@ -89,13 +74,13 @@ export function toRawDeep<T>(value: T): T {
   if (isPrimitive(value)) {
     return value;
   }
-  
+
   const raw = toRaw(value);
-  
+
   if (isArray(raw)) {
-    return (raw as unknown[]).map(item => toRawDeep(item)) as unknown as T;
+    return (raw as unknown[]).map((item) => toRawDeep(item)) as unknown as T;
   }
-  
+
   if (isPlainObject(raw)) {
     const result: Record<string, unknown> = {};
     for (const key in raw as Record<string, unknown>) {
@@ -105,7 +90,7 @@ export function toRawDeep<T>(value: T): T {
     }
     return result as T;
   }
-  
+
   return raw;
 }
 
@@ -116,29 +101,29 @@ export function toJS<T>(value: T): T {
   if (isPrimitive(value)) {
     return value;
   }
-  
+
   // 防止循环引用
   const visited = new WeakSet();
-  
+
   function convert(val: unknown): unknown {
     if (isPrimitive(val)) {
       return val;
     }
-    
+
     if (visited.has(val as object)) {
       return val; // 直接返回已访问的对象，保持引用
     }
-    
+
     visited.add(val as object);
-    
+
     const raw = toRaw(val);
-    
+
     if (isArray(raw)) {
-      const result = (raw as unknown[]).map(item => convert(item));
+      const result = (raw as unknown[]).map((item) => convert(item));
       visited.delete(val as object);
       return result;
     }
-    
+
     if (isMap(raw)) {
       const result = new Map();
       for (const [key, mapValue] of raw) {
@@ -147,7 +132,7 @@ export function toJS<T>(value: T): T {
       visited.delete(val as object);
       return result;
     }
-    
+
     if (isSet(raw)) {
       const result = new Set();
       for (const setValue of raw) {
@@ -156,7 +141,7 @@ export function toJS<T>(value: T): T {
       visited.delete(val as object);
       return result;
     }
-    
+
     if (isPlainObject(raw)) {
       const result: Record<string, unknown> = {};
       for (const key in raw as Record<string, unknown>) {
@@ -167,11 +152,11 @@ export function toJS<T>(value: T): T {
       visited.delete(val as object);
       return result;
     }
-    
+
     visited.delete(val as object);
     return raw;
   }
-  
+
   return convert(value) as T;
 }
 
@@ -182,17 +167,17 @@ export function markRaw<T>(value: T): T {
   if (isPrimitive(value)) {
     return value;
   }
-  
+
   if (isObject(value)) {
     // 添加原始标记
     Object.defineProperty(value, RAW_MARKER, {
       value: true,
       enumerable: false,
       writable: false,
-      configurable: false
+      configurable: false,
     });
   }
-  
+
   return value;
 }
 
@@ -210,16 +195,16 @@ export function markReactive<T>(value: T): T {
   if (isPrimitive(value)) {
     return value;
   }
-  
+
   if (isObject(value)) {
     Object.defineProperty(value, REACTIVE_MARKER, {
       value: true,
       enumerable: false,
       writable: false,
-      configurable: false
+      configurable: false,
     });
   }
-  
+
   return value;
 }
 
@@ -255,10 +240,10 @@ export function hasCollected(fn?: () => void): boolean {
   if (!fn) {
     return isCollecting;
   }
-  
+
   const wasCollecting = isCollecting;
   isCollecting = false; // 重置状态
-  
+
   try {
     fn(); // 执行函数
     const hasTriggeredCollection = isCollecting; // 检查是否有依赖收集
@@ -274,7 +259,7 @@ export function hasCollected(fn?: () => void): boolean {
 export function withCollecting<T>(fn: () => T): T {
   const wasCollecting = isCollecting;
   isCollecting = true;
-  
+
   try {
     return fn();
   } finally {
@@ -284,62 +269,23 @@ export function withCollecting<T>(fn: () => T): T {
 
 // ==================== 其他工具函数 ====================
 
-/**
- * 深度克隆对象
- */
-export function deepClone<T>(value: T): T {
-  if (isPrimitive(value)) {
-    return value;
-  }
-  
-  if (isArray(value)) {
-    return (value as unknown[]).map(item => deepClone(item)) as unknown as T;
-  }
-  
-  if (isPlainObject(value)) {
-    const result: Record<string, unknown> = {};
-    for (const key in value as Record<string, unknown>) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        result[key] = deepClone((value as Record<string, unknown>)[key]);
-      }
-    }
-    return result as T;
-  }
-  
-  return value;
-}
+// 使用 radashi 的克隆函数
+export const deepClone = cloneDeep;
+export const shallowClone = clone;
 
-/**
- * 浅层克隆对象
- */
-export function shallowClone<T>(value: T): T {
-  if (isPrimitive(value)) {
-    return value;
-  }
-  
-  if (isArray(value)) {
-    return [...value] as unknown as T;
-  }
-  
-  if (isPlainObject(value)) {
-    return { ...(value as object) } as T;
-  }
-  
-  return value;
-}
+// 使用 radashi 的深度比较函数
+export const deepEqual = isEqual;
 
-/**
- * 浅层比较
- */
+// 保留原来的浅层比较实现，因为 radashi 的 isEqual 是深度比较
 export function shallowEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) {
     return true;
   }
-  
+
   if (isPrimitive(a) || isPrimitive(b)) {
     return false;
   }
-  
+
   if (isArray(a) && isArray(b)) {
     if (a.length !== b.length) {
       return false;
@@ -351,15 +297,15 @@ export function shallowEqual(a: unknown, b: unknown): boolean {
     }
     return true;
   }
-  
+
   if (isPlainObject(a) && isPlainObject(b)) {
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
-    
+
     if (keysA.length !== keysB.length) {
       return false;
     }
-    
+
     for (const key of keysA) {
       if (!Object.prototype.hasOwnProperty.call(b, key)) {
         return false;
@@ -370,53 +316,7 @@ export function shallowEqual(a: unknown, b: unknown): boolean {
     }
     return true;
   }
-  
-  return false;
-}
 
-/**
- * 深度比较
- */
-export function deepEqual(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) {
-    return true;
-  }
-  
-  if (isPrimitive(a) || isPrimitive(b)) {
-    return false;
-  }
-  
-  if (isArray(a) && isArray(b)) {
-    if (a.length !== b.length) {
-      return false;
-    }
-    for (let i = 0; i < a.length; i++) {
-      if (!deepEqual(a[i], b[i])) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  if (isPlainObject(a) && isPlainObject(b)) {
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
-    
-    if (keysA.length !== keysB.length) {
-      return false;
-    }
-    
-    for (const key of keysA) {
-      if (!Object.prototype.hasOwnProperty.call(b, key)) {
-        return false;
-      }
-      if (!deepEqual(a[key], b[key])) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
   return false;
 }
 
@@ -435,7 +335,7 @@ export function createDebugger(name: string) {
     },
     error: (...args: unknown[]) => {
       console.error(`[${name}]`, ...args);
-    }
+    },
   };
 }
 
@@ -444,7 +344,7 @@ export function createDebugger(name: string) {
  */
 export function createTimer(name: string) {
   let startTime: number;
-  
+
   return {
     start: () => {
       startTime = performance.now();
@@ -453,6 +353,8 @@ export function createTimer(name: string) {
       const endTime = performance.now();
       console.log(`[${name}] took ${endTime - startTime} milliseconds`);
       return endTime - startTime;
-    }
+    },
   };
-} 
+}
+
+

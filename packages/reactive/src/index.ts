@@ -29,34 +29,7 @@ export {
 export { ref, readonly as readonlyRef, shallowRef, isRef, unref, toRef, toRefs, customRef } from './observables/ref';
 
 // ==================== 工具函数 ====================
-export {
-  isFunction,
-  isObject,
-  isPrimitive,
-  isArray,
-  isPlainObject,
-  isMap,
-  isSet,
-  isWeakMap,
-  isWeakSet,
-  toRaw,
-  toRawDeep,
-  toJS,
-  markRaw,
-  isRaw,
-  markReactive,
-  isReactive,
-  hasCollected,
-  withCollecting,
-  startCollecting,
-  stopCollecting,
-  deepClone,
-  shallowClone,
-  shallowEqual,
-  deepEqual,
-  createDebugger,
-  createTimer,
-} from './utils/helpers';
+export * from './utils';
 
 // ==================== 类型导出 ====================
 export type * from './types/index';

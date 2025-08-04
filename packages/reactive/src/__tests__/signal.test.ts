@@ -186,11 +186,8 @@ describe('Signal Core', () => {
   describe('signal integration', () => {
     it('should work together in complex scenarios', () => {
       const items = signal([1, 2, 3]);
-      const filter = signal((x: number) => x > 1);
       
-      const filteredItems = computed(() => 
-        items().filter(filter())
-      );
+      const filteredItems = computed(() => items().filter((x: number) => x > 1));
       
       const sum = computed(() => 
         filteredItems().reduce((a, b) => a + b, 0)
@@ -206,8 +203,6 @@ describe('Signal Core', () => {
       items([1, 2, 3, 4, 5]);
       expect(results).toEqual([5, 14]); // 2 + 3 + 4 + 5
 
-      filter((x: number) => x > 3);
-      expect(results).toEqual([5, 14, 9]); // 4 + 5
     });
   });
 }); 

@@ -1,6 +1,4 @@
-import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
-import isEqual from 'lodash/isEqual';
+import { debounce, throttle, isEqual } from 'radashi';
 import { nanoid } from 'nanoid';
 
 /**

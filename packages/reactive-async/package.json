@@ -44,12 +44,11 @@
   },
   "dependencies": {
     "@eficy/reactive": "workspace:~",
-    "lodash": "^4.17.21",
-    "nanoid": "^4.0.2"
+    "nanoid": "^4.0.2",
+    "radashi": "^12.6.0"
   },
   "devDependencies": {
     "@eficy/core": "workspace:~",
-    "@types/lodash": "^4.14.202",
     "reflect-metadata": "^0.2.2"
   },
   "publishConfig": {

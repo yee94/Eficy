@@ -24,8 +24,6 @@ export { HookType } from './constants';
 // 导出 JSX runtime（通过重新导出，支持直接导入）
 export { jsx, jsxs, Fragment } from './jsx-runtime';
 
-// 导出工具函数
-export * from './utils';
 
 export * from 'tsyringe';
 

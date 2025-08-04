@@ -4,9 +4,8 @@
  * 基于现有的 RenderNode 逻辑，简化并专注于 signals 响应式处理
  */
 
-import { isSignal } from '@eficy/reactive';
+import { isSignal, mapSignals } from '@eficy/reactive';
 import { useObserver } from '@eficy/reactive-react';
-import mapValues from 'lodash/mapValues';
 import { ComponentType, forwardRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { HookType } from '../constants';
@@ -57,7 +56,7 @@ const EficyNodeInner = forwardRef(({ type, props }: EficyNodeProps, ref) => {
   // 使用 useObserver 来监听 signals 的变化
   const renderResult = useObserver(() => {
     // 解析 props 中的 signals
-    const resolvedProps = resolveSignalProps(props);
+    const resolvedProps = mapSignals(props);
 
     // 获取实际的组件
     let Component = resolveComponent(type, eficyContext?.componentRegistry);
@@ -115,35 +114,6 @@ export const EficyNode = forwardRef((props: EficyNodeProps, ref) => {
 });
 
 EficyNode.displayName = 'EficyNode';
-
-/**
- * 解析 props 中的 signals
- */
-function resolveSignalProps(props: Record<string, any>): Record<string, any> {
-  if (!props || typeof props !== 'object') {
-    return props;
-  }
-
-  return mapValues(props, (value, key) => {
-    if (key === 'children') {
-      const isArray = Array.isArray(value);
-      const children = isArray ? value : [value];
-
-      const arr = children.map((child) => {
-        if (isSignal(child)) {
-          return child();
-        }
-        return child;
-      });
-
-      return isArray ? arr : arr[0];
-    }
-    if (isSignal(value)) {
-      return value();
-    }
-    return value;
-  });
-}
 
 /**
  * 解析组件类型

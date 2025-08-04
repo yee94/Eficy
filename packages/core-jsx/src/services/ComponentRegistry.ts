@@ -4,7 +4,7 @@
 
 import { injectable } from 'tsyringe';
 import { ComponentType } from 'react';
-import get from 'lodash/get';
+import { get } from 'radashi';
 
 @injectable()
 export class ComponentRegistry {

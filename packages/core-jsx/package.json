@@ -42,7 +42,7 @@
   "dependencies": {
     "@eficy/reactive": "workspace:~",
     "@eficy/reactive-react": "workspace:~",
-    "lodash": "^4.17.21",
+    "radashi": "^12.6.0",
     "react": "^18.2.0",
     "react-error-boundary": "^4.0.11",
     "tsyringe": "^4.8.0",
