@@ -1,7 +1,7 @@
 {
   "name": "@eficy/core",
   "version": "2.0.0",
-  "description": "A front-end orchestration framework by JSON.",
+  "description": "A modern React component system with signals reactivity for B-end applications.",
   "packageManager": "pnpm@9.12.3",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -35,7 +35,7 @@
     "dist"
   ],
   "author": "yee94 <wyy.xb@qq.com>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

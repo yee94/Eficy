@@ -1,218 +1,318 @@
 # Eficy
 
 [![Using TypeScript](https://img.shields.io/badge/%3C/%3E-TypeScript-0072C4.svg)](https://www.typescriptlang.org/)
-[![MIT License](https://img.shields.io/npm/l/generator-bxd-oss.svg)](#License)
-[![](https://flat.badgen.net/npm/v/@eficy/core?icon=npm)](https://www.npmjs.com/package/@eficy/core)
-[![NPM downloads](http://img.shields.io/npm/dm/@eficy/core.svg?style=flat-square)](http://npmjs.com/@eficy/core)
+[![MIT License](https://img.shields.io/npm/l/eficy.svg)](#License)
+[![](https://flat.badgen.net/npm/v/eficy?icon=npm)](https://www.npmjs.com/package/eficy)
+[![NPM downloads](http://img.shields.io/npm/dm/eficy.svg?style=flat-square)](http://npmjs.com/eficy)
 
-Eficy 前端编排框架，通过 JSON 配置编排 React 组件，简单配置即可生成完整页面。
-
-推荐编排组件库：[AntD](https://ant.design/)
+**Eficy** 是一个无需编译的 JSX 渲染引擎，专为 React 组件设计。随着 LLM 生成 HTML 网页技术的日益成熟，React 生态下的各类组件却因编译门槛无法直接在纯 HTML 环境中渲染。Eficy 正是为了解决这一问题，提供非编译场景下的 React 渲染能力。最初致力于低代码渲染引擎，现在则全面支持无编译环境下的 JSX 渲染，让 LLM 能够使用精准、简洁的方式还原页面，真正做到一句话生成页面。
 
 [English](./README.md) | 简体中文
 
-## ✨ 功能
+## 🎯 为什么选择 Eficy？
 
-- 使用 JSON 编排任意 React 组件库，快速形成可用页面
-- 内置 Mobx Store，页面开发无需关心 Store 变更
-- 内置 request 机制，简单配置即可完成数据请求
-- 内置双向绑定，轻松配置页面实时同步
-- 细化组件变更范围，组件渲染性能实时查看
-- 支持 Plugin 定制，可统一配置 HOC，轻松实现前端 OOP
-- 开箱即用，适合大型多页后台应用
-- 无缝接入 AntD 4.0+
+随着 LLM 生成 HTML 网页技术的日益成熟，React 生态下的各类组件却因编译门槛无法直接在纯 HTML 环境中渲染。Eficy 提供了以下核心能力：
 
-## 🖥 支持环境
+1. **提供 signal 作为响应式系统** - 减少 React 生态的反直觉特性，如 React Hook 的复杂用法，尽量减少 Hooks 对页面带来的复杂度和调试成本
+2. **减少编译带给页面渲染的门槛** - 可在浏览器环境中，对 `<script type="text/eficy">` 标签内容直接做转义运行
+3. **加入协议渲染** - 可在环境变量中统一注册 React 组件，使用 `e-Button` 进行协议渲染，减少 LLM 自由发挥带来的差异性
 
-- 现代浏览器和 IE11 及以上。
-- 支持服务端渲染。
-- [Electron](https://www.electronjs.org/)
+## ✨ 核心特性
 
-| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Electron |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IE11, Edge                                                                                                                                                                                                     | last 2 versions                                                                                                                                                                                                  | last 2 versions                                                                                                                                                                                              | last 2 versions                                                                                                                                                                                              | last 2 versions                                                                                                                                                                                                      |
+### 🔄 基于 Signal 的响应式系统
+- **直观的状态管理** - 摆脱复杂的 React Hooks
+- **自动依赖追踪** - JSX 中使用的 Signal 会自动被追踪
+- **细粒度更新** - 只有使用了变化 Signal 的组件会重新渲染
+- **异步数据支持** - 内置异步 Signal，自动处理加载和错误状态
+
+### 🚀 无编译渲染
+- **直接浏览器执行** - 在浏览器环境中直接运行 JSX
+- **Script 标签支持** - 使用 `<script type="text/eficy">` 进行内联 JSX
+- **实时转译** - 即时将 JSX 转换为可执行的 JavaScript
+
+### 🧩 协议化组件渲染
+- **前缀式组件** - 使用 `e-Button` 语法调用已注册组件
+- **全局组件注册** - 一次注册，处处使用
+- **一致的 LLM 输出** - 减少 LLM 生成组件的差异性
+
+### 🎨 UnoCSS 集成
+- **原子化 CSS 生成** - 自动从 className 属性生成样式
+- **实时样式处理** - 在渲染过程中提取并生成 CSS
+- **智能缓存** - 避免重复生成相同样式
+
+### 📦 无缝 React 集成
+- **完整 React 兼容** - 与现有 React 组件库协同工作
+- **自定义 JSX Runtime** - 与 Signal 透明集成
+- **TypeScript 支持** - 完整的类型安全
 
 ## 📦 安装
 
 ```bash
-npm install @eficy/core --save
+npm install eficy
+# 或
+yarn add eficy
+# 或
+pnpm add eficy
 ```
 
-```bash
-yarn add -S @eficy/core
-```
+## 🚀 快速开始
 
-Script 引入：
+### 浏览器使用（无需编译）
 
 ```html
-<script src="https://unpkg.com/@eficy/core"></script>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Eficy Demo</title>
+  <script src="https://unpkg.com/eficy/dist/browser.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/eficy">
+    import { signal } from 'eficy';
+    import * as antd from 'antd';
+    
+    // 注册组件
+    Eficy.registerComponents(antd);
+    
+    const App = () => {
+      const count = signal(0);
+      const name = signal('World');
+      
+      return (
+        <div className="p-6 bg-gray-100 min-h-screen">
+          <h1 className="text-2xl font-bold mb-4">Hello, {name}!</h1>
+          <p className="mb-4">Count: {count}</p>
+          
+          <input 
+            className="border p-2 mr-2"
+            value={name}
+            onChange={(e) => name.set(e.target.value)}
+            placeholder="Enter your name"
+          />
+          
+          <e-Button 
+            type="primary" 
+            onClick={() => count.set(count() + 1)}
+          >
+            Increment
+          </e-Button>
+        </div>
+      );
+    };
+    
+    Eficy.render(App, document.getElementById('root'));
+  </script>
+</body>
+</html>
 ```
 
-## 🔨 示例
+### Node.js 使用
 
-渲染至 DOM 节点：
+```tsx
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { create, EficyProvider } from 'eficy';
+import { signal } from '@eficy/reactive';
+import * as antd from 'antd';
 
-```jsx
-import * as Eficy from '@eficy/core';
-import antd from 'antd';
+// 创建 Eficy 实例
+const core = await create();
 
-// config global default componentMap
-Eficy.Config.defaultComponentMap = Object.assign({}, antd);
+// 注册组件
+core.registerComponents(antd);
 
-Eficy.render(
-  {
-    '#view': 'div',
-    style: {
-      padding: 10,
-      background: '#CCC',
-    },
-    '#children': [
-      {
-        '#view': 'Alert',
-        message: 'Hello this is a Alert',
-        type: 'info',
-        showIcon: true,
-      },
-    ],
-  },
-  '#root',
+const App = () => {
+  const count = signal(0);
+  const name = signal('Eficy');
+  
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Hello, {name}!</h1>
+      <p className="mb-4">Count: {count}</p>
+      
+      <input 
+        className="border p-2 mr-2"
+        value={name}
+        onChange={(e) => name.set(e.target.value)}
+        placeholder="Enter your name"
+      />
+      
+      <e-Button 
+        type="primary" 
+        onClick={() => count.set(count() + 1)}
+      >
+        Increment
+      </e-Button>
+    </div>
+  );
+};
+
+// 渲染应用
+const root = createRoot(document.getElementById('root'));
+root.render(
+  <EficyProvider core={core}>
+    <App />
+  </EficyProvider>
 );
 ```
 
-输出为 ReactElement：
+## 🧠 核心概念
+
+### 使用 Signal 进行状态管理
 
 ```jsx
-import * as Eficy from '@eficy/core';
-import antd from 'antd';
+import { signal, computed } from 'eficy';
 
-// config global default componentMap
-Eficy.Config.defaultComponentMap = Object.assign({}, antd);
+// 创建状态 Signal
+const count = signal(0);
+const name = signal('World');
 
-const App = () => {
-  return Eficy.createElement({
-    '#view': 'div',
-    style: {
-      padding: 10,
-      background: '#CCC',
-    },
-    '#children': [
-      {
-        '#view': 'Alert',
-        message: 'Hello this is a Alert',
-        type: 'info',
-        showIcon: true,
-      },
-    ],
-  });
-};
+// 创建计算属性
+const greeting = computed(() => `Hello, ${name()}!`);
+
+// 在 JSX 中使用（自动订阅）
+const App = () => (
+  <div>
+    <h1>{greeting}</h1>
+    <p>Count: {count}</p>
+    <button onClick={() => count.set(count() + 1)}>
+      Increment
+    </button>
+  </div>
+);
 ```
 
-在浏览器中使用：
+### 异步数据处理
 
-```html
-<link rel="stylesheet" href="https://unpkg.com/antd@4.0.3/dist/antd.min.css" />
-<script src="https://unpkg.com/antd@4.0.3/dist/antd.min.js"></script>
-<script src="https://unpkg.com/@ant-design/icons@4.0.2/dist/index.umd.js"></script>
+```jsx
+import { asyncSignal } from 'eficy';
 
-<div id="root"></div>
+const userList = asyncSignal(async () => {
+  const response = await fetch('/api/users');
+  return response.json();
+});
 
-<script>
-  Eficy.Config.successAlert = ({ msg }) => antd.message.success(msg);
-  Eficy.Config.failAlert = ({ msg }) => antd.message.error(msg);
-  Eficy.Config.defaultComponentMap = Object.assign({}, antd, { Icons: icons });
-
-  Eficy.render(
-    {
-      '#view': 'div',
-      style: {
-        padding: 10,
-        background: '#CCC',
-      },
-      '#children': [
-        {
-          '#view': 'Alert',
-          message: 'Hello this is a Alert',
-          type: 'info',
-          showIcon: true,
-        },
-      ],
-    },
-    '#root',
-  );
-</script>
+const UserList = () => (
+  <div>
+    {userList.loading() && <div>Loading...</div>}
+    {userList.error() && <div>Error: {userList.error().message}</div>}
+    {userList.data() && (
+      <ul>
+        {userList.data().map(user => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
 ```
 
-#### 实时更新
+### 协议化组件
+
+```jsx
+// 全局注册组件
+core.registerComponents({
+  Button: ({ children, ...props }) => (
+    <button className="px-4 py-2 bg-blue-500 text-white rounded" {...props}>
+      {children}
+    </button>
+  )
+});
+
+// 使用 e- 前缀调用
+const App = () => (
+  <div>
+    <e-Button onClick={() => console.log('Clicked!')}>
+      Click me
+    </e-Button>
+  </div>
+);
+```
+
+## 📦 包含的模块
+
+Eficy 完整包包含以下核心模块：
+
+### 核心框架
+- **@eficy/core-jsx** - 第三代核心引擎，基于自定义 JSX runtime
+- **@eficy/reactive** - 高性能响应式状态管理系统
+- **@eficy/reactive-react** - React 响应式集成
+- **@eficy/reactive-async** - 异步响应式支持
+
+### 内置插件
+- **@eficy/plugin-unocss** - UnoCSS 原子化 CSS 自动生成插件
+
+### 特殊包
+- **@eficy/browser** - 为浏览器环境准备的无需编译包
+
+## 🖥 支持环境
+
+- 现代浏览器
+- Node.js 环境
+- 服务端渲染
+- [Electron](https://www.electronjs.org/)
+
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Electron |
+|---|---|---|---|---|
+| IE11, Edge | last 2 versions | last 2 versions | last 2 versions | last 2 versions |
+
+## 📚 相关文档
+
+- [核心框架文档](./packages/core-jsx/README.md) - @eficy/core-jsx 详细文档
+- [响应式系统文档](./packages/reactive/README.md) - @eficy/reactive 详细文档
+- [React 响应式集成文档](./packages/reactive-react/README.md) - @eficy/reactive-react 详细文档
+- [异步响应式文档](./packages/reactive-async/README.md) - @eficy/reactive-async 详细文档
+- [UnoCSS 插件文档](./packages/plugin-unocss/README.md) - @eficy/plugin-unocss 详细文档
+- [浏览器包文档](./packages/browser/README.md) - 浏览器使用文档
+- [Playground 示例](./playground/README.md) - 完整的应用示例
+
+## 🔗 API 参考
+
+### 核心 API
+- `create()` - 创建预配置的 Eficy 实例
+- `EficyProvider` - 提供 Eficy 上下文的组件
+- `useEficyContext()` - 获取 Eficy 实例的 Hook
+
+### 响应式 API
+- `signal(value)` - 创建响应式信号
+- `computed(fn)` - 创建计算属性
+- `asyncSignal(fn, options)` - 创建异步信号
+- `useObserver(fn)` - React Hook，监听信号变化
+
+### 插件 API
+- `core.install(Plugin, config)` - 安装插件
+- `core.registerComponent(name, component)` - 注册单个组件
+- `core.registerComponents(components)` - 批量注册组件
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开 Pull Request
+
+## 📄 许可证
+
+MIT License - 查看 [LICENSE](./LICENSE) 文件了解详情
+
+## 🙏 致谢
+
+感谢以下开源项目的启发和支持：
+
+- [React](https://reactjs.org/) - 用户界面库
+- [Preact Signals](https://preactjs.com/guide/v10/signals/) - 响应式系统基础
+- [@preact/signals-react](https://github.com/preactjs/signals) - React 响应式集成
+- [UnoCSS](https://unocss.dev/) - 原子化 CSS 引擎
+- [TSyringe](https://github.com/microsoft/tsyringe) - 依赖注入容器
+- [Ant Design](https://ant.design/) - 企业级 UI 设计语言
+
+---
 
 <div align="center">
-
-![](http://md.xiaobe.top/117c9790-1c62-5b41-a223-82947bdc180c.png)
-
+  <strong>让 LLM 真正做到一句话生成页面</strong>
 </div>
-
-```jsx harmony
-export default [
-  {
-    '#view': 'Alert',
-    message: 'quick bind ${models.input.value}', // => will be output as "quick bind value"
-    type: 'success',
-    showIcon: true,
-  },
-  {
-    '#': 'input',
-    '#view': 'Input',
-    value: 'value', // => value change will be sync to Alert message
-  },
-];
-```
-
-#### 异步请求渲染
-
-根据异步返回结果更新视图：
-
-```jsx harmony
-export default {
-  views: [],
-  requests: {
-    immediately: true,
-    url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/request/reload',
-  },
-};
-```
-
-根据异步返回结果，填充数据：
-
-<div align="center">
-
-![](http://md.xiaobe.top/0c1012d6-8631-63bc-a37c-56586ad88040.png)
-
-</div>
-
-```jsx harmony
-export default {
-  views: [
-    {
-      '#view': 'Table',
-      '#request': {
-        '#': 'getTableData',
-        url: 'https://mock.xiaobe.top/mock/5da6e8bf6aac2900153c9b7e/table/getlist',
-        format: res => ({
-          action: 'update',
-          data: [
-            {
-              '#': 'table',
-              dataSource: res.data,
-            },
-          ],
-        }),
-      },
-      pagination: {
-        total: 50,
-      },
-      columns: [
-        ...
-      ],
-    },
-  ],
-};
-```
