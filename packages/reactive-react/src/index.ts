@@ -1,7 +1,5 @@
 // 主要的 observer 功能
 export { observer } from './observer'
-export { SFragment } from './components/SFragment'
-export { SFragment as S } from './components/SFragment'
 
 // 所有 hooks
 export { 
