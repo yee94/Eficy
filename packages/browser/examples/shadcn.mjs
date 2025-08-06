@@ -2,8 +2,8 @@ import { render, initEficy, signal, isSignal, computed, effect } from 'eficy';
 
 import * as shadcnUi from 'shadcdn';
 
-const icons = shadcnUi.lucide;
-console.log('🚀 #### ~ icons:', shadcnUi, icons);
+const icons = shadcnUi.Lucide;
+const ReactHookForm = shadcnUi.ReactHookForm;
 
 await initEficy({ components: { ...shadcnUi, ...icons } });
 
@@ -34,18 +34,7 @@ const chatMessages = signal([
   { sender: 'user', message: "I can't log in." },
 ]);
 
-const formData = signal({
-  name: 'Evil Rabbit',
-  email: 'example@acme.cc',
-  cardNumber: '1234 1234 1234 1',
-  mm: '',
-  yy: '',
-  cvc: '',
-  plan: 'starter',
-  notes: '',
-  agreeTerms: false,
-  allowEmails: true,
-});
+
 
 // 卡片组件
 function MetricCard({ title, value, change, children }) {
@@ -267,6 +256,26 @@ function ChatInterface() {
 
 // 升级订阅表单
 function UpgradeForm() {
+  const form = ReactHookForm.useForm({
+    defaultValues: {
+      name: 'Evil Rabbit',
+      email: 'example@acme.cc',
+      cardNumber: '1234 1234 1234 1',
+      mm: '',
+      yy: '',
+      cvc: '',
+      plan: 'starter',
+      notes: '',
+      agreeTerms: false,
+      allowEmails: true,
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log('Form submitted:', data);
+    // 这里可以处理表单提交逻辑
+  };
+
   return (
     <e-Card>
       <e-CardHeader>
@@ -276,93 +285,166 @@ function UpgradeForm() {
         </e-CardDescription>
       </e-CardHeader>
       <e-CardContent>
-        <e-Form>
-          <div className="grid grid-cols-2 gap-4">
-            <e-FormField>
-              <e-FormLabel>Name</e-FormLabel>
-              <e-Input value={formData().name} onChange={(e) => formData({ ...formData(), name: e.target.value })} />
-            </e-FormField>
-            <e-FormField>
-              <e-FormLabel>Email</e-FormLabel>
-              <e-Input value={formData().email} onChange={(e) => formData({ ...formData(), email: e.target.value })} />
-            </e-FormField>
-          </div>
-          <e-FormField>
-            <e-FormLabel>Card Number</e-FormLabel>
-            <e-Input
-              value={formData().cardNumber}
-              onChange={(e) => formData({ ...formData(), cardNumber: e.target.value })}
-            />
-          </e-FormField>
-          <div className="grid grid-cols-3 gap-4">
-            <e-FormField>
-              <e-FormLabel>MM</e-FormLabel>
-              <e-Input
-                placeholder="MM"
-                value={formData().mm}
-                onChange={(e) => formData({ ...formData(), mm: e.target.value })}
+        <e-Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <e-FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <e-FormItem>
+                    <e-FormLabel>Name</e-FormLabel>
+                    <e-FormControl>
+                      <e-Input placeholder="Enter your name" {...field} />
+                    </e-FormControl>
+                    <e-FormMessage />
+                  </e-FormItem>
+                )}
               />
-            </e-FormField>
-            <e-FormField>
-              <e-FormLabel>YY</e-FormLabel>
-              <e-Input
-                placeholder="YY"
-                value={formData().yy}
-                onChange={(e) => formData({ ...formData(), yy: e.target.value })}
+              <e-FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <e-FormItem>
+                    <e-FormLabel>Email</e-FormLabel>
+                    <e-FormControl>
+                      <e-Input placeholder="Enter your email" {...field} />
+                    </e-FormControl>
+                    <e-FormMessage />
+                  </e-FormItem>
+                )}
               />
-            </e-FormField>
-            <e-FormField>
-              <e-FormLabel>CVC</e-FormLabel>
-              <e-Input
-                placeholder="CVC"
-                value={formData().cvc}
-                onChange={(e) => formData({ ...formData(), cvc: e.target.value })}
-              />
-            </e-FormField>
-          </div>
-          <e-FormField>
-            <e-FormLabel>Plan</e-FormLabel>
-            <e-RadioGroup value={formData().plan} onValueChange={(value) => formData({ ...formData(), plan: value })}>
-              <div className="flex items-center space-x-2">
-                <e-RadioGroupItem value="starter" id="starter" />
-                <e-Label htmlFor="starter">Starter Plan</e-Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <e-RadioGroupItem value="pro" id="pro" />
-                <e-Label htmlFor="pro">Pro Plan</e-Label>
-              </div>
-            </e-RadioGroup>
-          </e-FormField>
-          <e-FormField>
-            <e-FormLabel>Notes</e-FormLabel>
-            <e-Textarea
-              placeholder="Enter notes"
-              value={formData().notes}
-              onChange={(e) => formData({ ...formData(), notes: e.target.value })}
-            />
-          </e-FormField>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <e-Checkbox
-                id="terms"
-                checked={formData().agreeTerms}
-                onCheckedChange={(checked) => formData({ ...formData(), agreeTerms: checked })}
-              />
-              <e-Label htmlFor="terms">I agree to the terms and conditions</e-Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <e-Checkbox
-                id="emails"
-                checked={formData().allowEmails}
-                onCheckedChange={(checked) => formData({ ...formData(), allowEmails: checked })}
+            <e-FormField
+              control={form.control}
+              name="cardNumber"
+              render={({ field }) => (
+                <e-FormItem>
+                  <e-FormLabel>Card Number</e-FormLabel>
+                  <e-FormControl>
+                    <e-Input placeholder="1234 1234 1234 1234" {...field} />
+                  </e-FormControl>
+                  <e-FormMessage />
+                </e-FormItem>
+              )}
+            />
+            <div className="grid grid-cols-3 gap-4">
+              <e-FormField
+                control={form.control}
+                name="mm"
+                render={({ field }) => (
+                  <e-FormItem>
+                    <e-FormLabel>MM</e-FormLabel>
+                    <e-FormControl>
+                      <e-Input placeholder="MM" {...field} />
+                    </e-FormControl>
+                    <e-FormMessage />
+                  </e-FormItem>
+                )}
               />
-              <e-Label htmlFor="emails">Allow us to send you emails</e-Label>
+              <e-FormField
+                control={form.control}
+                name="yy"
+                render={({ field }) => (
+                  <e-FormItem>
+                    <e-FormLabel>YY</e-FormLabel>
+                    <e-FormControl>
+                      <e-Input placeholder="YY" {...field} />
+                    </e-FormControl>
+                    <e-FormMessage />
+                  </e-FormItem>
+                )}
+              />
+              <e-FormField
+                control={form.control}
+                name="cvc"
+                render={({ field }) => (
+                  <e-FormItem>
+                    <e-FormLabel>CVC</e-FormLabel>
+                    <e-FormControl>
+                      <e-Input placeholder="CVC" {...field} />
+                    </e-FormControl>
+                    <e-FormMessage />
+                  </e-FormItem>
+                )}
+              />
             </div>
-          </div>
-          <div className="flex space-x-2 mt-4">
-            <e-Button variant="outline">Cancel</e-Button>
-            <e-Button>Upgrade Plan</e-Button>
-          </div>
+            <e-FormField
+              control={form.control}
+              name="plan"
+              render={({ field }) => (
+                <e-FormItem className="space-y-3">
+                  <e-FormLabel>Plan</e-FormLabel>
+                  <e-FormControl>
+                    <e-RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
+                      <div className="flex items-center space-x-2">
+                        <e-RadioGroupItem value="starter" id="starter" />
+                        <e-Label htmlFor="starter">Starter Plan</e-Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <e-RadioGroupItem value="pro" id="pro" />
+                        <e-Label htmlFor="pro">Pro Plan</e-Label>
+                      </div>
+                    </e-RadioGroup>
+                  </e-FormControl>
+                  <e-FormMessage />
+                </e-FormItem>
+              )}
+            />
+            <e-FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <e-FormItem>
+                  <e-FormLabel>Notes</e-FormLabel>
+                  <e-FormControl>
+                    <e-Textarea placeholder="Enter notes" {...field} />
+                  </e-FormControl>
+                  <e-FormMessage />
+                </e-FormItem>
+              )}
+            />
+            <div className="space-y-2">
+              <e-FormField
+                control={form.control}
+                name="agreeTerms"
+                render={({ field }) => (
+                  <e-FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <e-FormControl>
+                      <e-Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </e-FormControl>
+                    <div className="space-y-1 leading-none">
+                      <e-FormLabel>I agree to the terms and conditions</e-FormLabel>
+                    </div>
+                  </e-FormItem>
+                )}
+              />
+              <e-FormField
+                control={form.control}
+                name="allowEmails"
+                render={({ field }) => (
+                  <e-FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                    <e-FormControl>
+                      <e-Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </e-FormControl>
+                    <div className="space-y-1 leading-none">
+                      <e-FormLabel>Allow us to send you emails</e-FormLabel>
+                    </div>
+                  </e-FormItem>
+                )}
+              />
+            </div>
+            <div className="flex space-x-2 mt-4">
+              <e-Button type="button" variant="outline">Cancel</e-Button>
+              <e-Button type="submit">Upgrade Plan</e-Button>
+            </div>
+          </form>
         </e-Form>
       </e-CardContent>
     </e-Card>
@@ -371,6 +453,18 @@ function UpgradeForm() {
 
 // 创建账户表单
 function CreateAccountForm() {
+  const form = ReactHookForm.useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log('Create account form submitted:', data);
+    // 这里可以处理账户创建逻辑
+  };
+
   return (
     <e-Card>
       <e-CardHeader>
@@ -378,33 +472,53 @@ function CreateAccountForm() {
         <e-CardDescription>Enter your email below to create your account</e-CardDescription>
       </e-CardHeader>
       <e-CardContent>
-        <div className="grid gap-4">
-          <e-Button variant="outline" className="w-full">
-            <e-Github className="mr-2 h-4 w-4" />
-            GitHub
-          </e-Button>
-          <e-Button variant="outline" className="w-full">
-            <e-Chrome className="mr-2 h-4 w-4" />
-            Google
-          </e-Button>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+        <e-Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+            <e-Button type="button" variant="outline" className="w-full">
+              <e-Github className="mr-2 h-4 w-4" />
+              GitHub
+            </e-Button>
+            <e-Button type="button" variant="outline" className="w-full">
+              <e-Chrome className="mr-2 h-4 w-4" />
+              Google
+            </e-Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
-          <e-FormField>
-            <e-FormLabel>Email</e-FormLabel>
-            <e-Input type="email" placeholder="m@example.com" />
-          </e-FormField>
-          <e-FormField>
-            <e-FormLabel>Password</e-FormLabel>
-            <e-Input type="password" />
-          </e-FormField>
-          <e-Button className="w-full">Create account</e-Button>
-        </div>
+            <e-FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <e-FormItem>
+                  <e-FormLabel>Email</e-FormLabel>
+                  <e-FormControl>
+                    <e-Input type="email" placeholder="m@example.com" {...field} />
+                  </e-FormControl>
+                  <e-FormMessage />
+                </e-FormItem>
+              )}
+            />
+            <e-FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <e-FormItem>
+                  <e-FormLabel>Password</e-FormLabel>
+                  <e-FormControl>
+                    <e-Input type="password" {...field} />
+                  </e-FormControl>
+                  <e-FormMessage />
+                </e-FormItem>
+              )}
+            />
+            <e-Button type="submit" className="w-full">Create account</e-Button>
+          </form>
+        </e-Form>
       </e-CardContent>
     </e-Card>
   );
