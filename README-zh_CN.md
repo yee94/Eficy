@@ -7,6 +7,8 @@
 
 **Eficy** 是一个无需编译的 JSX 渲染引擎，专为 React 组件设计。随着 LLM 生成 HTML 网页技术的日益成熟，React 生态下的各类组件却因编译门槛无法直接在纯 HTML 环境中渲染。Eficy 正是为了解决这一问题，提供非编译场景下的 React 渲染能力。最初致力于低代码渲染引擎，现在则全面支持无编译环境下的 JSX 渲染，让 LLM 能够使用精准、简洁的方式还原页面，真正做到一句话生成页面。
 
+<a href="https://stackblitz.com/edit/eficy-demo-a79lbepw?file=htmls%2Fbasic.mjs"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
+
 [English](./README.md) | 简体中文
 
 ## 🎯 为什么选择 Eficy？

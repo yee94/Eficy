@@ -7,7 +7,7 @@
 
 **Eficy** is a no-compilation JSX rendering engine for React components. As LLMs become increasingly capable at generating HTML web pages, Eficy bridges the gap by providing a way to render React components without compilation barriers. Originally built as a low-code rendering engine, Eficy now fully supports JSX rendering in non-compilation environments, enabling LLMs to generate precise, concise pages with just one sentence.
 
-<a href="https://stackblitz.com/edit/eficy-demo?file=src%2Fexamples%2Fbasic.js"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
+<a href="https://stackblitz.com/edit/eficy-demo-a79lbepw?file=htmls%2Fbasic.mjs"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
 
 English | [简体中文](./README-zh_CN.md)
 
@@ -66,7 +66,7 @@ pnpm add eficy
 <html>
 <head>
   <title>Eficy Demo</title>
-  <script type="module" src="https://unpkg.com/@eficy/browser/dist/standalone.mjs"></script>
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.0.19/dist/standalone.mjs"></script>
 </head>
 <body>
   <div id="root"></div>
