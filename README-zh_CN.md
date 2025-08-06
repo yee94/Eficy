@@ -64,7 +64,7 @@ pnpm add eficy
 <html>
 <head>
   <title>Eficy Demo</title>
-  <script src="https://unpkg.com/eficy/dist/browser.js"></script>
+  <script type="module" src="https://unpkg.com/@eficy/browser/dist/standalone.mjs"></script>
 </head>
 <body>
   <div id="root"></div>
