@@ -1,7 +1,7 @@
 {
   "name": "@eficy/shadcn-ui",
   "description": "shadcn/ui components bundled as an ESM module and served over CDN.",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "type": "module",
   "main": "dist/index.js",
   "files": [

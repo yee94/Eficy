@@ -49,7 +49,7 @@ export * from './components/ui/carousel';
 export * from './components/ui/sidebar';
 export * from './components/ui/chart';
 
-import './index.css';
+import '../app/globals.css';
 
 import * as ReactHookForm from 'react-hook-form';
 import * as Lucide from 'lucide-react';
