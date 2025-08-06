@@ -1,47 +1,48 @@
 import { render, initEficy, signal, isSignal, computed, effect } from 'eficy';
 
-import * as shadcnUi from 'https://cdn.jsdelivr.net/npm/shadcdn/+esm';
-import * as icons from 'https://cdn.jsdelivr.net/npm/lucide-react@0.536.0/+esm';
-console.log('🚀 #### ~ shadcnUi:', shadcnUi, icons);
+import * as shadcnUi from 'shadcdn';
+
+const icons = shadcnUi.lucide;
+console.log('🚀 #### ~ icons:', shadcnUi, icons);
 
 await initEficy({ components: { ...shadcnUi, ...icons } });
 
 // 数据定义
-const totalRevenue = signal("$15,231.89");
-const subscriptions = signal("+2,350");
+const totalRevenue = signal('$15,231.89');
+const subscriptions = signal('+2,350');
 const moveGoal = signal(3);
 const exerciseMinutes = signal([30, 45, 60, 35, 50]);
 
 const teamMembers = signal([
-  { name: "Sofia Davis", email: "m@example.com", role: "Owner", avatar: "SD" },
-  { name: "Jackson Lee", email: "p@example.com", role: "Developer", avatar: "JL" },
+  { name: 'Sofia Davis', email: 'm@example.com', role: 'Owner', avatar: 'SD' },
+  { name: 'Jackson Lee', email: 'p@example.com', role: 'Developer', avatar: 'JL' },
 ]);
 
 const payments = signal([
-  { status: "Success", email: "ken99@example.com", selected: false },
-  { status: "Success", email: "abe45@example.com", selected: false },
-  { status: "Processing", email: "monserrat44@example.com", selected: false },
-  { status: "Failed", email: "carmella@example.com", selected: false },
-  { status: "Pending", email: "jason78@example.com", selected: false },
-  { status: "Success", email: "sarah23@example.com", selected: false },
+  { status: 'Success', email: 'ken99@example.com', selected: false },
+  { status: 'Success', email: 'abe45@example.com', selected: false },
+  { status: 'Processing', email: 'monserrat44@example.com', selected: false },
+  { status: 'Failed', email: 'carmella@example.com', selected: false },
+  { status: 'Pending', email: 'jason78@example.com', selected: false },
+  { status: 'Success', email: 'sarah23@example.com', selected: false },
 ]);
 
 const chatMessages = signal([
-  { sender: "agent", message: "Hi, how can I help you today?" },
-  { sender: "user", message: "Hey, I'm having trouble with my account." },
-  { sender: "agent", message: "What seems to be the problem?" },
-  { sender: "user", message: "I can't log in." },
+  { sender: 'agent', message: 'Hi, how can I help you today?' },
+  { sender: 'user', message: "Hey, I'm having trouble with my account." },
+  { sender: 'agent', message: 'What seems to be the problem?' },
+  { sender: 'user', message: "I can't log in." },
 ]);
 
 const formData = signal({
-  name: "Evil Rabbit",
-  email: "example@acme.cc",
-  cardNumber: "1234 1234 1234 1",
-  mm: "",
-  yy: "",
-  cvc: "",
-  plan: "starter",
-  notes: "",
+  name: 'Evil Rabbit',
+  email: 'example@acme.cc',
+  cardNumber: '1234 1234 1234 1',
+  mm: '',
+  yy: '',
+  cvc: '',
+  plan: 'starter',
+  notes: '',
   agreeTerms: false,
   allowEmails: true,
 });
@@ -65,11 +66,7 @@ function MetricCard({ title, value, change, children }) {
 // 总营收卡片
 function TotalRevenueCard() {
   return (
-    <MetricCard 
-      title="Total Revenue" 
-      value={totalRevenue} 
-      change="+20.1% from last month"
-    >
+    <MetricCard title="Total Revenue" value={totalRevenue} change="+20.1% from last month">
       <e-DollarSign className="h-4 w-4 text-muted-foreground" />
     </MetricCard>
   );
@@ -78,11 +75,7 @@ function TotalRevenueCard() {
 // 订阅卡片
 function SubscriptionsCard() {
   return (
-    <MetricCard 
-      title="Subscriptions" 
-      value={subscriptions} 
-      change="+180.1% from last month"
-    >
+    <MetricCard title="Subscriptions" value={subscriptions} change="+180.1% from last month">
       <e-Users className="h-4 w-4 text-muted-foreground" />
     </MetricCard>
   );
@@ -154,7 +147,7 @@ function TeamMembersCard() {
                 </e-SelectContent>
               </e-Select>
             </div>
-          ))
+          )),
         )}
       </e-CardContent>
     </e-Card>
@@ -163,8 +156,8 @@ function TeamMembersCard() {
 
 // 支付表格
 function PaymentsTable() {
-  const selectedCount = computed(() => payments().filter(p => p.selected).length);
-  
+  const selectedCount = computed(() => payments().filter((p) => p.selected).length);
+
   return (
     <e-Card>
       <e-CardHeader>
@@ -187,7 +180,7 @@ function PaymentsTable() {
               payments().map((payment, index) => (
                 <e-TableRow key={index}>
                   <e-TableCell>
-                    <e-Checkbox 
+                    <e-Checkbox
                       checked={payment.selected}
                       onCheckedChange={(checked) => {
                         const newPayments = [...payments()];
@@ -197,13 +190,21 @@ function PaymentsTable() {
                     />
                   </e-TableCell>
                   <e-TableCell>
-                    <e-Badge variant={payment.status === "Success" ? "default" : payment.status === "Failed" ? "destructive" : "secondary"}>
+                    <e-Badge
+                      variant={
+                        payment.status === 'Success'
+                          ? 'default'
+                          : payment.status === 'Failed'
+                          ? 'destructive'
+                          : 'secondary'
+                      }
+                    >
                       {payment.status}
                     </e-Badge>
                   </e-TableCell>
                   <e-TableCell>{payment.email}</e-TableCell>
                 </e-TableRow>
-              ))
+              )),
             )}
           </e-TableBody>
         </e-Table>
@@ -217,12 +218,12 @@ function PaymentsTable() {
 
 // 聊天界面
 function ChatInterface() {
-  const newMessage = signal("");
-  
+  const newMessage = signal('');
+
   const sendMessage = () => {
     if (newMessage().trim()) {
-      chatMessages([...chatMessages(), { sender: "user", message: newMessage() }]);
-      newMessage("");
+      chatMessages([...chatMessages(), { sender: 'user', message: newMessage() }]);
+      newMessage('');
     }
   };
 
@@ -236,24 +237,24 @@ function ChatInterface() {
         <div className="space-y-4 h-[200px] overflow-y-auto">
           {computed(() =>
             chatMessages().map((msg, index) => (
-              <div key={index} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                  msg.sender === "user" 
-                    ? "bg-primary text-primary-foreground" 
-                    : "bg-muted"
-                }`}>
+              <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                    msg.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                  }`}
+                >
                   {msg.message}
                 </div>
               </div>
-            ))
+            )),
           )}
         </div>
         <div className="flex space-x-2 mt-4">
-          <e-Input 
-            placeholder="Type your message..." 
+          <e-Input
+            placeholder="Type your message..."
             value={newMessage}
             onChange={(e) => newMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
           />
           <e-Button onClick={sendMessage}>
             <e-Send className="h-4 w-4" />
@@ -279,34 +280,49 @@ function UpgradeForm() {
           <div className="grid grid-cols-2 gap-4">
             <e-FormField>
               <e-FormLabel>Name</e-FormLabel>
-              <e-Input value={formData().name} onChange={(e) => formData({...formData(), name: e.target.value})} />
+              <e-Input value={formData().name} onChange={(e) => formData({ ...formData(), name: e.target.value })} />
             </e-FormField>
             <e-FormField>
               <e-FormLabel>Email</e-FormLabel>
-              <e-Input value={formData().email} onChange={(e) => formData({...formData(), email: e.target.value})} />
+              <e-Input value={formData().email} onChange={(e) => formData({ ...formData(), email: e.target.value })} />
             </e-FormField>
           </div>
           <e-FormField>
             <e-FormLabel>Card Number</e-FormLabel>
-            <e-Input value={formData().cardNumber} onChange={(e) => formData({...formData(), cardNumber: e.target.value})} />
+            <e-Input
+              value={formData().cardNumber}
+              onChange={(e) => formData({ ...formData(), cardNumber: e.target.value })}
+            />
           </e-FormField>
           <div className="grid grid-cols-3 gap-4">
             <e-FormField>
               <e-FormLabel>MM</e-FormLabel>
-              <e-Input placeholder="MM" value={formData().mm} onChange={(e) => formData({...formData(), mm: e.target.value})} />
+              <e-Input
+                placeholder="MM"
+                value={formData().mm}
+                onChange={(e) => formData({ ...formData(), mm: e.target.value })}
+              />
             </e-FormField>
             <e-FormField>
               <e-FormLabel>YY</e-FormLabel>
-              <e-Input placeholder="YY" value={formData().yy} onChange={(e) => formData({...formData(), yy: e.target.value})} />
+              <e-Input
+                placeholder="YY"
+                value={formData().yy}
+                onChange={(e) => formData({ ...formData(), yy: e.target.value })}
+              />
             </e-FormField>
             <e-FormField>
               <e-FormLabel>CVC</e-FormLabel>
-              <e-Input placeholder="CVC" value={formData().cvc} onChange={(e) => formData({...formData(), cvc: e.target.value})} />
+              <e-Input
+                placeholder="CVC"
+                value={formData().cvc}
+                onChange={(e) => formData({ ...formData(), cvc: e.target.value })}
+              />
             </e-FormField>
           </div>
           <e-FormField>
             <e-FormLabel>Plan</e-FormLabel>
-            <e-RadioGroup value={formData().plan} onValueChange={(value) => formData({...formData(), plan: value})}>
+            <e-RadioGroup value={formData().plan} onValueChange={(value) => formData({ ...formData(), plan: value })}>
               <div className="flex items-center space-x-2">
                 <e-RadioGroupItem value="starter" id="starter" />
                 <e-Label htmlFor="starter">Starter Plan</e-Label>
@@ -319,26 +335,26 @@ function UpgradeForm() {
           </e-FormField>
           <e-FormField>
             <e-FormLabel>Notes</e-FormLabel>
-            <e-Textarea 
-              placeholder="Enter notes" 
+            <e-Textarea
+              placeholder="Enter notes"
               value={formData().notes}
-              onChange={(e) => formData({...formData(), notes: e.target.value})}
+              onChange={(e) => formData({ ...formData(), notes: e.target.value })}
             />
           </e-FormField>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <e-Checkbox 
-                id="terms" 
+              <e-Checkbox
+                id="terms"
                 checked={formData().agreeTerms}
-                onCheckedChange={(checked) => formData({...formData(), agreeTerms: checked})}
+                onCheckedChange={(checked) => formData({ ...formData(), agreeTerms: checked })}
               />
               <e-Label htmlFor="terms">I agree to the terms and conditions</e-Label>
             </div>
             <div className="flex items-center space-x-2">
-              <e-Checkbox 
-                id="emails" 
+              <e-Checkbox
+                id="emails"
                 checked={formData().allowEmails}
-                onCheckedChange={(checked) => formData({...formData(), allowEmails: checked})}
+                onCheckedChange={(checked) => formData({ ...formData(), allowEmails: checked })}
               />
               <e-Label htmlFor="emails">Allow us to send you emails</e-Label>
             </div>
@@ -403,7 +419,7 @@ function Dashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Welcome to your dashboard.</p>
         </div>
-        
+
         {/* 顶部指标卡片 */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <TotalRevenueCard />
@@ -411,7 +427,7 @@ function Dashboard() {
           <MoveGoalCard />
           <ExerciseMinutesCard />
         </div>
-        
+
         {/* 主要内容区域 */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <UpgradeForm />
@@ -425,7 +441,4 @@ function Dashboard() {
   );
 }
 
-render(
-  <Dashboard />,
-  document.getElementById('app'),
-);
+render(<Dashboard />, document.getElementById('app'));

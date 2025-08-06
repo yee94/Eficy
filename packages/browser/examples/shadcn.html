@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@eficy/browser Shadcn 示例</title>
     <link rel="stylesheet" href="https://ui.shadcn.com/_next/static/css/f447989f39e69d2d.css" />
+
+    <link rel="stylesheet" href="../dist/shadcn.css" />
   </head>
   <body>
     <div id="app" />
-    <script type="module">
-	import * as React from 'https://cdn.jsdelivr.net/npm/react@18.3.1/+esm';
-	import * as ReactDOM from 'https://cdn.jsdelivr.net/npm/react-dom@18.3.1/+esm';
+    <script src="//g.alicdn.com/??code/lib/react/18.2.0/umd/react.production.min.js,code/lib/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
-	window.React = React;
-	window.ReactDOM = ReactDOM;
+    <script type="importmap">
+      {
+        "imports": {
+          "shadcdn": "../dist/shadcn.mjs"
+        }
+      }
     </script>
 
-    <script type="module" src="https://unpkg.com/@eficy/browser@1.0.19/dist/standalone.mjs"></script>
+    <script type="module" src="../dist/standalone.mjs"></script>
     <script type="text/eficy" src="./shadcn.mjs"></script>
   </body>
 </html>

@@ -1,0 +1,40 @@
+var modules = window['React'];
+
+export const Children = modules['Children'];
+export const Component = modules['Component'];
+export const Fragment = modules['Fragment'];
+export const Profiler = modules['Profiler'];
+export const PureComponent = modules['PureComponent'];
+export const StrictMode = modules['StrictMode'];
+export const Suspense = modules['Suspense'];
+export const __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED =
+  modules['__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'];
+export const cloneElement = modules['cloneElement'];
+export const createContext = modules['createContext'];
+export const createElement = modules['createElement'];
+export const createFactory = modules['createFactory'];
+export const createRef = modules['createRef'];
+export const forwardRef = modules['forwardRef'];
+export const isValidElement = modules['isValidElement'];
+export const lazy = modules['lazy'];
+export const memo = modules['memo'];
+export const startTransition = modules['startTransition'];
+export const unstable_act = modules['unstable_act'];
+export const useCallback = modules['useCallback'];
+export const useContext = modules['useContext'];
+export const useDebugValue = modules['useDebugValue'];
+export const useDeferredValue = modules['useDeferredValue'];
+export const useEffect = modules['useEffect'];
+export const useId = modules['useId'];
+export const useImperativeHandle = modules['useImperativeHandle'];
+export const useInsertionEffect = modules['useInsertionEffect'];
+export const useLayoutEffect = modules['useLayoutEffect'];
+export const useMemo = modules['useMemo'];
+export const useReducer = modules['useReducer'];
+export const useRef = modules['useRef'];
+export const useState = modules['useState'];
+export const useSyncExternalStore = modules['useSyncExternalStore'];
+export const useTransition = modules['useTransition'];
+export const version = modules['version'];
+
+export default modules;

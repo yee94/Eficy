@@ -55,6 +55,7 @@
     "tsdown": "^0.13.0",
     "turbo": "^2.5.5",
     "typescript": "^5.0.0",
+    "@rslib/core": "^0.11.2",
     "vitest": "^3.2.4"
   }
 }
