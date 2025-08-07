@@ -30,6 +30,10 @@ jobs:
           git reset --hard HEAD
         shell: bash
 
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        shell: bash
+
       - name: Run tests
         run: pnpm test
         shell: bash
@@ -52,6 +56,10 @@ jobs:
           # Remove any potential temporary files that might interfere with git
           git clean -fdx
           git reset --hard HEAD
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
         shell: bash
 
       - name: Build packages
@@ -86,6 +94,10 @@ jobs:
           # Remove any potential temporary files that might interfere with git
           git clean -fdx
           git reset --hard HEAD
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
         shell: bash
 
       - name: Create Release Pull Request or Publish
