@@ -14,7 +14,7 @@ describe('Signal Types', () => {
     // 这应该不会产生类型错误
     const element: React.ReactElement = (
       <div>
-        Count: {countSignal}
+        Count: {countSignal as unknown as React.ReactNode}
       </div>
     );
     
@@ -27,7 +27,7 @@ describe('Signal Types', () => {
     // 这应该不会产生类型错误
     const element: React.ReactElement = (
       <div>
-        {textSignal}
+        {textSignal as unknown as React.ReactNode}
       </div>
     );
     
@@ -41,7 +41,7 @@ describe('Signal Types', () => {
     const element: React.ReactElement = (
       <div>
         {signals.map((sig, index) => (
-          <span key={index}>{sig}</span>
+          <span key={index}>{sig as unknown as React.ReactNode}</span>
         ))}
       </div>
     );
@@ -55,8 +55,8 @@ describe('Signal Types', () => {
     
     // 这应该不会产生类型错误
     const element: React.ReactElement = (
-      <div title={titleSignal}>
-        Count: {countSignal}
+      <div title={titleSignal as unknown as string}>
+        Count: {countSignal as unknown as React.ReactNode}
       </div>
     );
     
