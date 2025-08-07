@@ -1,6 +1,5 @@
 {
-  "name": "@eficy/core",
-  "version": "2.0.0",
+  "private": true,
   "description": "A modern React component system with signals reactivity for B-end applications.",
   "packageManager": "pnpm@9.12.3",
   "main": "./dist/cjs/index.js",
@@ -14,14 +13,17 @@
   },
   "types": "./lib/index.d.ts",
   "unpkg": "./dist/umd/core.min.js",
-  "private": false,
   "scripts": {
     "dev": "turbo run dev",
     "test": "turbo run test",
     "prettier": "turbo run prettier",
     "build": "turbo run build",
     "play": "pnpm -C playground run dev",
-    "prepublishOnly": "npm run test && npm run build"
+    "prepublishOnly": "npm run test && npm run build",
+    "release:version": "node scripts/release.js version",
+    "release:publish": "node scripts/release.js publish",
+    "release:status": "node scripts/release.js status",
+    "release": "npm run release:version && git add . && git commit -m 'chore: bump version' && git tag v$(node -p \"require('./package.json').version\") && git push && git push --tags && npm run release:publish"
   },
   "repository": {
     "type": "git",

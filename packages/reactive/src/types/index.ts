@@ -15,10 +15,9 @@ export interface Signal<T> {
   (): T;
   (value: T): T;
   (value: (prev: T) => T): T;
-  [SIGNAL_MARKER]: true;
 }
 
-export type ComputedSignal<T> = () => T & { [SIGNAL_MARKER]: true };
+export type ComputedSignal<T> = () => T;
 
 export interface Ref<T> {
   value: T;
@@ -33,7 +32,7 @@ export interface AnnotationMetadata {
   $computed?: boolean;
   $action?: boolean;
   value?: any;
-  get?: () => any;
+  get?: (this: any) => any;
 }
 
 // ==================== 批处理类型 ====================

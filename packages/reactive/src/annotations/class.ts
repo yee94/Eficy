@@ -1,4 +1,4 @@
-import { signal, computed as computed } from '../core/signal';
+import { signal, computed } from '../core/signal';
 import { action } from '../core/action';
 import type { ReactiveClassDefinition, AnnotationMetadata } from '../types/index';
 
@@ -98,7 +98,7 @@ export function observable<T>(initialValue: T): AnnotationMetadata {
 /**
  * Computed 注解
  */
-export function computed<T>(getter: () => T): AnnotationMetadata {
+export function computedAnnotation<T>(getter: () => T): AnnotationMetadata {
   return {
     $computed: true,
     get: getter

@@ -28,8 +28,6 @@
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build"
   },

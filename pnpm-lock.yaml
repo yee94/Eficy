@@ -217,9 +217,6 @@ importers:
         specifier: ^12.6.0
         version: 12.6.0
     devDependencies:
-      '@eficy/core':
-        specifier: workspace:~
-        version: link:../..
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -465,9 +462,6 @@ importers:
       '@ant-design/icons':
         specifier: ^5.0.0
         version: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@eficy/core':
-        specifier: workspace:*
-        version: link:..
       '@eficy/core-jsx':
         specifier: workspace:*
         version: link:../packages/core-jsx

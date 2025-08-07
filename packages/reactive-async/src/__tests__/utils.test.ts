@@ -24,7 +24,7 @@ describe('工具函数', () => {
   describe('debounce', () => {
     it('应该防抖函数调用', () => {
       const mockFn = vi.fn();
-      const debouncedFn = debounce(mockFn, 300);
+      const debouncedFn = debounce({ delay: 300 }, mockFn);
 
       // 快速连续调用
       debouncedFn('param1');
@@ -41,7 +41,7 @@ describe('工具函数', () => {
 
     it('应该在防抖期间重新调用时重置计时器', () => {
       const mockFn = vi.fn();
-      const debouncedFn = debounce(mockFn, 300);
+      const debouncedFn = debounce({ delay: 300 }, mockFn);
 
       debouncedFn('param1');
       
@@ -59,7 +59,7 @@ describe('工具函数', () => {
   describe('throttle', () => {
     it('应该节流函数调用', () => {
       const mockFn = vi.fn();
-      const throttledFn = throttle(mockFn, 1000);
+      const throttledFn = throttle({ interval: 1000 }, mockFn);
 
       // 快速连续调用
       throttledFn('param1');
@@ -84,7 +84,7 @@ describe('工具函数', () => {
 
     it('应该在节流期间忽略调用', () => {
       const mockFn = vi.fn();
-      const throttledFn = throttle(mockFn, 1000);
+      const throttledFn = throttle({ interval: 1000 }, mockFn);
 
       throttledFn('param1');
       expect(mockFn).toHaveBeenCalledTimes(1);

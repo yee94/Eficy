@@ -185,8 +185,9 @@ function setupDeepObservation(target: object, path: (string | number | symbol)[]
   }
 
   if (isArray(target)) {
-    for (let i = 0; i < target.length; i++) {
-      const value = target[i];
+    const arrayTarget = target as unknown[];
+    for (let i = 0; i < arrayTarget.length; i++) {
+      const value = arrayTarget[i];
       if (isObject(value)) {
         setupDeepObservation(value, [...path, i]);
       }

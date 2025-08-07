@@ -17,7 +17,13 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "paths": {
-      "@eficy/core": ["packages/core/src"]
+      "@eficy/reactive": ["packages/reactive/src"],
+      "@eficy/reactive-react": ["packages/reactive-react/src"],
+      "@eficy/reactive-async": ["packages/reactive-async/src"],
+      "@eficy/core-jsx": ["packages/core-jsx/src"],
+      "@eficy/plugin-unocss": ["packages/plugin-unocss/src"],
+      "@eficy/browser": ["packages/browser/src"],
+      "@eficy/eficy": ["packages/eficy/src"]
     }
   },
   "include": [
