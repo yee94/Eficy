@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2018",
-    "lib": ["es2018", "dom"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Node",
     "experimentalDecorators": true,
@@ -10,7 +10,7 @@
     "declaration": true,
     "skipLibCheck": true,
     "baseUrl": "./",
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "types": ["vitest/globals", "@testing-library/jest-dom", "node"],
     "removeComments": false,
     "strictNullChecks": false,
     "esModuleInterop": true,
