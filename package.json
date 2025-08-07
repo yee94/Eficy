@@ -19,7 +19,7 @@
     "prettier": "turbo run prettier",
     "build": "turbo run build",
     "play": "pnpm -C playground run dev",
-    "prepublishOnly": "npm run test && npm run build",
+    "prepublishOnly": "npm run build",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish",

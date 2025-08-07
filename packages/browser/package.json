@@ -35,9 +35,11 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
-  "devDependencies": {
+  "dependencies": {
     "eficy": "workspace:~",
-    "reflect-metadata": "^0.2.1",
+    "reflect-metadata": "^0.2.1"
+  },
+  "devDependencies": {
     "sucrase": "^3.35.0",
     "@rslib/core": "^0.11.1",
     "@testing-library/jest-dom": "^6.6.3",
