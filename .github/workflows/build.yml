@@ -6,7 +6,7 @@ on:
       node-version:
         required: false
         type: string
-        default: '18'
+        default: '22'
       upload-artifacts:
         required: false
         type: boolean

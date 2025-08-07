@@ -30,7 +30,7 @@ graph TD
 1. **install**: 安装依赖并缓存
 2. **build**: 构建所有包（依赖 install）
 3. **test**: 运行测试（依赖 build）
-4. **typecheck**: 类型检查（依赖 build）
+4. **typecheck**: 类型检查（依赖 build + 重新构建）
 
 ### 2. PR 检查工作流 (`.github/workflows/pr-check.yml`)
 
@@ -42,7 +42,7 @@ graph TD
 1. **install**: 安装依赖并缓存
 2. **build**: 构建所有包（依赖 install）
 3. **test**: 运行测试（依赖 build）
-4. **typecheck**: 类型检查（依赖 build）
+4. **typecheck**: 类型检查（依赖 build + 重新构建）
 5. **security**: 安全审计（依赖 install）
 
 ### 3. 发布工作流 (`.github/workflows/release.yml`)
@@ -54,7 +54,7 @@ graph TD
 1. **install**: 安装依赖并缓存
 2. **build**: 构建所有包（依赖 install）
 3. **test**: 运行测试（依赖 build）
-4. **typecheck**: 类型检查（依赖 build）
+4. **typecheck**: 类型检查（依赖 build + 重新构建）
 5. **version**: 创建版本 PR（依赖 test + typecheck）
 6. **create-release**: 创建 GitHub Release（依赖 version）
 
@@ -84,6 +84,11 @@ graph TD
 ### 4. 安全审计
 - `security` 任务独立执行
 - 只依赖依赖安装，不依赖构建
+
+### 5. 类型检查构建
+- `typecheck` 任务在运行类型检查前会重新构建所有包
+- 确保所有包的类型声明都是最新的
+- 解决 monorepo 中包之间的类型依赖问题
 
 ## ⚡ 性能优化
 
@@ -115,6 +120,7 @@ graph TD
 - 类型检查必须在构建完成后执行
 - 测试必须在构建完成后执行
 - 发布必须在测试和类型检查都通过后执行
+- 类型检查前需要重新构建以确保类型声明最新
 
 ## 🔧 故障排除
 
@@ -124,6 +130,7 @@ graph TD
    - 确保构建成功
    - 检查 TypeScript 配置
    - 验证依赖关系
+   - 确保所有包都已构建
 
 2. **测试失败**
    - 确保构建成功
@@ -135,9 +142,15 @@ graph TD
    - 验证构建配置
    - 检查包结构
 
+4. **包间依赖错误**
+   - 确保依赖包已构建
+   - 检查 workspace 配置
+   - 验证包引用路径
+
 ### 调试步骤
 
 1. 检查 `install` 任务是否成功
 2. 检查 `build` 任务是否成功
 3. 检查 `test` 和 `typecheck` 任务
 4. 检查 artifact 上传/下载是否成功
+5. 检查包构建顺序是否正确
