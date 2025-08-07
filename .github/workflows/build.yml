@@ -1,0 +1,69 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: false
+        type: string
+        default: '18'
+      upload-artifacts:
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      build-artifacts:
+        description: "Build artifacts"
+        value: ${{ jobs.build.outputs.artifacts }}
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules
+          retention-days: 1
+
+  build:
+    needs: install
+    runs-on: ubuntu-latest
+    outputs:
+      artifacts: ${{ steps.upload.outputs.artifacts }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+        with:
+          node-version: ${{ inputs.node-version }}
+          install-deps: 'false'
+
+      - name: Download Artifacts
+        uses: ./.github/actions/download-artifacts
+        with:
+          download-build: 'false'
+
+      - name: Build packages
+        run: pnpm build
+        shell: bash
+
+      - name: Upload build artifacts
+        if: ${{ inputs.upload-artifacts }}
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/*/dist
+            packages/*/lib
+          retention-days: 7

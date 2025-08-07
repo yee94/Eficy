@@ -1,0 +1,38 @@
+name: 'Download Artifacts'
+description: 'Download dependencies and build artifacts'
+
+inputs:
+  download-deps:
+    description: 'Whether to download dependencies'
+    required: false
+    default: 'true'
+  download-build:
+    description: 'Whether to download build artifacts'
+    required: false
+    default: 'true'
+  install-deps:
+    description: 'Whether to install dependencies after download'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download dependencies
+      if: inputs.download-deps == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: node-modules
+        path: .
+
+    - name: Install dependencies
+      if: inputs.install-deps == 'true'
+      run: pnpm install --frozen-lockfile
+      shell: bash
+
+    - name: Download build artifacts
+      if: inputs.download-build == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+        path: .
