@@ -1,6 +1,6 @@
 {
   "name": "eficy",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "description": "The complete Eficy ecosystem - A modern front-end orchestration framework with built-in plugins",
   "keywords": [

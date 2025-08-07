@@ -1,7 +1,7 @@
 {
   "name": "@eficy/shadcn-ui",
   "description": "shadcn/ui components bundled as an ESM module and served over CDN.",
-  "version": "0.0.11",
+  "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
   "files": [
@@ -71,7 +71,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.45.0",
+    "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.31",
