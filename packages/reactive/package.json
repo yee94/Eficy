@@ -1,6 +1,6 @@
 {
   "name": "@eficy/reactive",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "description": "A modern annotation-based reactive state management library with MobX-compatible API, powered by @preact/signals-core",
   "keywords": [
