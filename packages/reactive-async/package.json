@@ -1,6 +1,6 @@
 {
   "name": "@eficy/reactive-async",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "A reactive async request library with ahooks useRequest compatible API, powered by @eficy/reactive",
   "keywords": [
