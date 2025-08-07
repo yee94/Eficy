@@ -42,6 +42,10 @@ jobs:
       - name: Download Artifacts
         uses: ./.github/actions/download-artifacts
 
+      - name: Build packages
+        run: pnpm build
+        shell: bash
+
       - name: Run type check
         run: pnpm -r typecheck
         shell: bash
