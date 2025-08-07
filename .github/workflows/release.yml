@@ -55,6 +55,10 @@ jobs:
   version:
     needs: [test, typecheck]
     runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
+      tag: ${{ steps.changesets.outputs.tag }}
+      publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,9 +83,9 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   create-release:
-    needs: [test, typecheck, version]
+    needs: version
     runs-on: ubuntu-latest
-    if: steps.changesets.outputs.published == 'true'
+    if: needs.version.outputs.published == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -91,8 +95,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.changesets.outputs.tag }}
-          release_name: Release ${{ steps.changesets.outputs.tag }}
-          body: ${{ steps.changesets.outputs.publishedPackages }}
+          tag_name: ${{ needs.version.outputs.tag }}
+          release_name: Release ${{ needs.version.outputs.tag }}
+          body: ${{ needs.version.outputs.publishedPackages }}
           draft: false
           prerelease: false
