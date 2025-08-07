@@ -1,27 +1,8 @@
 version: 2
 updates:
-  # 启用 npm 依赖更新
+  # 根目录依赖更新
   - package-ecosystem: "npm"
     directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "yee94"
-    assignees:
-      - "yee94"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "npm"
-
-  # 为每个包目录启用 npm 依赖更新
-  - package-ecosystem: "npm"
-    directory: "/packages/reactive"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -36,7 +17,24 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-      - "npm"
+
+  # 只包含有 publishConfig 的包
+  - package-ecosystem: "npm"
+    directory: "/packages/reactive"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "yee94"
+    assignees:
+      - "yee94"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
 
   - package-ecosystem: "npm"
     directory: "/packages/reactive-react"
@@ -44,7 +42,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     reviewers:
       - "yee94"
     assignees:
@@ -54,7 +52,6 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-      - "npm"
 
   - package-ecosystem: "npm"
     directory: "/packages/reactive-async"
@@ -62,7 +59,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     reviewers:
       - "yee94"
     assignees:
@@ -72,7 +69,6 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-      - "npm"
 
   - package-ecosystem: "npm"
     directory: "/packages/core-jsx"
@@ -80,7 +76,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     reviewers:
       - "yee94"
     assignees:
@@ -90,7 +86,6 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-      - "npm"
 
   - package-ecosystem: "npm"
     directory: "/packages/plugin-unocss"
@@ -98,7 +93,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     reviewers:
       - "yee94"
     assignees:
@@ -108,25 +103,6 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-      - "npm"
-
-  - package-ecosystem: "npm"
-    directory: "/packages/browser"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "yee94"
-    assignees:
-      - "yee94"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "npm"
 
   - package-ecosystem: "npm"
     directory: "/packages/eficy"
@@ -134,7 +110,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     reviewers:
       - "yee94"
     assignees:
@@ -144,52 +120,15 @@ updates:
       include: "scope"
     labels:
       - "dependencies"
-      - "npm"
 
-  - package-ecosystem: "npm"
-    directory: "/packages/shadcn"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "yee94"
-    assignees:
-      - "yee94"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "npm"
-
-  - package-ecosystem: "npm"
-    directory: "/playground"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "yee94"
-    assignees:
-      - "yee94"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "npm"
-
-  # 启用 GitHub Actions 更新
+  # GitHub Actions 更新
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     reviewers:
       - "yee94"
     assignees:

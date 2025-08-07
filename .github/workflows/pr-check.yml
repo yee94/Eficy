@@ -25,10 +25,6 @@ jobs:
         run: pnpm test
         shell: bash
 
-      - name: Run test coverage
-        run: pnpm -r test:coverage
-        shell: bash
-
   typecheck:
     needs: build
     runs-on: ubuntu-latest

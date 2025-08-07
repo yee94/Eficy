@@ -25,7 +25,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('基础渲染场景', () => {
-    it.only('应该能够通过插件修改组件', () => {
+    it('应该能够通过插件修改组件', () => {
       class ThemePlugin implements ILifecyclePlugin {
         name = 'theme-plugin';
         version = '1.0.0';
@@ -63,7 +63,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       expect(typeof ModifiedComponent).toBe('function');
     });
 
-    it.only('应该按 enforce 顺序执行插件', () => {
+    it('应该按 enforce 顺序执行插件', () => {
       const executionOrder: string[] = [];
 
       class PrePlugin implements ILifecyclePlugin {
@@ -135,7 +135,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('条件渲染场景', () => {
-    it.only('应该支持条件渲染插件', async () => {
+    it('应该支持条件渲染插件', async () => {
       class PermissionPlugin implements ILifecyclePlugin {
         name = 'permission-plugin';
         version = '1.0.0';
@@ -182,7 +182,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('样式修改场景', () => {
-    it.only('应该能够通过插件修改组件样式', () => {
+    it('应该能够通过插件修改组件样式', () => {
       class StylePlugin implements ILifecyclePlugin {
         name = 'style-plugin';
         version = '1.0.0';
@@ -215,7 +215,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       expect(ModifiedComponent).not.toBe(TestComponent);
     });
 
-    it.only('应该支持多个样式插件的叠加', () => {
+    it('应该支持多个样式插件的叠加', () => {
       class ColorPlugin implements ILifecyclePlugin {
         name = 'color-plugin';
         version = '1.0.0';
@@ -252,7 +252,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('属性修改场景', () => {
-    it.only('应该能够通过插件修改组件属性', () => {
+    it('应该能够通过插件修改组件属性', () => {
       class AttributePlugin implements ILifecyclePlugin {
         name = 'attribute-plugin';
         version = '1.0.0';
@@ -282,7 +282,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       expect(ModifiedComponent).not.toBe(TestComponent);
     });
 
-    it.only('应该支持事件处理器的修改', () => {
+    it('应该支持事件处理器的修改', () => {
       const originalClick = vi.fn();
       const pluginClick = vi.fn();
 
@@ -323,7 +323,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('内容修改场景', () => {
-    it.only('应该能够通过插件修改组件内容', () => {
+    it('应该能够通过插件修改组件内容', () => {
       class ContentPlugin implements ILifecyclePlugin {
         name = 'content-plugin';
         version = '1.0.0';
@@ -346,7 +346,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
       expect(ModifiedComponent).not.toBe(TestComponent);
     });
 
-    it.only('应该支持复杂内容的修改', () => {
+    it('应该支持复杂内容的修改', () => {
       class ComplexContentPlugin implements ILifecyclePlugin {
         name = 'complex-content-plugin';
         version = '1.0.0';
@@ -377,7 +377,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('错误处理场景', () => {
-    it.only('应该处理插件错误而不影响渲染', () => {
+    it('应该处理插件错误而不影响渲染', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       class ErrorPlugin implements ILifecyclePlugin {
@@ -429,7 +429,7 @@ describe('Plugin Integration - 渲染行为验证', () => {
   });
 
   describe('插件组合场景', () => {
-    it.only('应该支持多个插件的组合使用', () => {
+    it('应该支持多个插件的组合使用', () => {
       class ThemePlugin implements ILifecyclePlugin {
         name = 'theme-plugin';
         version = '1.0.0';
