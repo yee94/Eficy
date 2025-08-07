@@ -1,6 +1,6 @@
 {
   "name": "@eficy/plugin-unocss",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "description": "UnoCSS plugin for @eficy/core-jsx",
   "keywords": [

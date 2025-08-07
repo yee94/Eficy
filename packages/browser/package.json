@@ -1,6 +1,6 @@
 {
   "name": "@eficy/browser",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "license": "MIT",
   "description": "Use eficy in browser without compilation",
   "keywords": [

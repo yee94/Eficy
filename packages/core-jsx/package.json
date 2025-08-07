@@ -1,6 +1,6 @@
 {
   "name": "@eficy/core-jsx",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Eficy Core V3 - Modern React-based component system with signals reactivity",
   "type": "module",
   "main": "./dist/index.js",
