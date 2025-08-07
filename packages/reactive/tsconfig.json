@@ -15,7 +15,7 @@
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ESNext"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/__tests__/*", "./dist/*", "./node_modules/*"]

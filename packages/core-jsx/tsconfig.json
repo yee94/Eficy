@@ -7,6 +7,7 @@
     "emitDecoratorMetadata": true,
     "module": "ESNext",
     "moduleResolution": "Node",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "paths": {}
   },
   "include": ["src/**/*", "test/**/*"]

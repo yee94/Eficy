@@ -6,6 +6,7 @@
     "baseUrl": ".",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   }
