@@ -23,6 +23,13 @@ jobs:
       - name: Download Artifacts
         uses: ./.github/actions/download-artifacts
 
+      - name: Clean workspace
+        run: |
+          # Remove any potential temporary files that might interfere with git
+          git clean -fdx
+          git reset --hard HEAD
+        shell: bash
+
       - name: Run tests
         run: pnpm test
         shell: bash
@@ -39,6 +46,13 @@ jobs:
 
       - name: Download Artifacts
         uses: ./.github/actions/download-artifacts
+
+      - name: Clean workspace
+        run: |
+          # Remove any potential temporary files that might interfere with git
+          git clean -fdx
+          git reset --hard HEAD
+        shell: bash
 
       - name: Build packages
         run: pnpm build
@@ -66,6 +80,13 @@ jobs:
 
       - name: Download Artifacts
         uses: ./.github/actions/download-artifacts
+
+      - name: Clean workspace
+        run: |
+          # Remove any potential temporary files that might interfere with git
+          git clean -fdx
+          git reset --hard HEAD
+        shell: bash
 
       - name: Create Release Pull Request or Publish
         id: changesets

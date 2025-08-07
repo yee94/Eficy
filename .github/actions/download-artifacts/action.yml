@@ -23,7 +23,15 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: node-modules
-        path: .
+        path: /tmp/deps
+
+    - name: Move dependencies to workspace
+      if: inputs.download-deps == 'true'
+      run: |
+        if [ -d "/tmp/deps/node_modules" ]; then
+          mv /tmp/deps/node_modules .
+        fi
+      shell: bash
 
     - name: Install dependencies
       if: inputs.install-deps == 'true'
