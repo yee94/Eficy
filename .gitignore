@@ -2,7 +2,6 @@
 *.log
 test/coverage/
 node_modules/
-lib/
 build/
 .nyc_output/
 dist/
