@@ -8,7 +8,7 @@ export {
 } from './decorators';
 
 // ==================== 核心响应式功能 ====================
-export { signal, computed, effect, effectScope, isSignal, peek, readonly } from './core/signal';
+export { signal, computed, effect, isSignal, peek, readonly } from './core/signal';
 export { batch, isBatchingUpdates, clearPendingEffects, batchScope } from './core/batch';
 export { action as createAction, isAction, getOriginalFunction, boundAction } from './core/action'; // 避免与装饰器冲突，使用别名
 export { watch, watchMultiple, watchOnce, watchDebounced } from './core/watch';

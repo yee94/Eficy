@@ -97,10 +97,3 @@ export function readonly<T>(signal: Signal<T>): ComputedSignal<T> {
   return computed(() => signal());
 }
 
-/**
- * 效果作用域（为了兼容性保留）
- */
-export function effectScope(fn: () => void): () => void {
-  const dispose = effect(fn);
-  return dispose;
-}

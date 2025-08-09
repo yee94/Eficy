@@ -63,6 +63,7 @@ Signal 对象必须直接传递给 JSX 节点才能支持响应式更新：
 ```tsx
 const count = signal(0);
 const name = signal('Alice');
+const viewMode = signal('table');
 
 // ✅ 正确：直接传递 signal 对象
 <div>{count}</div>
@@ -75,6 +76,15 @@ const name = signal('Alice');
 // 计算属性：需要 computed 包裹才能响应式
 const greeting = computed(() => `Hello, ${name()}!`);
 <div>{greeting}</div>  // ✅ 正确
+
+// 回调函数：不能直接传递 signal，需要包装
+// ❌ 错误：直接传递 signal 函数
+<e-Input onChange={name} />
+<e-Tabs onValueChange={viewMode} />
+
+// ✅ 正确：包装为匿名函数
+<e-Input onChange={(e) => name(e.target.value)} />
+<e-Tabs onValueChange={(v) => viewMode(v)} />
 
 // 或者使用 observe HOC 让整个组件响应式
 import { observe } from 'eficy';
