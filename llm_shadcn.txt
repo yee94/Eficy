@@ -56,87 +56,54 @@ const App = () => (
 );
 ```
 
-### 对象 Signal 与子属性（重要）
+**重要：Signal 响应式传递**
 
-- Signal 仅对最外层引用生效，不会递归为 object 子属性创建 signal。
-- 只有将 Signal 的原始值（或 `computed` 结果）下传给 JSX，渲染才具备响应式。
-- 消费子属性请使用 `computed(() => parent().child)`；更新嵌套属性请用不可变赋值（拷贝上层对象）。
+Signal 对象必须直接传递给 JSX 节点才能支持响应式更新：
 
 ```tsx
-import { signal, computed } from 'eficy'
+// ✅ 正确：直接传递 signal 对象
+<div>{count}</div>
+<e-Input value={name} />
 
-const user = signal({ profile: { name: 'Alice' } })
-
-// 在 JSX 中消费子属性需使用 computed 包裹
-const Name = () => <div>{computed(() => user().profile.name)}</div>
-
-// 更新嵌套属性：以不可变方式替换上层对象
-function rename(next) {
-  const curr = user()
-  user({ ...curr, profile: { ...curr.profile, name: next } })
-}
+// ❌ 错误：调用 signal 会丢失响应式
+<div>{count()}</div>
+<e-Input value={name()} />
 ```
 
-### 列表/循环渲染与性能
+### 对象 Signal 与子属性
 
-- 使用 `computed(() => list().map(...))` 包裹循环，确保响应式。
-- 为每个元素提供稳定 `key`（如 `id`），便于最小化变更 diff。
-- 建议把单行/卡片封装为子组件，传入最小必要数据或 `index`/`computed` 字段，减少父级更新引发的大量重渲染。
-
-简单列表：
+Signal 不会递归处理对象子属性，需要手动处理：
 
 ```tsx
-const users = signal([
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' },
-])
+const user = signal({ profile: { name: 'Alice' } })
+
+// 读取：用 computed 包裹
+const name = computed(() => user().profile.name)
+
+// 更新：不可变方式
+user({ ...user(), profile: { ...user().profile, name: 'Bob' } })
+```
+
+### 列表渲染
+
+用 `computed` 包裹循环确保响应式，提供稳定 `key`：
+
+```tsx
+const users = signal([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }])
 
 const UserList = () => (
   <div>
     {computed(() =>
-      users().map((u) => (
-        <div key={u.id} className="flex items-center gap-2">
-          <span>{u.name}</span>
-        </div>
-      )),
+      users().map(user => (
+        <div key={user.id}>{user.name}</div>
+      ))
     )}
   </div>
 )
+
+// 更新：不可变方式
+users([...users(), { id: 3, name: 'Charlie' }])
 ```
-
-封装子组件，降低重渲染：
-
-```tsx
-const UserRow = ({ users, index }) => {
-  const user = computed(() => users()[index])
-  return (
-    <div className="flex items-center gap-2">
-      <span>{computed(() => user().name)}</span>
-      <e-Button
-        size="sm"
-        onClick={() => {
-          const curr = users()
-          users(curr.map((it, i) => (i === index ? { ...it, name: it.name + '!' } : it)))
-        }}
-      >
-        Rename
-      </e-Button>
-    </div>
-  )
-}
-
-const OptimizedUserList = ({ users }) => (
-  <div>
-    {computed(() =>
-      users().map((u, i) => <UserRow key={u.id} users={users} index={i} />),
-    )}
-  </div>
-)
-```
-
-注意：
-- 如涉及重排，优先使用稳定 `id` 作为 `key`。
-- 更新数组请使用不可变方式（返回新数组），触发精准更新。
 
 ### 异步数据处理
 
@@ -167,59 +134,68 @@ const UserList = () => {
 
 ### 表单处理
 
-```tsx
-import { signal } from "eficy";
+**方法一：Signal 状态管理**
 
-const formData = signal({
-  name: '',
-  email: '',
-  message: ''
+```tsx
+const formData = signal({ name: '', email: '' });
+
+const SimpleForm = () => (
+  <form onSubmit={(e) => { e.preventDefault(); console.log(formData()); }}>
+    <e-Input
+      value={formData().name}
+      onChange={(e) => formData({...formData(), name: e.target.value})}
+      placeholder="姓名"
+    />
+    <e-Input
+      value={formData().email}
+      onChange={(e) => formData({...formData(), email: e.target.value})}
+      placeholder="邮箱"
+    />
+    <e-Button type="submit">提交</e-Button>
+  </form>
+);
+```
+
+**方法二：ReactHookForm**
+
+```tsx
+const { ReactHookForm } = shadcnUi;
+const form = ReactHookForm.useForm({
+  defaultValues: { email: '', agree: false }
 });
 
-const ContactForm = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData());
-  };
-
-  return (
-    <e-Card>
-      <e-CardHeader>
-        <e-CardTitle>Contact Form</e-CardTitle>
-      </e-CardHeader>
-      <e-CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <e-Label htmlFor="name">Name</e-Label>
-            <e-Input
-              id="name"
-              value={formData().name}
-              onChange={(e) => formData({...formData(), name: e.target.value})}
-            />
-          </div>
-          <div>
-            <e-Label htmlFor="email">Email</e-Label>
-            <e-Input
-              id="email"
-              type="email"
-              value={formData().email}
-              onChange={(e) => formData({...formData(), email: e.target.value})}
-            />
-          </div>
-          <div>
-            <e-Label htmlFor="message">Message</e-Label>
-            <e-Textarea
-              id="message"
-              value={formData().message}
-              onChange={(e) => formData({...formData(), message: e.target.value})}
-            />
-          </div>
-          <e-Button type="submit">Submit</e-Button>
-        </form>
-      </e-CardContent>
-    </e-Card>
-  );
-};
+const AdvancedForm = () => (
+  <e-Form {...form}>
+    <form onSubmit={form.handleSubmit(console.log)}>
+      <e-FormField
+        control={form.control}
+        name="email"
+        render={({ field }) => (
+          <e-FormItem>
+            <e-FormLabel>Email</e-FormLabel>
+            <e-FormControl>
+              <e-Input {...field} type="email" />
+            </e-FormControl>
+            <e-FormMessage />
+          </e-FormItem>
+        )}
+      />
+      <e-FormField
+        control={form.control}
+        name="agree"
+        render={({ field }) => (
+          <e-FormItem className="flex items-center space-x-2">
+            <e-FormControl>
+              <e-Checkbox checked={!!field.value} onCheckedChange={field.onChange} />
+            </e-FormControl>
+            <e-FormLabel>同意条款</e-FormLabel>
+          </e-FormItem>
+        )}
+      />
+      <e-Button type="submit">提交</e-Button>
+    </form>
+  </e-Form>
+);
 ```
 
 ## shadcn/ui 组件使用规范
@@ -247,95 +223,13 @@ const ContactForm = () => {
 - `e-icons-Github`, `e-icons-Chrome`, `e-icons-Mail`, `e-icons-Phone`
 - 所有 Lucide 图标都可以用 `e-` 前缀使用
 
-### ReactHookForm 使用说明（与官方一致）
+#### ReactHookForm 注意事项
 
-- 用法与 `react-hook-form` 官方完全一致，可直接参考官方文档 API（`useForm`、`Controller` 等）。
-- 导出与获取：
-  - 浏览器/无编译：`const ReactHookForm = shadcnUi.ReactHookForm`
-  - ESM：`import { ReactHookForm } from 'shadcn'`
-
-简短示例（可编辑）：
-
-```tsx
-const { ReactHookForm } = shadcnUi;
-const form = ReactHookForm.useForm({
-  defaultValues: { email: '', password: '', agree: false, plan: 'starter' }
-});
-
-return (
-  <e-Form {...form}>
-    <form onSubmit={form.handleSubmit(console.log)} className="space-y-4">
-      <e-FormField
-        control={form.control}
-        name="email"
-        render={({ field }) => (
-          <e-FormItem>
-            <e-FormLabel>Email</e-FormLabel>
-            <e-FormControl>
-              <e-Input
-                value={field.value ?? ''}
-                onChange={(e) => field.onChange(e.target.value)}
-                onBlur={field.onBlur}
-                name={field.name}
-                ref={field.ref}
-                type="email"
-                placeholder="m@example.com"
-              />
-            </e-FormControl>
-            <e-FormMessage />
-          </e-FormItem>
-        )}
-      />
-
-      <e-FormField
-        control={form.control}
-        name="agree"
-        render={({ field }) => (
-          <e-FormItem className="flex flex-row items-start space-x-3 space-y-0">
-            <e-FormControl>
-              <e-Checkbox checked={!!field.value} onCheckedChange={field.onChange} />
-            </e-FormControl>
-            <e-FormLabel>I agree</e-FormLabel>
-            <e-FormMessage />
-          </e-FormItem>
-        )}
-      />
-
-      <e-FormField
-        control={form.control}
-        name="plan"
-        render={({ field }) => (
-          <e-FormItem>
-            <e-FormLabel>Plan</e-FormLabel>
-            <e-FormControl>
-              <e-RadioGroup value={field.value} onValueChange={field.onChange}>
-                <div className="flex items-center space-x-2">
-                  <e-RadioGroupItem value="starter" id="starter" />
-                  <e-Label htmlFor="starter">Starter</e-Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <e-RadioGroupItem value="pro" id="pro" />
-                  <e-Label htmlFor="pro">Pro</e-Label>
-                </div>
-              </e-RadioGroup>
-            </e-FormControl>
-            <e-FormMessage />
-          </e-FormItem>
-        )}
-      />
-
-      <e-Button type="submit">Submit</e-Button>
-    </form>
-  </e-Form>
-);
-```
-
-#### 注意事项
-
-- 文本类控件使用受控模式：`value={field.value}` 与 `onChange={(e) => field.onChange(e.target.value)}`。
-- `e-Checkbox`：`checked={!!field.value}` 与 `onCheckedChange={field.onChange}`。
-- `e-RadioGroup`/`e-Select`：使用 `value` 与 `onValueChange`，避免 `defaultValue`。
-- 其余行为与 `react-hook-form` 官方一致。
+- 用法与 `react-hook-form` 官方一致，可参考官方文档
+- 导出：`const { ReactHookForm } = shadcnUi`
+- 文本控件：使用 `{...field}` 简化传参
+- `e-Checkbox`：`checked={!!field.value}` 与 `onCheckedChange={field.onChange}`
+- `e-RadioGroup`/`e-Select`：使用 `value` 与 `onValueChange`
 
 ## 页面模板
 
