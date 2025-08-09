@@ -1,6 +1,6 @@
 import { render, initEficy, signal, isSignal, computed, effect } from 'eficy';
 
-import * as shadcnUi from 'shadcdn';
+import * as shadcnUi from 'shadcn';
 
 const icons = shadcnUi.Lucide;
 const ReactHookForm = shadcnUi.ReactHookForm;
