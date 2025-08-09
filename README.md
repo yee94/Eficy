@@ -11,6 +11,19 @@
 
 English | [简体中文](./README-zh_CN.md)
 
+## ⚡ Quick Page Generation (LLM + shadcn/ui prompts)
+
+If you want to quickly generate pages with Eficy, you can use the prompt set provided in `llm_shadcn.txt`.
+
+- What it includes: best-practice prompts for Eficy + shadcn/ui, component protocol with `e-` prefix, ready-to-use HTML template, and common examples
+- How to use:
+  1. Open the prompts in [`llm_shadcn.txt`](./llm_shadcn.txt)
+  2. In an LLM client that supports HTML preview (e.g., Cherry Studio), ask it to generate a page using Eficy + shadcn/ui with these prompts
+  3. Preview the result directly in the chat window — no manual copy-paste into HTML is required
+- Related: [Browser usage guide](./packages/browser/README.md), [Playground examples](./playground/README.md)
+
+![llm_shadcn.txt](https://md.xiaobe.top/imgs/202508092129587.png!preview.webp)
+
 ## 🎯 Why Eficy?
 
 While LLMs excel at generating HTML web pages, React ecosystem components still face compilation barriers that prevent direct rendering in pure HTML environments. Eficy solves this by providing:

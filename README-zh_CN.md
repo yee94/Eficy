@@ -11,6 +11,19 @@
 
 [English](./README.md) | 简体中文
 
+## ⚡ 快速页面生成（LLM + shadcn/ui 提示词）
+
+如果你希望快速使用 Eficy 完成页面生成，可以参考根目录中的 `llm_shadcn.txt` 提示词集合：
+
+- 包含内容：Eficy + shadcn/ui 的最佳实践提示词、`e-` 前缀的组件协议、可直接使用的 HTML 模板与常见示例
+- 使用方式：
+  1. 打开 [`llm_shadcn.txt`](./llm_shadcn.txt)
+  2. 在支持 HTML 预览的 LLM 客户端（例如 Cherry Studio）中，按照提示词生成基于 Eficy + shadcn/ui 的页面
+  3. 直接在聊天窗口中预览效果，无需复制到本地 HTML 文件
+- 相关链接：[浏览器使用指南](./packages/browser/README.md)、[Playground 示例](./playground/README.md)
+
+![llm_shadcn.txt](https://md.xiaobe.top/imgs/202508092129587.png!preview.webp)
+
 ## 🎯 为什么选择 Eficy？
 
 随着 LLM 生成 HTML 网页技术的日益成熟，React 生态下的各类组件却因编译门槛无法直接在纯 HTML 环境中渲染。Eficy 提供了以下核心能力：
