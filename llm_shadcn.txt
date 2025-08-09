@@ -247,7 +247,7 @@ const AdvancedForm = () => (
 
 #### Dialog 使用
 
-注意保留 `e-DialogTrigger` 确保正确的触发机制：
+注意保留 `e-DialogTrigger` 确保正确的触发机制，不用使用受控方式设定 `open` 属性。
 
 ```tsx
 const formData = signal({ name: '', username: '' });
