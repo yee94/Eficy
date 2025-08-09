@@ -5,7 +5,7 @@
 [![](https://flat.badgen.net/npm/v/eficy?icon=npm)](https://www.npmjs.com/package/eficy)
 [![NPM downloads](http://img.shields.io/npm/dm/eficy.svg?style=flat-square)](http://npmjs.com/eficy)
 
-**Eficy** 是一个无需编译的 JSX 渲染引擎，专为 React 组件设计。随着 LLM 生成 HTML 网页技术的日益成熟，React 生态下的各类组件却因编译门槛无法直接在纯 HTML 环境中渲染。Eficy 正是为了解决这一问题，提供非编译场景下的 React 渲染能力。最初致力于低代码渲染引擎，现在则全面支持无编译环境下的 JSX 渲染，让 LLM 能够使用精准、简洁的方式还原页面，真正做到一句话生成页面。
+**Eficy** 是一个零构建的 JSX 运行时。它可以在浏览器中直接渲染 JSX，使用已有的 React 组件，无需打包与编译；注册一次 React 组件即可作为协议元素使用（如 `e-Button`）；内置 Signal，状态管理更简单，非常适合 LLM 生成页面的场景。
 
 <a href="https://stackblitz.com/edit/eficy-demo-a79lbepw?file=htmls%2Fbasic.mjs"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
 
@@ -26,11 +26,12 @@
 
 ## 🎯 为什么选择 Eficy？
 
-随着 LLM 生成 HTML 网页技术的日益成熟，React 生态下的各类组件却因编译门槛无法直接在纯 HTML 环境中渲染。Eficy 提供了以下核心能力：
+Eficy 让你可以：
 
-1. **提供 signal 作为响应式系统** - 减少 React 生态的反直觉特性，如 React Hook 的复杂用法，尽量减少 Hooks 对页面带来的复杂度和调试成本
-2. **减少编译带给页面渲染的门槛** - 可在浏览器环境中，对 `<script type="text/eficy">` 标签内容直接做转义运行
-3. **加入协议渲染** - 可在环境变量中统一注册 React 组件，使用 `e-Button` 进行协议渲染，减少 LLM 自由发挥带来的差异性
+1. **无构建运行 JSX** — 在纯 HTML 中使用 `<script type="text/eficy">`
+2. **协议化组件** — 统一注册 React 组件，使用 `e-Button` 等协议元素，保证 LLM 输出一致
+3. **简单的响应式状态** — 内置 Signal，细粒度更新
+4. **可选 UnoCSS 插件** — 从 `className` 自动生成原子化样式
 
 ## ✨ 核心特性
 
@@ -125,7 +126,7 @@ pnpm add eficy
 
 ### Node.js 使用
 
-```tsx
+```jsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { create, EficyProvider } from 'eficy';

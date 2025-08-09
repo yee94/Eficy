@@ -5,7 +5,7 @@
 [![](https://flat.badgen.net/npm/v/eficy?icon=npm)](https://www.npmjs.com/package/eficy)
 [![NPM downloads](http://img.shields.io/npm/dm/eficy.svg?style=flat-square)](http://npmjs.com/eficy)
 
-**Eficy** is a no-compilation JSX rendering engine for React components. As LLMs become increasingly capable at generating HTML web pages, Eficy bridges the gap by providing a way to render React components without compilation barriers. Originally built as a low-code rendering engine, Eficy now fully supports JSX rendering in non-compilation environments, enabling LLMs to generate precise, concise pages with just one sentence.
+**Eficy** is a zero‑build JSX runtime for React. It renders JSX directly in the browser using existing React components without bundlers or compilation. Register React components once and use them as protocol elements (e.g., `e-Button`). Built‑in signals make state simple. Great for LLM‑generated pages.
 
 <a href="https://stackblitz.com/edit/eficy-demo-a79lbepw?file=htmls%2Fbasic.mjs"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt=""></a>
 
@@ -26,11 +26,12 @@ If you want to quickly generate pages with Eficy, you can use the prompt set pro
 
 ## 🎯 Why Eficy?
 
-While LLMs excel at generating HTML web pages, React ecosystem components still face compilation barriers that prevent direct rendering in pure HTML environments. Eficy solves this by providing:
+Eficy helps you:
 
-1. **Signal-based reactive system** - Reducing anti-intuitive React features like Hooks, minimizing complexity and debugging costs
-2. **No compilation required** - Directly transpile and run content within `<script type="text/eficy">` tags in browser environments
-3. **Protocol rendering** - Register React components in environment variables and use `e-Button` for consistent rendering, reducing LLM variability
+1. **Run JSX with no build** — use `<script type="text/eficy">` in a plain HTML page
+2. **Protocol components** — register React components and use them as `e-Button`, ensuring consistent LLM output
+3. **Simple reactive state** — signals with fine‑grained updates
+4. **Optional UnoCSS plugin** — generate atomic CSS from `className`
 
 ## ✨ Key Features
 
@@ -125,7 +126,7 @@ pnpm add eficy
 
 ### Node.js Usage
 
-```tsx
+```jsx
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { create, EficyProvider } from 'eficy';
