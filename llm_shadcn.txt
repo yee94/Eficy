@@ -311,3 +311,4 @@ const MyForm = () => {
 5. **表单处理**: 可以使用 React Hook Form 或简单的 Signal 状态
 6. **无编译**: 单 HTML 文件，`<script type="text/eficy">`
 7. **图标使用**: 所有 Lucide 图标都可以通过 `e-` 前缀使用
+8. **多层级组件**: 可以使用 `e-l1-l2` 等方式获取多层级组件，如：`e-icons-Plus`、`e-icons-Minus`、`e-icons-Search` 等
