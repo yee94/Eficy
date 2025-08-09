@@ -360,7 +360,7 @@ return (
     <script type="importmap">
       {
         "imports": {
-          "shadcdn": "https://unpkg.com/@eficy/shadcn-ui@1.0.2/dist/index.js"
+          "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.0.2/dist/index.js"
         }
       }
     </script>
