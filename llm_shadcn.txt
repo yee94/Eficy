@@ -32,7 +32,7 @@ await initEficy({ components: { ...shadcnUi, icons: shadcnUi.Lucide } });
 
 ```tsx
 // 从 eficy 统一导入
-import { signal, computed, effect } from "eficy";
+import { signal, computed, effect, observe } from "eficy";
 
 // 响应式状态
 const count = signal(0);
@@ -61,6 +61,9 @@ const App = () => (
 Signal 对象必须直接传递给 JSX 节点才能支持响应式更新：
 
 ```tsx
+const count = signal(0);
+const name = signal('Alice');
+
 // ✅ 正确：直接传递 signal 对象
 <div>{count}</div>
 <e-Input value={name} />
@@ -68,6 +71,16 @@ Signal 对象必须直接传递给 JSX 节点才能支持响应式更新：
 // ❌ 错误：调用 signal 会丢失响应式
 <div>{count()}</div>
 <e-Input value={name()} />
+
+// 计算属性：需要 computed 包裹才能响应式
+const greeting = computed(() => `Hello, ${name()}!`);
+<div>{greeting}</div>  // ✅ 正确
+
+// 或者使用 observe HOC 让整个组件响应式
+import { observe } from 'eficy';
+const MyComponent = observe(() => (
+  <div>Hello, {name()}!</div>  // ✅ 可以直接调用
+));
 ```
 
 ### 对象 Signal 与子属性
@@ -208,6 +221,7 @@ const AdvancedForm = () => (
 - `e-Button`, `e-Input`, `e-Label`, `e-Textarea`
 - `e-Card`, `e-CardHeader`, `e-CardTitle`, `e-CardDescription`, `e-CardContent`, `e-CardFooter`
 - `e-Badge`, `e-Avatar`, `e-AvatarImage`, `e-AvatarFallback`
+- `e-Dialog`, `e-DialogTrigger`, `e-DialogContent`, `e-DialogHeader`, `e-DialogTitle`, `e-DialogDescription`, `e-DialogFooter`, `e-DialogClose`
 
 **表单组件**:
 - `e-Form`, `e-FormItem`, `e-FormLabel`, `e-FormControl`, `e-FormMessage`, `e-FormField`
@@ -230,6 +244,46 @@ const AdvancedForm = () => (
 - 文本控件：使用 `{...field}` 简化传参
 - `e-Checkbox`：`checked={!!field.value}` 与 `onCheckedChange={field.onChange}`
 - `e-RadioGroup`/`e-Select`：使用 `value` 与 `onValueChange`
+
+#### Dialog 使用
+
+注意保留 `e-DialogTrigger` 确保正确的触发机制：
+
+```tsx
+const formData = signal({ name: '', username: '' });
+
+const EditDialog = () => (
+  <e-Dialog>
+    <form onSubmit={(e) => { e.preventDefault(); console.log(formData()); }}>
+      <e-DialogTrigger asChild>
+        <e-Button variant="outline">编辑资料</e-Button>
+      </e-DialogTrigger>
+      <e-DialogContent className="sm:max-w-[425px]">
+        <e-DialogHeader>
+          <e-DialogTitle>编辑资料</e-DialogTitle>
+          <e-DialogDescription>修改您的个人信息</e-DialogDescription>
+        </e-DialogHeader>
+        <div className="grid gap-4">
+          <div>
+            <e-Label htmlFor="name">姓名</e-Label>
+            <e-Input
+              id="name"
+              value={formData().name}
+              onChange={(e) => formData({...formData(), name: e.target.value})}
+            />
+          </div>
+        </div>
+        <e-DialogFooter>
+          <e-DialogClose asChild>
+            <e-Button variant="outline">取消</e-Button>
+          </e-DialogClose>
+          <e-Button type="submit">保存</e-Button>
+        </e-DialogFooter>
+      </e-DialogContent>
+    </form>
+  </e-Dialog>
+);
+```
 
 ## 页面模板
 
