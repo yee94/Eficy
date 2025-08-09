@@ -20,7 +20,7 @@
   1. 打开 [`llm_shadcn.txt`](./llm_shadcn.txt)
   2. 在支持 HTML 预览的 LLM 客户端（例如 Cherry Studio）中，按照提示词生成基于 Eficy + shadcn/ui 的页面
   3. 直接在聊天窗口中预览效果，无需复制到本地 HTML 文件
-- 相关链接：[浏览器使用指南](./packages/browser/README.md)、[Playground 示例](./playground/README.md)
+- 相关链接：[浏览器使用指南](./packages/browser/README.md)
 
 ![llm_shadcn.txt](https://md.xiaobe.top/imgs/202508092129587.png!preview.webp)
 

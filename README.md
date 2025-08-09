@@ -20,7 +20,7 @@ If you want to quickly generate pages with Eficy, you can use the prompt set pro
   1. Open the prompts in [`llm_shadcn.txt`](./llm_shadcn.txt)
   2. In an LLM client that supports HTML preview (e.g., Cherry Studio), ask it to generate a page using Eficy + shadcn/ui with these prompts
   3. Preview the result directly in the chat window — no manual copy-paste into HTML is required
-- Related: [Browser usage guide](./packages/browser/README.md), [Playground examples](./playground/README.md)
+- Related: [Browser usage guide](./packages/browser/README.md)
 
 ![llm_shadcn.txt](https://md.xiaobe.top/imgs/202508092129587.png!preview.webp)
 
