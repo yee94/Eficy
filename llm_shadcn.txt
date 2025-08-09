@@ -23,7 +23,7 @@ import { render, signal, computed, effect } from "eficy";
 import * as shadcnUi from "shadcdn";
 
 // 初始化（内置 UnoCSS）
-await initEficy({ components: { ...shadcnUi, ...shadcnUi.Lucide } });
+await initEficy({ components: { ...shadcnUi, icons: shadcnUi.Lucide } });
 ```
 
 ## Signal 状态管理
@@ -161,8 +161,8 @@ const ContactForm = () => {
 - `e-Tabs`, `e-TabsList`, `e-TabsTrigger`, `e-TabsContent`
 
 **图标** (Lucide React):
-- `e-Plus`, `e-Minus`, `e-Search`, `e-User`, `e-Settings`
-- `e-Github`, `e-Chrome`, `e-Mail`, `e-Phone`
+- `e-icons-Plus`, `e-icons-Minus`, `e-icons-Search`, `e-icons-User`, `e-icons-Settings`
+- `e-icons-Github`, `e-icons-Chrome`, `e-icons-Mail`, `e-icons-Phone`
 - 所有 Lucide 图标都可以用 `e-` 前缀使用
 
 ### React Hook Form 集成
@@ -248,8 +248,8 @@ const MyForm = () => {
       // 初始化 Eficy
       await initEficy({ 
         components: { 
+          icons,
           ...shadcnUi, 
-          ...icons 
         } 
       });
 
