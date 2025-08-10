@@ -50,7 +50,7 @@ const App = () => (
   <div>
     <h1>{greeting}</h1>
     <p>Count: {count}</p>
-    <e-Input value={name} onChange={(e) => name(e.target.value)} />
+    <e-Input value={name} onChange={(e) => name.set(e.target.value)} />
     <e-Button onClick={() => count(count() + 1)}>+</e-Button>
   </div>
 );
@@ -82,9 +82,9 @@ const greeting = computed(() => `Hello, ${name()}!`);
 <e-Input onChange={name} />
 <e-Tabs onValueChange={viewMode} />
 
-// ✅ 正确：包装为匿名函数
-<e-Input onChange={(e) => name(e.target.value)} />
-<e-Tabs onValueChange={(v) => viewMode(v)} />
+// ✅ 正确：包装为匿名函数（事件不会被自动消费，需要手动取值）
+<e-Input onChange={(e) => name.set(e.target.value)} />
+<e-Tabs onValueChange={(v) => viewMode.set(v)} />
 
 // 或者使用 observe HOC 让整个组件响应式
 import { observe } from 'eficy';
@@ -166,12 +166,12 @@ const SimpleForm = () => (
   <form onSubmit={(e) => { e.preventDefault(); console.log(formData()); }}>
     <e-Input
       value={formData().name}
-      onChange={(e) => formData({...formData(), name: e.target.value})}
+      onChange={(e) => formData({ ...formData(), name: e.target.value })}
       placeholder="姓名"
     />
     <e-Input
       value={formData().email}
-      onChange={(e) => formData({...formData(), email: e.target.value})}
+      onChange={(e) => formData({ ...formData(), email: e.target.value })}
       placeholder="邮箱"
     />
     <e-Button type="submit">提交</e-Button>
@@ -279,7 +279,7 @@ const EditDialog = () => (
             <e-Input
               id="name"
               value={formData().name}
-              onChange={(e) => formData({...formData(), name: e.target.value})}
+              onChange={(e) => formData({ ...formData(), name: e.target.value })}
             />
           </div>
         </div>
