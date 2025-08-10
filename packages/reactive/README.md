@@ -286,6 +286,32 @@ count(5);
 expect(effectRuns).toBe(2);
 ```
 
+### Signal 的 set 用法（不消费事件）
+
+```typescript
+import { signal } from '@eficy/reactive';
+
+const count = signal(0);
+
+// 直接设置值
+count.set(1);
+// 或使用函数式更新
+count.set((prev) => prev + 1);
+
+// 也可以使用调用风格（与 set 等价）
+count(5);
+count((prev) => prev + 1);
+
+// 表单事件中请显式取值（不会自动从事件中读取 value/checked）
+// input 文本框
+const text = signal('');
+// onChange={(e) => text.set(e.target.value)}
+
+// checkbox
+const checked = signal(false);
+// onChange={(e) => checked.set(e.target.checked)}
+```
+
 ## 📝 TypeScript Support
 
 This library is written in TypeScript and provides excellent type inference:

@@ -194,6 +194,29 @@ name.value = 'Jane'
 user.value = { ...user.value, name: 'Bob' }
 ```
 
+#### set 用法与事件
+```typescript
+import { signal } from '@eficy/reactive'
+
+const name = signal('')
+
+// 设置新值
+name.set('Alice')
+
+// 函数式更新
+name.set(prev => prev.toUpperCase())
+
+// 调用风格（与 set 等价）
+name('Bob')
+name(prev => prev + '!')
+
+// 表单事件中请手动取值，不会自动消费事件
+// onChange={(e) => name.set(e.target.value)}
+
+const agree = signal(false)
+// onChange={(e) => agree.set(e.target.checked)}
+```
+
 #### effect - 响应副作用
 ```typescript
 import { signal, effect } from '@eficy/reactive'
