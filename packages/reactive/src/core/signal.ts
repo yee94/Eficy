@@ -24,14 +24,18 @@ export function signal<T>(initialValue: T): Signal<T> {
     if (args.length === 0) {
       return preactSig.value;
     }
-    const [newValue] = args;
-    if (typeof newValue === 'function') {
-      preactSig.value = (newValue as (prev: T) => T)(preactSig.value);
+    const [incoming] = args as [T | ((prev: T) => T)];
+    if (typeof incoming === 'function') {
+      preactSig.value = (incoming as (prev: T) => T)(preactSig.value);
     } else {
-      preactSig.value = newValue;
+      preactSig.value = incoming as T;
     }
     return preactSig.value;
   }
+
+  signalAccessor.set = (arg: T | ((prev: T) => T)) => {
+    return signalAccessor(arg as unknown as T);
+  };
 
   // 添加信号标记
   (signalAccessor as any)[SIGNAL_MARKER] = true;
@@ -96,4 +100,3 @@ export function peek<T>(signal: Signal<T>): T {
 export function readonly<T>(signal: Signal<T>): ComputedSignal<T> {
   return computed(() => signal());
 }
-

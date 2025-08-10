@@ -11,10 +11,14 @@ export const SIGNAL_MARKER: symbol = Symbol('__EFICY_SIGNAL__');
 
 // ==================== Signal 类型 ====================
 
-export interface Signal<T> {
-  (): T;
+interface SignalAccessor<T> {
   (value: T): T;
   (value: (prev: T) => T): T;
+}
+
+export interface Signal<T> extends SignalAccessor<T> {
+  (): T;
+  set: SignalAccessor<T>;
 }
 
 export type ComputedSignal<T> = () => T;
@@ -53,4 +57,4 @@ export type DeepReadonly<T> = {
 
 export type Primitive = string | number | boolean | null | undefined | symbol | bigint;
 
-export type Observer<T> = T extends Primitive ? T : Signal<T>; 
+export type Observer<T> = T extends Primitive ? T : Signal<T>;
