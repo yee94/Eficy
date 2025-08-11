@@ -22,7 +22,7 @@
   3. 直接在聊天窗口中预览效果，无需复制到本地 HTML 文件
 - 相关链接：[浏览器使用指南](./packages/browser/README.md)
 
-![llm_shadcn.txt](https://md.xiaobe.top/imgs/202508092129587.png!preview.webp)
+![](https://md.xiaobe.top/imgs/202508111310764.gif!preview.webp)
 
 ## 🎯 为什么选择 Eficy？
 
