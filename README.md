@@ -22,6 +22,7 @@ If you want to quickly generate pages with Eficy, you can use the prompt set pro
   3. Preview the result directly in the chat window — no manual copy-paste into HTML is required
 - Related: [Browser usage guide](./packages/browser/README.md)
 
+![llm_shadcn.txt](https://md.xiaobe.top/imgs/202508092129587.png!preview.webp)
 ![](https://md.xiaobe.top/imgs/202508111310764.gif!preview.webp)
 
 ## 🎯 Why Eficy?
