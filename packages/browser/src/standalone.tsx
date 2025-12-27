@@ -6,7 +6,7 @@
 
 import 'reflect-metadata';
 import { create, Eficy, EficyProvider } from 'eficy';
-import React, { ComponentType, ReactNode } from 'react';
+import React, { ComponentType, ReactNode, isValidElement } from 'react';
 import ReactDOM from 'react-dom/client';
 import { transform } from 'sucrase';
 
@@ -88,8 +88,14 @@ export async function render(Component: ComponentType<any> | ReactNode, containe
   const eficy = await getEficy();
   const root = ReactDOM.createRoot(container);
 
+  const isComponent = (c: any): boolean => {
+    return typeof c === 'function' || (typeof c === 'object' && c !== null && !isValidElement(c) && !Array.isArray(c));
+  };
+
   root.render(
-    <EficyProvider core={eficy}>{typeof Component === 'function' ? <Component /> : Component}</EficyProvider>,
+    <EficyProvider core={eficy}>
+      {isComponent(Component) ? React.createElement(Component as ComponentType<any>) : Component}
+    </EficyProvider>,
   );
 }
 
