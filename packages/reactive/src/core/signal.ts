@@ -46,8 +46,13 @@ export function signal<T>(initialValue: T): Signal<T> {
 /**
  * 创建计算信号
  */
-export function computed<T>(getter: () => T): ComputedSignal<T> {
-  const preactComp = preactComputed(getter);
+export function computed<T>(getter: (prev?: T) => T): ComputedSignal<T> {
+  let prevValue: T | undefined;
+  const preactComp = preactComputed(() => {
+    const newValue = getter(prevValue);
+    prevValue = newValue;
+    return newValue;
+  });
 
   // 适配 alien-signals 风格的 API
   function computedAccessor(): T {
