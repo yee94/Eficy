@@ -1,5 +1,11 @@
 # @eficy/reactive
 
+## 1.1.1
+
+### Patch Changes
+
+- 00a3fdc: fix loop
+
 ## 1.1.0
 
 ### Minor Changes

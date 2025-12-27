@@ -1,5 +1,12 @@
 # @eficy/reactive-react
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies [00a3fdc]
+  - @eficy/reactive@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

@@ -50,7 +50,7 @@ export class UnocssPlugin implements ILifecyclePlugin {
     }
 
     // @ts-ignore
-    if (!OriginalComponent._eficy_root) {
+    if (!OriginalComponent || !OriginalComponent._eficy_root) {
       return OriginalComponent;
     }
 

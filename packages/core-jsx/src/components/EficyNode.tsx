@@ -122,6 +122,11 @@ function resolveComponent(
   type: string | ComponentType<any>,
   componentRegistry?: ComponentRegistry,
 ): string | ComponentType<any> | null {
+  if (type === undefined || type === null) {
+    console.error('[Eficy V3] Component type is undefined or null. Please check if the component variable is defined (e.g. check imports or destructuring).');
+    return null;
+  }
+
   // 检查是否是有效的 React 组件
   if (isValidReactComponent(type)) {
     return type;

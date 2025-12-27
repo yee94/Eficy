@@ -7,7 +7,9 @@
 ## 0. 思维链 (CoT) 引导
 
 在生成代码前，请先进行以下思考：
-1.  **状态设计**: 需要哪些原子状态 (Signal)？哪些是衍生状态 (Computed)？
+1.  **状态设计**: 
+    *   **原则**: 优先使用**原子化状态** (Atomic Signals, 如 `const name = signal('')`) 而非大对象状态 (`const form = signal({ name: '' })`)，以避免绑定时的复杂性。
+    *   需要哪些衍生状态 (Computed)？
 2.  **组件拆分**: 页面应被拆分为哪些独立组件？哪些组件需要 `observer` 包裹（因为它们读取了 Signal 的值）？
 3.  **交互逻辑**: 用户操作如何触发 Signal 更新？是否涉及副作用 (Effect)？
 4.  **布局结构**: 如何利用 shadcn/ui 组件构建布局？
@@ -19,6 +21,7 @@
 *   **导入规范**:
     *   **核心功能**: 统一从 `'eficy'` 导入 (`initEficy`, `render`, `signal`, `computed`, `effect`, `observer`, `peek`, `batch`).
     *   **UI 组件**: 统一从 `'shadcn'` 导入 (`Button`, `Input` 等，但使用时需加 `e-` 前缀).
+    *   **样式**: 推荐使用 Tailwind 语法 (`className="flex p-4"`)，Eficy 内置 UnoCSS 引擎会自动处理。
 
 ## 2. 状态管理：Signal vs React Hooks
 
@@ -43,17 +46,6 @@
 2. **在 Computed 中**：如果在 `computed` 计算逻辑中需要基于上一次的计算结果（例如保持对象引用、缓存），**严禁**使用 `peek(self)` 读取自身。**必须使用 `computed` 的第一个参数 `prev`**。
 
 ```typescript
-// ❌ 错误：在 computed 中 peek 自身 -> Cycle detected
-const list = computed(() => {
-  const old = peek(list); // ERROR!
-  return [...old, Math.random()];
-});
-
-// ✅ 正确：使用 prev 参数 (支持版本 >= 1.1.1)
-const list = computed((prev = []) => {
-  return [...prev, Math.random()];
-});
-
 // ❌ 错误：在 effect 中读取并更新 -> Cycle detected
 effect(() => {
   if (count() > 10) count(0);
@@ -71,19 +63,23 @@ effect(() => {
 *   所有 shadcn 组件已预注册，**必须**使用 `e-` 前缀。
 *   示例: `<e-Button>`, `<e-Input>`, `<e-Card>`.
 *   图标: `<e-icons-Plus>`, `<e-icons-Search>`.
+    *   注意：确保 `initEficy` 中注册了 `icons` 集合。
+*   **禁止使用点号访问子组件**：例如禁止使用 `<e-Card.Header>`，应使用扁平化名称 `<e-CardHeader>`。
 
 ### 3.2 响应式传参规则 (核心)
 
-Eficy 的 JSX 运行时会自动处理 Signal 的解包和订阅，但前提是遵循以下规则：
-
 **规则 A: 属性传参 (Props)**
-*   ✅ **推荐**: 直接传递 **Signal 对象**。
+*   ✅ **推荐**: 直接传递 **Signal 对象** (仅限该 Signal 存储的是**基本类型**数据，如 string/number/boolean)。
     ```tsx
-    <e-Input value={nameSignal} /> // 框架会自动订阅并更新 Input
+    const name = signal('Alice');
+    <e-Input value={name} /> // ✅ 自动解包为 'Alice' 并订阅
     ```
-*   ❌ **错误**: 传递 Signal 的值 (除非你确信父组件会重新渲染)。
+*   ❌ **错误**: 传递存储了**对象**的 Signal。会导致输入框显示 `[object Object]`。
     ```tsx
-    <e-Input value={nameSignal()} /> // 仅在初始化时赋值，失去响应性
+    const user = signal({ name: 'Alice' });
+    <e-Input value={user} /> // ❌ 输入框显示 [object Object]
+    // ✅ 修正: 使用 observer + 读取具体属性
+    <e-Input value={user().name} onChange={e => user({...user(), name: e.target.value})} />
     ```
 
 **规则 B: 文本渲染 (Text)**
@@ -91,11 +87,9 @@ Eficy 的 JSX 运行时会自动处理 Signal 的解包和订阅，但前提是�
     ```tsx
     <span>{countSignal}</span> // 框架会自动订阅 textContent
     ```
-*   ⚠️ **注意**: 如果在表达式中使用了 `countSignal()`，则依赖于组件本身的响应性（见规则 C）。
 
 **规则 C: 自定义组件与 `observer`**
 *   当你编写自定义组件，并且在组件**逻辑体**中读取了 Signal 的值 (例如 `count()`) 用于计算或条件渲染时，**必须**使用 `observer` 包裹该组件。
-*   如果组件只是简单地把 Signal 透传给子组件 (不读取值)，则不需要 `observer`。
 
 ```tsx
 import { observer } from 'eficy';
@@ -106,12 +100,39 @@ const UserGreeting = observer(({ user }) => {
   if (user().isGuest) return <div>Welcome Guest</div>;
   return <div>Welcome {user().name}</div>;
 });
-
-// ✅ 场景 2: 仅透传 Signal -> 不需要 observer
-const SimpleInput = ({ value }) => {
-  return <e-Input value={value} />; // EficyNode 会处理 e-Input 的订阅
-};
 ```
+
+**规则 D: 复合组件命名**
+*   **严禁**使用点号语法访问子组件 (如 `<e-Card.Header>`)。Eficy 不支持 JSX 标签名中包含点号。
+*   **正确做法**: 使用扁平化的注册名。例如 `<e-CardHeader>`。
+
+### 3.3 表单输入最佳实践 (Input Handling)
+
+1.  **文本输入**:
+    *   推荐使用原子 Signal: `const name = signal('')`.
+    *   绑定: `<e-Input value={name} onChange={e => name(e.target.value)} />`.
+
+2.  **数字输入 (Number Input)**:
+    *   ⚠️ **注意**: 直接转换 `Number(e.target.value)` 会导致用户无法清空输入框（变回 0）或无法输入负号。
+    *   ✅ **方案 1 (推荐)**: 允许 Signal 存储字符串中间态，仅在计算时转为数字。
+        ```tsx
+        const age = signal('18'); // 存储为字符串
+        const ageNum = computed(() => Number(age()) || 0); // 衍生数字供逻辑使用
+        <e-Input type="number" value={age} onChange={e => age(e.target.value)} />
+        ```
+    *   ✅ **方案 2**: 处理空字符串边界。
+        ```tsx
+        const count = signal(0);
+        <e-Input 
+          type="number" 
+          value={count} 
+          onChange={e => {
+            const val = e.target.value;
+            // 允许空字符串，否则转数字
+            count(val === '' ? '' : Number(val));
+          }} 
+        />
+        ```
 
 ## 4. 高级最佳实践
 
@@ -120,51 +141,24 @@ const SimpleInput = ({ value }) => {
 
 ```typescript
 const list = signal([1, 2]);
-
-// ❌ 错误：直接修改引用不发生变化
-list().push(3);
-list(list());
-
 // ✅ 正确：创建新引用
 list([...list(), 3]);
 ```
 
 ### 4.2 批量更新 (Batching)
-当需要同时更新多个 Signal 时，使用 `batch` 可以合并更新，避免不必要的重复渲染。
+当需要同时更新多个 Signal 时，使用 `batch` 可以合并更新。
 
 ```typescript
 import { batch } from 'eficy';
-
-const reset = () => {
-  batch(() => {
-    count(0);
-    user({ name: 'Guest' });
-    isLoading(false);
-  });
-};
-```
-
-### 4.3 异步操作与 Loading
-建议使用 Signal 明确管理异步状态。
-
-```typescript
-const isLoading = signal(false);
-const data = signal(null);
-
-const fetchData = async () => {
-  isLoading.set(true);
-  try {
-    const res = await api.get('/items');
-    data.set(res);
-  } finally {
-    isLoading.set(false);
-  }
-};
+batch(() => {
+  count(0);
+  user({ name: 'Guest' });
+});
 ```
 
 ## 5. 标准代码模板
 
-请始终基于以下结构生成代码，注意 **CDN 版本应保持较新 (推荐 1.1.0+)** 以支持 `.set()` 等新特性：
+请始终基于以下结构生成代码，注意 **CDN 版本应保持较新 (推荐 1.1.1+)** 以支持 `.set()` 等新特性：
 
 ```html
 <!DOCTYPE html>
@@ -193,10 +187,16 @@ const fetchData = async () => {
 
     // 1. 初始化
     const icons = shadcnUi.Lucide;
+    if (!icons) {
+      console.warn('Lucide icons not found in shadcn package');
+    }
+    
     await initEficy({ components: { icons, ...shadcnUi } });
 
     // 2. 状态定义
     const count = signal(0);
+    // 技巧：数字输入建议配合字符串 Signal 以获得最佳输入体验
+    const inputVal = signal('0'); 
     const double = computed(() => count() * 2);
 
     // 3. 组件定义
@@ -205,19 +205,36 @@ const fetchData = async () => {
         <div className="p-8 space-y-4">
           <h1 className="text-2xl font-bold">Eficy Counter</h1>
           <e-Card>
-            <e-CardContent className="pt-6 flex items-center gap-4">
-              <e-Button onClick={() => count(c => c - 1)} variant="outline">
-                <e-icons-Minus />
-              </e-Button>
-              
-              <div className="text-center">
-                <div className="text-4xl font-bold">{count}</div>
-                <div className="text-sm text-muted-foreground">Double: {double}</div>
+            <e-CardContent className="pt-6 flex flex-col gap-4">
+              <div className="flex items-center gap-4">
+                <e-Button onClick={() => count(c => c - 1)} variant="outline">
+                  <e-icons-Minus />
+                </e-Button>
+                
+                <div className="text-center w-24">
+                  <div className="text-4xl font-bold">{count}</div>
+                  <div className="text-xs text-muted-foreground">Double: {double}</div>
+                </div>
+
+                <e-Button onClick={() => count(c => c + 1)} variant="outline">
+                  <e-icons-Plus />
+                </e-Button>
               </div>
 
-              <e-Button onClick={() => count(c => c + 1)} variant="outline">
-                <e-icons-Plus />
-              </e-Button>
+              <div className="flex gap-2 items-center">
+                 <span className="text-sm">Set Value:</span>
+                 {/* 数字输入框最佳实践 */}
+                 <e-Input 
+                   type="number" 
+                   value={inputVal} 
+                   onChange={(e) => {
+                     const val = e.target.value;
+                     inputVal(val); // 保持输入框显示同步
+                     if (val !== '') count(Number(val)); // 同步到业务状态
+                   }}
+                   className="w-32"
+                 />
+              </div>
             </e-CardContent>
           </e-Card>
         </div>
@@ -232,13 +249,17 @@ const fetchData = async () => {
 
 ## 6. 常见问题排查 (Troubleshooting)
 
-1.  **UI 不更新**:
-    *   检查是否传递了 Signal 值 `value={s()}` 而不是对象 `value={s}`。
-    *   检查组件内部读取了 `s()` 但没有用 `observer` 包裹组件。
-    *   检查数组/对象更新是否使用了不可变方式（`[...arr]`）。
-2.  **报错 "hooks can only be called inside..."**:
-    *   你可能在 Signal 的 `effect` 中错误地调用了 React Hook。
-3.  **报错 "Cycle detected"**:
-    *   检查 `effect` 中是否读取并更新了同一个 Signal。使用 `peek()` 来断开读取依赖。
-4.  **报错 "is not a function"**:
-    *   如果调用 `signal.set(...)` 报错，请检查 `@eficy/browser` 版本是否 >= 1.1.0。若使用旧版，请改用函数调用 `signal(newValue)`。
+1.  **输入框显示 `[object Object]`**:
+    *   **原因**: 你将一个存储了**对象**的 Signal 直接传递给了 `value` 属性 (例如 `const s = signal({a:1}); <e-Input value={s} />`)。
+    *   **解决**: 使用原子 Signal (如 `signal('')`)，或者传递具体属性 (如 `value={s().a}`) 并确保组件被 `observer` 包裹。
+2.  **数字输入框无法输入/无法清空**:
+    *   **原因**: `onChange` 中强制转 `Number()` 导致空字符串变成 0，或者负号被忽略。
+    *   **解决**: 参考 "3.3 表单输入最佳实践"，允许 Signal 存储字符串或处理空值。
+3.  **UI 不更新**:
+    *   检查组件是否被 `observer` 包裹（如果读取了值）。
+    *   检查对象/数组是否使用了**不可变更新**。
+4.  **报错 "Cycle detected"**:
+    *   检查 `effect` 或 `computed` 中是否产生了循环依赖。使用 `peek()` 或 `prev` 参数断开依赖。
+5.  **报错 "Component undefined not found"**:
+    *   **原因**: 组件变量未定义。通常是因为从 `shadcn` 或 `icons` 解构失败，或对应的图标不存在。
+    *   **解决**: 检查 `importmap` 是否正确加载，在代码中添加 `console.log(shadcnUi)` 调试。

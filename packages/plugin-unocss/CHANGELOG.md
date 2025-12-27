@@ -1,5 +1,16 @@
 # @eficy/plugin-unocss
 
+## 1.1.1
+
+### Patch Changes
+
+- update
+- Updated dependencies
+- Updated dependencies [00a3fdc]
+  - @eficy/core-jsx@1.0.1
+  - @eficy/reactive@1.1.1
+  - @eficy/reactive-react@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

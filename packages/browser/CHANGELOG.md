@@ -1,5 +1,11 @@
 # @eficy/browser
 
+## 1.1.2
+
+### Patch Changes
+
+- 00a3fdc: fix loop
+
 ## 1.1.0
 
 ### Minor Changes
