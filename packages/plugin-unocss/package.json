@@ -34,7 +34,7 @@
     "@eficy/reactive": "workspace:~",
     "@eficy/reactive-react": "workspace:~",
     "@unocss/core": "^66.0.0",
-    "@unocss/preset-attributify": "^66.0.0",
+    "@unocss/preset-attributify": "^66.4.1",
     "@unocss/preset-uno": "^66.0.0",
     "reflect-metadata": "^0.2.2"
   },
