@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { mapSignals, hasSignals } from '../utils/mapSignals';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '../core/signal';
 import { isSignal } from '../utils';
+import { hasSignals, mapSignals } from '../utils/mapSignals';
 
 describe('MapSignals', () => {
   describe('mapSignals', () => {
@@ -309,8 +309,109 @@ describe('MapSignals', () => {
     });
 
     it('should return false for non-objects', () => {
-      expect(hasSignals(null)).toBe(false);
-      expect(hasSignals(undefined)).toBe(false);
+      expect(hasSignals(null as any)).toBe(false);
+      expect(hasSignals(undefined as any)).toBe(false);
+    });
+  });
+
+  describe('circular reference detection', () => {
+    let consoleSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    it('should detect and skip circular references', () => {
+      const obj: any = { a: signal(1), b: { c: signal(2) } };
+      obj.self = obj;
+
+      const result = mapSignals(obj);
+
+      expect(result.a).toBe(1);
+      expect(result.b.c).toBe(2);
+      expect(consoleSpy).toHaveBeenCalled();
+    });
+
+    it('should warn on circular reference in dev mode', () => {
+      const obj: any = { value: signal(42) };
+      obj.circular = obj;
+
+      mapSignals(obj);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Circular reference detected'));
+    });
+
+    it('should not throw on circular references', () => {
+      const obj: any = { a: 1 };
+      obj.b = { c: obj };
+
+      expect(() => mapSignals(obj)).not.toThrow();
+    });
+  });
+
+  describe('depth limit warnings', () => {
+    let consoleSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    it('should warn when depth limit is reached', () => {
+      const deepObj = {
+        l1: { l2: { l3: { l4: { l5: { l6: signal(42) } } } } },
+      };
+
+      mapSignals(deepObj, { maxDepth: 3, warnOnDepthLimit: true });
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Maximum depth'));
+    });
+
+    it('should not warn when warnOnDepthLimit is false', () => {
+      const deepObj = {
+        l1: { l2: { l3: { l4: { l5: { l6: signal(42) } } } } },
+      };
+
+      mapSignals(deepObj, { maxDepth: 3, warnOnDepthLimit: false });
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should use default maxDepth of 10', () => {
+      const obj = {
+        l1: { l2: { l3: { l4: { l5: { l6: { l7: { l8: { l9: signal(99) } } } } } } } },
+      };
+
+      const result = mapSignals(obj);
+
+      expect(result.l1.l2.l3.l4.l5.l6.l7.l8.l9).toBe(99);
+    });
+
+    it('should handle deeply nested signals up to maxDepth', () => {
+      const obj = {
+        level1: {
+          level2: {
+            level3: {
+              level4: {
+                level5: {
+                  value: signal(100),
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = mapSignals(obj, { maxDepth: 10 });
+
+      expect(result.level1.level2.level3.level4.level5.value).toBe(100);
     });
   });
 });
