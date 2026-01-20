@@ -19,7 +19,7 @@
 *   **运行环境**: 浏览器端直接运行 (Browser Standalone)，无需 Node.js 构建步骤。
 *   **文件结构**: 单个 HTML 文件，逻辑代码编写在 `<script type="text/eficy">` 标签中。
 *   **导入规范**:
-    *   **核心功能**: 统一从 `'eficy'` 导入 (`initEficy`, `render`, `signal`, `computed`, `effect`, `observer`, `peek`, `batch`).
+    *   **核心功能**: 统一从 `'eficy'` 导入 (`initEficy`, `render`, `signal`, `computed`, `effect`, `observer`, `component`, `bind`, `peek`, `batch`).
     *   **UI 组件**: 统一从 `'shadcn'` 导入 (`Button`, `Input` 等，但使用时需加 `e-` 前缀).
     *   **样式**: 推荐使用 Tailwind 语法 (`className="flex p-4"`)，Eficy 内置 UnoCSS 引擎会自动处理。
 
@@ -30,11 +30,12 @@
 | 特性 | Eficy (Signal) | React (Hooks) | 说明 |
 | :--- | :--- | :--- | :--- |
 | **定义状态** | `const count = signal(0)` | `const [count, set] = useState(0)` | **优先使用 Signal** |
-| **读取值** | `count()` | `count` | Signal 需调用函数取值 |
-| **更新值** | `count(1)` 或 `count.set(1)` | `setCount(1)` | 推荐使用 `.set(val)` 或函数调用 `count(val)` |
+| **读取值** | `count()` 或 `count.get()` 或 `count.value` | `count` | 多种读取方式 |
+| **更新值** | `count(1)` 或 `count.set(1)` 或 `count.value = 1` | `setCount(1)` | 多种更新方式 |
 | **基于旧值更新** | `count(c => c + 1)` | `setCount(c => c + 1)` | 均支持函数式更新 |
 | **衍生状态** | `const double = computed(() => count() * 2)` | `useMemo(...)` | **必须使用 computed** |
 | **副作用** | `effect(() => console.log(count()))` | `useEffect(...)` | **必须使用 effect** |
+| **双向绑定** | `<input {...bind(name)} />` | 手动绑定 | 使用 `bind()` 简化表单 |
 
 ### 🚫 常见错误预警
 *   **严禁**混用 `useState` / `useEffect` 来管理业务状态。仅在极少数需要通过 Ref 操作原生 DOM 且与 Signal 无关的场景下才考虑 React Hooks。
@@ -88,18 +89,20 @@ effect(() => {
     <span>{countSignal}</span> // 框架会自动订阅 textContent
     ```
 
-**规则 C: 自定义组件与 `observer`**
-*   当你编写自定义组件，并且在组件**逻辑体**中读取了 Signal 的值 (例如 `count()`) 用于计算或条件渲染时，**必须**使用 `observer` 包裹该组件。
+**规则 C: 自定义组件与 `observer` / `component`**
+*   当你编写自定义组件，并且在组件**逻辑体**中读取了 Signal 的值 (例如 `count()`) 用于计算或条件渲染时，**必须**使用 `observer` 或 `component` 包裹该组件。
+*   `component()` 是 `observer()` 的语法糖，推荐使用：
 
 ```tsx
-import { observer } from 'eficy';
+import { component, signal } from 'eficy';
 
-// ✅ 场景 1: 逻辑中读取了 Signal -> 需要 observer
-const UserGreeting = observer(({ user }) => {
-  // 在渲染函数中读取了 user().name
-  if (user().isGuest) return <div>Welcome Guest</div>;
-  return <div>Welcome {user().name}</div>;
+// ✅ 推荐：使用 component() 包裹
+const Counter = component(() => {
+  const count = signal(0);
+  return <button onClick={() => count(c => c + 1)}>{count}</button>;
 });
+
+// 等价于: const Counter = observer(() => { ... });
 ```
 
 **规则 D: 复合组件命名**
@@ -108,7 +111,17 @@ const UserGreeting = observer(({ user }) => {
 
 ### 3.3 表单输入最佳实践 (Input Handling)
 
-1.  **文本输入**:
+1.  **使用 bind() 简化双向绑定** (推荐):
+    ```tsx
+    import { signal, bind } from 'eficy';
+    const name = signal('');
+    const checked = signal(false);
+    
+    <e-Input {...bind(name)} />
+    <e-Checkbox {...bind(checked)} />
+    ```
+
+2.  **文本输入** (手动绑定):
     *   推荐使用原子 Signal: `const name = signal('')`.
     *   绑定: `<e-Input value={name} onChange={e => name(e.target.value)} />`.
 
@@ -182,7 +195,7 @@ batch(() => {
   <script type="module" src="https://unpkg.com/@eficy/browser@1.1.1/dist/standalone.mjs"></script>
 
   <script type="text/eficy">
-    import { initEficy, render, signal, computed, effect, observer, peek, batch } from 'eficy';
+    import { initEficy, render, signal, computed, effect, observer, component, bind, peek, batch } from 'eficy';
     import * as shadcnUi from 'shadcn';
 
     // 1. 初始化

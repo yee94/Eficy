@@ -36,7 +36,7 @@ import { observable, computed, effect, action } from '@eficy/reactive';
 const userStore = observable({
   firstName: 'John',
   lastName: 'Doe',
-  age: 25
+  age: 25,
 });
 
 // Create computed values
@@ -189,8 +189,8 @@ const user = observableObject({
   email: 'john@example.com',
   preferences: {
     theme: 'dark',
-    notifications: true
-  }
+    notifications: true,
+  },
 });
 
 // Reactive updates
@@ -213,6 +213,45 @@ user.update({ email: 'jane@example.com' });
 - **`action(fn)`** - Wrap function to batch updates and improve performance
 - **`batch(fn)`** - Manually batch multiple updates
 - **`watch(signal, callback)`** - Watch for signal changes
+- **`bind(signal, options?)`** - Create `{ value, onChange }` props for two-way binding
+
+### Signal API
+
+Signals support multiple ways to read and write values:
+
+```typescript
+const count = signal(0);
+
+// Reading values
+count(); // Call style (recommended)
+count.get(); // Method style (LLM-friendly)
+count.value; // Property style (familiar to Vue/Svelte users)
+
+// Writing values
+count(5); // Call style
+count.set(5); // Method style (recommended)
+count.value = 5; // Property style
+
+// Functional update
+count((c) => c + 1);
+count.set((c) => c + 1);
+```
+
+### Two-way Binding Helper
+
+```typescript
+import { signal, bind } from '@eficy/reactive';
+
+const name = signal('');
+const checked = signal(false);
+
+// In JSX:
+<input {...bind(name)} />
+<input type="checkbox" {...bind(checked)} />
+
+// Custom keys:
+<CustomInput {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
+```
 
 ### Observable Creation
 
@@ -319,9 +358,9 @@ This library is written in TypeScript and provides excellent type inference:
 ```typescript
 // Types are automatically inferred
 const user = observable({
-  name: 'John',    // string
-  age: 25,         // number
-  active: true     // boolean
+  name: 'John', // string
+  age: 25, // number
+  active: true, // boolean
 });
 
 // TypeScript knows the return type
@@ -345,4 +384,4 @@ Contributions welcome! Please read our contributing guidelines and submit pull r
 
 ---
 
-**Made with ❤️ by the Eficy team** 
+**Made with ❤️ by the Eficy team**
