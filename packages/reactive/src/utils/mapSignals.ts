@@ -44,7 +44,10 @@ export interface MapSignalsOptions {
   maxDepth?: number;
   warnOnDepthLimit?: boolean;
   warnOnCircularReference?: boolean;
+  warnOnObjectValue?: boolean;
 }
+
+const VALUE_PROP_KEYS = ['value', 'defaultValue', 'checked', 'defaultChecked'];
 
 export function mapSignals<T extends Record<string, any>>(
   obj: T,
@@ -56,6 +59,7 @@ export function mapSignals<T extends Record<string, any>>(
   const maxDepth = options.maxDepth ?? 10;
   const warnOnDepthLimit = options.warnOnDepthLimit ?? true;
   const warnOnCircularReference = options.warnOnCircularReference ?? true;
+  const warnOnObjectValue = options.warnOnObjectValue ?? true;
 
   if (!obj || typeof obj !== 'object') {
     return obj as MapSignalsDeep<T>;
@@ -100,7 +104,19 @@ export function mapSignals<T extends Record<string, any>>(
     }
 
     if (isSignal(value)) {
-      result = set(result, pathStr, value());
+      const resolvedValue = value();
+      const keyStr = String(key);
+
+      if (isDev && warnOnObjectValue && VALUE_PROP_KEYS.includes(keyStr)) {
+        if (resolvedValue && typeof resolvedValue === 'object' && !Array.isArray(resolvedValue)) {
+          console.warn(
+            `[Eficy] Object Signal passed to "${keyStr}" prop at "${pathStr}". ` +
+              `This may cause unexpected behavior. Consider using a specific property like "${keyStr}.someField" instead.`,
+          );
+        }
+      }
+
+      result = set(result, pathStr, resolvedValue);
       return;
     }
     result = set(result, pathStr, value);

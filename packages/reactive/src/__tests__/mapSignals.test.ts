@@ -353,7 +353,7 @@ describe('MapSignals', () => {
     });
   });
 
-  describe('depth limit warnings', () => {
+  describe('object Signal to value prop warning', () => {
     let consoleSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
@@ -364,54 +364,67 @@ describe('MapSignals', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should warn when depth limit is reached', () => {
-      const deepObj = {
-        l1: { l2: { l3: { l4: { l5: { l6: signal(42) } } } } },
-      };
+    it('should warn when object Signal is passed to value prop', () => {
+      const user = signal({ name: 'test' });
+      const props = { value: user };
 
-      mapSignals(deepObj, { maxDepth: 3, warnOnDepthLimit: true });
+      mapSignals(props);
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Maximum depth'));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Object Signal passed to "value" prop'));
     });
 
-    it('should not warn when warnOnDepthLimit is false', () => {
-      const deepObj = {
-        l1: { l2: { l3: { l4: { l5: { l6: signal(42) } } } } },
-      };
+    it('should warn when object Signal is passed to defaultValue prop', () => {
+      const data = signal({ key: 'value' });
+      const props = { defaultValue: data };
 
-      mapSignals(deepObj, { maxDepth: 3, warnOnDepthLimit: false });
+      mapSignals(props);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Object Signal passed to "defaultValue" prop'));
+    });
+
+    it('should not warn when primitive Signal is passed to value prop', () => {
+      const count = signal(42);
+      const props = { value: count };
+
+      mapSignals(props);
 
       expect(consoleSpy).not.toHaveBeenCalled();
     });
 
-    it('should use default maxDepth of 10', () => {
-      const obj = {
-        l1: { l2: { l3: { l4: { l5: { l6: { l7: { l8: { l9: signal(99) } } } } } } } },
-      };
+    it('should not warn when object Signal is passed to non-value props', () => {
+      const data = signal({ name: 'test' });
+      const props = { data, otherProp: signal({ foo: 'bar' }) };
 
-      const result = mapSignals(obj);
+      mapSignals(props);
 
-      expect(result.l1.l2.l3.l4.l5.l6.l7.l8.l9).toBe(99);
+      expect(consoleSpy).not.toHaveBeenCalled();
     });
 
-    it('should handle deeply nested signals up to maxDepth', () => {
-      const obj = {
-        level1: {
-          level2: {
-            level3: {
-              level4: {
-                level5: {
-                  value: signal(100),
-                },
-              },
-            },
-          },
-        },
-      };
+    it('should not warn when array Signal is passed to value prop', () => {
+      const items = signal([1, 2, 3]);
+      const props = { value: items };
 
-      const result = mapSignals(obj, { maxDepth: 10 });
+      mapSignals(props);
 
-      expect(result.level1.level2.level3.level4.level5.value).toBe(100);
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not warn when warnOnObjectValue is false', () => {
+      const user = signal({ name: 'test' });
+      const props = { value: user };
+
+      mapSignals(props, { warnOnObjectValue: false });
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('warning should include helpful suggestion', () => {
+      const user = signal({ name: 'test' });
+      const props = { value: user };
+
+      mapSignals(props);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Consider using a specific property'));
     });
   });
 });
