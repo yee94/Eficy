@@ -9,6 +9,8 @@ export type ActionFunction<Args extends any[], Return> = (...args: Args) => Retu
 // 信号标记符号
 export const SIGNAL_MARKER: symbol = Symbol('__EFICY_SIGNAL__');
 
+export const SIGNAL_BRAND: unique symbol = Symbol('__EFICY_SIGNAL_BRAND__');
+
 // ==================== Signal 类型 ====================
 
 interface SignalAccessor<T> {
@@ -19,9 +21,17 @@ interface SignalAccessor<T> {
 export interface Signal<T> extends SignalAccessor<T> {
   (): T;
   set: SignalAccessor<T>;
+  get(): T;
+  value: T;
+  readonly [SIGNAL_BRAND]: true;
 }
 
-export type ComputedSignal<T> = () => T;
+export interface ComputedSignal<T> {
+  (): T;
+  get(): T;
+  readonly value: T;
+  readonly [SIGNAL_BRAND]: true;
+}
 
 export interface Ref<T> {
   value: T;

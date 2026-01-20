@@ -1,12 +1,12 @@
 import {
-  signal as preactSignal,
+  batch,
   computed as preactComputed,
   effect as preactEffect,
-  batch,
+  signal as preactSignal,
   untracked,
 } from '@preact/signals-core';
-import type { Signal, ComputedSignal, Dispose } from '../types/index';
-import { SIGNAL_MARKER } from '../types/index';
+import type { ComputedSignal, Dispose, Signal } from '../types/index';
+import { SIGNAL_BRAND, SIGNAL_MARKER } from '../types/index';
 
 // ==================== Signal 实现 ====================
 
@@ -37,8 +37,23 @@ export function signal<T>(initialValue: T): Signal<T> {
     return signalAccessor(arg as unknown as T);
   };
 
-  // 添加信号标记
+  signalAccessor.get = () => {
+    return preactSig.value;
+  };
+
+  Object.defineProperty(signalAccessor, 'value', {
+    get() {
+      return preactSig.value;
+    },
+    set(newValue: T) {
+      preactSig.value = newValue;
+    },
+    enumerable: true,
+    configurable: false,
+  });
+
   (signalAccessor as any)[SIGNAL_MARKER] = true;
+  (signalAccessor as any)[SIGNAL_BRAND] = true;
 
   return signalAccessor as Signal<T>;
 }
@@ -54,13 +69,24 @@ export function computed<T>(getter: (prev?: T) => T): ComputedSignal<T> {
     return newValue;
   });
 
-  // 适配 alien-signals 风格的 API
   function computedAccessor(): T {
     return preactComp.value;
   }
 
-  // 添加信号标记
+  computedAccessor.get = () => {
+    return preactComp.value;
+  };
+
+  Object.defineProperty(computedAccessor, 'value', {
+    get() {
+      return preactComp.value;
+    },
+    enumerable: true,
+    configurable: false,
+  });
+
   (computedAccessor as any)[SIGNAL_MARKER] = true;
+  (computedAccessor as any)[SIGNAL_BRAND] = true;
 
   return computedAccessor as ComputedSignal<T>;
 }
