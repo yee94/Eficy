@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, Fragment, FC } from 'react';
+import React, { forwardRef, memo, Fragment, type FC } from 'react';
 import { useObserver } from './hooks/useObserver';
 import type { IObserverOptions, IObserverProps, ReactFC } from './types';
 
@@ -31,9 +31,8 @@ export function observer<P = any>(component: ReactFC<P>, options?: IObserverOpti
 
   hoistStatics(memoComponent, component);
 
-  if (realOptions.displayName) {
-    memoComponent.displayName = realOptions.displayName;
-  }
+  const componentName = realOptions.displayName || (component as any).displayName || component.name || 'Component';
+  memoComponent.displayName = `Observer(${componentName})`;
 
   return memoComponent;
 }
