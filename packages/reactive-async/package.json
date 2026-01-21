@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@eficy/reactive": "workspace:~",
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.1.5",
     "radashi": "^12.6.0"
   },
   "devDependencies": {
