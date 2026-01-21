@@ -5,14 +5,16 @@ export interface BindOptions {
   eventKey?: string;
 }
 
-export interface BindResult<T> {
-  value: T;
+export interface BindResult {
   onChange: (eventOrValue: any) => void;
+  [key: string]: any;
 }
 
-export function bind<T>(sig: Signal<T>, options?: BindOptions): BindResult<T> & Record<string, any> {
+export function bind<T>(sig: Signal<T>, options?: BindOptions): BindResult {
   const valueKey = options?.valueKey ?? 'value';
   const eventKey = options?.eventKey ?? 'onChange';
+
+  const reactiveValueKey = `${valueKey}$`;
 
   const handleChange = (eventOrValue: any) => {
     if (eventOrValue && typeof eventOrValue === 'object' && eventOrValue.target) {
@@ -27,9 +29,9 @@ export function bind<T>(sig: Signal<T>, options?: BindOptions): BindResult<T> & 
     }
   };
 
-  const result: Record<string, any> = {};
-  result[valueKey] = sig();
-  result[eventKey] = handleChange;
-
-  return result as BindResult<T> & Record<string, any>;
+  return {
+    [reactiveValueKey]: sig,
+    [eventKey]: handleChange,
+    onChange: handleChange,
+  };
 }

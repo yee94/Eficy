@@ -59,6 +59,26 @@ export default () => (
 - **零运行时开销**: 编译时转换，运行时性能优异
 - **TypeScript 支持**: 完整的类型定义和类型安全
 
+### ⚡ $ 后缀响应式协议 (v1.1+)
+
+- **智能旁路**: 静态节点直接透传 React，无额外包装开销
+- **显式响应式**: 使用 `prop$={signal}` 语法明确标记响应式属性
+- **性能优化**: 只有带 `$` 后缀的 props 或 Signal children 才会触发响应式包装
+
+```tsx
+import { signal, bind } from '@eficy/reactive';
+
+const name = signal('');
+const loading = signal(false);
+
+// 静态 props - 直接透传，无额外开销
+<div className="container">Static content</div>
+
+// 响应式 props - 使用 $ 后缀
+<Button loading$={loading}>Submit</Button>
+<Input {...bind(name)} />
+```
+
 ## 📦 安装
 
 ```bash
