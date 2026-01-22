@@ -10,7 +10,7 @@ describe('Batch', () => {
       
       const spy = vi.fn();
       effect(() => {
-        spy({ count: count(), name: name() });
+        spy({ count: count.value, name: name.value });
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
@@ -18,9 +18,9 @@ describe('Batch', () => {
       
       // preact/signals-core 的原生批处理应该真正批处理更新
       batch(() => {
-        count(10);
-        name('updated');
-        count(20);
+        count.value = 10;
+        name.value = 'updated';
+        count.value = 20;
       });
       
       // 使用原生批处理，effect 应该只被调用一次（不包括初始调用）
@@ -31,19 +31,19 @@ describe('Batch', () => {
     it('should handle computed values in batch', () => {
       const a = signal(1);
       const b = signal(2);
-      const sum = computed(() => a() + b());
+      const sum = computed(() => a.value + b.value);
       
       const spy = vi.fn();
       effect(() => {
-        spy(sum());
+        spy(sum.value);
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenLastCalledWith(3);
       
       batch(() => {
-        a(10);
-        b(20);
+        a.value = 10;
+        b.value = 20;
       });
       
       // 原生批处理应该只触发一次计算
@@ -74,20 +74,20 @@ describe('Batch', () => {
       
       const spy = vi.fn();
       effect(() => {
-        spy(count());
+        spy(count.value);
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       
       batch(() => {
-        count(1);
+        count.value = 1;
         
         batch(() => {
-          count(2);
-          count(3);
+          count.value = 2;
+          count.value = 3;
         });
         
-        count(4);
+        count.value = 4;
       });
       
       // 嵌套批处理应该被合并为一次更新
@@ -102,22 +102,22 @@ describe('Batch', () => {
       const y = signal(2);
       const z = signal(3);
       
-      const sum = computed(() => x() + y() + z());
-      const product = computed(() => x() * y() * z());
+      const sum = computed(() => x.value + y.value + z.value);
+      const product = computed(() => x.value * y.value * z.value);
       
       const sumSpy = vi.fn();
       const productSpy = vi.fn();
       
-      effect(() => sumSpy(sum()));
-      effect(() => productSpy(product()));
+      effect(() => sumSpy(sum.value));
+      effect(() => productSpy(product.value));
       
       expect(sumSpy).toHaveBeenCalledTimes(1);
       expect(productSpy).toHaveBeenCalledTimes(1);
       
       batch(() => {
-        x(2);
-        y(3);
-        z(4);
+        x.value = 2;
+        y.value = 3;
+        z.value = 4;
       });
       
       // 每个 effect 应该只被调用一次（不包括初始调用）
@@ -133,18 +133,18 @@ describe('Batch', () => {
       
       const spy = vi.fn();
       effect(() => {
-        if (condition()) {
-          spy(value());
+        if (condition.value) {
+          spy(value.value);
         }
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       
       batch(() => {
-        condition(false);
-        value(100); // 这个变化不应该触发 effect，因为 condition 是 false
-        condition(true);
-        value(200);
+        condition.value = false;
+        value.value = 100; // 这个变化不应该触发 effect，因为 condition 是 false
+        condition.value = true;
+        value.value = 200;
       });
       
       expect(spy).toHaveBeenCalledTimes(2);
@@ -157,8 +157,8 @@ describe('Batch', () => {
       const count = signal(0);
       
       const result = batch(() => {
-        count(5);
-        return count() * 2;
+        count.value = 5;
+        return count.value * 2;
       });
       
       expect(result).toBe(10);
@@ -169,13 +169,13 @@ describe('Batch', () => {
       
       expect(() => {
         batch(() => {
-          count(5);
+          count.value = 5;
           throw new Error('Test error');
         });
       }).toThrow('Test error');
       
       // 即使出错，状态更新也应该生效
-      expect(count()).toBe(5);
+      expect(count.value).toBe(5);
     });
   });
 

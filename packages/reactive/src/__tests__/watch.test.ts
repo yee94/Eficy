@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { watch, watchMultiple, watchOnce, watchDebounced } from '../core/watch';
-import { signal, computed } from '../core/signal';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { computed, signal } from '../core/signal';
+import { watch, watchDebounced, watchMultiple, watchOnce } from '../core/watch';
 import { ref } from '../observables/ref';
 
 describe('Watch', () => {
@@ -9,18 +9,17 @@ describe('Watch', () => {
     vi.useFakeTimers();
   });
 
-
   describe('watch', () => {
     it('should watch signal changes', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      watch(() => count(), spy);
+      watch(() => count.value, spy);
 
-      count(1);
+      count.value = 1;
       expect(spy).toHaveBeenCalledWith(1, 0);
 
-      count(2);
+      count.value = 2;
       expect(spy).toHaveBeenCalledWith(2, 1);
 
       expect(spy).toHaveBeenCalledTimes(2);
@@ -29,15 +28,15 @@ describe('Watch', () => {
     it('should watch computed values', () => {
       const x = signal(2);
       const y = signal(3);
-      const sum = computed(() => x() + y());
+      const sum = computed(() => x.value + y.value);
       const spy = vi.fn();
 
-      watch(() => sum(), spy);
+      watch(() => sum.value, spy);
 
-      x(5);
+      x.value = 5;
       expect(spy).toHaveBeenCalledWith(8, 5);
 
-      y(7);
+      y.value = 7;
       expect(spy).toHaveBeenCalledWith(12, 8);
     });
 
@@ -58,12 +57,12 @@ describe('Watch', () => {
       const count = signal(5);
       const spy = vi.fn();
 
-      watch(() => count(), spy, { immediate: true });
+      watch(() => count.value, spy, { immediate: true });
 
       // Should be called immediately with initial value
       expect(spy).toHaveBeenCalledWith(5, undefined);
 
-      count(10);
+      count.value = 10;
       expect(spy).toHaveBeenCalledWith(10, 5);
 
       expect(spy).toHaveBeenCalledTimes(2);
@@ -73,14 +72,14 @@ describe('Watch', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      const dispose = watch(() => count(), spy);
+      const dispose = watch(() => count.value, spy);
 
-      count(1);
+      count.value = 1;
       expect(spy).toHaveBeenCalledTimes(1);
 
       dispose();
 
-      count(2);
+      count.value = 2;
       expect(spy).toHaveBeenCalledTimes(1); // Should not be called after dispose
     });
 
@@ -90,16 +89,16 @@ describe('Watch', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       watch(() => {
-        if (count() > 2) {
+        if (count.value > 2) {
           throw new Error('Test error');
         }
-        return count();
+        return count.value;
       }, spy);
 
-      count(1);
+      count.value = 1;
       expect(spy).toHaveBeenCalledWith(1, 0);
 
-      count(3);
+      count.value = 3;
       expect(consoleSpy).toHaveBeenCalledWith('Error in watch getter:', expect.any(Error));
       expect(spy).toHaveBeenCalledTimes(1); // Should not be called when getter throws
 
@@ -110,11 +109,14 @@ describe('Watch', () => {
       const count = signal(0);
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      watch(() => count(), () => {
-        throw new Error('Callback error');
-      });
+      watch(
+        () => count.value,
+        () => {
+          throw new Error('Callback error');
+        },
+      );
 
-      count(1);
+      count.value = 1;
       expect(consoleSpy).toHaveBeenCalledWith('Error in watch callback:', expect.any(Error));
 
       consoleSpy.mockRestore();
@@ -128,15 +130,15 @@ describe('Watch', () => {
       const z = signal(3);
       const spy = vi.fn();
 
-      watchMultiple([() => x(), () => y(), () => z()], spy);
+      watchMultiple([() => x.value, () => y.value, () => z.value], spy);
 
-      x(5);
+      x.value = 5;
       expect(spy).toHaveBeenCalledWith([5, 2, 3], [1, 2, 3]);
 
-      y(10);
+      y.value = 10;
       expect(spy).toHaveBeenCalledWith([5, 10, 3], [5, 2, 3]);
 
-      z(15);
+      z.value = 15;
       expect(spy).toHaveBeenCalledWith([5, 10, 15], [5, 10, 3]);
 
       expect(spy).toHaveBeenCalledTimes(3);
@@ -147,11 +149,11 @@ describe('Watch', () => {
       const y = signal(2);
       const spy = vi.fn();
 
-      watchMultiple([() => x(), () => y()], spy, { immediate: true });
+      watchMultiple([() => x.value, () => y.value], spy, { immediate: true });
 
       expect(spy).toHaveBeenCalledWith([1, 2], undefined);
 
-      x(5);
+      x.value = 5;
       expect(spy).toHaveBeenCalledWith([5, 2], [1, 2]);
     });
 
@@ -160,15 +162,15 @@ describe('Watch', () => {
       const y = signal(2);
       const spy = vi.fn();
 
-      watchMultiple([() => x(), () => y()], spy);
+      watchMultiple([() => x.value, () => y.value], spy);
 
       // Set to same values
-      x(1);
-      y(2);
+      x.value = 1;
+      y.value = 2;
       expect(spy).not.toHaveBeenCalled();
 
       // Change one value
-      x(5);
+      x.value = 5;
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
@@ -178,13 +180,13 @@ describe('Watch', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      watchOnce(() => count(), spy);
+      watchOnce(() => count.value, spy);
 
-      count(1);
+      count.value = 1;
       expect(spy).toHaveBeenCalledWith(1, 0);
 
-      count(2);
-      count(3);
+      count.value = 2;
+      count.value = 3;
       expect(spy).toHaveBeenCalledTimes(1); // Should only be called once
     });
 
@@ -192,11 +194,11 @@ describe('Watch', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      const dispose = watchOnce(() => count(), spy);
+      const dispose = watchOnce(() => count.value, spy);
 
       dispose(); // Dispose before any changes
 
-      count(1);
+      count.value = 1;
       expect(spy).not.toHaveBeenCalled();
     });
   });
@@ -206,11 +208,11 @@ describe('Watch', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      watchDebounced(() => count(), spy, 100);
+      watchDebounced(() => count.value, spy, 100);
 
-      count(1);
-      count(2);
-      count(3);
+      count.value = 1;
+      count.value = 2;
+      count.value = 3;
 
       // Should not be called immediately
       expect(spy).not.toHaveBeenCalled();
@@ -227,12 +229,12 @@ describe('Watch', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      watchDebounced(() => count(), spy, 100);
+      watchDebounced(() => count.value, spy, 100);
 
-      count(1);
+      count.value = 1;
       vi.advanceTimersByTime(50);
 
-      count(2);
+      count.value = 2;
       vi.advanceTimersByTime(50);
 
       // Should not be called yet (timer was reset)
@@ -248,9 +250,9 @@ describe('Watch', () => {
       const count = signal(0);
       const spy = vi.fn();
 
-      const dispose = watchDebounced(() => count(), spy, 100);
+      const dispose = watchDebounced(() => count.value, spy, 100);
 
-      count(1);
+      count.value = 1;
       dispose();
 
       vi.advanceTimersByTime(100);
@@ -263,11 +265,15 @@ describe('Watch', () => {
       const count = signal(0);
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      watchDebounced(() => count(), () => {
-        throw new Error('Debounced callback error');
-      }, 100);
+      watchDebounced(
+        () => count.value,
+        () => {
+          throw new Error('Debounced callback error');
+        },
+        100,
+      );
 
-      count(1);
+      count.value = 1;
       vi.advanceTimersByTime(100);
 
       expect(consoleSpy).toHaveBeenCalledWith('Error in debounced watch callback:', expect.any(Error));
@@ -280,44 +286,44 @@ describe('Watch', () => {
     it('should handle complex reactive dependencies', () => {
       const todos = signal<{ id: number; text: string; done: boolean }[]>([]);
       const filter = signal<'all' | 'active' | 'completed'>('all');
-      
+
       const filteredTodos = computed(() => {
-        const allTodos = todos();
-        switch (filter()) {
+        const allTodos = todos.value;
+        switch (filter.value) {
           case 'active':
-            return allTodos.filter(t => !t.done);
+            return allTodos.filter((t) => !t.done);
           case 'completed':
-            return allTodos.filter(t => t.done);
+            return allTodos.filter((t) => t.done);
           default:
             return allTodos;
         }
       });
 
       const spy = vi.fn();
-      watch(() => filteredTodos(), spy);
+      watch(() => filteredTodos.value, spy);
 
       // Add todos
-      todos([
+      todos.value = [
         { id: 1, text: 'Task 1', done: false },
-        { id: 2, text: 'Task 2', done: true }
-      ]);
+        { id: 2, text: 'Task 2', done: true },
+      ];
 
       expect(spy).toHaveBeenCalledWith(
         [
           { id: 1, text: 'Task 1', done: false },
-          { id: 2, text: 'Task 2', done: true }
+          { id: 2, text: 'Task 2', done: true },
         ],
-        []
+        [],
       );
 
       // Change filter
-      filter('active');
+      filter.value = 'active';
       expect(spy).toHaveBeenLastCalledWith(
         [{ id: 1, text: 'Task 1', done: false }],
         [
           { id: 1, text: 'Task 1', done: false },
-          { id: 2, text: 'Task 2', done: true }
-        ]
+          { id: 2, text: 'Task 2', done: true },
+        ],
       );
     });
 
@@ -327,16 +333,16 @@ describe('Watch', () => {
       const debouncedSpy = vi.fn();
       const onceSpy = vi.fn();
 
-      watch(() => value(), normalSpy);
-      watchDebounced(() => value(), debouncedSpy, 100);
-      watchOnce(() => value(), onceSpy);
+      watch(() => value.value, normalSpy);
+      watchDebounced(() => value.value, debouncedSpy, 100);
+      watchOnce(() => value.value, onceSpy);
 
-      value(1);
+      value.value = 1;
       expect(normalSpy).toHaveBeenCalledWith(1, 0);
       expect(onceSpy).toHaveBeenCalledWith(1, 0);
       expect(debouncedSpy).not.toHaveBeenCalled();
 
-      value(2);
+      value.value = 2;
       expect(normalSpy).toHaveBeenCalledWith(2, 1);
       expect(onceSpy).toHaveBeenCalledTimes(1); // Only once
       expect(debouncedSpy).not.toHaveBeenCalled();
@@ -345,4 +351,4 @@ describe('Watch', () => {
       expect(debouncedSpy).toHaveBeenCalledWith(2, 0);
     });
   });
-}); 
+});

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { computed, signal } from '../core/signal';
 import { type ComputedSignal, SIGNAL_BRAND, type Signal } from '../types/index';
 
-describe('Signal Types - Branded Types and New API', () => {
+describe('Signal Types - Value-Only API', () => {
   describe('Signal Brand', () => {
     it('should have SIGNAL_BRAND symbol defined', () => {
       expect(typeof SIGNAL_BRAND).toBe('symbol');
@@ -15,29 +15,8 @@ describe('Signal Types - Branded Types and New API', () => {
 
     it('computed should have brand marker', () => {
       const count = signal(0);
-      const doubled = computed(() => count() * 2);
+      const doubled = computed(() => count.value * 2);
       expect((doubled as any)[SIGNAL_BRAND]).toBe(true);
-    });
-  });
-
-  describe('Signal .get() method', () => {
-    it('signal should have .get() method that returns current value', () => {
-      const count = signal(5);
-      expect(typeof count.get).toBe('function');
-      expect(count.get()).toBe(5);
-    });
-
-    it('computed should have .get() method that returns computed value', () => {
-      const count = signal(3);
-      const doubled = computed(() => count() * 2);
-      expect(typeof doubled.get).toBe('function');
-      expect(doubled.get()).toBe(6);
-    });
-
-    it('.get() should reflect updated values', () => {
-      const count = signal(0);
-      count.set(10);
-      expect(count.get()).toBe(10);
     });
   });
 
@@ -50,57 +29,52 @@ describe('Signal Types - Branded Types and New API', () => {
     it('signal should have .value setter that updates value', () => {
       const count = signal(0);
       count.value = 100;
-      expect(count()).toBe(100);
       expect(count.value).toBe(100);
     });
 
     it('computed should have .value getter (read-only)', () => {
       const count = signal(5);
-      const doubled = computed(() => count() * 2);
+      const doubled = computed(() => count.value * 2);
       expect(doubled.value).toBe(10);
     });
 
-    it('.value should reflect changes from other update methods', () => {
+    it('.value should reflect changes correctly', () => {
       const count = signal(0);
 
-      count(5);
+      count.value = 5;
       expect(count.value).toBe(5);
 
-      count.set(10);
+      count.value = 10;
       expect(count.value).toBe(10);
 
       count.value = 15;
-      expect(count()).toBe(15);
+      expect(count.value).toBe(15);
     });
   });
 
-  describe('Backward Compatibility', () => {
-    it('existing signal() call style should still work', () => {
+  describe('Signal is object, not function', () => {
+    it('signal should be an object', () => {
       const count = signal(0);
-      expect(count()).toBe(0);
-
-      count(5);
-      expect(count()).toBe(5);
+      expect(typeof count).toBe('object');
+      expect(count).not.toBeNull();
     });
 
-    it('existing signal.set() should still work', () => {
+    it('signal should not be callable', () => {
       const count = signal(0);
-      count.set(10);
-      expect(count()).toBe(10);
-
-      count.set((prev) => prev + 5);
-      expect(count()).toBe(15);
+      expect(typeof count).not.toBe('function');
     });
 
-    it('existing computed() should still work', () => {
-      const a = signal(2);
-      const b = signal(3);
-      const sum = computed(() => a() + b());
+    it('computed should be an object', () => {
+      const count = signal(0);
+      const doubled = computed(() => count.value * 2);
+      expect(typeof doubled).toBe('object');
+      expect(doubled).not.toBeNull();
+    });
 
-      expect(sum()).toBe(5);
-
-      a(10);
-      expect(sum()).toBe(13);
+    it('computed should not be callable', () => {
+      const count = signal(0);
+      const doubled = computed(() => count.value * 2);
+      expect(typeof doubled).not.toBe('function');
     });
   });
 
@@ -110,25 +84,56 @@ describe('Signal Types - Branded Types and New API', () => {
       const strSignal = signal('hello');
       const objSignal = signal({ name: 'test' });
 
-      const num: number = numSignal();
-      const str: string = strSignal();
-      const obj: { name: string } = objSignal();
+      const num: number = numSignal.value;
+      const str: string = strSignal.value;
+      const obj: { name: string } = objSignal.value;
 
       expect(num).toBe(0);
       expect(str).toBe('hello');
       expect(obj).toEqual({ name: 'test' });
     });
 
-    it('.get() should return correct type', () => {
-      const count = signal(42);
-      const value: number = count.get();
-      expect(value).toBe(42);
-    });
-
     it('.value should have correct type', () => {
       const count = signal(42);
       const value: number = count.value;
       expect(value).toBe(42);
+    });
+
+    it('computed .value should have correct type', () => {
+      const count = signal(42);
+      const doubled = computed(() => count.value * 2);
+      const value: number = doubled.value;
+      expect(value).toBe(84);
+    });
+  });
+
+  describe('Reactivity with .value', () => {
+    it('computed should update when signal changes', () => {
+      const a = signal(2);
+      const b = signal(3);
+      const sum = computed(() => a.value + b.value);
+
+      expect(sum.value).toBe(5);
+
+      a.value = 10;
+      expect(sum.value).toBe(13);
+
+      b.value = 20;
+      expect(sum.value).toBe(30);
+    });
+
+    it('nested computed should work correctly', () => {
+      const x = signal(1);
+      const y = signal(2);
+      const sum = computed(() => x.value + y.value);
+      const doubled = computed(() => sum.value * 2);
+
+      expect(sum.value).toBe(3);
+      expect(doubled.value).toBe(6);
+
+      x.value = 5;
+      expect(sum.value).toBe(7);
+      expect(doubled.value).toBe(14);
     });
   });
 });
