@@ -16,46 +16,18 @@ import { SIGNAL_BRAND, SIGNAL_MARKER } from '../types/index';
 export function signal<T>(initialValue: T): Signal<T> {
   const preactSig = preactSignal(initialValue);
 
-  // 适配 alien-signals 风格的 API（函数调用风格）
-  function signalAccessor(): T;
-  function signalAccessor(newValue: T): T;
-  function signalAccessor(newValue: (prev: T) => T): T;
-  function signalAccessor(...args: [] | [T] | [(prev: T) => T]): T {
-    if (args.length === 0) {
-      return preactSig.value;
-    }
-    const [incoming] = args as [T | ((prev: T) => T)];
-    if (typeof incoming === 'function') {
-      preactSig.value = (incoming as (prev: T) => T)(preactSig.value);
-    } else {
-      preactSig.value = incoming as T;
-    }
-    return preactSig.value;
-  }
-
-  signalAccessor.set = (arg: T | ((prev: T) => T)) => {
-    return signalAccessor(arg as unknown as T);
-  };
-
-  signalAccessor.get = () => {
-    return preactSig.value;
-  };
-
-  Object.defineProperty(signalAccessor, 'value', {
-    get() {
+  const signalObject = {
+    get value() {
       return preactSig.value;
     },
-    set(newValue: T) {
+    set value(newValue: T) {
       preactSig.value = newValue;
     },
-    enumerable: true,
-    configurable: false,
-  });
+    [SIGNAL_MARKER]: true as const,
+    [SIGNAL_BRAND]: true as const,
+  };
 
-  (signalAccessor as any)[SIGNAL_MARKER] = true;
-  (signalAccessor as any)[SIGNAL_BRAND] = true;
-
-  return signalAccessor as Signal<T>;
+  return signalObject as Signal<T>;
 }
 
 /**
@@ -69,26 +41,15 @@ export function computed<T>(getter: (prev?: T) => T): ComputedSignal<T> {
     return newValue;
   });
 
-  function computedAccessor(): T {
-    return preactComp.value;
-  }
-
-  computedAccessor.get = () => {
-    return preactComp.value;
-  };
-
-  Object.defineProperty(computedAccessor, 'value', {
-    get() {
+  const computedObject = {
+    get value() {
       return preactComp.value;
     },
-    enumerable: true,
-    configurable: false,
-  });
+    [SIGNAL_MARKER]: true as const,
+    [SIGNAL_BRAND]: true as const,
+  };
 
-  (computedAccessor as any)[SIGNAL_MARKER] = true;
-  (computedAccessor as any)[SIGNAL_BRAND] = true;
-
-  return computedAccessor as ComputedSignal<T>;
+  return computedObject as ComputedSignal<T>;
 }
 
 /**
@@ -115,19 +76,19 @@ export { untracked };
  * 检查是否为信号
  */
 export function isSignal(value: unknown): value is Signal<unknown> {
-  return typeof value === 'function' && (value as any)[SIGNAL_MARKER] === true;
+  return typeof value === 'object' && value !== null && (value as any)[SIGNAL_MARKER] === true;
 }
 
 /**
  * 只读访问信号值（不建立依赖关系）
  */
 export function peek<T>(signal: Signal<T>): T {
-  return untracked(() => signal());
+  return untracked(() => signal.value);
 }
 
 /**
  * 创建只读信号
  */
 export function readonly<T>(signal: Signal<T>): ComputedSignal<T> {
-  return computed(() => signal());
+  return computed(() => signal.value);
 }

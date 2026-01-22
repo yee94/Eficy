@@ -104,7 +104,7 @@ export function mapSignals<T extends Record<string, any>>(
     }
 
     if (isSignal(value)) {
-      const resolvedValue = value();
+      const resolvedValue = value.value;
       const keyStr = String(key);
 
       if (isDev && warnOnObjectValue && VALUE_PROP_KEYS.includes(keyStr)) {

@@ -8,14 +8,14 @@ import type { Ref, Signal } from '../types/index';
  */
 export function ref<T>(initialValue: T): Ref<T> {
   const sig: Signal<T> = signal(initialValue);
-  
+
   return {
-    get value() { 
-      return sig(); 
+    get value() {
+      return sig.value;
     },
-    set value(val: T) { 
-      sig(val); 
-    }
+    set value(val: T) {
+      sig.value = val;
+    },
   };
 }
 
@@ -24,11 +24,11 @@ export function ref<T>(initialValue: T): Ref<T> {
  */
 export function readonly<T>(value: () => T): Readonly<Ref<T>> {
   const computedValue = () => value();
-  
+
   return {
     get value() {
       return computedValue();
-    }
+    },
   } as Readonly<Ref<T>>;
 }
 
@@ -49,10 +49,10 @@ export function isRef<T>(value: unknown): value is Ref<T> {
   if (value === null || value === undefined) {
     return false;
   }
-  
-  return typeof value === 'object' && 
-    'value' in value &&
-    Object.getOwnPropertyDescriptor(value, 'value')?.get !== undefined;
+
+  return (
+    typeof value === 'object' && 'value' in value && Object.getOwnPropertyDescriptor(value, 'value')?.get !== undefined
+  );
 }
 
 /**
@@ -72,17 +72,15 @@ export function toRef<T>(value: T | Ref<T>): Ref<T> {
 /**
  * 将对象的属性转换为 ref
  */
-export function toRefs<T extends Record<string, unknown>>(
-  object: T
-): { [K in keyof T]: Ref<T[K]> } {
+export function toRefs<T extends Record<string, unknown>>(object: T): { [K in keyof T]: Ref<T[K]> } {
   const refs = {} as { [K in keyof T]: Ref<T[K]> };
-  
+
   for (const key in object) {
     if (Object.prototype.hasOwnProperty.call(object, key)) {
       refs[key] = ref(object[key]);
     }
   }
-  
+
   return refs;
 }
 
@@ -90,24 +88,29 @@ export function toRefs<T extends Record<string, unknown>>(
  * 自定义 ref（允许自定义 getter 和 setter）
  */
 export function customRef<T>(
-  factory: (track: () => void, trigger: () => void) => {
+  factory: (
+    track: () => void,
+    trigger: () => void,
+  ) => {
     get: () => T;
     set: (value: T) => void;
-  }
+  },
 ): Ref<T> {
   const sig = signal<T>(undefined as T);
-  
-  const track = () => sig(); // 收集依赖
-  const trigger = () => sig(sig()); // 触发更新
-  
+
+  const track = () => sig.value; // 收集依赖
+  const trigger = () => {
+    sig.value = sig.value;
+  }; // 触发更新
+
   const { get, set } = factory(track, trigger);
-  
+
   return {
     get value() {
       return get();
     },
     set value(val: T) {
       set(val);
-    }
+    },
   };
-} 
+}

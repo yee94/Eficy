@@ -20,12 +20,12 @@ export function bind<T>(sig: Signal<T>, options?: BindOptions): BindResult {
     if (eventOrValue && typeof eventOrValue === 'object' && eventOrValue.target) {
       const target = eventOrValue.target;
       if (target.type === 'checkbox' || target.type === 'radio') {
-        sig.set(target.checked as T);
+        sig.value = target.checked as T;
       } else {
-        sig.set(target.value as T);
+        sig.value = target.value as T;
       }
     } else {
-      sig.set(eventOrValue as T);
+      sig.value = eventOrValue as T;
     }
   };
 
