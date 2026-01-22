@@ -13,22 +13,12 @@ export const SIGNAL_BRAND: unique symbol = Symbol('__EFICY_SIGNAL_BRAND__');
 
 // ==================== Signal 类型 ====================
 
-interface SignalAccessor<T> {
-  (value: T): T;
-  (value: (prev: T) => T): T;
-}
-
-export interface Signal<T> extends SignalAccessor<T> {
-  (): T;
-  set: SignalAccessor<T>;
-  get(): T;
+export interface Signal<T> {
   value: T;
   readonly [SIGNAL_BRAND]: true;
 }
 
 export interface ComputedSignal<T> {
-  (): T;
-  get(): T;
   readonly value: T;
   readonly [SIGNAL_BRAND]: true;
 }

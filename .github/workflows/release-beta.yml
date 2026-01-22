@@ -150,10 +150,9 @@ jobs:
       - name: Publish to npm
         id: publish
         run: |
-          pnpm changeset publish --tag ${{ steps.prerelease-tag.outputs.tag }}
+          pnpm changeset publish
           echo "published=true" >> $GITHUB_OUTPUT
         env:
-          # NPM_TOKEN is optional when using Trusted Publishing (OIDC)
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push tags

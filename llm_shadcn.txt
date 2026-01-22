@@ -191,8 +191,8 @@ batch(() => {
   <script type="importmap">
     { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.0.2/dist/index.js" } }
   </script>
-  <!-- 注意：使用 1.1.1+ 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.1.1/dist/standalone.mjs"></script>
+  <!-- 注意：使用 1.1.3-beta.0+ 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.1.3-beta.0/dist/standalone.mjs"></script>
 
   <script type="text/eficy">
     import { initEficy, render, signal, computed, effect, observer, component, bind, peek, batch } from 'eficy';
