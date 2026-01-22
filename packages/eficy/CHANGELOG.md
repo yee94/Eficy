@@ -1,24 +1,5 @@
 # eficy
 
-## 1.2.0-beta.0
-
-### Minor Changes
-
-- feat: implement $ suffix reactive protocol for smart JSX bypass
-
-  - **$ 后缀协议**: `prop$={signal}` 明确标识响应式绑定
-  - **智能旁路**: 静态节点直接透传 React，不包裹 EficyNode
-  - **bind() 升级**: 返回 `{ value$, onChange }` 而非 `{ value, onChange }`
-
-### Patch Changes
-
-- Updated dependencies
-  - @eficy/core-jsx@1.1.0-beta.0
-  - @eficy/reactive@1.2.0-beta.0
-  - @eficy/plugin-unocss@1.1.2-beta.0
-  - @eficy/reactive-async@1.1.1-beta.0
-  - @eficy/reactive-react@1.1.2-beta.0
-
 ## 1.1.0
 
 ### Minor Changes

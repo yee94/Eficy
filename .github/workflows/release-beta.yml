@@ -1,0 +1,204 @@
+name: Release Beta
+
+on:
+  push:
+    branches:
+      - beta
+      - next
+      - alpha
+  workflow_dispatch:
+    inputs:
+      prerelease_tag:
+        description: 'Prerelease tag (beta, alpha, next, rc)'
+        required: true
+        default: 'beta'
+        type: choice
+        options:
+          - beta
+          - alpha
+          - next
+          - rc
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Download Artifacts
+        uses: ./.github/actions/download-artifacts
+
+      - name: Clean workspace
+        run: |
+          git clean -fdx
+          git reset --hard HEAD
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        shell: bash
+
+      - name: Run tests
+        run: pnpm test
+        shell: bash
+
+  release-beta:
+    needs: [test]
+    runs-on: ubuntu-latest
+    # Required permissions for OIDC Trusted Publishing and provenance
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write # Required for npm OIDC provenance
+    outputs:
+      published: ${{ steps.publish.outputs.published }}
+      publishedPackages: ${{ steps.publish.outputs.publishedPackages }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup
+
+      - name: Download Artifacts
+        uses: ./.github/actions/download-artifacts
+
+      - name: Clean workspace
+        run: |
+          git clean -fdx
+          git reset --hard HEAD
+        shell: bash
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        shell: bash
+
+      # Upgrade npm to support Trusted Publishing (requires npm >= 11.5.1)
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
+
+      - name: Determine prerelease tag
+        id: prerelease-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TAG="${{ inputs.prerelease_tag }}"
+          else
+            BRANCH="${GITHUB_REF#refs/heads/}"
+            case "$BRANCH" in
+              beta) TAG="beta" ;;
+              alpha) TAG="alpha" ;;
+              next) TAG="next" ;;
+              *) TAG="beta" ;;
+            esac
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Using prerelease tag: $TAG"
+
+      - name: Check if in prerelease mode
+        id: check-pre
+        run: |
+          if [ -f ".changeset/pre.json" ]; then
+            CURRENT_TAG=$(jq -r '.tag' .changeset/pre.json)
+            echo "in_pre=true" >> $GITHUB_OUTPUT
+            echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+            echo "Already in prerelease mode with tag: $CURRENT_TAG"
+          else
+            echo "in_pre=false" >> $GITHUB_OUTPUT
+            echo "Not in prerelease mode"
+          fi
+
+      - name: Enter prerelease mode
+        if: steps.check-pre.outputs.in_pre != 'true'
+        run: |
+          pnpm changeset pre enter ${{ steps.prerelease-tag.outputs.tag }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .changeset/pre.json
+          git commit -m "chore: enter ${{ steps.prerelease-tag.outputs.tag }} prerelease mode" || true
+
+      - name: Version packages
+        run: pnpm changeset version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit version changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: version packages (${{ steps.prerelease-tag.outputs.tag }})" || true
+          git push
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Publish to npm
+        id: publish
+        run: |
+          pnpm changeset publish --tag ${{ steps.prerelease-tag.outputs.tag }}
+          echo "published=true" >> $GITHUB_OUTPUT
+        env:
+          # NPM_TOKEN is optional when using Trusted Publishing (OIDC)
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push tags
+        run: git push --follow-tags
+
+  create-prerelease:
+    needs: release-beta
+    runs-on: ubuntu-latest
+    if: needs.release-beta.outputs.published == 'true'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: get-tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Prerelease
+        if: steps.get-tag.outputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get-tag.outputs.tag }}
+          name: Prerelease ${{ steps.get-tag.outputs.tag }}
+          body: |
+            ## 🧪 Prerelease
+
+            This is a prerelease version. Use with caution in production.
+
+            ### Install
+            ```bash
+            npm install eficy@${{ steps.get-tag.outputs.tag }}
+            # or
+            pnpm add eficy@${{ steps.get-tag.outputs.tag }}
+            ```
+
+            ## Published Packages
+            ${{ needs.release-beta.outputs.publishedPackages }}
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

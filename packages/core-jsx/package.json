@@ -19,9 +19,7 @@
       "import": "./dist/jsx-dev-runtime.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
@@ -29,14 +27,7 @@
     "test:coverage": "vitest --coverage",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "eficy",
-    "react",
-    "jsx",
-    "signals",
-    "reactive",
-    "components"
-  ],
+  "keywords": ["eficy", "react", "jsx", "signals", "reactive", "components"],
   "author": "Eficy Team",
   "license": "MIT",
   "dependencies": {

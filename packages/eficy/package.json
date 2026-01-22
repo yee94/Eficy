@@ -3,15 +3,7 @@
   "version": "1.2.0-beta.0",
   "license": "MIT",
   "description": "The complete Eficy ecosystem - A modern front-end orchestration framework with built-in plugins",
-  "keywords": [
-    "eficy",
-    "react",
-    "framework",
-    "orchestration",
-    "json-driven",
-    "reactive",
-    "unocss"
-  ],
+  "keywords": ["eficy", "react", "framework", "orchestration", "json-driven", "reactive", "unocss"],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,10 +27,7 @@
     "url": "git+https://github.com/yee94/Eficy.git",
     "directory": "packages/eficy"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "dev": "tsdown --watch",
     "build": "tsdown",

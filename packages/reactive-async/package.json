@@ -30,10 +30,7 @@
   "engines": {
     "npm": ">=3.0.0"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "dev": "tsdown --watch",
     "build": "tsdown",

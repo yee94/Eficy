@@ -6,6 +6,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     uses: ./.github/workflows/build.yml
@@ -25,7 +29,6 @@ jobs:
 
       - name: Clean workspace
         run: |
-          # Remove any potential temporary files that might interfere with git
           git clean -fdx
           git reset --hard HEAD
         shell: bash
@@ -53,7 +56,6 @@ jobs:
 
       - name: Clean workspace
         run: |
-          # Remove any potential temporary files that might interfere with git
           git clean -fdx
           git reset --hard HEAD
         shell: bash
@@ -70,17 +72,22 @@ jobs:
         run: pnpm -r typecheck
         shell: bash
 
-  version:
+  release:
     needs: [test, typecheck]
     runs-on: ubuntu-latest
+    # Required permissions for OIDC Trusted Publishing and provenance
+    permissions:
+      contents: write # to create release commits and tags
+      pull-requests: write # to create pull request (changesets/action)
+      id-token: write # to enable OIDC for npm provenance and trusted publishing
     outputs:
       published: ${{ steps.changesets.outputs.published }}
-      tag: ${{ steps.changesets.outputs.tag }}
       publishedPackages: ${{ steps.changesets.outputs.publishedPackages }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Environment
@@ -91,7 +98,6 @@ jobs:
 
       - name: Clean workspace
         run: |
-          # Remove any potential temporary files that might interfere with git
           git clean -fdx
           git reset --hard HEAD
         shell: bash
@@ -100,32 +106,52 @@ jobs:
         run: pnpm install --frozen-lockfile
         shell: bash
 
+      # Upgrade npm to support Trusted Publishing (requires npm >= 11.5.1)
+      - name: Upgrade npm for Trusted Publishing
+        run: npm install -g npm@latest
+
       - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
         with:
           publish: pnpm release
+          version: pnpm version
           title: 'chore: version packages'
           commit: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # NPM_TOKEN is optional when using Trusted Publishing (OIDC)
+          # Keep it as fallback for environments without OIDC support
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   create-release:
-    needs: version
+    needs: release
     runs-on: ubuntu-latest
-    if: needs.version.outputs.published == 'true'
+    if: needs.release.outputs.published == 'true'
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ needs.version.outputs.tag }}
-          release_name: Release ${{ needs.version.outputs.tag }}
-          body: ${{ needs.version.outputs.publishedPackages }}
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: get-tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: steps.get-tag.outputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get-tag.outputs.tag }}
+          name: Release ${{ steps.get-tag.outputs.tag }}
+          body: |
+            ## Published Packages
+            ${{ needs.release.outputs.publishedPackages }}
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
