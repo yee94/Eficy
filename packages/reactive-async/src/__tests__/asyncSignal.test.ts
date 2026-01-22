@@ -1,8 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { asyncSignal } from '../core/asyncSignal';
 
 describe('asyncSignal', () => {
- 
   describe('基础功能', () => {
     it('应该创建 asyncSignal 并返回正确的结构', () => {
       const mockService = vi.fn().mockResolvedValue({ name: 'test' });
@@ -23,12 +22,12 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService);
 
       // 等待异步操作完成
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(result.data()).toEqual({ name: 'test' });
-      expect(result.loading()).toBe(false);
-      expect(result.error()).toBeUndefined();
+      expect(result.data.value).toEqual({ name: 'test' });
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toBeUndefined();
     });
 
     it('应该处理服务函数错误', async () => {
@@ -44,9 +43,9 @@ describe('asyncSignal', () => {
       }
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(result.data()).toBeUndefined();
-      expect(result.loading()).toBe(false);
-      expect(result.error()).toEqual(error);
+      expect(result.data.value).toBeUndefined();
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toEqual(error);
     });
   });
 
@@ -56,7 +55,7 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService, { manual: true });
 
       expect(mockService).not.toHaveBeenCalled();
-      expect(result.loading()).toBe(false);
+      expect(result.loading.value).toBe(false);
     });
 
     it('应该手动触发请求', async () => {
@@ -64,12 +63,12 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService, { manual: true });
 
       const promise = result.run();
-      expect(result.loading()).toBe(true);
+      expect(result.loading.value).toBe(true);
 
       const data = await promise;
       expect(data).toEqual({ name: 'test' });
-      expect(result.data()).toEqual({ name: 'test' });
-      expect(result.loading()).toBe(false);
+      expect(result.data.value).toEqual({ name: 'test' });
+      expect(result.loading.value).toBe(false);
     });
   });
 
@@ -89,7 +88,7 @@ describe('asyncSignal', () => {
       });
 
       // 等待异步操作完成
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(onBefore).toHaveBeenCalledWith([]);
       expect(onSuccess).toHaveBeenCalledWith({ name: 'test' }, []);
@@ -133,7 +132,7 @@ describe('asyncSignal', () => {
       const result = asyncSignal(mockService, { manual: true });
 
       result.mutate({ name: 'updated' });
-      expect(result.data()).toEqual({ name: 'updated' });
+      expect(result.data.value).toEqual({ name: 'updated' });
     });
 
     it('应该支持函数式修改数据', () => {
@@ -145,7 +144,7 @@ describe('asyncSignal', () => {
         return { ...oldData, name: 'updated' };
       });
 
-      expect(result.data()).toEqual({ name: 'new' });
+      expect(result.data.value).toEqual({ name: 'new' });
     });
   });
 
@@ -167,9 +166,9 @@ describe('asyncSignal', () => {
 
   describe('取消功能', () => {
     it('应该支持取消请求', async () => {
-      const mockService = vi.fn().mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve({ name: 'test' }), 100))
-      );
+      const mockService = vi
+        .fn()
+        .mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ name: 'test' }), 100)));
       const result = asyncSignal(mockService, { manual: true });
 
       const promise = result.run();
@@ -184,15 +183,15 @@ describe('asyncSignal', () => {
       const mockService = vi.fn().mockResolvedValue({ name: 'test' });
       const result = asyncSignal(mockService, { manual: true });
 
-      const computed = result.computed((state) => {
+      const computedFn = result.computed((state) => {
         if (state.loading) return 'loading';
         if (state.error) return 'error';
         if (state.data) return (state.data as any).name;
         return 'no data';
       });
 
-      expect(computed).toBeDefined();
-      expect(typeof computed).toBe('function');
+      expect(computedFn).toBeDefined();
+      expect(typeof computedFn).toBe('object');
     });
   });
 
@@ -200,33 +199,33 @@ describe('asyncSignal', () => {
     it('应该支持初始数据', () => {
       const mockService = vi.fn().mockResolvedValue({ name: 'test' });
       const initialData = { name: 'initial' };
-      const result = asyncSignal(mockService, { 
+      const result = asyncSignal(mockService, {
         manual: true,
-        initialData 
+        initialData,
       });
 
-      expect(result.data()).toEqual(initialData);
+      expect(result.data.value).toEqual(initialData);
     });
   });
 
   describe('格式化结果', () => {
     it('应该支持格式化结果', async () => {
-      const mockService = vi.fn().mockResolvedValue({ 
+      const mockService = vi.fn().mockResolvedValue({
         data: { name: 'test' },
-        status: 200 
+        status: 200,
       });
       const formatResult = vi.fn().mockImplementation((response) => response.data);
-      
+
       const result = asyncSignal(mockService, { formatResult });
 
       // 等待异步操作完成
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(formatResult).toHaveBeenCalledWith({ 
+      expect(formatResult).toHaveBeenCalledWith({
         data: { name: 'test' },
-        status: 200 
+        status: 200,
       });
-      expect(result.data()).toEqual({ name: 'test' });
+      expect(result.data.value).toEqual({ name: 'test' });
     });
   });
 });

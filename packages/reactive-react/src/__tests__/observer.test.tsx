@@ -7,13 +7,13 @@ describe('observer', () => {
   it('should re-render when observable changes', async () => {
     const count = signal(0);
 
-    const Counter = observer(() => <div data-testid="counter">Count: {count()}</div>);
+    const Counter = observer(() => <div data-testid="counter">Count: {count.value}</div>);
 
     render(<Counter />);
     expect(screen.getByTestId('counter')).toHaveTextContent('Count: 0');
 
     act(() => {
-      count(1);
+      count.value = 1;
     });
 
     await waitFor(() => {
@@ -25,12 +25,12 @@ describe('observer', () => {
     const count = signal(0);
 
     const increment = createAction(() => {
-      count(count() + 1);
+      count.value = count.value + 1;
     });
 
     const Counter = observer(() => (
       <div>
-        <span data-testid="counter">Count: {count()}</span>
+        <span data-testid="counter">Count: {count.value}</span>
         <button data-testid="increment" onClick={increment}>
           +1
         </button>
@@ -54,7 +54,7 @@ describe('observer', () => {
 
     const Counter = observer((props: { prefix: string }) => (
       <div data-testid="counter">
-        {props.prefix}: {count()}
+        {props.prefix}: {count.value}
       </div>
     ));
 
@@ -67,7 +67,7 @@ describe('observer', () => {
 
     // 改变 observable
     act(() => {
-      count(5);
+      count.value = 5;
     });
 
     await waitFor(() => {

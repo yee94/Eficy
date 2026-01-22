@@ -117,6 +117,7 @@ export function mapSignals<T extends Record<string, any>>(
       }
 
       result = set(result, pathStr, resolvedValue);
+      context.skip();
       return;
     }
     result = set(result, pathStr, value);

@@ -85,7 +85,7 @@ describe('Reactive $ Protocol Integration', () => {
       expect(input.value).toBe('initial');
 
       fireEvent.change(input, { target: { value: 'changed' } });
-      expect(valueSig()).toBe('changed');
+      expect(valueSig.value).toBe('changed');
     });
 
     it('bind() with custom keys works correctly', () => {

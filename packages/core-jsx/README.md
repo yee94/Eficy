@@ -23,7 +23,7 @@ export default () => (
 
     {loading ? <div>Loading...</div> : (
       <div>
-        {computed(() => data().list.map((item) => (
+        {computed(() => data.value.list.map((item) => (
           <div key={item.id}>{item.name}</div>
         )))}
       </div>
@@ -134,7 +134,7 @@ const App = () => {
   return (
     <div>
       <h1>Count: {count}</h1>
-      <e-custom-button onClick={() => count(count() + 1)}>Click me!</e-custom-button>
+      <e-custom-button onClick={() => (count.value += 1)}>Click me!</e-custom-button>
     </div>
   );
 };
@@ -327,9 +327,9 @@ const count = signal(0);
 <div>Count: {count}</div>;
 
 // 编程式访问
-const currentCount = count(); // 获取值
-count.set(10); // 设置值
-count.set((prev) => prev + 1); // 函数式更新
+const currentCount = count.value; // 获取值
+count.value = 10; // 设置值
+count.value = count.value + 1; // 更新
 ```
 
 ### 异步 Signal
@@ -361,7 +361,7 @@ import { computed } from '@eficy/reactive';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
-const fullName = computed(() => `${firstName()} ${lastName()}`);
+const fullName = computed(() => `${firstName.value} ${lastName.value}`);
 
 // 在 JSX 中使用计算属性
 <div>Welcome, {fullName}!</div>;
@@ -473,12 +473,12 @@ const useTableData = () => {
   const loading = signal(false);
 
   const loadData = async () => {
-    loading.set(true);
+    loading.value = true;
     try {
       const response = await fetch('/api/table-data');
-      data.set(await response.json());
+      data.value = await response.json();
     } finally {
-      loading.set(false);
+      loading.value = false;
     }
   };
 
@@ -538,7 +538,7 @@ export class DataTablePlugin implements ILifecyclePlugin {
 ```jsx
 // ✅ 推荐：使用 computed 避免重复计算
 const expensiveData = computed(() => {
-  return heavyProcessing(rawData());
+  return heavyProcessing(rawData.value);
 });
 
 // ✅ 推荐：合理使用 memo 和 signal

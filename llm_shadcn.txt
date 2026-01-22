@@ -23,18 +23,72 @@
     *   **UI 组件**: 统一从 `'shadcn'` 导入 (`Button`, `Input` 等，但使用时需加 `e-` 前缀).
     *   **样式**: 推荐使用 Tailwind 语法 (`className="flex p-4"`)，Eficy 内置 UnoCSS 引擎会自动处理。
 
-## 2. 状态管理：Signal vs React Hooks
+## 2. $ 后缀响应式协议 (v1.1+)
+
+Eficy 采用显式的 **$ 后缀协议**标记响应式属性，实现智能性能优化。
+
+### 核心规则
+- `prop$={signal}` = 响应式绑定（Signal 会被自动解包并订阅）
+- `prop={value}` = 静态值（直接透传 React，无额外开销）
+
+### 语法示例
+```tsx
+const loading = signal(false);
+const name = signal('');
+const count = signal(0);
+
+// ✅ $ 后缀 = 响应式属性（推荐）
+<e-Button loading$={loading}>Submit</e-Button>
+<e-Input value$={name} onChange={e => { name.value = e.target.value; }} />
+
+// ✅ 使用 bind() 辅助函数（自动生成 value$ + onChange）
+<e-Input {...bind(name)} />
+<e-Checkbox {...bind(checked)} />
+
+// ✅ children 中的 Signal 会被自动处理
+<div>Count: {count}</div>
+<span>{computed(() => count.value * 2)}</span>
+
+// ✅ 静态节点 - 直接透传 React，无包装开销
+<div className="container">Static content</div>
+```
+
+### 性能优势
+| 场景 | 处理方式 | 性能 |
+|------|----------|------|
+| `prop$={signal}` | EficyNode 包装 + 响应式订阅 | 自动更新 |
+| `{signal}` 在 children | EficyNode 包装 + 响应式订阅 | 自动更新 |
+| 静态节点（无 Signal） | **直接透传 React** | 零开销 |
+
+### bind() 函数详解
+```tsx
+import { signal, bind } from 'eficy';
+
+const name = signal('');
+const checked = signal(false);
+
+// bind() 返回 { value$: signal, onChange: handler }
+<e-Input {...bind(name)} />
+// 等价于:
+<e-Input value$={name} onChange={e => { name.value = e.target.value; }} />
+
+// 自定义键名
+<e-Select {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
+// 返回 { selected$: signal, onSelect: handler }
+```
+
+## 3. 状态管理：Signal vs React Hooks
 
 **这是最关键的区别点。Eficy 使用 Signal 系统，而非 React 的 Hooks。**
 
 | 特性 | Eficy (Signal) | React (Hooks) | 说明 |
 | :--- | :--- | :--- | :--- |
 | **定义状态** | `const count = signal(0)` | `const [count, set] = useState(0)` | **优先使用 Signal** |
-| **读取值** | `count()` 或 `count.get()` 或 `count.value` | `count` | 多种读取方式 |
-| **更新值** | `count(1)` 或 `count.set(1)` 或 `count.value = 1` | `setCount(1)` | 多种更新方式 |
-| **基于旧值更新** | `count(c => c + 1)` | `setCount(c => c + 1)` | 均支持函数式更新 |
-| **衍生状态** | `const double = computed(() => count() * 2)` | `useMemo(...)` | **必须使用 computed** |
-| **副作用** | `effect(() => console.log(count()))` | `useEffect(...)` | **必须使用 effect** |
+| **读取值** | `count.value` | `count` | 使用 `.value` 读取 |
+| **更新值** | `count.value = 1` | `setCount(1)` | 使用 `.value =` 写入 |
+| **基于旧值更新** | `count.value = count.value + 1` | `setCount(c => c + 1)` | 直接读取旧值 |
+| **衍生状态** | `const double = computed(() => count.value * 2)` | `useMemo(...)` | **必须使用 computed** |
+| **副作用** | `effect(() => console.log(count.value))` | `useEffect(...)` | **必须使用 effect** |
 | **双向绑定** | `<input {...bind(name)} />` | 手动绑定 | 使用 `bind()` 简化表单 |
 
 ### 🚫 常见错误预警
@@ -49,12 +103,12 @@
 ```typescript
 // ❌ 错误：在 effect 中读取并更新 -> Cycle detected
 effect(() => {
-  if (count() > 10) count(0);
+  if (count.value > 10) count.value = 0;
 });
 
 // ✅ 正确：使用 peek(count) 读取不建立订阅
 effect(() => {
-  if (peek(count) > 10) count(0);
+  if (peek(count) > 10) count.value = 0;
 });
 ```
 
@@ -80,7 +134,7 @@ effect(() => {
     const user = signal({ name: 'Alice' });
     <e-Input value={user} /> // ❌ 输入框显示 [object Object]
     // ✅ 修正: 使用 observer + 读取具体属性
-    <e-Input value={user().name} onChange={e => user({...user(), name: e.target.value})} />
+    <e-Input value={user.value.name} onChange={e => { user.value = {...user.value, name: e.target.value}; }} />
     ```
 
 **规则 B: 文本渲染 (Text)**
@@ -90,7 +144,7 @@ effect(() => {
     ```
 
 **规则 C: 自定义组件与 `observer` / `component`**
-*   当你编写自定义组件，并且在组件**逻辑体**中读取了 Signal 的值 (例如 `count()`) 用于计算或条件渲染时，**必须**使用 `observer` 或 `component` 包裹该组件。
+*   当你编写自定义组件，并且在组件**逻辑体**中读取了 Signal 的值 (例如 `count.value`) 用于计算或条件渲染时，**必须**使用 `observer` 或 `component` 包裹该组件。
 *   `component()` 是 `observer()` 的语法糖，推荐使用：
 
 ```tsx
@@ -99,7 +153,7 @@ import { component, signal } from 'eficy';
 // ✅ 推荐：使用 component() 包裹
 const Counter = component(() => {
   const count = signal(0);
-  return <button onClick={() => count(c => c + 1)}>{count}</button>;
+  return <button onClick={() => { count.value = count.value + 1; }}>{count}</button>;
 });
 
 // 等价于: const Counter = observer(() => { ... });
@@ -123,15 +177,15 @@ const Counter = component(() => {
 
 2.  **文本输入** (手动绑定):
     *   推荐使用原子 Signal: `const name = signal('')`.
-    *   绑定: `<e-Input value={name} onChange={e => name(e.target.value)} />`.
+    *   绑定: `<e-Input value={name} onChange={e => { name.value = e.target.value; }} />`.
 
 2.  **数字输入 (Number Input)**:
     *   ⚠️ **注意**: 直接转换 `Number(e.target.value)` 会导致用户无法清空输入框（变回 0）或无法输入负号。
     *   ✅ **方案 1 (推荐)**: 允许 Signal 存储字符串中间态，仅在计算时转为数字。
         ```tsx
         const age = signal('18'); // 存储为字符串
-        const ageNum = computed(() => Number(age()) || 0); // 衍生数字供逻辑使用
-        <e-Input type="number" value={age} onChange={e => age(e.target.value)} />
+        const ageNum = computed(() => Number(age.value) || 0); // 衍生数字供逻辑使用
+        <e-Input type="number" value={age} onChange={e => { age.value = e.target.value; }} />
         ```
     *   ✅ **方案 2**: 处理空字符串边界。
         ```tsx
@@ -142,7 +196,7 @@ const Counter = component(() => {
           onChange={e => {
             const val = e.target.value;
             // 允许空字符串，否则转数字
-            count(val === '' ? '' : Number(val));
+            count.value = val === '' ? '' : Number(val);
           }} 
         />
         ```
@@ -155,7 +209,7 @@ const Counter = component(() => {
 ```typescript
 const list = signal([1, 2]);
 // ✅ 正确：创建新引用
-list([...list(), 3]);
+list.value = [...list.value, 3];
 ```
 
 ### 4.2 批量更新 (Batching)
@@ -164,14 +218,14 @@ list([...list(), 3]);
 ```typescript
 import { batch } from 'eficy';
 batch(() => {
-  count(0);
-  user({ name: 'Guest' });
+  count.value = 0;
+  user.value = { name: 'Guest' };
 });
 ```
 
 ## 5. 标准代码模板
 
-请始终基于以下结构生成代码，注意 **CDN 版本应保持较新 (推荐 1.1.1+)** 以支持 `.set()` 等新特性：
+请始终基于以下结构生成代码，注意 **CDN 版本应保持较新 (推荐 1.1.3-beta.0+)** 以支持 `.value` API：
 
 ```html
 <!DOCTYPE html>
@@ -210,7 +264,7 @@ batch(() => {
     const count = signal(0);
     // 技巧：数字输入建议配合字符串 Signal 以获得最佳输入体验
     const inputVal = signal('0'); 
-    const double = computed(() => count() * 2);
+    const double = computed(() => count.value * 2);
 
     // 3. 组件定义
     const App = observer(() => {
@@ -220,7 +274,7 @@ batch(() => {
           <e-Card>
             <e-CardContent className="pt-6 flex flex-col gap-4">
               <div className="flex items-center gap-4">
-                <e-Button onClick={() => count(c => c - 1)} variant="outline">
+                <e-Button onClick={() => count.value -= 1} variant="outline">
                   <e-icons-Minus />
                 </e-Button>
                 
@@ -229,7 +283,7 @@ batch(() => {
                   <div className="text-xs text-muted-foreground">Double: {double}</div>
                 </div>
 
-                <e-Button onClick={() => count(c => c + 1)} variant="outline">
+                <e-Button onClick={() => count.value += 1} variant="outline">
                   <e-icons-Plus />
                 </e-Button>
               </div>
@@ -241,10 +295,10 @@ batch(() => {
                    type="number" 
                    value={inputVal} 
                    onChange={(e) => {
-                     const val = e.target.value;
-                     inputVal(val); // 保持输入框显示同步
-                     if (val !== '') count(Number(val)); // 同步到业务状态
-                   }}
+                      const val = e.target.value;
+                      inputVal.value = val; // 保持输入框显示同步
+                      if (val !== '') count.value = Number(val); // 同步到业务状态
+                    }}
                    className="w-32"
                  />
               </div>

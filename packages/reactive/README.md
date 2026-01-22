@@ -217,24 +217,19 @@ user.update({ email: 'jane@example.com' });
 
 ### Signal API
 
-Signals support multiple ways to read and write values:
+Signals use `.value` property for reading and writing:
 
 ```typescript
 const count = signal(0);
 
 // Reading values
-count(); // Call style (recommended)
-count.get(); // Method style (LLM-friendly)
-count.value; // Property style (familiar to Vue/Svelte users)
+count.value; // Property style (recommended)
 
 // Writing values
-count(5); // Call style
-count.set(5); // Method style (recommended)
-count.value = 5; // Property style
+count.value = 5; // Property style (recommended)
 
 // Functional update
-count((c) => c + 1);
-count.set((c) => c + 1);
+count.value = count.value + 1;
 ```
 
 ### Two-way Binding Helper
@@ -319,16 +314,16 @@ let effectRuns = 0;
 
 effect(() => {
   effectRuns++;
-  count(); // Read signal to create dependency
+  count.value; // Read signal to create dependency
 });
 
 expect(effectRuns).toBe(1);
 
-count(5);
+count.value = 5;
 expect(effectRuns).toBe(2);
 ```
 
-### Signal 的 set 用法（不消费事件）
+### Signal 的 value 用法（不消费事件）
 
 ```typescript
 import { signal } from '@eficy/reactive';
@@ -336,22 +331,18 @@ import { signal } from '@eficy/reactive';
 const count = signal(0);
 
 // 直接设置值
-count.set(1);
+count.value = 1;
 // 或使用函数式更新
-count.set((prev) => prev + 1);
-
-// 也可以使用调用风格（与 set 等价）
-count(5);
-count((prev) => prev + 1);
+count.value = count.value + 1;
 
 // 表单事件中请显式取值（不会自动从事件中读取 value/checked）
 // input 文本框
 const text = signal('');
-// onChange={(e) => text.set(e.target.value)}
+// onChange={(e) => text.value = e.target.value}
 
 // checkbox
 const checked = signal(false);
-// onChange={(e) => checked.set(e.target.checked)}
+// onChange={(e) => checked.value = e.target.checked}
 ```
 
 ## 📝 TypeScript Support

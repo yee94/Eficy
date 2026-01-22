@@ -53,7 +53,7 @@ describe('bind() helper', () => {
 
       props.onChange({ target: { value: 'new value' } } as any);
 
-      expect(name()).toBe('new value');
+      expect(name.value).toBe('new value');
     });
 
     it('should handle e.target.checked for checkboxes', () => {
@@ -62,7 +62,7 @@ describe('bind() helper', () => {
 
       props.onChange({ target: { checked: true, type: 'checkbox' } } as any);
 
-      expect(checked()).toBe(true);
+      expect(checked.value).toBe(true);
     });
 
     it('should handle e.target.checked for radio buttons', () => {
@@ -71,7 +71,7 @@ describe('bind() helper', () => {
 
       props.onChange({ target: { checked: true, type: 'radio' } } as any);
 
-      expect(selected()).toBe(true);
+      expect(selected.value).toBe(true);
     });
 
     it('should handle direct value (not event object)', () => {
@@ -80,7 +80,7 @@ describe('bind() helper', () => {
 
       props.onChange(42);
 
-      expect(count()).toBe(42);
+      expect(count.value).toBe(42);
     });
   });
 
@@ -91,7 +91,7 @@ describe('bind() helper', () => {
 
       expect('value$' in props && props.value$).toBe(num);
       props.onChange(100);
-      expect(num()).toBe(100);
+      expect(num.value).toBe(100);
     });
 
     it('should work with boolean signals', () => {
@@ -100,7 +100,7 @@ describe('bind() helper', () => {
 
       expect('value$' in props && props.value$).toBe(flag);
       props.onChange(true);
-      expect(flag()).toBe(true);
+      expect(flag.value).toBe(true);
     });
 
     it('should work with object signals', () => {
@@ -109,7 +109,7 @@ describe('bind() helper', () => {
 
       expect('value$' in props && props.value$).toBe(obj);
       props.onChange({ name: 'updated' });
-      expect(obj()).toEqual({ name: 'updated' });
+      expect(obj.value).toEqual({ name: 'updated' });
     });
 
     it('should work with array signals', () => {
@@ -118,7 +118,7 @@ describe('bind() helper', () => {
 
       props.onChange(['a', 'b', 'c']);
 
-      expect(items()).toEqual(['a', 'b', 'c']);
+      expect(items.value).toEqual(['a', 'b', 'c']);
     });
   });
 });

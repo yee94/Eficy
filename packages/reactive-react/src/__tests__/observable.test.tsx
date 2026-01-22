@@ -1,75 +1,73 @@
-import React from 'react'
-import { render, screen, act, waitFor } from '@testing-library/react'
-import { signal, createAction, Observable, Computed, Action, makeObservable } from '@eficy/reactive'
-import { observer } from '../observer'
+import { Action, Computed, Observable, createAction, makeObservable, signal } from '@eficy/reactive';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { observer } from '../observer';
 
 describe('Simplified reactive patterns', () => {
   it('should work with signals and observer', async () => {
-    const count = signal(0)
-    const name = signal('test')
-    
+    const count = signal(0);
+    const name = signal('test');
+
     const increment = createAction(() => {
-      count(count() + 1)
-    })
-    
+      count.value = count.value + 1;
+    });
+
     const Component = observer(() => (
       <div>
-        <span data-testid="count">Count: {count()}</span>
-        <span data-testid="name">Name: {name()}</span>
-        <button data-testid="increment" onClick={increment}>Increment</button>
+        <span data-testid="count">Count: {count.value}</span>
+        <span data-testid="name">Name: {name.value}</span>
+        <button data-testid="increment" onClick={increment}>
+          Increment
+        </button>
       </div>
-    ))
-    
-    render(<Component />)
-    
-    expect(screen.getByTestId('count')).toHaveTextContent('Count: 0')
-    expect(screen.getByTestId('name')).toHaveTextContent('Name: test')
-    
+    ));
+
+    render(<Component />);
+
+    expect(screen.getByTestId('count')).toHaveTextContent('Count: 0');
+    expect(screen.getByTestId('name')).toHaveTextContent('Name: test');
+
     act(() => {
-      increment()
-    })
-    
+      increment();
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('count')).toHaveTextContent('Count: 1')
-    })
-  })
+      expect(screen.getByTestId('count')).toHaveTextContent('Count: 1');
+    });
+  });
 
   it('should work with arrays using immutable updates', async () => {
-    const items = signal(['apple', 'banana'])
-    
+    const items = signal(['apple', 'banana']);
+
     const addItem = createAction((item: string) => {
       // 新范式：重新赋值整个数组
-      items([...items(), item])
-    })
-    
-    const Component = observer(() => (
-      <div data-testid="items">
-        Items: {items().join(', ')}
-      </div>
-    ))
-    
-    render(<Component />)
-    expect(screen.getByTestId('items')).toHaveTextContent('Items: apple, banana')
-    
+      items.value = [...items.value, item];
+    });
+
+    const Component = observer(() => <div data-testid="items">Items: {items.value.join(', ')}</div>);
+
+    render(<Component />);
+    expect(screen.getByTestId('items')).toHaveTextContent('Items: apple, banana');
+
     act(() => {
-      addItem('cherry')
-    })
-    
+      addItem('cherry');
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('items')).toHaveTextContent('Items: apple, banana, cherry')
-    })
-  })
-  
+      expect(screen.getByTestId('items')).toHaveTextContent('Items: apple, banana, cherry');
+    });
+  });
+
   it('should work with object properties using signals', async () => {
-    const userSignal = signal({ name: 'John', age: 25 })
-    
+    const userSignal = signal({ name: 'John', age: 25 });
+
     const updateUser = createAction((updates: Partial<{ name: string; age: number }>) => {
       // 新范式：重新赋值整个对象
-      userSignal({ ...userSignal(), ...updates })
-    })
-    
+      userSignal.value = { ...userSignal.value, ...updates };
+    });
+
     const Component = observer(() => {
-      const user = userSignal()
+      const user = userSignal.value;
       return (
         <div>
           <span data-testid="name">Name: {user.name}</span>
@@ -78,50 +76,50 @@ describe('Simplified reactive patterns', () => {
             Update Name
           </button>
         </div>
-      )
-    })
-    
-    render(<Component />)
-    
-    expect(screen.getByTestId('name')).toHaveTextContent('Name: John')
-    expect(screen.getByTestId('age')).toHaveTextContent('Age: 25')
-    
+      );
+    });
+
+    render(<Component />);
+
+    expect(screen.getByTestId('name')).toHaveTextContent('Name: John');
+    expect(screen.getByTestId('age')).toHaveTextContent('Age: 25');
+
     act(() => {
-      screen.getByTestId('update').click()
-    })
-    
+      screen.getByTestId('update').click();
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('name')).toHaveTextContent('Name: Jane')
-    })
-  })
+      expect(screen.getByTestId('name')).toHaveTextContent('Name: Jane');
+    });
+  });
 
   it('should work with decorator pattern for classes', async () => {
     class CounterStore {
       @Observable
-      count = 0
-      
+      count = 0;
+
       @Observable
-      name = 'Counter'
-      
+      name = 'Counter';
+
       @Computed
       get displayText() {
-        return `${this.name}: ${this.count}`
+        return `${this.name}: ${this.count}`;
       }
-      
+
       @Action
       increment() {
-        this.count++
+        this.count++;
       }
-      
+
       @Action
       setName(name: string) {
-        this.name = name
+        this.name = name;
       }
     }
-    
-    const store = new CounterStore()
-    makeObservable(store)
-    
+
+    const store = new CounterStore();
+    makeObservable(store);
+
     const Component = observer(() => (
       <div>
         <span data-testid="display">{store.displayText}</span>
@@ -132,94 +130,87 @@ describe('Simplified reactive patterns', () => {
           Rename
         </button>
       </div>
-    ))
-    
-    render(<Component />)
-    
-    expect(screen.getByTestId('display')).toHaveTextContent('Counter: 0')
-    
+    ));
+
+    render(<Component />);
+
+    expect(screen.getByTestId('display')).toHaveTextContent('Counter: 0');
+
     act(() => {
-      screen.getByTestId('increment').click()
-    })
-    
+      screen.getByTestId('increment').click();
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('display')).toHaveTextContent('Counter: 1')
-    })
-    
+      expect(screen.getByTestId('display')).toHaveTextContent('Counter: 1');
+    });
+
     act(() => {
-      screen.getByTestId('rename').click()
-    })
-    
+      screen.getByTestId('rename').click();
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('display')).toHaveTextContent('New Counter: 1')
-    })
-  })
+      expect(screen.getByTestId('display')).toHaveTextContent('New Counter: 1');
+    });
+  });
 
   it('should work with complex state using immutable patterns', async () => {
     interface Todo {
-      id: number
-      text: string
-      completed: boolean
+      id: number;
+      text: string;
+      completed: boolean;
     }
-    
-    const todos = signal<Todo[]>([])
-    
+
+    const todos = signal<Todo[]>([]);
+
     const addTodo = createAction((text: string) => {
       const newTodo: Todo = {
         id: Date.now(),
         text,
-        completed: false
-      }
+        completed: false,
+      };
       // 新范式：重新赋值整个数组
-      todos([...todos(), newTodo])
-    })
-    
+      todos.value = [...todos.value, newTodo];
+    });
+
     const toggleTodo = createAction((id: number) => {
       // 新范式：重新赋值整个数组
-      todos(todos().map(todo => 
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      ))
-    })
-    
+      todos.value = todos.value.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
+    });
+
     const Component = observer(() => (
       <div>
-        <span data-testid="count">Todo count: {todos().length}</span>
-        <span data-testid="completed">
-          Completed: {todos().filter(t => t.completed).length}
-        </span>
+        <span data-testid="count">Todo count: {todos.value.length}</span>
+        <span data-testid="completed">Completed: {todos.value.filter((t) => t.completed).length}</span>
         <button data-testid="add" onClick={() => addTodo('Test todo')}>
           Add Todo
         </button>
-        {todos().length > 0 && (
-          <button 
-            data-testid="toggle-first" 
-            onClick={() => toggleTodo(todos()[0].id)}
-          >
+        {todos.value.length > 0 && (
+          <button data-testid="toggle-first" onClick={() => toggleTodo(todos.value[0].id)}>
             Toggle First
           </button>
         )}
       </div>
-    ))
-    
-    render(<Component />)
-    
-    expect(screen.getByTestId('count')).toHaveTextContent('Todo count: 0')
-    expect(screen.getByTestId('completed')).toHaveTextContent('Completed: 0')
-    
+    ));
+
+    render(<Component />);
+
+    expect(screen.getByTestId('count')).toHaveTextContent('Todo count: 0');
+    expect(screen.getByTestId('completed')).toHaveTextContent('Completed: 0');
+
     act(() => {
-      screen.getByTestId('add').click()
-    })
-    
+      screen.getByTestId('add').click();
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('count')).toHaveTextContent('Todo count: 1')
-    })
-    
+      expect(screen.getByTestId('count')).toHaveTextContent('Todo count: 1');
+    });
+
     act(() => {
-      screen.getByTestId('toggle-first').click()
-    })
-    
+      screen.getByTestId('toggle-first').click();
+    });
+
     await waitFor(() => {
-      expect(screen.getByTestId('completed')).toHaveTextContent('Completed: 1')
-    })
-  })
-}) 
+      expect(screen.getByTestId('completed')).toHaveTextContent('Completed: 1');
+    });
+  });
+});

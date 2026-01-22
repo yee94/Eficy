@@ -18,14 +18,14 @@ describe('component() helper', () => {
     const count = signal(0);
 
     const Counter = component(() => {
-      return <div data-testid="count">{count()}</div>;
+      return <div data-testid="count">{count.value}</div>;
     });
 
     render(<Counter />);
     expect(screen.getByTestId('count')).toHaveTextContent('0');
 
     act(() => {
-      count.set(5);
+      count.value = 5;
     });
 
     expect(screen.getByTestId('count')).toHaveTextContent('5');
@@ -64,8 +64,13 @@ describe('component() helper', () => {
     const Counter = component(() => {
       return (
         <div>
-          <span data-testid="local-count">{localCount()}</span>
-          <button data-testid="increment" onClick={() => localCount((c) => c + 1)}>
+          <span data-testid="local-count">{localCount.value}</span>
+          <button
+            data-testid="increment"
+            onClick={() => {
+              localCount.value = localCount.value + 1;
+            }}
+          >
             +
           </button>
         </div>
@@ -83,14 +88,14 @@ describe('component() helper', () => {
     const sharedSignal = signal('initial');
 
     const ComponentA = component(() => {
-      return <div data-testid="a">{sharedSignal()}</div>;
+      return <div data-testid="a">{sharedSignal.value}</div>;
     });
 
     render(<ComponentA />);
     expect(screen.getByTestId('a')).toHaveTextContent('initial');
 
     act(() => {
-      sharedSignal.set('updated');
+      sharedSignal.value = 'updated';
     });
 
     expect(screen.getByTestId('a')).toHaveTextContent('updated');

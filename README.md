@@ -37,27 +37,32 @@ Eficy helps you:
 ## ✨ Key Features
 
 ### 🔄 Signal-based Reactive System
+
 - **Intuitive State Management**: Eliminates the need for complex React Hooks
 - **Automatic Dependency Tracking**: Signals used in JSX are automatically tracked
 - **Fine-grained Updates**: Only components using changed signals re-render
 - **Async Data Support**: Built-in async signals with automatic loading/error handling
 
 ### 🚀 No-compilation Rendering
+
 - **Direct Browser Execution**: Run JSX directly in browser environments
 - **Script Tag Support**: Use `<script type="text/eficy">` for inline JSX
 - **Real-time Transpilation**: Instantly convert JSX to executable JavaScript
 
 ### 🧩 Protocol-based Component Rendering
+
 - **Prefix-based Components**: Use `e-Button` syntax for registered components
 - **Global Component Registry**: Register components once, use everywhere
 - **Consistent LLM Output**: Reduce variability in LLM-generated components
 
 ### 🎨 UnoCSS Integration
+
 - **Atomic CSS Generation**: Automatically generate styles from className attributes
 - **Real-time Style Processing**: Extract and generate CSS during rendering
 - **Smart Caching**: Avoid regenerating identical styles
 
 ### 📦 Seamless React Integration
+
 - **Full React Compatibility**: Work with existing React component libraries
 - **Custom JSX Runtime**: Transparent integration with signals
 - **TypeScript Support**: Complete type safety
@@ -79,49 +84,49 @@ pnpm add eficy
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Eficy Demo</title>
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.0.19/dist/standalone.mjs"></script>
-</head>
-<body>
-  <div id="root"></div>
-  
-  <script type="text/eficy">
-    import { signal } from 'eficy';
-    import * as antd from 'antd';
-    
-    // Register components
-    Eficy.registerComponents(antd);
-    
-    const App = () => {
-      const count = signal(0);
-      const name = signal('World');
-      
-      return (
-        <div className="p-6 bg-gray-100 min-h-screen">
-          <h1 className="text-2xl font-bold mb-4">Hello, {name}!</h1>
-          <p className="mb-4">Count: {count}</p>
-          
-          <input 
-            className="border p-2 mr-2"
-            value={name}
-            onChange={(e) => name.set(e.target.value)}
-            placeholder="Enter your name"
-          />
-          
-          <e-Button 
-            type="primary" 
-            onClick={() => count.set(count() + 1)}
-          >
-            Increment
-          </e-Button>
-        </div>
-      );
-    };
-    
-    Eficy.render(App, document.getElementById('root'));
-  </script>
-</body>
+  <head>
+    <title>Eficy Demo</title>
+    <script type="module" src="https://unpkg.com/@eficy/browser@1.0.19/dist/standalone.mjs"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/eficy">
+      import { signal } from 'eficy';
+      import * as antd from 'antd';
+
+      // Register components
+      Eficy.registerComponents(antd);
+
+      const App = () => {
+        const count = signal(0);
+        const name = signal('World');
+
+        return (
+          <div className="p-6 bg-gray-100 min-h-screen">
+            <h1 className="text-2xl font-bold mb-4">Hello, {name}!</h1>
+            <p className="mb-4">Count: {count}</p>
+
+      <input
+        className="border p-2 mr-2"
+        value={name}
+        onChange={(e) => name.value = e.target.value}
+        placeholder="Enter your name"
+      />
+
+      <e-Button
+        type="primary"
+        onClick={() => count.value += 1}
+      >
+              Increment
+            </e-Button>
+          </div>
+        );
+      };
+
+      Eficy.render(App, document.getElementById('root'));
+    </script>
+  </body>
 </html>
 ```
 
@@ -143,23 +148,20 @@ core.registerComponents(antd);
 const App = () => {
   const count = signal(0);
   const name = signal('Eficy');
-  
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Hello, {name}!</h1>
       <p className="mb-4">Count: {count}</p>
-      
-      <input 
+
+      <input
         className="border p-2 mr-2"
         value={name}
         onChange={(e) => name.set(e.target.value)}
         placeholder="Enter your name"
       />
-      
-      <e-Button 
-        type="primary" 
-        onClick={() => count.set(count() + 1)}
-      >
+
+      <e-Button type="primary" onClick={() => count.set(count() + 1)}>
         Increment
       </e-Button>
     </div>
@@ -171,7 +173,7 @@ const root = createRoot(document.getElementById('root'));
 root.render(
   <EficyProvider core={core}>
     <App />
-  </EficyProvider>
+  </EficyProvider>,
 );
 ```
 
@@ -187,16 +189,14 @@ const count = signal(0);
 const name = signal('World');
 
 // Create computed values
-const greeting = computed(() => `Hello, ${name()}!`);
+const greeting = computed(() => `Hello, ${name.value}!`);
 
 // Use in JSX (automatic subscription)
 const App = () => (
   <div>
     <h1>{greeting}</h1>
     <p>Count: {count}</p>
-    <button onClick={() => count.set(count() + 1)}>
-      Increment
-    </button>
+    <button onClick={() => (count.value += 1)}>Increment</button>
   </div>
 );
 ```
@@ -217,7 +217,7 @@ const UserList = () => (
     {userList.error() && <div>Error: {userList.error().message}</div>}
     {userList.data() && (
       <ul>
-        {userList.data().map(user => (
+        {userList.data().map((user) => (
           <li key={user.id}>{user.name}</li>
         ))}
       </ul>
@@ -235,15 +235,13 @@ core.registerComponents({
     <button className="px-4 py-2 bg-blue-500 text-white rounded" {...props}>
       {children}
     </button>
-  )
+  ),
 });
 
 // Use with e- prefix
 const App = () => (
   <div>
-    <e-Button onClick={() => console.log('Clicked!')}>
-      Click me
-    </e-Button>
+    <e-Button onClick={() => console.log('Clicked!')}>Click me</e-Button>
   </div>
 );
 ```
@@ -253,15 +251,18 @@ const App = () => (
 The Eficy package includes the following core modules:
 
 ### Core Framework
+
 - **@eficy/core-jsx** - Third-generation core engine based on custom JSX runtime
 - **@eficy/reactive** - High-performance reactive state management system
 - **@eficy/reactive-react** - React reactive integration
 - **@eficy/reactive-async** - Async reactive support
 
 ### Built-in Plugins
+
 - **@eficy/plugin-unocss** - UnoCSS atomic CSS auto-generation plugin
 
 ### Special Packages
+
 - **@eficy/browser** - Browser-ready bundle for no-compilation usage
 
 ## 🖥 Environment Support
@@ -272,8 +273,8 @@ The Eficy package includes the following core modules:
 - [Electron](https://www.electronjs.org/)
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Electron |
-|---|---|---|---|---|
-| IE11, Edge | last 2 versions | last 2 versions | last 2 versions | last 2 versions |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IE11, Edge                                                                                                                                                                                                     | last 2 versions                                                                                                                                                                                                  | last 2 versions                                                                                                                                                                                              | last 2 versions                                                                                                                                                                                              | last 2 versions                                                                                                                                                                                                      |
 
 ## 📚 Related Documentation
 
@@ -288,17 +289,20 @@ The Eficy package includes the following core modules:
 ## 🔗 API Reference
 
 ### Core API
+
 - `create()` - Create a pre-configured Eficy instance
 - `EficyProvider` - Component that provides Eficy context
 - `useEficyContext()` - Hook to get Eficy instance
 
 ### Reactive API
+
 - `signal(value)` - Create reactive signal
 - `computed(fn)` - Create computed property
 - `asyncSignal(fn, options)` - Create async signal
 - `useObserver(fn)` - React Hook to observe signal changes
 
 ### Plugin API
+
 - `core.install(Plugin, config)` - Install plugin
 - `core.registerComponent(name, component)` - Register single component
 - `core.registerComponents(components)` - Batch register components

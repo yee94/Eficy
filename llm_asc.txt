@@ -27,7 +27,61 @@
     *   **表格工具**: 必须使用 `@alife/merlion-table` 处理表格列配置。
     *   **样式**: 推荐使用 UnoCSS (`className="flex p-4"`)，避免行内 `style`。
 
-## 2. 状态管理：Signal vs React Hooks
+## 2. $ 后缀响应式协议
+
+Eficy 采用显式的 **$ 后缀协议**标记响应式属性，实现智能性能优化。
+
+### 核心规则
+- `prop$={signal}` = 响应式绑定（Signal 会被自动解包并订阅）
+- `prop={value}` = 静态值（直接透传 React，无额外开销）
+
+### 语法示例
+```tsx
+const loading = signal(false);
+const name = signal('');
+const count = signal(0);
+
+// ✅ $ 后缀 = 响应式属性（推荐）
+<e-Button loading$={loading}>Submit</e-Button>
+<e-Input value$={name} onChange={e => name(e.target.value)} />
+
+// ✅ 使用 bind() 辅助函数（自动生成 value$ + onChange）
+<e-Input {...bind(name)} />
+<e-Checkbox {...bind(checked)} />
+
+// ✅ children 中的 Signal 会被自动处理
+<div>Count: {count}</div>
+<span>{computed(() => count() * 2)}</span>
+
+// ✅ 静态节点 - 直接透传 React，无包装开销
+<div className="container">Static content</div>
+```
+
+### 性能优势
+| 场景 | 处理方式 | 性能 |
+|------|----------|------|
+| `prop$={signal}` | EficyNode 包装 + 响应式订阅 | 自动更新 |
+| `{signal}` 在 children | EficyNode 包装 + 响应式订阅 | 自动更新 |
+| 静态节点（无 Signal） | **直接透传 React** | 零开销 |
+
+### bind() 函数详解
+```tsx
+import { signal, bind } from 'eficy';
+
+const name = signal('');
+const checked = signal(false);
+
+// bind() 返回 { value$: signal, onChange: handler }
+<e-Input {...bind(name)} />
+// 等价于:
+<e-Input value$={name} onChange={e => name(e.target.value)} />
+
+// 自定义键名
+<e-Select {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
+// 返回 { selected$: signal, onSelect: handler }
+```
+
+## 3. 状态管理：Signal vs React Hooks
 
 **这是最关键的区别点。Eficy 使用 Signal 系统，而非 React 的 Hooks。**
 

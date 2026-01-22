@@ -64,7 +64,8 @@ describe('MapSignals', () => {
       const result = mapSignals(obj, 2);
 
       // 在深度 2 时，应该还有未解析的信号
-      expect(typeof result.deep).toBe('function');
+      expect(typeof result.deep).toBe('object');
+      expect(isSignal(result.deep)).toBe(true);
     });
 
     it('should handle 4 layer deep object structure', () => {
@@ -81,9 +82,9 @@ describe('MapSignals', () => {
         },
       } as const;
 
-      // 测试默认深度3层 - 第4层应该被跳过
+      // 测试默认深度3层 - 第4层应该被跳过（仍然是信号对象）
       const result3 = mapSignals(obj, 3);
-      expect(typeof result3.level1.level2.level3.level4).toBe('function');
+      expect(typeof result3.level1.level2.level3.level4).toBe('object');
 
       // 测试4层深度 - 应该能解析到第4层
       const result4 = mapSignals(obj, 4);
