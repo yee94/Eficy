@@ -1,5 +1,20 @@
 # eficy
 
+## 1.2.0-beta.1
+
+### Minor Changes
+
+- c9cfce9: upgrade
+
+### Patch Changes
+
+- Updated dependencies [c9cfce9]
+  - @eficy/reactive-async@1.2.0-beta.1
+  - @eficy/reactive-react@1.2.0-beta.0
+  - @eficy/plugin-unocss@1.2.0-beta.0
+  - @eficy/core-jsx@1.1.0-beta.1
+  - @eficy/reactive@1.2.0-beta.0
+
 ## 1.1.0
 
 ### Minor Changes

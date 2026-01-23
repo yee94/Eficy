@@ -1,5 +1,16 @@
 # @eficy/reactive-async
 
+## 1.2.0-beta.1
+
+### Minor Changes
+
+- c9cfce9: upgrade
+
+### Patch Changes
+
+- Updated dependencies [c9cfce9]
+  - @eficy/reactive@1.2.0-beta.0
+
 ## 1.1.0
 
 ### Minor Changes

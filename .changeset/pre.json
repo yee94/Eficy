@@ -12,5 +12,7 @@
     "@eficy/shadcn-ui": "1.0.2",
     "playground": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "brown-planes-chew"
+  ]
 }
