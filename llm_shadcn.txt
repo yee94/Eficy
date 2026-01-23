@@ -117,7 +117,10 @@ effect(() => {
 ### 3.1 使用 UI 组件 (Shadcn/UI)
 *   所有 shadcn 组件已预注册，**必须**使用 `e-` 前缀。
 *   示例: `<e-Button>`, `<e-Input>`, `<e-Card>`.
-*   图标: `<e-icons-Plus>`, `<e-icons-Search>`.
+*   图标: `<e-icons-Plus />`, `<e-icons-Search />`, `<e-icons-Box />`.
+    *   ⚠️ **格式要求**: 必须使用 `e-icons-图标名` 格式，整个标签名是一个**连续的连字符连接字符串**，中间**不能有空格**。
+    *   ❌ 错误: `<e icons-Box />` (e 和 icons 之间有空格)
+    *   ✅ 正确: `<e-icons-Box />` (使用连字符连接)
     *   注意：确保 `initEficy` 中注册了 `icons` 集合。
 *   **禁止使用点号访问子组件**：例如禁止使用 `<e-Card.Header>`，应使用扁平化名称 `<e-CardHeader>`。
 
@@ -245,8 +248,8 @@ batch(() => {
   <script type="importmap">
     { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.0.2/dist/index.js" } }
   </script>
-  <!-- 注意：使用 1.1.3-beta.0+ 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.1.3-beta.0/dist/standalone.mjs"></script>
+  <!-- 注意：使用 1.2.0-beta.2+ 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.2/dist/standalone.mjs"></script>
 
   <script type="text/eficy">
     import { initEficy, render, signal, computed, effect, observer, component, bind, peek, batch } from 'eficy';
