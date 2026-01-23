@@ -1,0 +1,16 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@eficy/browser": "1.1.3-beta.0",
+    "@eficy/core-jsx": "1.1.0-beta.0",
+    "eficy": "1.2.0-beta.0",
+    "@eficy/plugin-unocss": "1.1.1",
+    "@eficy/reactive": "1.1.1",
+    "@eficy/reactive-async": "1.1.1-beta.0",
+    "@eficy/reactive-react": "1.1.1",
+    "@eficy/shadcn-ui": "1.0.2",
+    "playground": "0.0.0"
+  },
+  "changesets": []
+}
