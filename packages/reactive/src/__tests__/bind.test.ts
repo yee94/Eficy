@@ -3,29 +3,28 @@ import { signal } from '../core/signal';
 import { bind } from '../utils/bind';
 
 describe('bind() helper', () => {
-  describe('$ suffix protocol', () => {
-    it('should return value$ instead of value by default', () => {
+  describe('standard props', () => {
+    it('should return value and onChange by default', () => {
       const name = signal('test');
       const props = bind(name);
 
-      expect(props).toHaveProperty('value$');
+      expect(props).toHaveProperty('value');
       expect(props).toHaveProperty('onChange');
-      expect(props).not.toHaveProperty('value');
     });
 
-    it('should return the signal itself as value$', () => {
+    it('should return the current signal value as value', () => {
       const name = signal('hello');
       const props = bind(name);
 
-      expect('value$' in props && props.value$).toBe(name);
+      expect(props.value).toBe('hello');
     });
 
-    it('should use custom valueKey with $ suffix', () => {
+    it('should use custom valueKey', () => {
       const selected = signal('option1');
       const props = bind(selected, { valueKey: 'selected' });
 
-      expect(props).toHaveProperty('selected$');
-      expect('selected$' in props && props.selected$).toBe(selected);
+      expect(props).toHaveProperty('selected');
+      expect(props.selected).toBe('option1');
     });
 
     it('should use custom eventKey', () => {
@@ -33,16 +32,16 @@ describe('bind() helper', () => {
       const props = bind(text, { eventKey: 'onInput' });
 
       expect(props).toHaveProperty('onInput');
-      expect('onInput' in props && typeof props.onInput).toBe('function');
+      expect(typeof props.onInput).toBe('function');
     });
 
     it('should support both custom keys', () => {
       const data = signal('initial');
       const props = bind(data, { valueKey: 'data', eventKey: 'onDataChange' });
 
-      expect(props).toHaveProperty('data$');
+      expect(props).toHaveProperty('data');
       expect(props).toHaveProperty('onDataChange');
-      expect('data$' in props && props.data$).toBe(data);
+      expect(props.data).toBe('initial');
     });
   });
 
@@ -89,7 +88,7 @@ describe('bind() helper', () => {
       const num = signal(42);
       const props = bind(num);
 
-      expect('value$' in props && props.value$).toBe(num);
+      expect(props.value).toBe(42);
       props.onChange(100);
       expect(num.value).toBe(100);
     });
@@ -98,7 +97,7 @@ describe('bind() helper', () => {
       const flag = signal(false);
       const props = bind(flag);
 
-      expect('value$' in props && props.value$).toBe(flag);
+      expect(props.value).toBe(false);
       props.onChange(true);
       expect(flag.value).toBe(true);
     });
@@ -107,7 +106,7 @@ describe('bind() helper', () => {
       const obj = signal({ name: 'test' });
       const props = bind(obj);
 
-      expect('value$' in props && props.value$).toBe(obj);
+      expect(props.value).toEqual({ name: 'test' });
       props.onChange({ name: 'updated' });
       expect(obj.value).toEqual({ name: 'updated' });
     });

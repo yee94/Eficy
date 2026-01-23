@@ -14,8 +14,6 @@ export function bind<T>(sig: Signal<T>, options?: BindOptions): BindResult {
   const valueKey = options?.valueKey ?? 'value';
   const eventKey = options?.eventKey ?? 'onChange';
 
-  const reactiveValueKey = `${valueKey}$`;
-
   const handleChange = (eventOrValue: any) => {
     if (eventOrValue && typeof eventOrValue === 'object' && eventOrValue.target) {
       const target = eventOrValue.target;
@@ -30,7 +28,7 @@ export function bind<T>(sig: Signal<T>, options?: BindOptions): BindResult {
   };
 
   return {
-    [reactiveValueKey]: sig,
+    [valueKey]: sig.value,
     [eventKey]: handleChange,
     onChange: handleChange,
   };
