@@ -67,12 +67,12 @@ describe('Reactive $ Protocol Integration', () => {
   });
 
   describe('bind() integration', () => {
-    it('bind() generates value$ for reactive protocol', () => {
+    it('bind() generates value for standard React components', () => {
       const nameSig = signal('test');
       const props = bind(nameSig);
 
-      expect(props).toHaveProperty('value$');
-      expect(props.value$).toBe(nameSig);
+      expect(props).toHaveProperty('value');
+      expect(props.value).toBe('test');
     });
 
     it('bind() with EficyNode creates working input', async () => {
@@ -92,9 +92,9 @@ describe('Reactive $ Protocol Integration', () => {
       const selectedSig = signal('option1');
       const props = bind(selectedSig, { valueKey: 'selected', eventKey: 'onSelect' });
 
-      expect(props).toHaveProperty('selected$');
+      expect(props).toHaveProperty('selected');
       expect(props).toHaveProperty('onSelect');
-      expect(props.selected$).toBe(selectedSig);
+      expect(props.selected).toBe('option1');
     });
   });
 
