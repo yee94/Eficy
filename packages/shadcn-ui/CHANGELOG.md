@@ -1,5 +1,11 @@
 # @eficy/shadcn-ui
 
+## 1.1.0-beta.2
+
+### Patch Changes
+
+- upgrade
+
 ## 1.1.0-beta.1
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @eficy/reactive
 
+## 1.2.0-beta.2
+
+### Patch Changes
+
+- upgrade
+
 ## 1.2.0-beta.1
 
 ### Minor Changes

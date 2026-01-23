@@ -1,5 +1,13 @@
 # @eficy/browser
 
+## 1.2.0-beta.3
+
+### Patch Changes
+
+- upgrade
+- Updated dependencies
+  - eficy@1.2.0-beta.3
+
 ## 1.2.0-beta.2
 
 ### Minor Changes

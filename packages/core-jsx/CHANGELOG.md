@@ -1,5 +1,14 @@
 # @eficy/core-jsx
 
+## 1.1.0-beta.3
+
+### Patch Changes
+
+- upgrade
+- Updated dependencies
+  - @eficy/reactive-react@1.2.0-beta.2
+  - @eficy/reactive@1.2.0-beta.2
+
 ## 1.1.0-beta.2
 
 ### Minor Changes
