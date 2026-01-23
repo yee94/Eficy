@@ -13,6 +13,7 @@
     "playground": "0.0.0"
   },
   "changesets": [
-    "brown-planes-chew"
+    "brown-planes-chew",
+    "sixty-yaks-poke"
   ]
 }
