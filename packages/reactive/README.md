@@ -213,7 +213,7 @@ user.update({ email: 'jane@example.com' });
 - **`action(fn)`** - Wrap function to batch updates and improve performance
 - **`batch(fn)`** - Manually batch multiple updates
 - **`watch(signal, callback)`** - Watch for signal changes
-- **`bind(signal, options?)`** - Create `{ value$, onChange }` props for reactive two-way binding ($ suffix protocol)
+- **`bind(signal, options?)`** - Create `{ value, onChange }` props for two-way binding
 
 ### Signal API
 
@@ -240,16 +240,15 @@ import { signal, bind } from '@eficy/reactive';
 const name = signal('');
 const checked = signal(false);
 
-// In JSX with @eficy/core-jsx:
-// bind() generates value$ prop for reactive protocol
+// bind() returns { value, onChange } for standard React components
 <input {...bind(name)} />
 <input type="checkbox" {...bind(checked)} />
 
-// Custom keys (generates selected$ instead of value$):
+// Custom keys:
 <CustomInput {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
 ```
 
-> **Note**: `bind()` returns `{ value$: signal, onChange }` to work with Eficy's $ suffix reactive protocol. The `value$` prop triggers reactive wrapping in the JSX runtime.
+> **Note**: `bind()` returns `{ value: signal.value, onChange }` - a standard props object that works with any React component. The `value` is the current signal value (not the signal itself).
 
 ### Observable Creation
 

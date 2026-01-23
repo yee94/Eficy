@@ -39,9 +39,9 @@ const count = signal(0);
 
 // ✅ $ 后缀 = 响应式属性（推荐）
 <e-Button loading$={loading}>Submit</e-Button>
-<e-Input value$={name} onChange={e => { name.value = e.target.value; }} />
+<e-Input value={name.value} onChange={e => { name.value = e.target.value; }} />
 
-// ✅ 使用 bind() 辅助函数（自动生成 value$ + onChange）
+// ✅ 使用 bind() 辅助函数（自动生成 value + onChange）
 <e-Input {...bind(name)} />
 <e-Checkbox {...bind(checked)} />
 
@@ -67,14 +67,14 @@ import { signal, bind } from 'eficy';
 const name = signal('');
 const checked = signal(false);
 
-// bind() 返回 { value$: signal, onChange: handler }
+// bind() 返回 { value: signal.value, onChange: handler }
 <e-Input {...bind(name)} />
 // 等价于:
-<e-Input value$={name} onChange={e => { name.value = e.target.value; }} />
+<e-Input value={name.value} onChange={e => { name.value = e.target.value; }} />
 
 // 自定义键名
 <e-Select {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
-// 返回 { selected$: signal, onSelect: handler }
+// 返回 { selected: signal.value, onSelect: handler }
 ```
 
 ## 3. 状态管理：Signal vs React Hooks

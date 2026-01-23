@@ -60,7 +60,7 @@ const Counter = observer(() => {
         >
           -
         </antd.Button>
-        <span className="text-2xl font-bold w-16 text-center">{count}</span>
+        <span className="text-2xl font-bold w-16 text-center">{count.value}</span>
         <antd.Button
           onClick={() => {
             count.value = count.value + 1;
@@ -70,7 +70,7 @@ const Counter = observer(() => {
         </antd.Button>
       </div>
       <div className="mt-2 text-gray-500">
-        Double: <span className="font-semibold">{doubled}</span>
+        Double: <span className="font-semibold">{doubled.value}</span>
       </div>
     </antd.Card>
   );
@@ -147,9 +147,9 @@ const FormDemo = observer(() => {
 });
 
 // Todo 列表 - 展示数组状态和不可变更新
-const TodoList = observer(() => {
-  const newTodo = signal('');
+const newTodo = signal(''); // Signal 必须定义在组件外部，避免每次渲染重新创建
 
+const TodoList = observer(() => {
   const addTodo = () => {
     const text = newTodo.value.trim();
     if (!text) return;
@@ -170,7 +170,7 @@ const TodoList = observer(() => {
     <antd.Card
       title={
         <span>
-          Todo 列表 - 完成 {completedCount}/{computed(() => todos.value.length)}
+          Todo 列表 - 完成 {completedCount.value}/{todos.value.length}
         </span>
       }
       size="small"
@@ -201,7 +201,7 @@ const TodoList = observer(() => {
       />
 
       <div className="mt-2 text-sm text-gray-500">
-        待完成: {pendingCount} | 已完成: {completedCount}
+        待完成: {pendingCount.value} | 已完成: {completedCount.value}
       </div>
     </antd.Card>
   );
@@ -212,7 +212,7 @@ const ThemeToggle = observer(() => {
   return (
     <antd.Card title="主题切换" size="small">
       <div className="flex items-center gap-4">
-        <span>当前主题: {theme}</span>
+        <span>当前主题: {theme.value}</span>
         <antd.Switch
           checked={isDarkMode.value}
           onChange={(checked) => {
@@ -231,7 +231,7 @@ const Greeting = observer(() => {
   return (
     <antd.Card title="问候 - Computed" size="small">
       <antd.Input {...bind(name)} placeholder="输入你的名字" className="mb-2" />
-      <div className="text-lg">{greeting}</div>
+      <div className="text-lg">{greeting.value}</div>
     </antd.Card>
   );
 });
@@ -258,7 +258,7 @@ const App = observer(() => {
                 <code>computed()</code> - 创建派生状态
               </li>
               <li>
-                <code>bind()</code> - 双向绑定辅助函数 (返回 value$ + onChange)
+                <code>bind()</code> - 双向绑定辅助函数 (返回 value + onChange)
               </li>
               <li>
                 <code>batch()</code> - 批量更新
