@@ -1,5 +1,11 @@
 # @eficy/plugin-unocss
 
+## 1.2.0-beta.3
+
+### Patch Changes
+
+- 2f23cc3: upgrade
+
 ## 1.2.0-beta.2
 
 ### Patch Changes

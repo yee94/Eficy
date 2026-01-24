@@ -1,5 +1,13 @@
 # @eficy/browser
 
+## 1.2.0-beta.6
+
+### Patch Changes
+
+- 2f23cc3: upgrade
+- Updated dependencies [2f23cc3]
+  - @eficy/plugin-unocss@1.2.0-beta.3
+
 ## 1.2.0-beta.3
 
 ### Patch Changes
