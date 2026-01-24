@@ -1,23 +1,15 @@
-/**
- * @eficy/browser Standalone - 自包含版本
- *
- * 包含所有必要的依赖，可以直接在浏览器中使用
- */
-
 import 'reflect-metadata';
-import { create, Eficy, EficyProvider } from 'eficy';
-import React, { ComponentType, ReactNode, isValidElement } from 'react';
+import { createUnocssGenerator, extractClassNames, generateCSS } from '@eficy/plugin-unocss';
+import { type Eficy, EficyProvider, create } from 'eficy';
+import React, { type ComponentType, type ReactNode, isValidElement } from 'react';
 import ReactDOM from 'react-dom/client';
 import { transform } from 'sucrase';
 
 export { Fragment, jsx, jsxs } from 'eficy';
 
-// 全局 Eficy 实例
 let globalEficy: Promise<Eficy> | null = null;
+let pendingCSS = '';
 
-/**
- * 创建全局 Eficy 实例
- */
 async function createEficy(): Promise<Eficy> {
   if (!globalEficy) {
     globalEficy = create();
@@ -25,9 +17,6 @@ async function createEficy(): Promise<Eficy> {
   return globalEficy;
 }
 
-/**
- * 获取全局 Eficy 实例
- */
 export async function getEficy(): Promise<Eficy> {
   if (!globalEficy) {
     throw new Error('Eficy instance not initialized. Call createEficy() first.');
@@ -35,25 +24,16 @@ export async function getEficy(): Promise<Eficy> {
   return globalEficy;
 }
 
-/**
- * 注册组件到全局 Eficy 实例
- */
 export async function registerComponent(name: string, component: React.ComponentType<any>): Promise<void> {
   const eficy = await getEficy();
   eficy.registerComponent(name, component);
 }
 
-/**
- * 批量注册组件
- */
 export async function registerComponents(components: Record<string, React.ComponentType<any>>): Promise<void> {
   const eficy = await getEficy();
   eficy.registerComponents(components);
 }
 
-/**
- * 编译 JSX 代码
- */
 export function compileJSX(code: string): string {
   const result = transform(code, {
     transforms: ['typescript', 'jsx'],
@@ -65,11 +45,34 @@ export function compileJSX(code: string): string {
   return result.code;
 }
 
-/**
- * 动态加载编译后的代码
- */
-export async function loadCode(code: string): Promise<any> {
+export async function compileJSXWithCSS(code: string): Promise<{ compiledCode: string; css: string }> {
   const compiledCode = compileJSX(code);
+  const classes = extractClassNames(code);
+  const css = classes.size > 0 ? await generateCSS(classes) : '';
+  return { compiledCode, css };
+}
+
+function injectCSS(css: string): void {
+  if (!css) return;
+
+  let styleElement = document.getElementById('eficy-unocss-styles') as HTMLStyleElement | null;
+  if (!styleElement) {
+    styleElement = document.createElement('style');
+    styleElement.id = 'eficy-unocss-styles';
+    document.head.appendChild(styleElement);
+  }
+
+  const existingCSS = styleElement.textContent || '';
+  const newRules = css.split('\n').filter((rule) => !existingCSS.includes(rule.trim()));
+  if (newRules.length > 0) {
+    styleElement.textContent = `${existingCSS}\n${newRules.join('\n')}`;
+  }
+}
+
+export async function loadCode(code: string): Promise<any> {
+  const { compiledCode, css } = await compileJSXWithCSS(code);
+  pendingCSS += css;
+
   const blob = new Blob([compiledCode], { type: 'application/javascript' });
   const url = URL.createObjectURL(blob);
 
@@ -81,10 +84,12 @@ export async function loadCode(code: string): Promise<any> {
   }
 }
 
-/**
- * 渲染组件到指定 DOM 元素
- */
 export async function render(Component: ComponentType<any> | ReactNode, container: HTMLElement): Promise<void> {
+  if (pendingCSS) {
+    injectCSS(pendingCSS);
+    pendingCSS = '';
+  }
+
   const eficy = await getEficy();
   const root = ReactDOM.createRoot(container);
 
@@ -94,14 +99,11 @@ export async function render(Component: ComponentType<any> | ReactNode, containe
 
   root.render(
     <EficyProvider core={eficy}>
-      {isComponent(Component) ? React.createElement(Component as ComponentType<any>) : Component}
+      {isComponent(Component) ? React.createElement(Component as ComponentType<any>) : (Component as ReactNode)}
     </EficyProvider>,
   );
 }
 
-/**
- * 初始化 Eficy 浏览器环境
- */
 export async function initEficy(options?: { components?: Record<string, React.ComponentType<any>> }): Promise<Eficy> {
   const eficy = await createEficy();
 
@@ -109,12 +111,14 @@ export async function initEficy(options?: { components?: Record<string, React.Co
     eficy.registerComponents(options.components);
   }
 
+  await createUnocssGenerator();
+
   return eficy;
 }
 
-// 导出所有必要的功能
 export * from 'eficy';
 export { React, ReactDOM };
+export { extractClassNames, generateCSS, createUnocssGenerator } from '@eficy/plugin-unocss';
 
 function setImportMap() {
   const importMap = document.createElement('script');
@@ -130,6 +134,8 @@ function setImportMap() {
 
 (async () => {
   setImportMap();
+  await createUnocssGenerator();
+
   const eficyScripts = document.querySelectorAll('script[type="text/eficy"]');
   for (const script of Array.from(eficyScripts)) {
     const code = script.textContent;
@@ -143,5 +149,10 @@ function setImportMap() {
       const str = await fetch(src).then((res) => res.text());
       await loadCode(str);
     }
+  }
+
+  if (pendingCSS) {
+    injectCSS(pendingCSS);
+    pendingCSS = '';
   }
 })();
