@@ -353,10 +353,10 @@ Copy the skill directory to your agent's skills folder:
 
 ```bash
 # For Claude Code
-cp -r skill-eficy-shadcn ~/.claude/skills/
+cp -r skills/eficy-shadcn ~/.claude/skills/
 
 # For Cursor
-cp -r skill-eficy-shadcn ~/.cursor/skills/
+cp -r skills/eficy-shadcn ~/.cursor/skills/
 ```
 
 ### Usage
@@ -377,7 +377,7 @@ The agent will automatically:
 ### Skill Contents
 
 ```
-skill-eficy-shadcn/
+skills/eficy-shadcn/
 ├── SKILL.md              # Agent skill definition (required)
 └── examples/
     ├── basic.html        # Counter demo
@@ -385,7 +385,7 @@ skill-eficy-shadcn/
     └── product-form.html     # Complex multi-tab form
 ```
 
-See [`skill-eficy-shadcn/SKILL.md`](./skill-eficy-shadcn/SKILL.md) for the complete skill specification.
+See [`skills/eficy-shadcn/SKILL.md`](./skills/eficy-shadcn/SKILL.md) for the complete skill specification.
 
 ---
 
