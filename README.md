@@ -338,6 +338,16 @@ For AI coding agents (Claude Code, Cursor, Windsurf, etc.), we provide a standar
 
 ### Installation
 
+**Option 1: Install from GitHub (Recommended)**
+
+This works with any agent supporting the standard [Agent Skill](https://github.com/vercel-labs/agent-skills) format (Claude Code, etc).
+
+```bash
+npx add-skill https://github.com/yee94/Eficy/tree/master/skill-eficy-shadcn
+```
+
+**Option 2: Manual Installation**
+
 Copy the skill directory to your agent's skills folder:
 
 ```bash
@@ -346,9 +356,6 @@ cp -r skill-eficy-shadcn ~/.claude/skills/
 
 # For Cursor
 cp -r skill-eficy-shadcn ~/.cursor/skills/
-
-# For other agents using npx skills
-npx skills install ./skill-eficy-shadcn
 ```
 
 ### Usage
