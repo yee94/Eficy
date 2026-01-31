@@ -332,6 +332,53 @@ Thanks for the inspiration and support from the following open-source projects:
 - [TSyringe](https://github.com/microsoft/tsyringe) - Dependency injection container
 - [Ant Design](https://ant.design/) - Enterprise UI design language
 
+## 🤖 Agent Skill for AI Coding Assistants
+
+For AI coding agents (Claude Code, Cursor, Windsurf, etc.), we provide a standardized skill package that enables agents to generate Eficy + shadcn/ui pages with best practices built-in.
+
+### Installation
+
+Copy the skill directory to your agent's skills folder:
+
+```bash
+# For Claude Code
+cp -r skill-eficy-shadcn ~/.claude/skills/
+
+# For Cursor
+cp -r skill-eficy-shadcn ~/.cursor/skills/
+
+# For other agents using npx skills
+npx skills install ./skill-eficy-shadcn
+```
+
+### Usage
+
+Once installed, simply ask your agent:
+
+```
+Generate a user management page with Eficy + shadcn/ui
+```
+
+The agent will automatically:
+
+- Use the correct Eficy + shadcn/ui versions
+- Follow Signal-based state management patterns
+- Apply proper component wrapping with `component()`
+- Generate production-ready, zero-build HTML
+
+### Skill Contents
+
+```
+skill-eficy-shadcn/
+├── SKILL.md              # Agent skill definition (required)
+└── examples/
+    ├── basic.html        # Counter demo
+    ├── user-management.html  # Table + Dialog + CRUD
+    └── product-form.html     # Complex multi-tab form
+```
+
+See [`skill-eficy-shadcn/SKILL.md`](./skill-eficy-shadcn/SKILL.md) for the complete skill specification.
+
 ---
 
 <div align="center">

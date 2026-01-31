@@ -5,15 +5,14 @@
 
 请遵循以下核心规范，特别注意区分 Signal 响应式系统与传统 React 开发模式。
 
-## 0. 思维链 (CoT) 引导
+## 0. 核心约束清单
 
-在生成代码前，请先进行以下思考：
-1.  **状态设计**: 
-    *   **原则**: 优先使用**原子化状态** (Atomic Signals, 如 `const name = signal('')`) 而非大对象状态 (`const form = signal({ name: '' })`)，以避免绑定时的复杂性。
-    *   需要哪些衍生状态 (Computed)？是否需要异步状态 (AsyncSignal)？
-2.  **组件拆分**: 页面应被拆分为哪些独立组件？哪些组件需要 `observer` 包裹（因为它们读取了 Signal 的值）？
-3.  **交互逻辑**: 用户操作如何触发 Signal 更新？是否涉及副作用 (Effect)？
-4.  **布局结构**: 如何利用 `PageContainer`, `Card`, `PageTitle` 等 Merlion 组件构建标准的 B 端页面？
+生成代码前必须检查：
+1. **状态**: 优先原子化 Signal (`const name = signal('')`)，避免大对象状态
+2. **读写**: 读取用 `.value`，写入用 `.value =`，**严禁**使用 `signal()` 函数调用语法
+3. **组件**: 读取 Signal 值的组件必须用 `component()` 或 `observer()` 包裹
+4. **绑定**: 表单用 `bind()` 简化，或手动 `value={s.value} onChange={e => s.value = e.target.value}`
+5. **组件源**: Card/Table 来自 antd，PageContainer/PageTitle 来自 MerlionUI，必须用统一 Components 对象
 
 ## 1. 核心开发模式
 
@@ -57,10 +56,11 @@ const { Button, Input, Checkbox } = Components;
 const loading = signal(false);
 const name = signal('');
 const count = signal(0);
+const checked = signal(false);
 
 // ✅ $ 后缀 = 响应式属性（推荐）
 <Button loading$={loading}>Submit</Button>
-<Input value={name.value} onChange={e => name(e.target.value)} />
+<Input value={name.value} onChange={e => name.value = e.target.value} />
 
 // ✅ 使用 bind() 辅助函数（自动生成 value + onChange）
 <Input {...bind(name)} />
@@ -68,18 +68,11 @@ const count = signal(0);
 
 // ✅ children 中的 Signal 会被自动处理
 <div>Count: {count}</div>
-<span>{computed(() => count() * 2)}</span>
+<span>{computed(() => count.value * 2)}</span>
 
 // ✅ 静态节点 - 直接透传 React，无包装开销
 <div className="container">Static content</div>
 ```
-
-### 性能优势
-| 场景 | 处理方式 | 性能 |
-|------|----------|------|
-| `prop$={signal}` | EficyNode 包装 + 响应式订阅 | 自动更新 |
-| `{signal}` 在 children | EficyNode 包装 + 响应式订阅 | 自动更新 |
-| 静态节点（无 Signal） | **直接透传 React** | 零开销 |
 
 ### bind() 函数详解
 ```tsx
@@ -94,7 +87,7 @@ const checked = signal(false);
 // bind() 返回 { value: signal.value, onChange: handler }
 <Input {...bind(name)} />
 // 等价于:
-<Input value={name.value} onChange={e => name(e.target.value)} />
+<Input value={name.value} onChange={e => name.value = e.target.value} />
 
 // 自定义键名
 <Select {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
@@ -137,7 +130,7 @@ effect(() => {
 });
 ```
 
-## 3. 组件开发与渲染机制
+## 4. 组件开发与渲染机制
 
 ### 3.1 响应式传参规则 (核心)
 
@@ -217,7 +210,7 @@ const SimpleInput = ({ value }) => {
     *   推荐使用原子 Signal: `const name = signal('')`.
     *   绑定: `<Input value={name} onChange={e => { name.value = e.target.value; }} />`.
 
-2.  **数字输入 (InputNumber)**:
+3.  **数字输入 (InputNumber)**:
     *   ⚠️ **注意**: 直接转换 `Number(val)` 可能会导致用户无法清空输入框或输入负号。
     *   ✅ **方案**: 结合 Antd/Merlion 的 `InputNumber` 组件使用。
         ```tsx
@@ -337,7 +330,7 @@ const userData = asyncSignal(async () => {
 
 ## 6. 标准代码模板 (ASC Environment)
 
-请始终基于以下结构生成代码，注意 **CDN 版本应保持较新 (推荐 1.1.1+)** 以支持 `.set()` 及 computed prev 等新特性：
+请始终基于以下结构生成代码，注意 **CDN 版本必须使用 1.2.0-beta.6** 以支持 `.value` 及 computed prev 等新特性：
 
 ```html
 <!DOCTYPE html>
@@ -359,8 +352,8 @@ const userData = asyncSignal(async () => {
   <script type="module" src="https://g.alicdn.com/code/npm/@alife/lazada-asc-theme-antd/3.0.7/antd/LAZADA.mjs"></script>
   <script src="https://unpkg.com/@ant-design/icons@6.0.0/dist/index.umd.min.js"></script>
 
-  <!-- 注意：使用 1.2.0-beta.5+ 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.5/dist/standalone.mjs"></script>
+  <!-- 注意：使用 1.2.0-beta.6 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.6/dist/standalone.mjs"></script>
 
   <script type="importmap">
     {
@@ -372,7 +365,7 @@ const userData = asyncSignal(async () => {
   </script>
 
   <script type="text/eficy">
-    import { initEficy, render, signal, computed, effect, observer, peek, batch, asyncSignal } from "eficy";
+    import { initEficy, render, signal, computed, effect, component, observer, bind, peek, batch, asyncSignal } from "eficy";
     import * as _MerlionUI from "@ali/merlion-ui";
     import { transformFormatTableColumn } from "@alife/merlion-table";
     
@@ -406,7 +399,7 @@ const userData = asyncSignal(async () => {
     });
 
     // 3. 业务组件
-    const ProductTable = observer(() => {
+    const ProductTable = component(() => {
       const columns = [
         { title: 'ID', dataIndex: 'id', format: 'CopyText' },
         { title: 'Name', dataIndex: 'name' },
@@ -436,7 +429,7 @@ const userData = asyncSignal(async () => {
     });
 
     // 4. 主应用
-    const App = observer(() => {
+    const App = component(() => {
       return (
         <PageContainer>
           <PageTitle title="商品管理" breadcrumb={[{ label: 'Home' }, { label: 'Products' }]} />
@@ -476,7 +469,7 @@ const userData = asyncSignal(async () => {
 
 1.  **输入框显示 `[object Object]`**:
     *   **原因**: 你将一个存储了**对象**的 Signal 直接传递给了 `value` 属性。
-    *   **解决**: 使用原子 Signal，或者传递具体属性 `value={s().a}`。
+    *   **解决**: 使用原子 Signal，或者传递具体属性 `value={s.value.a}`。
 2.  **数字输入无法清空**:
     *   **解决**: 使用 `<InputNumber>` 组件（推荐），或者使用字符串 Signal 作为中间态。
 3.  **UI 不更新**:

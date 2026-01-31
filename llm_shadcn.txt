@@ -4,15 +4,19 @@
 
 你的任务是协助用户使用 "Eficy + shadcn/ui" 模式进行开发。请遵循以下核心规范，特别注意区分 Signal 响应式系统与传统 React 开发模式。
 
-## 0. 思维链 (CoT) 引导
+## 0. 核心约束清单（生成代码前必读）
 
-在生成代码前，请先进行以下思考：
-1.  **状态设计**: 
-    *   **原则**: 优先使用**原子化状态** (Atomic Signals, 如 `const name = signal('')`) 而非大对象状态 (`const form = signal({ name: '' })`)，以避免绑定时的复杂性。
-    *   需要哪些衍生状态 (Computed)？
-2.  **组件拆分**: 页面应被拆分为哪些独立组件？哪些组件需要 `observer` 包裹（因为它们读取了 Signal 的值）？
-3.  **交互逻辑**: 用户操作如何触发 Signal 更新？是否涉及副作用 (Effect)？
-4.  **布局结构**: 如何利用 shadcn/ui 组件构建布局？
+### 状态设计
+- ✅ 优先使用**原子化 Signal** (`const name = signal('')`)，避免大对象状态
+- ✅ 衍生状态使用 `computed()`
+
+### 组件规范
+- ✅ 自定义组件读取 Signal 值时，必须用 `component()` 包裹
+- ✅ UI 组件从 `shadcnUi` 解构使用
+
+### 交互逻辑
+- ✅ 事件处理直接修改 `.value`
+- ✅ 副作用使用 `effect()`
 
 ## 1. 核心开发模式
 
@@ -23,13 +27,12 @@
     *   **UI 组件**: 使用 `import * as shadcnUi from 'shadcn'` 导入，然后解构使用（如 `const { Button, Input, Card } = shadcnUi`）。
     *   **样式**: 推荐使用 Tailwind 语法 (`className="flex p-4"`)，Eficy 内置 UnoCSS 引擎会自动处理。
 
-## 2. $ 后缀响应式协议 (v1.1+)
-
-Eficy 采用显式的 **$ 后缀协议**标记响应式属性，实现智能性能优化。
+## 2. Signal 响应式绑定规则
 
 ### 核心规则
-- `prop$={signal}` = 响应式绑定（Signal 会被自动解包并订阅）
-- `prop={value}` = 静态值（直接透传 React，无额外开销）
+- `prop={signal}` = **推荐写法** - Signal 会被自动解包并订阅
+- `prop$={signal}` = 显式响应式标记（可选，用于性能优化场景）
+- `prop={value}` = 静态值（直接透传 React）
 
 ### 语法示例
 ```tsx
@@ -39,10 +42,11 @@ const { Button, Input, Checkbox } = shadcnUi;
 const loading = signal(false);
 const name = signal('');
 const count = signal(0);
+const checked = signal(false);
 
-// ✅ $ 后缀 = 响应式属性（推荐）
-<Button loading$={loading}>Submit</Button>
-<Input value={name.value} onChange={e => { name.value = e.target.value; }} />
+// ✅ 直接传递 Signal（推荐）
+<Button loading={loading}>Submit</Button>
+<Input value={name} onChange={e => { name.value = e.target.value; }} />
 
 // ✅ 使用 bind() 辅助函数（自动生成 value + onChange）
 <Input {...bind(name)} />
@@ -52,16 +56,12 @@ const count = signal(0);
 <div>Count: {count}</div>
 <span>{computed(() => count.value * 2)}</span>
 
-// ✅ 静态节点 - 直接透传 React，无包装开销
+// ✅ 静态节点 - 直接透传 React
 <div className="container">Static content</div>
 ```
 
-### 性能优势
-| 场景 | 处理方式 | 性能 |
-|------|----------|------|
-| `prop$={signal}` | EficyNode 包装 + 响应式订阅 | 自动更新 |
-| `{signal}` 在 children | EficyNode 包装 + 响应式订阅 | 自动更新 |
-| 静态节点（无 Signal） | **直接透传 React** | 零开销 |
+### 关于 $ 后缀（可选）
+`$` 后缀是显式标记响应式属性的高级特性，用于微优化场景。对于 LLM 生成代码，**统一使用直接传递 Signal 的方式即可**，无需使用 `$` 后缀。
 
 ### bind() 函数详解
 ```tsx
@@ -71,18 +71,19 @@ const { Input, Select } = shadcnUi;
 
 const name = signal('');
 const checked = signal(false);
+const selectedValue = signal('');
 
 // bind() 返回 { value: signal.value, onChange: handler }
 <Input {...bind(name)} />
 // 等价于:
-<Input value={name.value} onChange={e => { name.value = e.target.value; }} />
+<Input value={name} onChange={e => { name.value = e.target.value; }} />
 
 // 自定义键名
-<Select {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
+<Select {...bind(selectedValue, { valueKey: 'selected', eventKey: 'onSelect' })} />
 // 返回 { selected: signal.value, onSelect: handler }
 ```
 
-## 3. 状态管理：Signal vs React Hooks
+## 4. 状态管理：Signal vs React Hooks
 
 **这是最关键的区别点。Eficy 使用 Signal 系统，而非 React 的 Hooks。**
 
@@ -102,85 +103,26 @@ const checked = signal(false);
 
 ### 🔄 避免循环依赖 (Cycle Detected)
 
-**循环依赖是 Signal 系统中最常见的错误之一。** 当 Signal 的读取和写入形成闭环时，会触发 `Cycle detected` 错误。
-
-#### 规则 1: Effect 中的循环依赖
-
-如果在 `effect` 中需要读取某个 Signal 的值，同时又在该 `effect` 中更新它（或其依赖链），**必须使用 `peek()`** 读取，否则会导致循环依赖。
+**核心规则**: 在 `effect` 中读取并更新同一 Signal 会导致循环依赖。
 
 ```typescript
-// ❌ 错误：在 effect 中读取并更新 -> Cycle detected
+// ❌ 错误：在 effect 中读取并更新
 effect(() => {
-  if (count.value > 10) count.value = 0;
+  if (count.value > 10) count.value = 0;  // Cycle detected!
 });
 
-// ✅ 正确：使用 peek(count) 读取不建立订阅
+// ✅ 正确：使用 peek() 读取不建立订阅
 effect(() => {
   if (peek(count) > 10) count.value = 0;
 });
 ```
 
-#### 规则 2: Computed 中的自引用
+**使用场景**:
+- Effect 中条件重置值 → 用 `peek()` 读取
+- 函数中读取 Signal 后更新它 → 用 `peek()` 读取
+- 基于旧值生成新值 → 先用 `peek()` 读取旧值
 
-如果在 `computed` 计算逻辑中需要基于上一次的计算结果（例如保持对象引用、缓存），**严禁**使用 `peek(self)` 读取自身。**必须使用 `computed` 的第一个参数 `prev`**。
-
-#### 规则 3: 函数内部的隐式循环
-
-**最容易被忽略的情况**：在被 `effect` 调用的函数中，如果该函数内部读取了 Signal 并写入了另一个 Signal，而这两个 Signal 之间存在依赖关系，也会导致循环。
-
-```typescript
-// ❌ 错误示例：SKU 生成函数中的循环依赖
-const specs = signal([...]);
-const skuData = signal([]);
-
-const generateSKUs = () => {
-  const activeSpecs = specs.value.filter(...);  // 读取 specs
-  // ...
-  skuData.value = combinations.map(combo => {
-    const existing = skuData.value.find(...);  // 读取 skuData
-    // 这里形成循环：effect → generateSKUs → 读取 specs → 写入 skuData
-    return existing || {...};
-  });
-};
-
-effect(() => {
-  generateSKUs();  // 订阅了 specs，但 generateSKUs 又读取了 skuData
-});
-
-// ✅ 正确：使用 peek() 断开依赖链
-const generateSKUs = () => {
-  const activeSpecs = peek(specs).filter(...);  // 使用 peek 不建立依赖
-  const currentSkuData = peek(skuData);  // 使用 peek 读取快照
-  
-  skuData.value = combinations.map(combo => {
-    const existing = currentSkuData.find(...);  // 使用快照查找
-    return existing || {...};
-  });
-};
-
-effect(() => {
-  specs.value;  // 显式建立对 specs 的依赖
-  batch(() => {
-    generateSKUs();  // 批量执行，防止中间状态
-  });
-});
-```
-
-#### 诊断循环依赖的方法
-
-1. **检查 effect 调用链**：追踪 effect 中调用的所有函数，看是否有函数同时读取和写入 Signal
-2. **使用 peek() 测试**：如果不确定是否会循环，先用 `peek()` 读取，观察是否解决问题
-3. **使用 batch() 包裹**：在 effect 中使用 `batch()` 包裹更新操作，确保原子性
-
-#### 常见场景总结
-
-| 场景 | 错误写法 | 正确写法 |
-|------|---------|---------|
-| Effect 中条件重置 | `effect(() => { if (count.value > 10) count.value = 0; })` | `effect(() => { if (peek(count) > 10) count.value = 0; })` |
-| 函数中读取并更新 | `const fn = () => { const val = signal.value; signal.value = val + 1; }` | `const fn = () => { const val = peek(signal); signal.value = val + 1; }` |
-| 基于旧值生成新值 | `skuData.value = [...].map(() => { const old = skuData.value.find(...); })` | `const old = peek(skuData); skuData.value = [...].map(() => { old.find(...); })` |
-
-## 3. 组件开发与渲染机制
+## 5. 组件开发与渲染机制
 
 ### 3.1 使用 UI 组件 (Shadcn/UI)
 *   使用 `import * as shadcnUi from 'shadcn'` 导入所有组件，然后解构使用。
@@ -247,7 +189,7 @@ const Counter = component(() => {
     *   推荐使用原子 Signal: `const name = signal('')`.
     *   绑定: `<Input value={name} onChange={e => { name.value = e.target.value; }} />`.
 
-2.  **数字输入 (Number Input)**:
+3.  **数字输入 (Number Input)**:
     *   ⚠️ **注意**: 直接转换 `Number(e.target.value)` 会导致用户无法清空输入框（变回 0）或无法输入负号。
     *   ✅ **方案 1 (推荐)**: 允许 Signal 存储字符串中间态，仅在计算时转为数字。
         ```tsx
@@ -269,7 +211,7 @@ const Counter = component(() => {
         />
         ```
 
-## 4. 高级最佳实践
+## 6. 高级最佳实践
 
 ### 4.1 不可变更新 (Immutable Updates)
 对于数组或对象类型的 Signal，**必须**进行不可变更新，否则不会触发视图更新。
@@ -291,9 +233,38 @@ batch(() => {
 });
 ```
 
-## 5. 标准代码模板
+### 4.3 异步数据加载
+使用 `effect()` 处理异步数据获取。
 
-请始终基于以下结构生成代码，注意 **CDN 版本应保持较新 (推荐 1.1.3-beta.0+)** 以支持 `.value` API：
+```typescript
+const loading = signal(false);
+const data = signal(null);
+const error = signal(null);
+
+effect(() => {
+  loading.value = true;
+  error.value = null;
+  
+  fetch('/api/data')
+    .then(r => r.json())
+    .then(d => { data.value = d; })
+    .catch(e => { error.value = e.message; })
+    .finally(() => { loading.value = false; });
+});
+
+// 渲染
+<div>
+  {loading && <div>加载中...</div>}
+  {error && <div>错误: {error}</div>}
+  {data && <div>{data}</div>}
+</div>
+```
+
+## 7. 标准代码模板
+
+**版本锁定（必须使用以下版本）**:
+- @eficy/browser: **1.2.0-beta.7**
+- @eficy/shadcn-ui: **1.1.0-beta.2**
 
 ```html
 <!DOCTYPE html>
@@ -302,7 +273,7 @@ batch(() => {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eficy App</title>
-  <link rel="stylesheet" href="https://unpkg.com/@eficy/shadcn-ui@1.0.2/dist/index.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@eficy/shadcn-ui@1.1.0-beta.2/dist/index.css" />
 </head>
 <body>
   <div id="app"></div>
@@ -311,24 +282,17 @@ batch(() => {
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script type="importmap">
-    { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.0.2/dist/index.js" } }
+    { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.0-beta.2/dist/index.js" } }
   </script>
-  <!-- 注意：使用 1.2.0-beta.5+ 版本以获得完整 Signal API 支持 (包括 computed prev 参数) -->
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.5/dist/standalone.mjs"></script>
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.7/dist/standalone.mjs"></script>
 
   <script type="text/eficy">
     import { initEficy, render, signal, computed, effect, observer, component, bind, peek, batch } from 'eficy';
     import * as shadcnUi from 'shadcn';
 
     // 1. 初始化
-    // 从 shadcnUi 解构常用组件
     const { Button, Input, Card, CardContent } = shadcnUi;
-    const icons = shadcnUi.Lucide;
-    const { Minus, Plus } = icons || {};
-    
-    if (!icons) {
-      console.warn('Lucide icons not found in shadcn package');
-    }
+    const { Minus, Plus } = shadcnUi.Lucide;
     
     await initEficy();
 
@@ -339,7 +303,7 @@ batch(() => {
     const double = computed(() => count.value * 2);
 
     // 3. 组件定义
-    const App = observer(() => {
+    const App = component(() => {
       return (
         <div className="p-8 space-y-4">
           <h1 className="text-2xl font-bold">Eficy Counter</h1>
@@ -386,11 +350,11 @@ batch(() => {
 </html>
 ```
 
-## 6. 常见问题排查 (Troubleshooting)
+## 8. 常见问题排查 (Troubleshooting)
 
 1.  **输入框显示 `[object Object]`**:
     *   **原因**: 你将一个存储了**对象**的 Signal 直接传递给了 `value` 属性 (例如 `const s = signal({a:1}); <Input value={s} />`)。
-    *   **解决**: 使用原子 Signal (如 `signal('')`)，或者传递具体属性 (如 `value={s().a}`) 并确保组件被 `observer` 包裹。
+    *   **解决**: 使用原子 Signal (如 `signal('')`)，或者传递具体属性 (如 `value={s.value.a}`) 并确保组件被 `observer` 包裹。
 2.  **数字输入框无法输入/无法清空**:
     *   **原因**: `onChange` 中强制转 `Number()` 导致空字符串变成 0，或者负号被忽略。
     *   **解决**: 参考 "3.3 表单输入最佳实践"，允许 Signal 存储字符串或处理空值。
