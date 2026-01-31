@@ -340,10 +340,11 @@ For AI coding agents (Claude Code, Cursor, Windsurf, etc.), we provide a standar
 
 **Option 1: Install from GitHub (Recommended)**
 
-This works with any agent supporting the standard [Agent Skill](https://github.com/vercel-labs/agent-skills) format (Claude Code, etc).
+This works with any agent supporting the standard [Agent Skill](https://github.com/vercel-labs/agent-skills) format (Claude Code, Cursor, OpenCode, etc).
 
 ```bash
-npx add-skill https://github.com/yee94/Eficy/tree/master/skill-eficy-shadcn
+# Install the skill from this repository
+npx skills add yee94/Eficy
 ```
 
 **Option 2: Manual Installation**
