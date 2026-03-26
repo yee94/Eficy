@@ -1,5 +1,13 @@
 # @eficy/reactive-react
 
+## 1.2.0-beta.3
+
+### Patch Changes
+
+- 5d703e7: update
+- Updated dependencies [5d703e7]
+  - @eficy/reactive@1.2.0-beta.3
+
 ## 1.2.0-beta.2
 
 ### Patch Changes

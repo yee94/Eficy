@@ -1,5 +1,11 @@
 # @eficy/reactive
 
+## 1.2.0-beta.3
+
+### Patch Changes
+
+- 5d703e7: update
+
 ## 1.2.0-beta.2
 
 ### Patch Changes

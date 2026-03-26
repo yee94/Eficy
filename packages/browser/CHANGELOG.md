@@ -1,5 +1,14 @@
 # @eficy/browser
 
+## 1.2.0-beta.8
+
+### Patch Changes
+
+- 5d703e7: update
+- Updated dependencies [5d703e7]
+  - @eficy/plugin-unocss@1.2.0-beta.4
+  - eficy@1.2.0-beta.4
+
 ## 1.2.0-beta.7
 
 ### Patch Changes
