@@ -21,15 +21,12 @@
     "url": "git+https://github.com/yee94/Eficy.git",
     "directory": "packages/browser"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
     "react": "^18.0.0",
