@@ -25,8 +25,7 @@
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",
-    "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "pnpm run build"
+    "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
     "react": "^18.0.0",
