@@ -1,5 +1,17 @@
 # eficy
 
+## 1.2.0-beta.5
+
+### Patch Changes
+
+- 0ea2c83: update
+- Updated dependencies [0ea2c83]
+  - @eficy/reactive-async@1.2.0-beta.5
+  - @eficy/reactive-react@1.2.0-beta.4
+  - @eficy/plugin-unocss@1.2.0-beta.5
+  - @eficy/core-jsx@1.1.0-beta.5
+  - @eficy/reactive@1.2.0-beta.4
+
 ## 1.2.0-beta.4
 
 ### Patch Changes
