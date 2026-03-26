@@ -150,7 +150,7 @@ jobs:
       - name: Publish to npm
         id: publish
         run: |
-          pnpm changeset publish
+          pnpm changeset publish -- --ignore-scripts
           echo "published=true" >> $GITHUB_OUTPUT
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
