@@ -127,8 +127,12 @@ export class UnocssPlugin implements ILifecyclePlugin {
    * 生成 CSS 字符串 - 使用缓存避免重复计算
    */
   private async generateCSS(): Promise<string | null> {
-    if (!this.generator || this.collectedClasses.size === 0) {
-      console.error('The unocss generator is not initialized',this);
+    if (!this.generator) {
+      console.error('The unocss generator is not initialized', this);
+      return null;
+    }
+
+    if (this.collectedClasses.size === 0) {
       return null;
     }
 
