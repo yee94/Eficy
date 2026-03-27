@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { antdTableSignal } from '../core/antdTableSignal';
 
 // 模拟表格数据类型
@@ -116,8 +116,8 @@ describe('antdTableSignal', () => {
       expect(result.search).toHaveProperty('reset');
 
       // 检查初始状态
-      expect(result.search.type()).toBe('simple');
-      expect(Array.isArray(result.tableProps.dataSource())).toBe(true);
+      expect(result.search.type.value).toBe('simple');
+      expect(Array.isArray(result.tableProps.dataSource.value)).toBe(true);
     });
 
     it('应该自动执行服务函数并更新数据', async () => {
@@ -130,11 +130,11 @@ describe('antdTableSignal', () => {
       expect(mockService).toHaveBeenCalledTimes(1);
       expect(mockService).toHaveBeenCalledWith({ current: 1, pageSize: 10, sorter: undefined, filters: undefined }, {});
 
-      expect(result.tableProps.dataSource()).toEqual(mockUsers);
-      expect(result.tableProps.loading()).toBe(false);
-      expect(result.error()).toBeUndefined();
-      expect(result.tableProps.pagination().current).toBe(1);
-      expect(result.tableProps.pagination().total).toBe(5);
+      expect(result.tableProps.dataSource.value).toEqual(mockUsers);
+      expect(result.tableProps.loading.value).toBe(false);
+      expect(result.error.value).toBeUndefined();
+      expect(result.tableProps.pagination.value.current).toBe(1);
+      expect(result.tableProps.pagination.value.total).toBe(5);
     });
 
     it('应该处理服务函数错误', async () => {
@@ -150,9 +150,9 @@ describe('antdTableSignal', () => {
       }
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(result.tableProps.dataSource()).toEqual([]);
-      expect(result.tableProps.loading()).toBe(false);
-      expect(result.error()).toEqual(error);
+      expect(result.tableProps.dataSource.value).toEqual([]);
+      expect(result.tableProps.loading.value).toBe(false);
+      expect(result.error.value).toEqual(error);
     });
   });
 
@@ -167,8 +167,8 @@ describe('antdTableSignal', () => {
       // 等待初始加载 - 增加等待时间
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      expect(result.tableProps.pagination().pageSize).toBe(2);
-      expect(result.tableProps.dataSource()).toHaveLength(2);
+      expect(result.tableProps.pagination.value.pageSize).toBe(2);
+      expect(result.tableProps.dataSource.value).toHaveLength(2);
 
       // 测试分页变化
       result.tableProps.onChange({ current: 2, pageSize: 2 }, {}, {});
@@ -238,15 +238,15 @@ describe('antdTableSignal', () => {
       const mockService = createMockService();
       const result = antdTableSignal(mockService, { manual: true });
 
-      expect(result.search.type()).toBe('simple');
+      expect(result.search.type.value).toBe('simple');
 
       // 切换到高级搜索
       result.search.changeType();
-      expect(result.search.type()).toBe('advance');
+      expect(result.search.type.value).toBe('advance');
 
       // 再次切换回简单搜索
       result.search.changeType();
-      expect(result.search.type()).toBe('simple');
+      expect(result.search.type.value).toBe('simple');
     });
 
     it('应该支持默认搜索类型设置', () => {
@@ -256,7 +256,7 @@ describe('antdTableSignal', () => {
         defaultType: 'advance',
       });
 
-      expect(result.search.type()).toBe('advance');
+      expect(result.search.type.value).toBe('advance');
     });
 
     it('应该支持表单提交搜索', async () => {
@@ -317,8 +317,8 @@ describe('antdTableSignal', () => {
       const result = antdTableSignal(mockService, { manual: true });
 
       expect(mockService).not.toHaveBeenCalled();
-      expect(result.tableProps.loading()).toBe(false);
-      expect(result.tableProps.dataSource()).toEqual([]);
+      expect(result.tableProps.loading.value).toBe(false);
+      expect(result.tableProps.dataSource.value).toEqual([]);
     });
 
     it('应该在手动模式下支持刷新', async () => {
@@ -328,7 +328,7 @@ describe('antdTableSignal', () => {
       await result.refresh();
 
       expect(mockService).toHaveBeenCalledTimes(1);
-      expect(result.tableProps.dataSource()).toEqual(mockUsers);
+      expect(result.tableProps.dataSource.value).toEqual(mockUsers);
     });
   });
 
@@ -337,18 +337,18 @@ describe('antdTableSignal', () => {
       const mockService = createMockService(50); // 50ms 延迟
       const result = antdTableSignal(mockService, { manual: true });
 
-      expect(result.tableProps.loading()).toBe(false);
-      expect(result.loading()).toBe(false);
+      expect(result.tableProps.loading.value).toBe(false);
+      expect(result.loading.value).toBe(false);
 
       // 开始请求
       const promise = result.refresh();
-      expect(result.tableProps.loading()).toBe(true);
-      expect(result.loading()).toBe(true);
+      expect(result.tableProps.loading.value).toBe(true);
+      expect(result.loading.value).toBe(true);
 
       // 等待请求完成
       await promise;
-      expect(result.tableProps.loading()).toBe(false);
-      expect(result.loading()).toBe(false);
+      expect(result.tableProps.loading.value).toBe(false);
+      expect(result.loading.value).toBe(false);
     });
   });
 
@@ -360,8 +360,8 @@ describe('antdTableSignal', () => {
       const newData = { total: 1, list: [mockUsers[0]] };
       result.mutate(newData);
 
-      expect(result.tableProps.dataSource()).toEqual([mockUsers[0]]);
-      expect(result.tableProps.pagination().total).toBe(1);
+      expect(result.tableProps.dataSource.value).toEqual([mockUsers[0]]);
+      expect(result.tableProps.pagination.value.total).toBe(1);
     });
 
     it('应该支持函数式修改数据', () => {
@@ -375,8 +375,8 @@ describe('antdTableSignal', () => {
         };
       });
 
-      expect(result.tableProps.dataSource()).toEqual(mockUsers.slice(0, 2));
-      expect(result.tableProps.pagination().total).toBe(2);
+      expect(result.tableProps.dataSource.value).toEqual(mockUsers.slice(0, 2));
+      expect(result.tableProps.pagination.value.total).toBe(2);
     });
   });
 
@@ -444,7 +444,7 @@ describe('antdTableSignal', () => {
   describe('依赖刷新', () => {
     it('应该在依赖变化时自动刷新', async () => {
       const mockService = createMockService();
-      let dep = 1;
+      const dep = 1;
 
       const result = antdTableSignal(mockService, {
         refreshDeps: [dep],
@@ -475,11 +475,11 @@ describe('antdTableSignal', () => {
 
       const pagination = result.tableProps.pagination;
 
-      expect(pagination().current).toBe(1);
-      expect(pagination().pageSize).toBe(10);
-      expect(pagination().total).toBe(0);
-      expect(pagination().showSizeChanger).toBe(true);
-      expect(pagination().showQuickJumper).toBe(true);
+      expect(pagination.value.current).toBe(1);
+      expect(pagination.value.pageSize).toBe(10);
+      expect(pagination.value.total).toBe(0);
+      expect(pagination.value.showSizeChanger).toBe(true);
+      expect(pagination.value.showQuickJumper).toBe(true);
     });
 
     it('应该支持自定义分页大小', () => {
@@ -489,7 +489,7 @@ describe('antdTableSignal', () => {
         defaultPageSize: 20,
       });
 
-      expect(result.tableProps.pagination().pageSize).toBe(20);
+      expect(result.tableProps.pagination.value.pageSize).toBe(20);
     });
   });
 
@@ -499,7 +499,7 @@ describe('antdTableSignal', () => {
       const result = antdTableSignal(mockService, { manual: true });
 
       const promise = result.refresh();
-      expect(result.tableProps.loading()).toBe(true);
+      expect(result.tableProps.loading.value).toBe(true);
 
       // 取消请求（这里需要在实现中添加 cancel 方法）
       result.cancel?.();
@@ -510,7 +510,7 @@ describe('antdTableSignal', () => {
         // 取消操作可能会抛出错误
       }
 
-      expect(result.tableProps.loading()).toBe(false);
+      expect(result.tableProps.loading.value).toBe(false);
     });
   });
 });

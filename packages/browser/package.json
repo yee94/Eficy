@@ -1,6 +1,6 @@
 {
   "name": "@eficy/browser",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "license": "MIT",
   "description": "Use eficy in browser without compilation",
   "keywords": [
@@ -28,8 +28,7 @@
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",
-    "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build"
+    "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
     "react": "^18.0.0",
@@ -37,6 +36,7 @@
   },
   "dependencies": {
     "eficy": "workspace:~",
+    "@eficy/plugin-unocss": "workspace:~",
     "reflect-metadata": "^0.2.1"
   },
   "devDependencies": {

@@ -36,7 +36,7 @@ import { observable, computed, effect, action } from '@eficy/reactive';
 const userStore = observable({
   firstName: 'John',
   lastName: 'Doe',
-  age: 25
+  age: 25,
 });
 
 // Create computed values
@@ -189,8 +189,8 @@ const user = observableObject({
   email: 'john@example.com',
   preferences: {
     theme: 'dark',
-    notifications: true
-  }
+    notifications: true,
+  },
 });
 
 // Reactive updates
@@ -213,6 +213,42 @@ user.update({ email: 'jane@example.com' });
 - **`action(fn)`** - Wrap function to batch updates and improve performance
 - **`batch(fn)`** - Manually batch multiple updates
 - **`watch(signal, callback)`** - Watch for signal changes
+- **`bind(signal, options?)`** - Create `{ value, onChange }` props for two-way binding
+
+### Signal API
+
+Signals use `.value` property for reading and writing:
+
+```typescript
+const count = signal(0);
+
+// Reading values
+count.value; // Property style (recommended)
+
+// Writing values
+count.value = 5; // Property style (recommended)
+
+// Functional update
+count.value = count.value + 1;
+```
+
+### Two-way Binding Helper
+
+```typescript
+import { signal, bind } from '@eficy/reactive';
+
+const name = signal('');
+const checked = signal(false);
+
+// bind() returns { value, onChange } for standard React components
+<input {...bind(name)} />
+<input type="checkbox" {...bind(checked)} />
+
+// Custom keys:
+<CustomInput {...bind(value, { valueKey: 'selected', eventKey: 'onSelect' })} />
+```
+
+> **Note**: `bind()` returns `{ value: signal.value, onChange }` - a standard props object that works with any React component. The `value` is the current signal value (not the signal itself).
 
 ### Observable Creation
 
@@ -277,16 +313,16 @@ let effectRuns = 0;
 
 effect(() => {
   effectRuns++;
-  count(); // Read signal to create dependency
+  count.value; // Read signal to create dependency
 });
 
 expect(effectRuns).toBe(1);
 
-count(5);
+count.value = 5;
 expect(effectRuns).toBe(2);
 ```
 
-### Signal 的 set 用法（不消费事件）
+### Signal 的 value 用法（不消费事件）
 
 ```typescript
 import { signal } from '@eficy/reactive';
@@ -294,22 +330,18 @@ import { signal } from '@eficy/reactive';
 const count = signal(0);
 
 // 直接设置值
-count.set(1);
+count.value = 1;
 // 或使用函数式更新
-count.set((prev) => prev + 1);
-
-// 也可以使用调用风格（与 set 等价）
-count(5);
-count((prev) => prev + 1);
+count.value = count.value + 1;
 
 // 表单事件中请显式取值（不会自动从事件中读取 value/checked）
 // input 文本框
 const text = signal('');
-// onChange={(e) => text.set(e.target.value)}
+// onChange={(e) => text.value = e.target.value}
 
 // checkbox
 const checked = signal(false);
-// onChange={(e) => checked.set(e.target.checked)}
+// onChange={(e) => checked.value = e.target.checked}
 ```
 
 ## 📝 TypeScript Support
@@ -319,9 +351,9 @@ This library is written in TypeScript and provides excellent type inference:
 ```typescript
 // Types are automatically inferred
 const user = observable({
-  name: 'John',    // string
-  age: 25,         // number
-  active: true     // boolean
+  name: 'John', // string
+  age: 25, // number
+  active: true, // boolean
 });
 
 // TypeScript knows the return type
@@ -345,4 +377,4 @@ Contributions welcome! Please read our contributing guidelines and submit pull r
 
 ---
 
-**Made with ❤️ by the Eficy team** 
+**Made with ❤️ by the Eficy team**

@@ -23,7 +23,7 @@ export default () => (
 
     {loading ? <div>Loading...</div> : (
       <div>
-        {computed(() => data().list.map((item) => (
+        {computed(() => data.value.list.map((item) => (
           <div key={item.id}>{item.name}</div>
         )))}
       </div>
@@ -58,6 +58,26 @@ export default () => (
 - **透明集成**: 通过自定义 JSX runtime 实现对 signals 的自动处理
 - **零运行时开销**: 编译时转换，运行时性能优异
 - **TypeScript 支持**: 完整的类型定义和类型安全
+
+### ⚡ $ 后缀响应式协议 (v1.1+)
+
+- **智能旁路**: 静态节点直接透传 React，无额外包装开销
+- **显式响应式**: 使用 `prop$={signal}` 语法明确标记响应式属性
+- **性能优化**: 只有带 `$` 后缀的 props 或 Signal children 才会触发响应式包装
+
+```tsx
+import { signal, bind } from '@eficy/reactive';
+
+const name = signal('');
+const loading = signal(false);
+
+// 静态 props - 直接透传，无额外开销
+<div className="container">Static content</div>
+
+// 响应式 props - 使用 $ 后缀
+<Button loading$={loading}>Submit</Button>
+<Input {...bind(name)} />
+```
 
 ## 📦 安装
 
@@ -114,7 +134,7 @@ const App = () => {
   return (
     <div>
       <h1>Count: {count}</h1>
-      <e-custom-button onClick={() => count(count() + 1)}>Click me!</e-custom-button>
+      <e-custom-button onClick={() => (count.value += 1)}>Click me!</e-custom-button>
     </div>
   );
 };
@@ -307,9 +327,9 @@ const count = signal(0);
 <div>Count: {count}</div>;
 
 // 编程式访问
-const currentCount = count(); // 获取值
-count.set(10); // 设置值
-count.set((prev) => prev + 1); // 函数式更新
+const currentCount = count.value; // 获取值
+count.value = 10; // 设置值
+count.value = count.value + 1; // 更新
 ```
 
 ### 异步 Signal
@@ -341,7 +361,7 @@ import { computed } from '@eficy/reactive';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
-const fullName = computed(() => `${firstName()} ${lastName()}`);
+const fullName = computed(() => `${firstName.value} ${lastName.value}`);
 
 // 在 JSX 中使用计算属性
 <div>Welcome, {fullName}!</div>;
@@ -453,12 +473,12 @@ const useTableData = () => {
   const loading = signal(false);
 
   const loadData = async () => {
-    loading.set(true);
+    loading.value = true;
     try {
       const response = await fetch('/api/table-data');
-      data.set(await response.json());
+      data.value = await response.json();
     } finally {
-      loading.set(false);
+      loading.value = false;
     }
   };
 
@@ -518,7 +538,7 @@ export class DataTablePlugin implements ILifecyclePlugin {
 ```jsx
 // ✅ 推荐：使用 computed 避免重复计算
 const expensiveData = computed(() => {
-  return heavyProcessing(rawData());
+  return heavyProcessing(rawData.value);
 });
 
 // ✅ 推荐：合理使用 memo 和 signal

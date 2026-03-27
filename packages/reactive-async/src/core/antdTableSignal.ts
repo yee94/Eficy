@@ -1,10 +1,10 @@
 import { computed, signal } from '@eficy/reactive';
 import type {
-  AntdTableService,
   AntdTableData,
+  AntdTableParams,
+  AntdTableService,
   AntdTableSignalOptions,
   AntdTableSignalResult,
-  AntdTableParams,
   AsyncSignalOptions,
   FormInstance,
 } from '../types';
@@ -48,27 +48,27 @@ class EnhancedTableStateManager<TData> {
   private initializeState(): void {
     const defaultParams = this.options.defaultParams?.[0];
     if (defaultParams) {
-      this.current(defaultParams.current);
-      this.pageSize(defaultParams.pageSize);
-      this.sorter(defaultParams.sorter);
-      this.filters(defaultParams.filters);
+      this.current.value = defaultParams.current;
+      this.pageSize.value = defaultParams.pageSize;
+      this.sorter.value = defaultParams.sorter;
+      this.filters.value = defaultParams.filters;
     }
 
     if (this.options.defaultPageSize) {
-      this.pageSize(this.options.defaultPageSize);
+      this.pageSize.value = this.options.defaultPageSize;
     }
 
     if (this.options.defaultType) {
-      this.searchType(this.options.defaultType);
+      this.searchType.value = this.options.defaultType;
     }
 
     if (this.options.defaultParams?.[1]) {
-      this.currentFormData(this.options.defaultParams[1]);
-      this.allFormData(this.options.defaultParams[1]);
+      this.currentFormData.value = this.options.defaultParams[1];
+      this.allFormData.value = this.options.defaultParams[1];
     }
 
     if (this.options.ready !== undefined) {
-      this.ready(this.options.ready);
+      this.ready.value = this.options.ready;
     }
   }
 
@@ -84,30 +84,30 @@ class EnhancedTableStateManager<TData> {
    */
   buildRequestParams(): [AntdTableParams, any, any] {
     const tableParams: AntdTableParams = {
-      current: this.current(),
-      pageSize: this.pageSize(),
-      sorter: this.sorter(),
-      filters: this.filters(),
+      current: this.current.value,
+      pageSize: this.pageSize.value,
+      sorter: this.sorter.value,
+      filters: this.filters.value,
     };
 
     const cacheData = {
-      allFormData: this.allFormData(),
-      type: this.searchType(),
+      allFormData: this.allFormData.value,
+      type: this.searchType.value,
     };
 
-    return [tableParams, this.currentFormData(), cacheData];
+    return [tableParams, this.currentFormData.value, cacheData];
   }
 
   /**
    * 更新分页参数
    */
   updatePagination(pagination: any, filters: any, sorter: any, extra?: any): void {
-    this.current(pagination.current || this.current());
-    this.pageSize(pagination.pageSize || this.pageSize());
-    this.filters(filters);
-    this.sorter(sorter);
+    this.current.value = pagination.current || this.current.value;
+    this.pageSize.value = pagination.pageSize || this.pageSize.value;
+    this.filters.value = filters;
+    this.sorter.value = sorter;
     if (extra) {
-      this.extra(extra);
+      this.extra.value = extra;
     }
   }
 
@@ -115,7 +115,7 @@ class EnhancedTableStateManager<TData> {
    * 重置到第一页
    */
   resetToFirstPage(): void {
-    this.current(1);
+    this.current.value = 1;
   }
 
   /**
@@ -126,11 +126,11 @@ class EnhancedTableStateManager<TData> {
     if (form) {
       // 保存当前表单数据
       const activeValues = form.getFieldsValue();
-      const newAllFormData = { ...this.allFormData(), ...activeValues };
-      this.allFormData(newAllFormData);
+      const newAllFormData = { ...this.allFormData.value, ...activeValues };
+      this.allFormData.value = newAllFormData;
     }
 
-    this.searchType(this.searchType() === 'simple' ? 'advance' : 'simple');
+    this.searchType.value = this.searchType.value === 'simple' ? 'advance' : 'simple';
   }
 
   /**
@@ -139,7 +139,7 @@ class EnhancedTableStateManager<TData> {
   restoreFormData(): void {
     const form = this.getForm();
     if (form) {
-      form.setFieldsValue(this.allFormData());
+      form.setFieldsValue(this.allFormData.value);
     }
   }
 
@@ -168,24 +168,24 @@ class EnhancedTableStateManager<TData> {
     if (form) {
       form.resetFields();
     }
-    this.currentFormData({});
-    this.allFormData({});
+    this.currentFormData.value = {};
+    this.allFormData.value = {};
   }
 
   /**
    * 更新表单数据
    */
   updateFormData(data: any): void {
-    this.currentFormData(data);
-    const newAllFormData = { ...this.allFormData(), ...data };
-    this.allFormData(newAllFormData);
+    this.currentFormData.value = data;
+    const newAllFormData = { ...this.allFormData.value, ...data };
+    this.allFormData.value = newAllFormData;
   }
 
   /**
    * 标记运行成功
    */
   markRunSuccess(): void {
-    this.runSuccessRef(true);
+    this.runSuccessRef.value = true;
   }
 
   /**
@@ -220,7 +220,7 @@ class EnhancedFormController<TData> {
   submit = async (e?: any): Promise<void> => {
     e?.preventDefault?.();
 
-    if (!this.stateManager.ready()) {
+    if (!this.stateManager.ready.value) {
       return;
     }
 
@@ -258,8 +258,8 @@ class EnhancedFormController<TData> {
       pageSize: this.options.defaultPageSize || 10,
     };
 
-    this.stateManager.current(defaultParams.current);
-    this.stateManager.pageSize(defaultParams.pageSize);
+    this.stateManager.current.value = defaultParams.current;
+    this.stateManager.pageSize.value = defaultParams.pageSize;
 
     const params = this.stateManager.buildRequestParams();
     this.asyncResult.run(...params);
@@ -282,7 +282,10 @@ class EnhancedFormController<TData> {
  * 增强的表格控制器
  */
 class EnhancedTableController<TData> {
-  constructor(private stateManager: EnhancedTableStateManager<TData>, private asyncResult: any) {}
+  constructor(
+    private stateManager: EnhancedTableStateManager<TData>,
+    private asyncResult: any,
+  ) {}
 
   /**
    * 表格变化处理
@@ -312,7 +315,7 @@ class EnhancedTableController<TData> {
  */
 class EnhancedTableResultAdapter<TData> {
   public dataSource = computed(() => {
-    const data = this.asyncResult.data();
+    const data = this.asyncResult.data.value;
     if (data && typeof data === 'object' && 'list' in data) {
       return data.list as TData[];
     }
@@ -320,14 +323,17 @@ class EnhancedTableResultAdapter<TData> {
   });
 
   public total = computed(() => {
-    const data = this.asyncResult.data();
+    const data = this.asyncResult.data.value;
     if (data && typeof data === 'object' && 'total' in data) {
       return data.total as number;
     }
     return 0;
   });
 
-  constructor(private asyncResult: any, private stateManager: EnhancedTableStateManager<TData>) {
+  constructor(
+    private asyncResult: any,
+    private stateManager: EnhancedTableStateManager<TData>,
+  ) {
     this.setupSuccessCallback();
   }
 
@@ -347,8 +353,8 @@ class EnhancedTableResultAdapter<TData> {
   ): void {
     if (typeof data === 'function') {
       const currentData = {
-        total: this.total(),
-        list: this.dataSource(),
+        total: this.total.value,
+        list: this.dataSource.value,
       };
       const newData = data(currentData.total === 0 && currentData.list.length === 0 ? undefined : currentData);
       this.asyncResult.mutate(newData);
@@ -433,11 +439,11 @@ export function antdTableSignal<TService extends AntdTableService>(
       loading: asyncResult.loading,
       onChange: tableController.onChange,
       pagination: computed(() => ({
-        current: stateManager.current(),
-        pageSize: stateManager.pageSize(),
-        total: resultAdapter.total(),
-        showSizeChanger: stateManager.showSizeChanger(),
-        showQuickJumper: stateManager.showQuickJumper(),
+        current: stateManager.current.value,
+        pageSize: stateManager.pageSize.value,
+        total: resultAdapter.total.value,
+        showSizeChanger: stateManager.showSizeChanger.value,
+        showQuickJumper: stateManager.showQuickJumper.value,
       })),
     },
 

@@ -9,24 +9,28 @@ UnoCSS plugin for @eficy/core-jsx - Automatically extracts and generates CSS sty
 ## ✨ 核心特性
 
 ### 🔍 自动样式提取
+
 - **智能识别**: 自动从组件 props 中提取 `className` 属性
 - **深度扫描**: 支持字符串、数组等多种 className 格式
 - **实时收集**: 在组件渲染过程中实时收集样式类
 - **去重处理**: 自动去除重复的样式类
 
 ### ⚡ 性能优化
+
 - **智能缓存**: 基于样式类哈希的缓存机制，避免重复生成
 - **按需生成**: 只生成实际使用的样式
 - **异步处理**: 使用 `@eficy/reactive-async` 进行异步样式生成
 - **防抖优化**: 1ms 防抖处理，避免频繁更新
 
 ### 🎨 UnoCSS 集成
+
 - **完整支持**: 支持 UnoCSS 的所有特性和语法
 - **预设集成**: 内置 Uno 和 Attributify 预设
 - **自定义配置**: 支持完全自定义的 UnoCSS 配置
 - **错误处理**: 优雅处理 CSS 生成失败的情况
 
 ### 🔌 插件化架构
+
 - **生命周期钩子**: 集成到 Eficy 的插件生命周期系统
 - **优先级控制**: 支持插件执行优先级设置
 - **依赖注入**: 基于 tsyringe 的依赖注入支持
@@ -62,19 +66,17 @@ await core.install(UnocssPlugin);
 // 应用组件
 const App = () => {
   const count = signal(0);
-  
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Eficy + UnoCSS
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Eficy + UnoCSS</h1>
         <p className="text-lg text-gray-600 mb-6">
           Count: <span className="font-semibold text-blue-600">{count}</span>
         </p>
-        <button 
+        <button
           className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded transition-colors"
-          onClick={() => count.set(count() + 1)}
+          onClick={() => (count.value += 1)}
         >
           Increment
         </button>
@@ -88,7 +90,7 @@ const root = createRoot(document.getElementById('root'));
 root.render(
   <EficyProvider core={core}>
     <App />
-  </EficyProvider>
+  </EficyProvider>,
 );
 ```
 
@@ -106,12 +108,15 @@ await core.install(UnocssPlugin, {
     ],
     rules: [
       // 自定义规则
-      ['btn-custom', { 
-        padding: '12px 24px', 
-        borderRadius: '8px',
-        fontWeight: '500',
-        transition: 'all 0.2s ease-in-out'
-      }],
+      [
+        'btn-custom',
+        {
+          padding: '12px 24px',
+          borderRadius: '8px',
+          fontWeight: '500',
+          transition: 'all 0.2s ease-in-out',
+        },
+      ],
     ],
     shortcuts: [
       // 自定义快捷方式
@@ -124,10 +129,10 @@ await core.install(UnocssPlugin, {
           50: '#eff6ff',
           500: '#3b82f6',
           900: '#1e3a8a',
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 });
 ```
 
@@ -143,22 +148,22 @@ export class UnocssPlugin implements ILifecyclePlugin {
   public readonly name = 'unocss-plugin';
   public readonly version = '1.0.0';
   public readonly enforce = 'pre';
-  
+
   // 插件配置
   async initialize(config?: UnocssPluginConfig): Promise<void>;
-  
+
   // 渲染钩子
   onRender(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any>;
-  
+
   // 根组件挂载钩子
   onRootMount(context: IRenderContext, next: () => ComponentType<any>): ComponentType<any>;
-  
+
   // 获取 UnoCSS 生成器实例
   getGenerator(): UnoGenerator | null;
-  
+
   // 获取收集到的样式类
   getCollectedClasses(): Set<string>;
-  
+
   // 清理资源
   destroy(): void;
 }
@@ -186,19 +191,19 @@ UnoCSS 配置支持所有官方配置选项：
       presetWind(),
       // ... 其他预设
     ],
-    
+
     // 自定义规则
     rules: [
       ['btn', { padding: '0.5rem 1rem' }],
       [/^m-(\d+)$/, ([, d]) => ({ margin: `${d}px` })],
     ],
-    
+
     // 快捷方式
     shortcuts: [
       ['btn', 'px-4 py-2 rounded'],
       ['btn-primary', 'btn bg-blue-500 text-white'],
     ],
-    
+
     // 主题
     theme: {
       colors: {
@@ -206,12 +211,12 @@ UnoCSS 配置支持所有官方配置选项：
         secondary: '#64748b',
       },
     },
-    
+
     // 变体
     variants: [
       // 自定义变体
     ],
-    
+
     // 预检样式
     preflights: [
       // 自定义预检样式
@@ -235,7 +240,7 @@ async initialize(config: UnocssPluginConfig = {}) {
     ],
     ...config.config,
   });
-  
+
   // 初始化异步信号
   this.reactiveAsync = asyncSignal(
     () => this.generateCSS(),
@@ -253,7 +258,7 @@ onRender(context: IRenderContext, next: () => ComponentType<any>) {
   if (context.props.className) {
     this.collectClassNames(context.props.className);
   }
-  
+
   return next();
 }
 ```
@@ -264,21 +269,21 @@ onRender(context: IRenderContext, next: () => ComponentType<any>) {
 private async generateCSS(): Promise<string | null> {
   const classArray = Array.from(this.collectedClasses).sort();
   const currentClassHash = classArray.join('|');
-  
+
   // 检查缓存
   if (this.cssCache.has(currentClassHash)) {
     return this.cssCache.get(currentClassHash);
   }
-  
+
   // 生成新的 CSS
   const result = await this.generator.generate(classArray.join(' '));
   const css = result.css;
-  
+
   // 更新缓存
   if (css) {
     this.cssCache.set(currentClassHash, css);
   }
-  
+
   return css;
 }
 ```
@@ -295,11 +300,11 @@ onRootMount() {
 // Unocss 组件负责实际的样式注入
 export const Unocss = ({ generateCSS }) => {
   const inlineStyle = useObserver(() => generateCSS.data);
-  
+
   if (!inlineStyle) {
     return null;
   }
-  
+
   return <style dangerouslySetInnerHTML={{ __html: inlineStyle }} id="unocss-styles" />;
 };
 ```
@@ -311,13 +316,13 @@ export const Unocss = ({ generateCSS }) => {
 ```tsx
 const App = () => {
   const isDark = signal(false);
-  const theme = computed(() => isDark() ? 'dark' : 'light');
-  
+  const theme = computed(() => (isDark.value ? 'dark' : 'light'));
+
   return (
-    <div className={`${theme}-theme min-h-screen transition-colors`}>
-      <button 
-        className={`px-4 py-2 rounded ${isDark() ? 'bg-white text-black' : 'bg-black text-white'}`}
-        onClick={() => isDark.set(!isDark())}
+    <div className={`${theme.value}-theme min-h-screen transition-colors`}>
+      <button
+        className={`px-4 py-2 rounded ${isDark.value ? 'bg-white text-black' : 'bg-black text-white'}`}
+        onClick={() => (isDark.value = !isDark.value)}
       >
         Toggle Theme
       </button>
@@ -331,19 +336,19 @@ const App = () => {
 ```tsx
 const StatusBadge = ({ status }) => {
   const statusClasses = computed(() => {
-    switch (status()) {
-      case 'success': return 'bg-green-500 text-white';
-      case 'warning': return 'bg-yellow-500 text-black';
-      case 'error': return 'bg-red-500 text-white';
-      default: return 'bg-gray-500 text-white';
+    switch (status.value) {
+      case 'success':
+        return 'bg-green-500 text-white';
+      case 'warning':
+        return 'bg-yellow-500 text-black';
+      case 'error':
+        return 'bg-red-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
     }
   });
-  
-  return (
-    <span className={`px-2 py-1 rounded text-sm ${statusClasses}`}>
-      {status}
-    </span>
-  );
+
+  return <span className={`px-2 py-1 rounded text-sm ${statusClasses.value}`}>{status}</span>;
 };
 ```
 
@@ -366,22 +371,16 @@ const ResponsiveCard = () => (
 
 ```tsx
 // ✅ 推荐：使用计算属性缓存复杂的样式计算
-const complexClasses = computed(() => 
-  buildComplexClassString(props(), state())
-);
+const complexClasses = computed(() => buildComplexClassString(props.value, state.value));
 
 // ✅ 推荐：避免在渲染函数中创建新的样式字符串
 const Component = () => {
   const baseClasses = 'px-4 py-2 rounded';
-  const variantClasses = computed(() => 
-    variant() === 'primary' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
+  const variantClasses = computed(() =>
+    variant.value === 'primary' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800',
   );
-  
-  return (
-    <button className={`${baseClasses} ${variantClasses}`}>
-      Button
-    </button>
-  );
+
+  return <button className={`${baseClasses} ${variantClasses.value}`}>Button</button>;
 };
 ```
 
@@ -404,17 +403,15 @@ const Button: React.FC<ButtonProps> = ({ variant = 'primary', size = 'md', child
     secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
     danger: 'bg-red-500 text-white hover:bg-red-600',
   };
-  
+
   const sizeClasses = {
     sm: 'px-2 py-1 text-sm',
     md: 'px-4 py-2',
     lg: 'px-6 py-3 text-lg',
   };
-  
+
   return (
-    <button className={`rounded transition-colors ${variantClasses[variant]} ${sizeClasses[size]}`}>
-      {children}
-    </button>
+    <button className={`rounded transition-colors ${variantClasses[variant]} ${sizeClasses[size]}`}>{children}</button>
   );
 };
 ```
@@ -437,11 +434,11 @@ const darkTheme = {
 
 const App = () => {
   const isDark = signal(false);
-  const theme = computed(() => isDark() ? darkTheme : lightTheme);
-  
+  const theme = computed(() => (isDark.value ? darkTheme : lightTheme));
+
   return (
-    <div className={`min-h-screen transition-colors ${theme().bg} ${theme().text}`}>
-      <div className={`border-b ${theme().border} p-4`}>
+    <div className={`min-h-screen transition-colors ${theme.value.bg} ${theme.value.text}`}>
+      <div className={`border-b ${theme.value.border} p-4`}>
         <h1 className="text-2xl font-bold">Theme Example</h1>
       </div>
     </div>
@@ -463,17 +460,15 @@ describe('UnocssPlugin', () => {
   it('should generate CSS for className attributes', async () => {
     const core = new Eficy();
     await core.install(UnocssPlugin);
-    
-    const TestComponent = () => (
-      <div className="text-red-500 p-4">Test</div>
-    );
-    
+
+    const TestComponent = () => <div className="text-red-500 p-4">Test</div>;
+
     render(
       <EficyProvider core={core}>
         <TestComponent />
-      </EficyProvider>
+      </EficyProvider>,
     );
-    
+
     // 检查是否生成了对应的 CSS
     const styleElement = document.getElementById('unocss-styles');
     expect(styleElement).toBeTruthy();
@@ -488,11 +483,13 @@ describe('UnocssPlugin', () => {
 ### 常见问题
 
 1. **样式未生成**
+
    - 确保插件已正确安装
    - 检查 className 是否正确传递
    - 验证 UnoCSS 配置是否正确
 
 2. **样式冲突**
+
    - 检查 CSS 优先级
    - 确保插件执行顺序正确
    - 使用 `!important` 或更具体的选择器

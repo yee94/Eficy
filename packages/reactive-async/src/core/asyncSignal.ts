@@ -1,6 +1,6 @@
-import { Action, computed, ObservableClass, signal } from '@eficy/reactive';
+import { Action, ObservableClass, computed, signal } from '@eficy/reactive';
 import type { AsyncSignalOptions, AsyncSignalResult, Data, Params, Service } from '../types';
-import { CancelToken, createCancelToken, debounce, delay, isEqual, makeCancellable, throttle } from '../utils';
+import { type CancelToken, createCancelToken, debounce, delay, isEqual, makeCancellable, throttle } from '../utils';
 import { cacheManager } from './cache';
 
 /**
@@ -19,12 +19,15 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
   private retryCount = 0;
   private windowFocusHandler: (() => void) | null = null;
 
-  constructor(private service: Service<TData, TParams>, private options: AsyncSignalOptions<TData, TParams> = {}) {
+  constructor(
+    private service: Service<TData, TParams>,
+    private options: AsyncSignalOptions<TData, TParams> = {},
+  ) {
     super();
 
     // 设置初始数据
     if (options.initialData !== undefined) {
-      this.data(options.initialData);
+      this.data.value = options.initialData;
     }
 
     // 绑定窗口焦点事件
@@ -63,10 +66,10 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
         const isStale = this.options.staleTime ? Date.now() - cached.time > this.options.staleTime : false;
 
         if (!isStale) {
-          this.data(cached.data);
-          this.loading(false);
-          this.error(undefined);
-          this.params(params);
+          this.data.value = cached.data;
+          this.loading.value = false;
+          this.error.value = undefined;
+          this.params.value = params;
           return cached.data;
         }
       }
@@ -76,9 +79,9 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
     this.currentCancelToken = createCancelToken();
 
     // 设置loading状态
-    this.loading(true);
-    this.error(undefined);
-    this.params(params);
+    this.loading.value = true;
+    this.error.value = undefined;
+    this.params.value = params;
 
     // 调用 onBefore 回调
     this.options.onBefore?.(params);
@@ -92,9 +95,9 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
       const formattedResult = this.options.formatResult ? this.options.formatResult(result) : result;
 
       // 更新状态
-      this.data(formattedResult);
-      this.loading(false);
-      this.error(undefined);
+      this.data.value = formattedResult;
+      this.loading.value = false;
+      this.error.value = undefined;
       this.retryCount = 0;
 
       // 缓存结果
@@ -126,8 +129,8 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
       }
 
       // 更新错误状态
-      this.loading(false);
-      this.error(error);
+      this.loading.value = false;
+      this.error.value = error;
 
       // 调用错误回调
       this.options.onError?.(error, params);
@@ -161,10 +164,10 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
         // 防抖情况下，我们需要等待实际请求完成
         // 这里简化处理，实际使用中可能需要更复杂的逻辑
         setTimeout(() => {
-          if (this.error()) {
-            reject(this.error());
+          if (this.error.value) {
+            reject(this.error.value);
           } else {
-            resolve(this.data()!);
+            resolve(this.data.value!);
           }
         }, this.options.debounceWait! + 100);
       });
@@ -175,10 +178,10 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
         this.throttledRun!(...params);
         // 节流情况下的处理逻辑
         setTimeout(() => {
-          if (this.error()) {
-            reject(this.error());
+          if (this.error.value) {
+            reject(this.error.value);
           } else {
-            resolve(this.data()!);
+            resolve(this.data.value!);
           }
         }, 100);
       });
@@ -191,10 +194,10 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
    * 刷新请求（使用上次参数）
    */
   refresh = (): Promise<TData> => {
-    if (!this.params()) {
+    if (!this.params.value) {
       throw new Error('No previous params to refresh');
     }
-    return this.run(...this.params());
+    return this.run(...this.params.value);
   };
 
   /**
@@ -211,9 +214,9 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
   @Action
   mutate(data: TData | undefined | ((oldData: TData | undefined) => TData | undefined)): void {
     if (typeof data === 'function') {
-      this.data((data as Function)(this.data()));
+      this.data.value = (data as (oldData: TData | undefined) => TData | undefined)(this.data.value);
     } else {
-      this.data(data);
+      this.data.value = data;
     }
   }
 
@@ -236,7 +239,7 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
     if (this.currentCancelToken && !this.currentCancelToken.isCancelled) {
       this.currentCancelToken.cancel();
     }
-    this.loading(false);
+    this.loading.value = false;
   }
 
   /**
@@ -245,8 +248,8 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
   private startPolling(): void {
     if (this.options.pollingInterval && this.options.pollingInterval > 0) {
       this.pollingTimer = setTimeout(() => {
-        if (this.params()) {
-          this.runRequest(...this.params()).catch(() => {
+        if (this.params.value) {
+          this.runRequest(...this.params.value).catch(() => {
             // 轮询错误时继续下一次轮询
           });
         }
@@ -276,7 +279,7 @@ class RequestManager<TData, TParams extends any[]> extends ObservableClass {
    * 内部方法：处理窗口焦点
    */
   private handleWindowFocus = (): void => {
-    if (this.params() && this.data() !== undefined) {
+    if (this.params.value && this.data.value !== undefined) {
       this.refresh().catch(() => {
         // 忽略焦点刷新错误
       });

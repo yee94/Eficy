@@ -145,6 +145,33 @@ describe('UnocssPlugin Integration', () => {
       }).not.toThrow();
     });
 
+    it('在未收集到 className 时不应该报 generator 未初始化错误', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const TestComponent = (props: any) => {
+        return (
+          <EficyProvider core={eficy}>
+            <div {...props}>Root Component</div>
+          </EficyProvider>
+        );
+      };
+
+      const context = {
+        props: {},
+      };
+
+      const ModifiedComponent = eficy.pluginManager.executeRenderHooks(TestComponent, context);
+
+      render(<ModifiedComponent data-eficy-root={true} />);
+
+      await waitFor(() => {
+        expect(plugin.getGenerator()).toBeTruthy();
+      });
+
+      expect(consoleSpy).not.toHaveBeenCalledWith('The unocss generator is not initialized', plugin);
+      consoleSpy.mockRestore();
+    });
+
     it('应该处理无效的 className', () => {
       const TestComponent = (props: any) => <div {...props}>Test</div>;
 

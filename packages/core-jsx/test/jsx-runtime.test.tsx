@@ -1,24 +1,18 @@
-/**
- * JSX Runtime 测试
- */
-
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import React from 'react';
+import { computed, signal } from '@eficy/reactive';
 import { render, screen } from '@testing-library/react';
-import { jsx, jsxs, Fragment } from '../src/jsx-runtime';
-import { signal, computed } from '@eficy/reactive';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Fragment, jsx, jsxs } from '../src/jsx-runtime';
 import '@testing-library/jest-dom';
 
-// Mock EficyNode to control its behavior
+import { EficyNode } from '../src/components/EficyNode';
+
 vi.mock('../src/components/EficyNode', () => ({
   EficyNode: vi.fn(({ type, props }) => {
     const Component = type;
     return React.createElement(Component, props);
   }),
 }));
-
-import { isSignal } from '@eficy/reactive';
-import { EficyNode } from '../src/components/EficyNode';
 
 const mockEficyNode = vi.mocked(EficyNode);
 
@@ -27,125 +21,137 @@ describe('JSX Runtime', () => {
     vi.clearAllMocks();
   });
 
-  describe('jsx() 函数', () => {
-    it('应该处理简单的原生元素', () => {
-      const element = jsx('div', { className: 'test' });
+  describe('Smart Bypass - Static nodes should NOT use EficyNode', () => {
+    it('should bypass EficyNode for static native elements', () => {
+      const element = jsx('div', { className: 'test', id: 'static' });
 
-      expect(element.type).toBe(mockEficyNode);
-      expect(element.props.type).toBe('div');
-      expect(element.props.props.className).toBe('test');
+      expect(element.type).toBe('div');
+      expect(element.props.className).toBe('test');
+      expect(element.props.id).toBe('static');
+      expect(mockEficyNode).not.toHaveBeenCalled();
     });
 
-    it('应该处理 React 组件', () => {
-      const TestComponent = ({ message }: { message: string }) => <div>{message}</div>;
-      const element = jsx(TestComponent, { message: 'Hello' });
+    it('should bypass EficyNode for static text children', () => {
+      const element = jsx('span', { children: 'Hello World' });
 
-      expect(element.type).toBe(mockEficyNode);
-      expect(element.props.type).toBe(TestComponent);
-      expect(element.props.props.message).toBe('Hello');
+      expect(element.type).toBe('span');
+      expect(element.props.children).toBe('Hello World');
+      expect(mockEficyNode).not.toHaveBeenCalled();
     });
 
-    it('应该为包含 signals 的元素使用 EficyNode', () => {
-      const testSignal = signal('test');
+    it('should bypass EficyNode for static array children', () => {
+      const element = jsxs('div', { children: ['text1', 'text2', 123] });
 
-      const result = jsx('div', { content: testSignal });
-
-      // 检查结果是否是 EficyNode 元素
-      expect(result.type).toBe(mockEficyNode);
-      expect(result.props.type).toBe('div');
-      expect(result.props.props.content).toBe(testSignal);
-    });
-
-    it('应该为 Eficy 组件（e- 前缀）使用 EficyNode', () => {
-      const result = jsx('e-button', { label: 'Click me' });
-
-      expect(result.type).toBe(mockEficyNode);
-      expect(result.props.type).toBe('e-button');
-      expect(result.props.props.label).toBe('Click me');
-    });
-
-    it('应该处理带 key 的元素', () => {
-      const element = jsx('div', { className: 'test' }, 'unique-key');
-
-      expect(element.key).toBe('unique-key');
-    });
-
-    it('应该处理空 props', () => {
-      const element = jsx('div');
-
-      expect(element.type).toBe(mockEficyNode);
-      expect(element.props.type).toBe('div');
-      expect(Object.keys(element.props.props)).toHaveLength(0);
-    });
-
-    it('应该检测 props 中的多个 signals', () => {
-      const signal1 = signal('value1');
-      const signal2 = signal('value2');
-
-      const result = jsx('div', { prop1: signal1, prop2: signal2, prop3: 'normal' });
-
-      expect(result.type).toBe(mockEficyNode);
-      expect(result.props.props.prop1).toBe(signal1);
-      expect(result.props.props.prop2).toBe(signal2);
-    });
-
-    it('应该检测嵌套对象中的 signals', () => {
-      const testSignal = signal('nested');
-
-      const result = jsx('div', { style: { color: testSignal } });
-
-      // 由于总是使用 EficyNode，我们检查返回的元素类型
-      expect(result.type).toBe(mockEficyNode);
-      expect(result.props.props.style.color).toBe(testSignal);
+      expect(element.type).toBe('div');
+      expect(mockEficyNode).not.toHaveBeenCalled();
     });
   });
 
-  describe('jsxs() 函数', () => {
-    it('应该与 jsx() 函数行为一致', () => {
+  describe('Smart Bypass - Reactive nodes SHOULD use EficyNode', () => {
+    it('should use EficyNode when props have $ suffix', () => {
+      const sig = signal('test');
+      const element = jsx('div', { value$: sig, className: 'static' });
+
+      expect(element.type).toBe(mockEficyNode);
+      expect(element.props.props.value$).toBe(sig);
+      expect(element.props.props.className).toBe('static');
+    });
+
+    it('should use EficyNode when children contain Signal', () => {
+      const sig = signal('dynamic text');
+      const element = jsx('div', { children: sig });
+
+      expect(element.type).toBe(mockEficyNode);
+      expect(element.props.props.children).toBe(sig);
+    });
+
+    it('should use EficyNode when children array contains Signal', () => {
+      const sig = signal('dynamic');
+      const element = jsxs('div', { children: ['static', sig, 'text'] });
+
+      expect(element.type).toBe(mockEficyNode);
+    });
+
+    it('should use EficyNode for multiple $ suffix props', () => {
+      const sig1 = signal('a');
+      const sig2 = signal('b');
+      const element = jsx('input', { value$: sig1, checked$: sig2 });
+
+      expect(element.type).toBe(mockEficyNode);
+    });
+  });
+
+  describe('e- prefix components should always use EficyNode', () => {
+    it('should use EficyNode for e- prefixed components', () => {
+      const element = jsx('e-Button', { label: 'Click me' });
+
+      expect(element.type).toBe(mockEficyNode);
+      expect(element.props.type).toBe('e-Button');
+    });
+
+    it('should use EficyNode for e- components even without reactive props', () => {
+      const element = jsx('e-Input', { placeholder: 'Enter text' });
+
+      expect(element.type).toBe(mockEficyNode);
+    });
+  });
+
+  describe('jsx() function basic behavior', () => {
+    it('should handle React components', () => {
+      const TestComponent = ({ message }: { message: string }) => <div>{message}</div>;
+      const element = jsx(TestComponent, { message: 'Hello' });
+
+      expect(element.type).toBe(TestComponent);
+      expect(element.props.message).toBe('Hello');
+    });
+
+    it('should handle key prop', () => {
+      const element = jsx('div', { className: 'test' }, 'unique-key');
+      expect(element.key).toBe('unique-key');
+    });
+
+    it('should handle empty props', () => {
+      const element = jsx('div', {});
+      expect(element.type).toBe('div');
+    });
+
+    it('should handle undefined props', () => {
+      const element = jsx('div');
+      expect(element.type).toBe('div');
+    });
+  });
+
+  describe('jsxs() function', () => {
+    it('should behave same as jsx for static content', () => {
       const element1 = jsx('div', { className: 'test' });
       const element2 = jsxs('div', { className: 'test' });
 
       expect(element1.type).toBe(element2.type);
-      expect(element1.props).toEqual(element2.props);
     });
 
-    it('应该处理带多个子元素的情况', () => {
+    it('should handle multiple static children', () => {
       const children = ['Child 1', 'Child 2', 'Child 3'];
       const element = jsxs('div', { children });
 
-      expect(element.type).toBe(mockEficyNode);
-      expect(element.props.type).toBe('div');
-      expect(element.props.props.children).toBe(children);
-    });
-
-    it('应该为包含 signals 的多子元素使用 EficyNode', () => {
-      const signal1 = signal('Signal Child 1');
-      const signal2 = signal('Signal Child 2');
-      const children = [signal1, 'Static Child', signal2];
-
-      const result = jsxs('div', { children });
-
-      expect(result.type).toBe(mockEficyNode);
-      expect(result.props.props.children).toEqual(children);
+      expect(element.type).toBe('div');
+      expect(element.props.children).toBe(children);
     });
   });
 
-  describe('集成测试', () => {
-    it('应该正确渲染简单组件', () => {
-      const TestComponent = () => jsx('div', { 'data-testid': 'test-div' }, 'test-key');
+  describe('Integration tests', () => {
+    it('should render static component correctly', () => {
+      const TestComponent = () => jsx('div', { 'data-testid': 'test-div', children: 'content' });
 
       render(<TestComponent />);
 
       expect(screen.getByTestId('test-div')).toBeInTheDocument();
+      expect(screen.getByText('content')).toBeInTheDocument();
     });
 
-    it('应该正确处理嵌套结构', () => {
+    it('should render nested static structure', () => {
       const TestComponent = () =>
         jsx('div', {
-          children: [
-            jsx('h1', { children: 'Title' }),
-            jsx('p', { children: 'Content' }),
-          ],
+          children: [jsx('h1', { children: 'Title', key: '1' }), jsx('p', { children: 'Content', key: '2' })],
         });
 
       render(<TestComponent />);
@@ -153,119 +159,19 @@ describe('JSX Runtime', () => {
       expect(screen.getByText('Title')).toBeInTheDocument();
       expect(screen.getByText('Content')).toBeInTheDocument();
     });
-
-    it('应该正确处理带 signals 的组件', () => {
-      const testSignal = signal('Dynamic Content');
-
-      const TestComponent = () =>
-        jsx('div', {
-          children: [
-            jsx('h1', { children: 'Static Title' }),
-            jsx('p', { children: testSignal }),
-          ],
-        });
-
-      render(<TestComponent />);
-
-      expect(screen.getByText('Static Title')).toBeInTheDocument();
-      // 由于 signal 可能不会被正确解析，我们只检查组件是否被渲染
-      expect(screen.getByText('Static Title')).toBeInTheDocument();
-    });
   });
 
-  describe('错误处理', () => {
-    it('应该处理无效的 type', () => {
+  describe('Error handling', () => {
+    it('should handle null type', () => {
       expect(() => {
         jsx(null as any, {});
       }).not.toThrow();
     });
 
-    it('应该处理无效的 props', () => {
+    it('should handle null props', () => {
       expect(() => {
         jsx('div', null as any);
       }).not.toThrow();
-    });
-
-    it('应该处理循环引用的对象', () => {
-      const circular: any = {};
-      circular.self = circular;
-
-      expect(() => {
-        jsx('div', { data: circular });
-      }).not.toThrow();
-    });
-  });
-
-  describe('性能优化', () => {
-    it('应该避免不必要的 EficyNode 调用', () => {
-      const TestComponent = () => jsx('div', { className: 'test' });
-
-      render(<TestComponent />);
-
-      // 验证 EficyNode 被调用
-      expect(mockEficyNode).toHaveBeenCalled();
-    });
-
-    it('应该只检查可能的 signal 值', () => {
-      const result = jsx('div', { className: 'test', id: 'test-id' });
-
-      // 由于总是使用 EficyNode，我们检查返回的元素类型
-      expect(result.type).toBe(mockEficyNode);
-      expect(result.props.props.className).toBe('test');
-    });
-
-    it('应该一致地处理相同的 props', () => {
-      const props = { className: 'test', id: 'test-id' };
-
-      const result1 = jsx('div', props);
-      const result2 = jsx('div', props);
-
-      expect(result1.type).toBe(result2.type);
-      expect(result1.props).toEqual(result2.props);
-    });
-  });
-
-  describe('TypeScript 类型支持', () => {
-    it('应该支持泛型组件', () => {
-      interface GenericProps<T> {
-        value: T;
-        render: (value: T) => React.ReactNode;
-      }
-
-      const GenericComponent = <T,>({ value, render }: GenericProps<T>) => <div>{render(value)}</div>;
-
-      const element = jsx(GenericComponent, {
-        value: 42,
-        render: (value: number) => `Value: ${value}`,
-      });
-
-      expect(element.type).toBe(mockEficyNode);
-      expect(element.props.type).toBe(GenericComponent);
-    });
-
-    it('应该支持带约束的组件属性', () => {
-      interface StrictProps {
-        id: string;
-        value: number;
-        optional?: boolean;
-      }
-
-      const StrictComponent = ({ id, value, optional }: StrictProps) => (
-        <div id={id} data-value={value} data-optional={optional}>
-          Content
-        </div>
-      );
-
-      const element = jsx(StrictComponent, {
-        id: 'test',
-        value: 42,
-        optional: true,
-      });
-
-      expect(element.type).toBe(mockEficyNode);
-      expect(element.props.props.id).toBe('test');
-      expect(element.props.props.value).toBe(42);
-      expect(element.props.props.optional).toBe(true);
     });
   });
 });

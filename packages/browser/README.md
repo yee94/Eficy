@@ -22,32 +22,32 @@ npm install @eficy/browser
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Eficy Browser Demo</title>
-  <script src="https://unpkg.com/@eficy/browser/dist/standalone.js"></script>
-</head>
-<body>
-  <div id="root"></div>
-  
-  <script type="text/eficy">
-    function App() {
-      const count = signal(0);
-      
-      return (
-        <div>
-          <h1>Hello, Eficy!</h1>
-          <p>Count: {count}</p>
-          <button onClick={() => count.set(count() + 1)}>
-            Increment
-          </button>
-        </div>
-      );
-    }
-    
-    // 渲染到 DOM
-    EficyBrowser.render(App, document.getElementById('root'));
-  </script>
-</body>
+  <head>
+    <title>Eficy Browser Demo</title>
+    <script src="https://unpkg.com/@eficy/browser/dist/standalone.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/eficy">
+      function App() {
+        const count = signal(0);
+
+        return (
+          <div>
+            <h1>Hello, Eficy!</h1>
+            <p>Count: {count}</p>
+            <button onClick={() => count.value += 1}>
+              Increment
+            </button>
+          </div>
+        );
+      }
+
+      // 渲染到 DOM
+      EficyBrowser.render(App, document.getElementById('root'));
+    </script>
+  </body>
 </html>
 ```
 
@@ -56,29 +56,29 @@ npm install @eficy/browser
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Eficy Browser Demo</title>
-  <script src="https://unpkg.com/@eficy/browser@latest/dist/index.iife.js"></script>
-</head>
-<body>
-  <div id="root"></div>
-  
-  <script type="text/eficy">
-    function Counter() {
-      const count = signal(0);
-      
-      return (
-        <div>
-          <h2>Counter: {count}</h2>
-          <button onClick={() => count.set(count() + 1)}>+</button>
-          <button onClick={() => count.set(count() - 1)}>-</button>
-        </div>
-      );
-    }
-    
-    EficyBrowser.render(Counter, document.getElementById('root'));
-  </script>
-</body>
+  <head>
+    <title>Eficy Browser Demo</title>
+    <script src="https://unpkg.com/@eficy/browser@latest/dist/index.iife.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/eficy">
+      function Counter() {
+        const count = signal(0);
+
+        return (
+          <div>
+            <h2>Counter: {count}</h2>
+            <button onClick={() => count.value += 1}>+</button>
+            <button onClick={() => count.value -= 1}>-</button>
+          </div>
+        );
+      }
+
+      EficyBrowser.render(Counter, document.getElementById('root'));
+    </script>
+  </body>
 </html>
 ```
 
@@ -87,20 +87,20 @@ npm install @eficy/browser
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Eficy Browser Demo</title>
-</head>
-<body>
-  <div id="root"></div>
-  
-  <script type="module">
-    import { initEficyBrowser, renderJSX } from 'https://unpkg.com/@eficy/browser@latest/dist/index.js';
-    
-    // 初始化
-    const eficy = initEficyBrowser();
-    
-    // JSX 代码
-    const jsxCode = `
+  <head>
+    <title>Eficy Browser Demo</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="module">
+      import { initEficyBrowser, renderJSX } from 'https://unpkg.com/@eficy/browser@latest/dist/index.js';
+
+      // 初始化
+      const eficy = initEficyBrowser();
+
+      // JSX 代码
+      const jsxCode = `
       import { signal } from '@eficy/browser';
       
       function App() {
@@ -110,8 +110,8 @@ npm install @eficy/browser
           <div>
             <h1>Hello, {name}!</h1>
             <input 
-              value={name()} 
-              onChange={(e) => name.set(e.target.value)}
+              value={name.value} 
+              onChange={(e) => name.value = e.target.value}
               placeholder="Enter your name"
             />
           </div>
@@ -120,11 +120,11 @@ npm install @eficy/browser
       
       export default App;
     `;
-    
-    // 渲染
-    renderJSX(jsxCode, document.getElementById('root'));
-  </script>
-</body>
+
+      // 渲染
+      renderJSX(jsxCode, document.getElementById('root'));
+    </script>
+  </body>
 </html>
 ```
 
@@ -157,8 +157,8 @@ import { initEficyBrowser } from '@eficy/browser';
 const eficy = initEficyBrowser({
   components: {
     // 自定义组件
-    MyComponent: () => <div>Custom Component</div>
-  }
+    MyComponent: () => <div>Custom Component</div>,
+  },
 });
 ```
 
@@ -203,9 +203,7 @@ console.log(compiled);
 ```javascript
 import { registerComponent } from '@eficy/browser';
 
-registerComponent('MyButton', ({ children, onClick }) => (
-  <button onClick={onClick}>{children}</button>
-));
+registerComponent('MyButton', ({ children, onClick }) => <button onClick={onClick}>{children}</button>);
 ```
 
 ## 响应式系统
@@ -217,19 +215,17 @@ import { signal, computed, effect } from '@eficy/browser';
 
 function App() {
   const count = signal(0);
-  const doubled = computed(() => count() * 2);
-  
+  const doubled = computed(() => count.value * 2);
+
   effect(() => {
-    console.log('Count changed:', count());
+    console.log('Count changed:', count.value);
   });
-  
+
   return (
     <div>
       <p>Count: {count}</p>
       <p>Doubled: {doubled}</p>
-      <button onClick={() => count.set(count() + 1)}>
-        Increment
-      </button>
+      <button onClick={() => (count.value += 1)}>Increment</button>
     </div>
   );
 }

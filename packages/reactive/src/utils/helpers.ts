@@ -1,18 +1,18 @@
-import type { Signal, ComputedSignal } from '../types/index';
-import { SIGNAL_MARKER } from '../types/index';
 import {
-  isFunction,
+  clone,
+  cloneDeep,
   isArray,
-  isPlainObject,
+  isEqual,
+  isFunction,
   isMap,
+  isPlainObject,
   isSet,
   isWeakMap,
   isWeakSet,
-  cloneDeep,
-  clone,
-  isEqual,
   traverse,
 } from 'radashi';
+import type { ComputedSignal, Signal } from '../types/index';
+import { SIGNAL_MARKER } from '../types/index';
 
 // ==================== 类型检查工具 ====================
 
@@ -34,7 +34,7 @@ export function isPrimitive(value: unknown): value is string | number | boolean 
  * 检查是否为信号
  */
 export function isSignal(value: unknown): value is Signal<unknown> {
-  return typeof value === 'function' && (value as any)[SIGNAL_MARKER] === true;
+  return typeof value === 'object' && value !== null && (value as any)[SIGNAL_MARKER] === true;
 }
 
 // 用于存储原始对象的 WeakMap
@@ -356,5 +356,3 @@ export function createTimer(name: string) {
     },
   };
 }
-
-

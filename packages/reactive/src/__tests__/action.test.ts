@@ -9,16 +9,16 @@ describe('Action', () => {
       
       const spy = vi.fn();
       effect(() => {
-        spy(count());
+        spy(count.value);
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(0);
       
       const updateAction = action(() => {
-        count(5);
-        count(10);
-        count(15);
+        count.value = 5;
+        count.value = 10;
+        count.value = 15;
       });
       
       updateAction();
@@ -68,20 +68,20 @@ describe('Action', () => {
       
       const spy = vi.fn();
       effect(() => {
-        spy(count());
+        spy(count.value);
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       
       const outerAction = action(() => {
-        count(10);
+        count.value = 10;
         
         const innerAction = action(() => {
-          count(20);
+          count.value = 20;
         });
         
         innerAction();
-        count(30);
+        count.value = 30;
       });
       
       outerAction();
@@ -129,19 +129,19 @@ describe('Action', () => {
     it('should handle multiple signals with computed dependencies', () => {
       const items = signal<number[]>([]);
       const multiplier = signal(3);
-      const total = computed(() => items().reduce((sum, item) => sum + item, 0) * multiplier());
+      const total = computed(() => items.value.reduce((sum, item) => sum + item, 0) * multiplier.value);
       
       const spy = vi.fn();
       effect(() => {
-        spy(total());
+        spy(total.value);
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(0);
       
       const addItems = action((newItems: number[]) => {
-        items([...items(), ...newItems]);
-        multiplier(3);
+        items.value = [...items.value, ...newItems];
+        multiplier.value = 3;
       });
       
       addItems([1, 2, 3]);
@@ -154,19 +154,19 @@ describe('Action', () => {
     it('should handle conditional state updates', () => {
       const condition = signal(true);
       const multiplier = signal(2);
-      const result = computed(() => condition() ? 4 * multiplier() : 0);
+      const result = computed(() => condition.value ? 4 * multiplier.value : 0);
       
       const spy = vi.fn();
       effect(() => {
-        spy(result());
+        spy(result.value);
       });
       
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(8); // true ? 4 * 2 : 0
       
       const updateAction = action(() => {
-        multiplier(4); // result would be 16
-        condition(false); // but then becomes 0
+        multiplier.value = 4; // result would be 16
+        condition.value = false; // but then becomes 0
       });
       
       updateAction();

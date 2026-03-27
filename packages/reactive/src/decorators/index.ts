@@ -1,5 +1,5 @@
-import { signal, computed as computedSignal } from '../core/signal';
 import { action as createAction } from '../core/action';
+import { computed as computedSignal, signal } from '../core/signal';
 import 'reflect-metadata';
 
 // ==================== 装饰器元数据键 ====================
@@ -117,8 +117,10 @@ export function makeObservable<T extends object>(instance: T, annotations?: Reco
         const valueSignal = signal(currentValue);
 
         Object.defineProperty(instance, key, {
-          get: () => valueSignal(),
-          set: (newValue: any) => valueSignal(newValue),
+          get: () => valueSignal.value,
+          set: (newValue: any) => {
+            valueSignal.value = newValue;
+          },
           enumerable: true,
           configurable: true,
         });
@@ -128,7 +130,7 @@ export function makeObservable<T extends object>(instance: T, annotations?: Reco
           const originalGetter = descriptor.get;
           const computedInstance = computedSignal(() => originalGetter.call(instance));
           Object.defineProperty(instance, key, {
-            get: () => computedInstance(),
+            get: () => computedInstance.value,
             enumerable: true,
             configurable: false,
           });
@@ -151,8 +153,10 @@ export function makeObservable<T extends object>(instance: T, annotations?: Reco
       const valueSignal = signal(currentValue);
 
       Object.defineProperty(instance, key, {
-        get: () => valueSignal(),
-        set: (newValue: any) => valueSignal(newValue),
+        get: () => valueSignal.value,
+        set: (newValue: any) => {
+          valueSignal.value = newValue;
+        },
         enumerable: true,
         configurable: true,
       });
@@ -167,7 +171,7 @@ export function makeObservable<T extends object>(instance: T, annotations?: Reco
         const originalGetter = descriptor.get;
         const computedInstance = computedSignal(() => originalGetter.call(instance));
         Object.defineProperty(instance, key, {
-          get: () => computedInstance(),
+          get: () => computedInstance.value,
           enumerable: true,
           configurable: false,
         });

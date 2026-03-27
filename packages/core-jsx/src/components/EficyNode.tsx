@@ -1,16 +1,12 @@
-/**
- * EficyNode - 处理包含 signals 的响应式组件
- *
- * 基于现有的 RenderNode 逻辑，简化并专注于 signals 响应式处理
- */
-
 import { isSignal, mapSignals } from '@eficy/reactive';
 import { useObserver } from '@eficy/reactive-react';
-import { ComponentType, forwardRef } from 'react';
+import type { ComponentType } from 'react';
+import { forwardRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { HookType } from '../constants';
 import { useEficyContext } from '../contexts/EficyContext';
-import { ComponentRegistry } from '../services/ComponentRegistry';
+import type { ComponentRegistry } from '../services/ComponentRegistry';
+import { isReactivePropKey, stripReactiveSuffix } from '../utils/reactiveProps';
 
 export interface EficyNodeProps {
   type: string | ComponentType<any>;
@@ -18,7 +14,6 @@ export interface EficyNodeProps {
   key?: string;
 }
 
-// 错误回退组件
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
   <div
     style={{
@@ -49,16 +44,33 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
   </div>
 );
 
-// 处理 signals 的内部组件
+function resolveReactiveProps(props: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+
+  for (const key of Object.keys(props)) {
+    if (isReactivePropKey(key)) {
+      const realKey = stripReactiveSuffix(key);
+      const signalValue = props[key];
+      if (isSignal(signalValue)) {
+        result[realKey] = signalValue.value;
+      } else {
+        result[realKey] = signalValue;
+      }
+    } else {
+      result[key] = props[key];
+    }
+  }
+
+  return result;
+}
+
 const EficyNodeInner = forwardRef(({ type, props }: EficyNodeProps, ref) => {
   const eficyContext = useEficyContext();
 
-  // 使用 useObserver 来监听 signals 的变化
   const renderResult = useObserver(() => {
-    // 解析 props 中的 signals
-    const resolvedProps = mapSignals(props);
+    const reactiveResolved = resolveReactiveProps(props);
+    const resolvedProps = mapSignals(reactiveResolved);
 
-    // 获取实际的组件
     let Component = resolveComponent(type, eficyContext?.componentRegistry);
 
     if (eficyContext?.pluginManager) {
@@ -89,14 +101,12 @@ const EficyNodeInner = forwardRef(({ type, props }: EficyNodeProps, ref) => {
       );
     }
 
-    // 渲染组件
     return <Component {...resolvedProps} ref={ref} />;
   });
 
   return renderResult;
 });
 
-// 主要的 EficyNode 组件
 export const EficyNode = forwardRef((props: EficyNodeProps, ref) => {
   const { type, props: props2, ...rest } = props;
   const mergedProps = { ...rest, ...props.props };
@@ -115,19 +125,15 @@ export const EficyNode = forwardRef((props: EficyNodeProps, ref) => {
 
 EficyNode.displayName = 'EficyNode';
 
-/**
- * 解析组件类型
- */
 function resolveComponent(
   type: string | ComponentType<any>,
   componentRegistry?: ComponentRegistry,
 ): string | ComponentType<any> | null {
   if (type === undefined || type === null) {
-    console.error('[Eficy V3] Component type is undefined or null. Please check if the component variable is defined (e.g. check imports or destructuring).');
+    console.error('[Eficy V3] Component type is undefined or null.');
     return null;
   }
 
-  // 检查是否是有效的 React 组件
   if (isValidReactComponent(type)) {
     return type;
   }
@@ -136,72 +142,34 @@ function resolveComponent(
     return type;
   }
 
-  // 如果是字符串
   if (typeof type === 'string') {
-    // 首先检查是否是原生 HTML 标签
     if (isNativeHTMLTag(type)) {
       return type;
     }
-
-    // 然后从组件注册表中查找
     return componentRegistry?.resolve(type);
   }
 
   return null;
 }
 
-/**
- * 检查是否是有效的 React 组件
- */
 function isValidReactComponent(component: any): boolean {
-  // 检查是否是 React 组件的基本特征
-  if (!component) {
-    return false;
-  }
+  if (!component) return false;
+  if (component.$$typeof) return true;
 
-  // 检查是否有 $$typeof 属性（React 组件的标识）
-  if (component.$$typeof) {
-    return true;
-  }
-
-  // 检查是否是函数组件（有 displayName 或 name）
   if (typeof component === 'function') {
-    // 检查是否有 React 组件的特征
-    if (component.displayName || component.name) {
-      return true;
-    }
+    if (component.displayName || component.name) return true;
+    if (component.render && typeof component.render === 'function') return true;
+    if (component.type && typeof component.type === 'function') return true;
+    if (component.prototype && typeof component.prototype.render === 'function') return true;
 
-    // 检查是否是 React.forwardRef 创建的组件
-    if (component.render && typeof component.render === 'function') {
-      return true;
-    }
-
-    // 检查是否是 React.memo 包装的组件
-    if (component.type && typeof component.type === 'function') {
-      return true;
-    }
-
-    // 检查是否是类组件（有 prototype 和 render 方法）
-    if (component.prototype && typeof component.prototype.render === 'function') {
-      return true;
-    }
-
-    // 对于简单的函数组件，检查是否返回 JSX 或 React 元素
-    // 这里我们假设如果函数有合理的名称，就认为是组件
     const functionName = component.name || component.displayName;
-    if (functionName && functionName.length > 0 && functionName !== 'anonymous') {
-      return true;
-    }
+    if (functionName && functionName.length > 0 && functionName !== 'anonymous') return true;
   }
 
   return false;
 }
 
-/**
- * 检查是否是原生 HTML 标签
- */
 function isNativeHTMLTag(tagName: string): boolean {
-  // 简单的检查，可以根据需要扩展
   const nativeTags = new Set([
     'div',
     'span',
@@ -245,6 +213,5 @@ function isNativeHTMLTag(tagName: string): boolean {
     'pre',
     'style',
   ]);
-
   return nativeTags.has(tagName.toLowerCase());
 }

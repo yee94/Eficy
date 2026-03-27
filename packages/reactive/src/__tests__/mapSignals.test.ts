@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { mapSignals, hasSignals } from '../utils/mapSignals';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { signal } from '../core/signal';
 import { isSignal } from '../utils';
+import { hasSignals, mapSignals } from '../utils/mapSignals';
 
 describe('MapSignals', () => {
   describe('mapSignals', () => {
@@ -64,7 +64,8 @@ describe('MapSignals', () => {
       const result = mapSignals(obj, 2);
 
       // 在深度 2 时，应该还有未解析的信号
-      expect(typeof result.deep).toBe('function');
+      expect(typeof result.deep).toBe('object');
+      expect(isSignal(result.deep)).toBe(true);
     });
 
     it('should handle 4 layer deep object structure', () => {
@@ -81,9 +82,9 @@ describe('MapSignals', () => {
         },
       } as const;
 
-      // 测试默认深度3层 - 第4层应该被跳过
+      // 测试默认深度3层 - 第4层应该被跳过（仍然是信号对象）
       const result3 = mapSignals(obj, 3);
-      expect(typeof result3.level1.level2.level3.level4).toBe('function');
+      expect(typeof result3.level1.level2.level3.level4).toBe('object');
 
       // 测试4层深度 - 应该能解析到第4层
       const result4 = mapSignals(obj, 4);
@@ -309,8 +310,122 @@ describe('MapSignals', () => {
     });
 
     it('should return false for non-objects', () => {
-      expect(hasSignals(null)).toBe(false);
-      expect(hasSignals(undefined)).toBe(false);
+      expect(hasSignals(null as any)).toBe(false);
+      expect(hasSignals(undefined as any)).toBe(false);
+    });
+  });
+
+  describe('circular reference detection', () => {
+    let consoleSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    it('should detect and skip circular references', () => {
+      const obj: any = { a: signal(1), b: { c: signal(2) } };
+      obj.self = obj;
+
+      const result = mapSignals(obj);
+
+      expect(result.a).toBe(1);
+      expect(result.b.c).toBe(2);
+      expect(consoleSpy).toHaveBeenCalled();
+    });
+
+    it('should warn on circular reference in dev mode', () => {
+      const obj: any = { value: signal(42) };
+      obj.circular = obj;
+
+      mapSignals(obj);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Circular reference detected'));
+    });
+
+    it('should not throw on circular references', () => {
+      const obj: any = { a: 1 };
+      obj.b = { c: obj };
+
+      expect(() => mapSignals(obj)).not.toThrow();
+    });
+  });
+
+  describe('object Signal to value prop warning', () => {
+    let consoleSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    it('should warn when object Signal is passed to value prop', () => {
+      const user = signal({ name: 'test' });
+      const props = { value: user };
+
+      mapSignals(props);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Object Signal passed to "value" prop'));
+    });
+
+    it('should warn when object Signal is passed to defaultValue prop', () => {
+      const data = signal({ key: 'value' });
+      const props = { defaultValue: data };
+
+      mapSignals(props);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Object Signal passed to "defaultValue" prop'));
+    });
+
+    it('should not warn when primitive Signal is passed to value prop', () => {
+      const count = signal(42);
+      const props = { value: count };
+
+      mapSignals(props);
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not warn when object Signal is passed to non-value props', () => {
+      const data = signal({ name: 'test' });
+      const props = { data, otherProp: signal({ foo: 'bar' }) };
+
+      mapSignals(props);
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not warn when array Signal is passed to value prop', () => {
+      const items = signal([1, 2, 3]);
+      const props = { value: items };
+
+      mapSignals(props);
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not warn when warnOnObjectValue is false', () => {
+      const user = signal({ name: 'test' });
+      const props = { value: user };
+
+      mapSignals(props, { warnOnObjectValue: false });
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+    });
+
+    it('warning should include helpful suggestion', () => {
+      const user = signal({ name: 'test' });
+      const props = { value: user };
+
+      mapSignals(props);
+
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Consider using a specific property'));
     });
   });
 });
