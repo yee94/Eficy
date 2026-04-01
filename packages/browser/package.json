@@ -15,16 +15,15 @@
     "jsx",
     "runtime"
   ],
-  "main": "./dist/standalone.mjs",
+  "main": "./dist/standalone.js",
+  "type": "module",
+  "unpkg": "./dist/standalone.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yee94/Eficy.git",
     "directory": "packages/browser"
   },
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "files": ["dist", "README.md"],
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",

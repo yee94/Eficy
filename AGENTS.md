@@ -1,7 +1,7 @@
 # EFICY PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-01-20
-**Commit:** 94880c8
+**Generated:** 2026-04-02
+**Commit:** 2960835
 **Branch:** master
 
 ## OVERVIEW
@@ -34,7 +34,7 @@ Eficy/
 | Async data         | `packages/reactive-async/src/`         | `asyncSignal`, `antdTableSignal`         |
 | JSX runtime        | `packages/core-jsx/src/jsx-runtime.ts` | Custom jsx/jsxs functions                |
 | Plugin system      | `packages/core-jsx/src/`               | `Eficy` class, lifecycle hooks           |
-| Browser entry      | `packages/browser/src/standalone.ts`   | No-build browser usage                   |
+| Browser entry      | `packages/browser/src/standalone.tsx`  | No-build browser usage                   |
 | Component registry | `packages/core-jsx/src/`               | `e-` prefix component lookup             |
 
 ## PACKAGE DEPENDENCY GRAPH
@@ -112,3 +112,4 @@ pnpm play         # Start playground dev server
 - `strictNullChecks: false` in tsconfig (intentional)
 - `packages/shadcn-ui` is a Next.js app that exports components
 - `llm_shadcn.txt` contains prompts for LLM page generation
+- `packages/browser` requires `"type": "module"` in package.json so rslib ESM outputs `.js` (not `.mjs`)

@@ -263,7 +263,7 @@ effect(() => {
 ## 7. 标准代码模板
 
 **版本锁定（必须使用以下版本）**:
-- @eficy/browser: **1.2.0**
+- @eficy/browser: **1.2.1**
 - @eficy/shadcn-ui: **1.1.0**
 
 ```html
@@ -284,7 +284,7 @@ effect(() => {
   <script type="importmap">
     { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.0/dist/index.js" } }
   </script>
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0/dist/standalone.mjs"></script>
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.1/dist/standalone.js"></script>
 
   <script type="text/eficy">
     import { initEficy, render, signal, computed, effect, observer, component, bind, peek, batch } from 'eficy';
