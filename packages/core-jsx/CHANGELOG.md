@@ -1,5 +1,14 @@
 # @eficy/core-jsx
 
+## 1.1.1
+
+### Patch Changes
+
+- 3397dee: fix umd bundle
+- Updated dependencies [3397dee]
+  - @eficy/reactive@1.2.1
+  - @eficy/reactive-react@1.2.1
+
 ## 1.1.0
 
 ### Minor Changes

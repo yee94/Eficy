@@ -1,5 +1,18 @@
 # @eficy/browser
 
+## 1.2.1
+
+### Patch Changes
+
+- 3397dee: fix umd bundle
+- 95f5007: fix: restore `standalone.js` CDN output by adding `"type": "module"` back to package.json
+
+  Without `"type": "module"`, rslib ESM format outputs `.mjs` instead of `.js`, breaking the unpkg URL `@eficy/browser/dist/standalone.js`. Also adds `"unpkg"` field to package.json for proper CDN resolution.
+
+- Updated dependencies [3397dee]
+  - eficy@1.2.1
+  - @eficy/plugin-unocss@1.2.1
+
 ## 1.2.0
 
 ### Minor Changes

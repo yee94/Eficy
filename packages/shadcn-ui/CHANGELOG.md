@@ -1,5 +1,11 @@
 # @eficy/shadcn-ui
 
+## 1.1.1
+
+### Patch Changes
+
+- 3397dee: fix umd bundle
+
 ## 1.1.0
 
 ### Minor Changes

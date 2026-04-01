@@ -1,5 +1,11 @@
 # @eficy/reactive
 
+## 1.2.1
+
+### Patch Changes
+
+- 3397dee: fix umd bundle
+
 ## 1.2.0
 
 ### Minor Changes

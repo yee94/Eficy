@@ -1,6 +1,6 @@
 {
   "name": "@eficy/browser",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "description": "Use eficy in browser without compilation",
   "keywords": [
@@ -23,7 +23,10 @@
     "url": "git+https://github.com/yee94/Eficy.git",
     "directory": "packages/browser"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",
