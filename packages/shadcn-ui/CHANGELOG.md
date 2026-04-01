@@ -25,7 +25,7 @@
 
 - 5d703e7: update
 
-## 1.1.0-beta.2
+## 1.1.0
 
 ### Patch Changes
 

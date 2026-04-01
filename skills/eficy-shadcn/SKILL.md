@@ -57,8 +57,8 @@ metadata:
 
 ## 版本锁定（必须使用）
 
-- @eficy/browser: **1.2.0-beta.7**
-- @eficy/shadcn-ui: **1.1.0-beta.2**
+- @eficy/browser: **1.2.0**
+- @eficy/shadcn-ui: **1.1.0**
 
 ---
 
@@ -294,7 +294,7 @@ effect(() => {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eficy App</title>
-    <link rel="stylesheet" href="https://unpkg.com/@eficy/shadcn-ui@1.1.0-beta.2/dist/index.css" />
+    <link rel="stylesheet" href="https://unpkg.com/@eficy/shadcn-ui@1.1.0/dist/index.css" />
   </head>
   <body>
     <div id="app"></div>
@@ -303,9 +303,9 @@ effect(() => {
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
     <script type="importmap">
-      { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.0-beta.2/dist/index.js" } }
+      { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.0/dist/index.js" } }
     </script>
-    <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.7/dist/standalone.mjs"></script>
+    <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0/dist/standalone.mjs"></script>
 
     <script type="text/eficy">
       import { initEficy, render, signal, computed, effect, component, bind, peek, batch } from 'eficy';
@@ -398,7 +398,7 @@ const { Plus, Trash2, Edit, Save, Search, Settings, Users, ChevronDown } = shadc
 - [ ] 使用 `computed()` 创建衍生值，无 `useMemo`
 - [ ] 使用 `effect()` 处理副作用，无 `useEffect`
 - [ ] 自定义组件用 `component()` 包裹
-- [ ] 版本号正确（browser@1.2.0-beta.7, shadcn-ui@1.1.0-beta.2）
+- [ ] 版本号正确（browser@1.2.0, shadcn-ui@1.1.0）
 - [ ] 数组/对象使用不可变更新
 - [ ] 表单使用 `bind()` 简化双向绑定
 - [ ] 图标从 `shadcnUi.Lucide` 解构

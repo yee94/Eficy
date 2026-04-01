@@ -263,8 +263,8 @@ effect(() => {
 ## 7. 标准代码模板
 
 **版本锁定（必须使用以下版本）**:
-- @eficy/browser: **1.2.0-beta.7**
-- @eficy/shadcn-ui: **1.1.0-beta.2**
+- @eficy/browser: **1.2.0**
+- @eficy/shadcn-ui: **1.1.0**
 
 ```html
 <!DOCTYPE html>
@@ -273,7 +273,7 @@ effect(() => {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eficy App</title>
-  <link rel="stylesheet" href="https://unpkg.com/@eficy/shadcn-ui@1.1.0-beta.2/dist/index.css" />
+  <link rel="stylesheet" href="https://unpkg.com/@eficy/shadcn-ui@1.1.0/dist/index.css" />
 </head>
 <body>
   <div id="app"></div>
@@ -282,9 +282,9 @@ effect(() => {
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
   <script type="importmap">
-    { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.0-beta.2/dist/index.js" } }
+    { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.0/dist/index.js" } }
   </script>
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0-beta.7/dist/standalone.mjs"></script>
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.0/dist/standalone.mjs"></script>
 
   <script type="text/eficy">
     import { initEficy, render, signal, computed, effect, observer, component, bind, peek, batch } from 'eficy';

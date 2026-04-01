@@ -40,7 +40,7 @@
   - @eficy/plugin-unocss@1.2.0-beta.4
   - eficy@1.2.0-beta.4
 
-## 1.2.0-beta.7
+## 1.2.0
 
 ### Patch Changes
 
