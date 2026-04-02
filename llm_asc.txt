@@ -330,7 +330,7 @@ const userData = asyncSignal(async () => {
 
 ## 6. 标准代码模板 (ASC Environment)
 
-请始终基于以下结构生成代码，注意 **CDN 版本必须使用 1.2.1**：
+请始终基于以下结构生成代码，注意 **CDN 版本必须使用 1.2.3**：
 
 ```html
 <!DOCTYPE html>
@@ -352,8 +352,8 @@ const userData = asyncSignal(async () => {
   <script type="module" src="https://g.alicdn.com/code/npm/@alife/lazada-asc-theme-antd/3.0.7/antd/LAZADA.mjs"></script>
   <script src="https://unpkg.com/@ant-design/icons@6.0.0/dist/index.umd.min.js"></script>
 
-  <!-- 注意：使用 1.2.1 版本以获得完整 Signal API 支持 -->
-  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.1/dist/standalone.js"></script>
+  <!-- 注意：使用 1.2.3 版本以获得完整 Signal API 支持 -->
+  <script type="module" src="https://unpkg.com/@eficy/browser@1.2.3/dist/standalone.js"></script>
 
   <script type="importmap">
     {
