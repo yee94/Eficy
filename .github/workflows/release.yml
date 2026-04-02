@@ -92,9 +92,9 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/actions/setup
-
-      - name: Download Artifacts
-        uses: ./.github/actions/download-artifacts
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clean workspace
         run: |
@@ -105,6 +105,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         shell: bash
+
+      - name: Download Artifacts
+        uses: ./.github/actions/download-artifacts
+        with:
+          download-deps: 'false'
+          install-deps: 'false'
 
       # Upgrade npm to support Trusted Publishing (requires npm >= 11.5.1)
       - name: Upgrade npm for Trusted Publishing

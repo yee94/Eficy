@@ -1,5 +1,14 @@
 # @eficy/browser
 
+## 1.2.2
+
+### Patch Changes
+
+- update
+- Updated dependencies
+  - eficy@1.2.2
+  - @eficy/plugin-unocss@1.2.2
+
 ## 1.2.1
 
 ### Patch Changes

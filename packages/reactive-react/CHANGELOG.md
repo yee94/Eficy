@@ -1,5 +1,13 @@
 # @eficy/reactive-react
 
+## 1.2.2
+
+### Patch Changes
+
+- update
+- Updated dependencies
+  - @eficy/reactive@1.2.2
+
 ## 1.2.1
 
 ### Patch Changes
