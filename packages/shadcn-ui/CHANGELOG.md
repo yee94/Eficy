@@ -1,5 +1,11 @@
 # @eficy/shadcn-ui
 
+## 1.1.3
+
+### Patch Changes
+
+- fix npm
+
 ## 1.1.2
 
 ### Patch Changes

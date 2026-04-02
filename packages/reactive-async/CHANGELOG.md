@@ -1,5 +1,13 @@
 # @eficy/reactive-async
 
+## 1.2.3
+
+### Patch Changes
+
+- fix npm
+- Updated dependencies
+  - @eficy/reactive@1.2.3
+
 ## 1.2.2
 
 ### Patch Changes

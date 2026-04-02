@@ -1,5 +1,14 @@
 # @eficy/core-jsx
 
+## 1.1.3
+
+### Patch Changes
+
+- fix npm
+- Updated dependencies
+  - @eficy/reactive@1.2.3
+  - @eficy/reactive-react@1.2.3
+
 ## 1.1.2
 
 ### Patch Changes

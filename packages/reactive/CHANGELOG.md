@@ -1,5 +1,11 @@
 # @eficy/reactive
 
+## 1.2.3
+
+### Patch Changes
+
+- fix npm
+
 ## 1.2.2
 
 ### Patch Changes
