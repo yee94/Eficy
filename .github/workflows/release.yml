@@ -92,9 +92,6 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/actions/setup
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clean workspace
         run: |
