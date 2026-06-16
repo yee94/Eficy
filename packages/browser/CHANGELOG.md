@@ -1,5 +1,11 @@
 # @eficy/browser
 
+## 1.2.4
+
+### Patch Changes
+
+- 7d0c90b: 新增 `loadModule(url)` API，支持浏览器端动态加载含 JSX 的子模块文件。通过 fetch → Sucrase 编译 → Blob import 实现无需构建步骤的模块懒加载。
+
 ## 1.2.3
 
 ### Patch Changes
