@@ -2,6 +2,18 @@
 
 本文档记录了 Eficy 项目的所有重要变更。
 
+## [1.2.4] - 2026-06-16
+
+### 新增
+- `@eficy/browser`: 新增 `loadModule(url)` API，支持浏览器端动态加载含 JSX 的子模块文件（fetch → Sucrase 编译 → Blob import）
+
+### 变更
+- 更新 Skill 文档（eficy-shadcn）：添加 loadModule 使用说明，版本号同步至 1.2.4
+- 更新 LLM 提示词文件（llm_shadcn.txt、llm_asc.txt）：版本号同步至 1.2.4
+
+### 修复
+- 修复 Skill 示例文件中版本号不一致问题（basic.html/product-form.html/user-management.html 统一至 1.2.4）
+
 ## [未发布]
 
 ### 新增

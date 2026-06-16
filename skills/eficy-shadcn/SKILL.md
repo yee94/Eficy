@@ -57,7 +57,7 @@ metadata:
 
 ## 版本锁定（必须使用）
 
-- @eficy/browser: **1.2.3**
+- @eficy/browser: **1.2.4**
 - @eficy/shadcn-ui: **1.1.3**
 
 ---
@@ -279,9 +279,37 @@ effect(() => {
 <div>
   {loading.value && <div>加载中...</div>}
   {error.value && <div>错误: {error.value}</div>}
-  {data.value && <div>{JSON.stringify(data.value)}</div>}
-</div>;
+{data.value && <div>{JSON.stringify(data.value)}</div>}
+  </div>;
+  ```
+
+### 动态模块加载
+
+使用 `loadModule(url)` 动态加载含 JSX 的子模块文件（.eficy.js），支持按需懒加载。
+
+```tsx
+// 主入口中懒加载子模块
+const loaded = signal(false);
+const SummaryModule = signal(null);
+
+async function loadSummary() {
+  const mod = await loadModule('./modules/summary.eficy.js');
+  SummaryModule.value = mod;
+  loaded.value = true;
+}
+
+loadSummary();
+
+// 在 JSX 中条件渲染
+<div>
+  {loaded.value && SummaryModule.value && <SummaryModule.value.SummaryPage />}
+</div>
 ```
+
+**注意事项**：
+- 子模块中的 `import { signal } from 'eficy'` 通过 Import Map 解析为同一实例
+- loadModule 通过 fetch → Sucrase 编译 → Blob import 加载，无需构建步骤
+- 子模块需要导出组件供主入口使用
 
 ---
 
@@ -305,10 +333,10 @@ effect(() => {
     <script type="importmap">
       { "imports": { "shadcn": "https://unpkg.com/@eficy/shadcn-ui@1.1.3/dist/index.js" } }
     </script>
-    <script type="module" src="https://unpkg.com/@eficy/browser@1.2.3/dist/standalone.js"></script>
+    <script type="module" src="https://unpkg.com/@eficy/browser@1.2.4/dist/standalone.js"></script>
 
     <script type="text/eficy">
-      import { initEficy, render, signal, computed, effect, component, bind, peek, batch } from 'eficy';
+import { initEficy, render, signal, computed, effect, component, bind, peek, batch, loadModule } from 'eficy';
       import * as shadcnUi from 'shadcn';
 
       // 1. 初始化
@@ -398,10 +426,11 @@ const { Plus, Trash2, Edit, Save, Search, Settings, Users, ChevronDown } = shadc
 - [ ] 使用 `computed()` 创建衍生值，无 `useMemo`
 - [ ] 使用 `effect()` 处理副作用，无 `useEffect`
 - [ ] 自定义组件用 `component()` 包裹
-- [ ] 版本号正确（browser@1.2.3, shadcn-ui@1.1.3）
+- [ ] 版本号正确（browser@1.2.4, shadcn-ui@1.1.3）
 - [ ] 数组/对象使用不可变更新
 - [ ] 表单使用 `bind()` 简化双向绑定
 - [ ] 图标从 `shadcnUi.Lucide` 解构
+- [ ] 使用 `loadModule()` 动态加载子模块时确保通过 Import Map 解析依赖
 
 ### 关键改进点
 

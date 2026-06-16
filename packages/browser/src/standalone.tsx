@@ -84,6 +84,30 @@ export async function loadCode(code: string): Promise<any> {
   }
 }
 
+/**
+ * 动态加载含 JSX 的子模块（.eficy.mjs）
+ * fetch 获取源码 → Sucrase 编译 JSX → Blob import
+ * 子模块中的 `import { signal } from 'eficy'` 通过 Import Map 解析为同一实例
+ */
+export async function loadModule(url: string): Promise<Record<string, any>> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`[eficy] loadModule failed: ${url} returned ${response.status}`);
+  }
+  const code = await response.text();
+  const { compiledCode, css } = await compileJSXWithCSS(code);
+  pendingCSS += css;
+
+  const blob = new Blob([compiledCode], { type: 'application/javascript' });
+  const blobUrl = URL.createObjectURL(blob);
+
+  try {
+    return await import(blobUrl);
+  } finally {
+    URL.revokeObjectURL(blobUrl);
+  }
+}
+
 export async function render(Component: ComponentType<any> | ReactNode, container: HTMLElement): Promise<void> {
   if (pendingCSS) {
     injectCSS(pendingCSS);
