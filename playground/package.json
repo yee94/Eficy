@@ -16,7 +16,7 @@
     "@eficy/reactive-react": "workspace:*",
     "eficy": "workspace:*",
     "ahooks": "^3.7.11",
-    "antd": "^5.0.0",
+    "antd": "^5.26.7",
     "lodash": "^4.17.21",
     "nanoid": "^4.0.2",
     "react": "^18.2.0",
