@@ -110,8 +110,9 @@ jobs:
           install-deps: 'false'
 
       # Upgrade npm to support Trusted Publishing (requires npm >= 11.5.1)
+      # npm 12 breaks Changesets 2.29.5 info JSON parsing and pnpm 9 publish flags.
       - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.21.1
 
       - name: Create Release Pull Request or Publish
         id: changesets

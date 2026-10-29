@@ -89,8 +89,9 @@ jobs:
         shell: bash
 
       # Upgrade npm to support Trusted Publishing (requires npm >= 11.5.1)
+      # npm 12 breaks Changesets 2.29.5 info JSON parsing and pnpm 9 publish flags.
       - name: Upgrade npm for Trusted Publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.21.1
 
       - name: Determine prerelease tag
         id: prerelease-tag
