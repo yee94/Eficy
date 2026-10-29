@@ -1,0 +1,25 @@
+{
+  "name": "@eficy/charts",
+  "version": "0.1.0",
+  "description": "Single-file browser Recharts bundle for the Eficy host React runtime",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./index.ts",
+  "unpkg": "./dist/index.js",
+  "exports": {
+    ".": { "types": "./index.ts", "import": "./dist/index.js" },
+    "./dist/index.js": { "types": "./index.ts", "import": "./dist/index.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "index.ts", "README.md"],
+  "scripts": {
+    "build": "rslib build",
+    "dev": "rslib build --watch",
+    "test": "pnpm --filter @eficy/shadcn-ui build && pnpm run build && vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit --project tsconfig.json"
+  },
+  "dependencies": { "recharts": "2.15.4" },
+  "peerDependencies": { "react": "^18.3.1", "react-dom": "^18.3.1" }
+}

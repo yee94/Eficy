@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "noEmit": true
+  },
+  "include": ["index.ts", "test/types.tsx"]
+}

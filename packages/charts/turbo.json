@@ -1,0 +1,11 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/packages/shadcn-ui/mocks/**"]
+    },
+    "test": {
+      "cache": false
+    }
+  }
+}
