@@ -1,4 +1,4 @@
-var modules = window['ReactDOM'];
+const modules = (window as unknown as Record<string, Record<string, unknown>>)['ReactDOM'];
 
 export const __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED =
   modules['__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED'];

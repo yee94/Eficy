@@ -5,9 +5,22 @@ export default defineConfig({
     {
       resolve: {
         alias: {
+          'react/jsx-runtime': './mocks/jsx-runtime.ts',
+          'react/jsx-dev-runtime': './mocks/jsx-runtime.ts',
           react: './mocks/react.ts',
           'react-dom': './mocks/react-dom.ts',
           '@': './src',
+        },
+      },
+      tools: {
+        swc: {
+          jsc: {
+            transform: {
+              react: {
+                runtime: 'automatic',
+              },
+            },
+          },
         },
       },
       source: {

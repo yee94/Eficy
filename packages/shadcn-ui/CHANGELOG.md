@@ -1,5 +1,16 @@
 # @eficy/shadcn-ui
 
+## 1.2.0
+
+### Minor Changes
+
+- Upgrade `@eficy/shadcn-ui` to latest shadcn/ui v4 (`radix-vega` style):
+
+  - Migrate to unified `radix-ui`, `cn`, `shadcn/tailwind.css`, Tailwind CSS v4.3, `react-resizable-panels` v4, `react-day-picker` v10, and updated `lucide-react` / `sonner` / `cmdk` / `vaul`
+  - Sync all 46 existing UI components to `radix-vega` styling (`ring-1 ring-foreground/10`, layered shadows, `backdrop-blur-xs` overlays, active press feedback) while preserving backward-compatible exports and `ResizablePanelGroup` `direction` prop
+  - Add and export 8 new components: `button-group`, `empty`, `field`, `input-group`, `item`, `kbd`, `native-select`, `spinner`
+  - Configure automatic JSX runtime bridged to `window.React` with static children unpacking in `jsxs`
+
 ## 1.1.3
 
 ### Patch Changes
