@@ -31,7 +31,7 @@ Keep shadcn's existing public bundle unchanged. Replace the adapter's external
 Recharts import with this package, retaining its overrides:
 
 ```js
-export * from 'https://cdn.jsdelivr.net/npm/@eficy/shadcn-ui@1.1.3/dist/index.js';
+export * from 'https://cdn.jsdelivr.net/npm/@eficy/shadcn-ui@1.2.0/dist/index.js';
 import { Recharts } from '<charts-module-url>';
 export { Recharts };
 export const ChartTooltip = Recharts.Tooltip;
